@@ -2847,7 +2847,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 params.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_COMPATIBLE_WINDOW;
             }
 
-            params.setTitle("Splash Screen " + packageName);
+            params.setTitle(packageName + "/SplashScreen");
             addSplashscreenContent(win, context);
 
             wm = (WindowManager) context.getSystemService(WINDOW_SERVICE);

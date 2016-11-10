@@ -1774,7 +1774,7 @@ public class AppTransition implements Dump {
                     a, animAttr, appTransitionToString(transit), enter,
                     Debug.getCallers(3));
         }
-        return a;
+        return null;
     }
 
     private Animation loadKeyguardExitAnimation(int transit) {

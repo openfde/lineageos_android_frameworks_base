@@ -119,7 +119,7 @@ class TaskSnapshotSurface implements StartingSurface {
 
     private static final String TAG = TAG_WITH_CLASS_NAME ? "SnapshotStartingWindow" : TAG_WM;
     private static final int MSG_REPORT_DRAW = 0;
-    private static final String TITLE_FORMAT = "SnapshotStartingWindow for taskId=%s";
+    private static final String TITLE_FORMAT = "/SnapshotStartingWindow";
 
     //tmp vars for unused relayout params
     private static final Point sTmpSurfaceSize = new Point();
@@ -235,7 +235,7 @@ class TaskSnapshotSurface implements StartingSurface {
             layoutParams.setFitInsetsSides(attrs.getFitInsetsSides());
             layoutParams.setFitInsetsIgnoringVisibility(attrs.isFitInsetsIgnoringVisibility());
 
-            layoutParams.setTitle(String.format(TITLE_FORMAT, task.mTaskId));
+            layoutParams.setTitle(mainWindow.getAttrs().packageName + TITLE_FORMAT);
 
             final TaskDescription td = task.getTaskDescription();
             if (td != null) {
