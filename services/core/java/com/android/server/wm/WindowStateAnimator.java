@@ -514,7 +514,13 @@ class WindowStateAnimator {
                 flags |= SurfaceControl.OPAQUE;
             }
 
-            mSurfaceController = new WindowSurfaceController(attrs.getTitle().toString(), width,
+            String name = attrs.getTitle().toString();
+            Task task = mWin.getTask();
+            if (task != null) {
+                name = String.format("TID:%d#", task.mTaskId) + name;
+            }
+
+            mSurfaceController = new WindowSurfaceController(name, width,
                     height, format, flags, this, windowType, ownerUid);
             mSurfaceController.setColorSpaceAgnostic((attrs.privateFlags
                     & WindowManager.LayoutParams.PRIVATE_FLAG_COLOR_SPACE_AGNOSTIC) != 0);
