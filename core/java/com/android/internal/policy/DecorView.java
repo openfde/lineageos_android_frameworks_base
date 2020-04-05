@@ -48,6 +48,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.annotation.Nullable;
 import android.annotation.TestApi;
+import android.app.Activity;
 import android.app.WindowConfiguration;
 import android.compat.annotation.UnsupportedAppUsage;
 import android.content.Context;
@@ -68,6 +69,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -398,6 +400,25 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         if (!mWindow.isDestroyed()) {
+            // region @waydroid
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown) {
+                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                final int windowingMode =
+                        getResources().getConfiguration().windowConfiguration.getWindowingMode();
+                try {
+                    if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
+                        callback.toggleFreeformWindowingMode();
+                        updateDecorCaptionShade();
+                    } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
+                        callback.toggleFreeformWindowingMode();
+                        updateDecorCaptionShade();
+                    }
+                    return true;
+                } catch (RemoteException ex) {
+                    Log.e(TAG, "Catch exception when process F11", ex);
+                }
+            }
+            // endregion
             final Window.Callback cb = mWindow.getCallback();
             final boolean handled = cb != null && mFeatureId < 0 ? cb.dispatchKeyEvent(event)
                     : super.dispatchKeyEvent(event);
