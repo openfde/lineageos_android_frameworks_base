@@ -1016,6 +1016,13 @@ public class Activity extends ContextThemeWrapper
             return false;
         }
 
+        // region @boringdroid
+        // @Override
+        public void onBackPressed() {
+            Activity.this.onBackPressed();
+        }
+        // endregion
+
     };
 
     private static native String getDlWarning();
