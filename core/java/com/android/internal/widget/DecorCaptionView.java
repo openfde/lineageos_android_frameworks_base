@@ -150,7 +150,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         // region @boringdroid
         mBack = findViewById(R.id.back_window);
         // endregion
+        // region @bliss
         mPip = findViewById(R.id.pip_window);
+        if (mPip != null && !supportPip()) {
+            mPip.setVisibility(View.GONE);
+        }
+        // endregion
         mMinimize = findViewById(R.id.minimize_window);
         mMaximize = findViewById(R.id.maximize_window);
         mClose = findViewById(R.id.close_window);
@@ -373,6 +378,14 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             }
         }
     }
+    // region @bliss
+    private boolean supportPip() {
+        Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
+        if (callback != null) {
+            return callback.supportPictureInPictureMode();
+        }
+        return false;
+    }
 
     private void minimizeWindow() {
         Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
@@ -387,6 +400,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 			callback.enterPictureInPictureModeIfPossible(); /* Send the task to PIP mode if the task supports it. */
 		}
     }
+    // endregion
 
     public boolean isCaptionShowing() {
         return mShow;
