@@ -1768,13 +1768,14 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids,
   __android_log_close();
   AStatsSocket_close();
 
-  const char* se_info_ptr = se_info.has_value() ? se_info.value().c_str() : nullptr;
+  // Disabled for Waydroid
+  /*const char* se_info_ptr = se_info.has_value() ? se_info.value().c_str() : nullptr;
   const char* nice_name_ptr = nice_name.has_value() ? nice_name.value().c_str() : nullptr;
 
   if (selinux_android_setcontext(uid, is_system_server, se_info_ptr, nice_name_ptr) == -1) {
     fail_fn(CREATE_ERROR("selinux_android_setcontext(%d, %d, \"%s\", \"%s\") failed",
                          uid, is_system_server, se_info_ptr, nice_name_ptr));
-  }
+  }*/
 
   // Make it easier to debug audit logs by setting the main thread's name to the
   // nice name rather than "app_process".
@@ -1794,10 +1795,11 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids,
     }
 
     // TODO(oth): Remove hardcoded label here (b/117874058).
-    static const char* kSystemServerLabel = "u:r:system_server:s0";
+    // Disabled for Waydroid
+    /*static const char* kSystemServerLabel = "u:r:system_server:s0";
     if (selinux_android_setcon(kSystemServerLabel) != 0) {
       fail_fn(CREATE_ERROR("selinux_android_setcon(%s)", kSystemServerLabel));
-    }
+    }*/
   }
 
   if (is_child_zygote) {
@@ -2284,7 +2286,8 @@ static void com_android_internal_os_Zygote_nativeInitNativeState(JNIEnv* env, jc
   // the value before zygote forks.
   gIsSecurityEnforced = security_getenforce();
 
-  selinux_android_seapp_context_init();
+  // Disabled for Waydroid
+  /*selinux_android_seapp_context_init();*/
 
   /*
    * Storage Initialization

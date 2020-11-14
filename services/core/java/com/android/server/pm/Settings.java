@@ -2700,18 +2700,18 @@ public final class Settings {
     void writePackageListLPr(int creatingUserId) {
         String filename = mPackageListFilename.getAbsolutePath();
         String ctx = SELinux.fileSelabelLookup(filename);
-        if (ctx == null) {
+        if (SELinux.isSELinuxEnabled() && ctx == null) {
             Slog.wtf(TAG, "Failed to get SELinux context for " +
                 mPackageListFilename.getAbsolutePath());
         }
 
-        if (!SELinux.setFSCreateContext(ctx)) {
+        if (SELinux.isSELinuxEnabled() && !SELinux.setFSCreateContext(ctx)) {
             Slog.wtf(TAG, "Failed to set packages.list SELinux context");
         }
         try {
             writePackageListLPrInternal(creatingUserId);
         } finally {
-            SELinux.setFSCreateContext(null);
+            if (SELinux.isSELinuxEnabled()) SELinux.setFSCreateContext(null);
         }
     }
 
