@@ -454,8 +454,9 @@ sp<ISuspendControlService> getSuspendControl() {
 void enableAutoSuspend() {
     static bool enabled = false;
     if (!enabled) {
-        sp<ISuspendControlService> suspendControl = getSuspendControl();
-        suspendControl->enableAutosuspend(&enabled);
+        // Disabled for Waydroid
+        /*sp<ISuspendControlService> suspendControl = getSuspendControl();
+        suspendControl->enableAutosuspend(&enabled);*/
     }
 
     {
@@ -470,9 +471,10 @@ void enableAutoSuspend() {
 void disableAutoSuspend() {
     std::lock_guard<std::mutex> lock(gSuspendMutex);
     if (!gSuspendBlocker) {
-        sp<ISystemSuspend> suspendHal = getSuspendHal();
+        // Disabled for Waydroid
+        /*sp<ISystemSuspend> suspendHal = getSuspendHal();
         gSuspendBlocker = suspendHal->acquireWakeLock(WakeLockType::PARTIAL,
-                "PowerManager.SuspendLockout");
+                "PowerManager.SuspendLockout");*/
     }
 }
 
