@@ -374,7 +374,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         boolean forceResizable = Settings.Global.getInt(context.getContentResolver(),
                 DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, 0) != 0;
         // region @boringdroidd
-        forceResizable |= SystemProperties.getBoolean("persist.sys.systemuiplugin.enabled", false);
+        forceResizable |= SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
         // endregion
         mSupportsPictureInPicture = forceResizable || context.getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_PICTURE_IN_PICTURE);

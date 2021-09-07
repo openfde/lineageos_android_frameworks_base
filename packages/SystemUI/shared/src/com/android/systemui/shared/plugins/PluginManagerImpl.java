@@ -96,7 +96,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
         // region @boringdroid
         // We enable the plugin manager despite of the debuggable flag.
         // isDebuggable = debuggable;
-        isDebuggable = SystemProperties.getBoolean("persist.sys.systemuiplugin.enabled", false);
+        isDebuggable = SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
         // endregion
         mWhitelistedPlugins.addAll(Arrays.asList(initializer.getWhitelistedPlugins(mContext)));
         mPluginPrefs = new PluginPrefs(mContext);

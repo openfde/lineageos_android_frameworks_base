@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class BoringdroidManager {
     public static boolean IS_SYSTEMUI_PLUGIN_ENABLED =
-            SystemProperties.getBoolean("persist.sys.systemuiplugin.enabled", false);
+            SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
 
     private static final String PACKAGE_WINDOWING_MODE_NAME = "package-windowing-mode";
     private static final String PACKAGE_WINDOWING_MODE_OVERLAY_NAME = "package-windowing-mode-overlay";
@@ -52,7 +52,7 @@ public class BoringdroidManager {
     }
 
     public static boolean isPCModeEnabled() {
-        return SystemProperties.getBoolean("persist.sys.pcmode.enabled", true);
+        return SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
     }
 
     private static boolean isInPCModeDisallowedList(String packageName) {
