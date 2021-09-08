@@ -990,7 +990,7 @@ public class SurfaceView extends View implements ViewRootImpl.SurfaceChangedCall
                     // When creating the surface view, we parent it to the bounds layer and then
                     // set the relative z order. When the parent surface changes, we have to
                     // make sure to update the relative z via ViewRootImpl.SurfaceChangedCallback.
-                    final String name = "SurfaceView - " + viewRoot.getTitle().toString();
+                    final String name = viewRoot.getSurfaceControl().toString();
 
                     mSurfaceControl = new SurfaceControl.Builder(mSurfaceSession)
                         .setName(name)
@@ -1003,7 +1003,7 @@ public class SurfaceView extends View implements ViewRootImpl.SurfaceChangedCall
                         .setCallsite("SurfaceView.updateSurface")
                         .build();
                     mBackgroundControl = new SurfaceControl.Builder(mSurfaceSession)
-                        .setName("Background for -" + name)
+                        .setName(name)
                         .setLocalOwnerView(this)
                         .setOpaque(true)
                         .setColorLayer()
