@@ -32,6 +32,10 @@ import static android.app.ActivityManager.PROCESS_STATE_TOP;
 import static android.app.ActivityManagerInternal.ALLOW_FULL_ONLY;
 import static android.app.ActivityManagerInternal.ALLOW_NON_FULL;
 import static android.app.AppOpsManager.OP_NONE;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
+import static android.app.WindowConfiguration.WINDOWING_MODE_PINNED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_SPLIT_SCREEN_PRIMARY;
+import static android.app.WindowConfiguration.WINDOWING_MODE_SPLIT_SCREEN_SECONDARY;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.ApplicationInfo.HIDDEN_API_ENFORCEMENT_DEFAULT;
 import static android.content.pm.PackageManager.GET_PROVIDERS;
@@ -155,6 +159,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.app.ActivityManager.StackInfo;
 import android.app.ActivityManagerInternal;
 import android.app.ActivityManagerProto;
+import android.app.ActivityOptions;
 import android.app.ActivityThread;
 import android.app.AppGlobals;
 import android.app.AppOpsManager;
@@ -3684,6 +3689,21 @@ public class ActivityManagerService extends IActivityManager.Stub
             String callingPackage, String callingFeatureId, Intent intent, String resolvedType,
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId) {
+        if (bOptions == null) {
+            ActivityOptions activityOptions = ActivityOptions.makeBasic();
+            activityOptions.setLaunchWindowingMode(WINDOWING_MODE_FREEFORM);
+            bOptions = activityOptions.toBundle();
+        } else {
+            ActivityOptions activityOptions = new ActivityOptions(bOptions);
+            int windowingMode = activityOptions.getLaunchWindowingMode();
+            if (windowingMode != WINDOWING_MODE_PINNED
+                    && windowingMode != WINDOWING_MODE_SPLIT_SCREEN_PRIMARY
+                    && windowingMode != WINDOWING_MODE_SPLIT_SCREEN_SECONDARY) {
+                activityOptions.setLaunchWindowingMode(WINDOWING_MODE_FREEFORM);
+            }
+            bOptions = activityOptions.toBundle();
+        }
+
         return mActivityTaskManager.startActivityAsUser(caller, callingPackage,
                     callingFeatureId, intent, resolvedType, resultTo, resultWho, requestCode,
                     startFlags, profilerInfo, bOptions, userId);

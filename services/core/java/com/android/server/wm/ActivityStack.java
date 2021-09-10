@@ -20,6 +20,7 @@ import static android.app.ActivityTaskManager.INVALID_TASK_ID;
 import static android.app.ITaskStackListener.FORCED_RESIZEABLE_REASON_SPLIT_SCREEN;
 import static android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD;
 import static android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 import static android.app.WindowConfiguration.WINDOWING_MODE_PINNED;
 import static android.app.WindowConfiguration.WINDOWING_MODE_SPLIT_SCREEN_PRIMARY;
@@ -776,6 +777,9 @@ class ActivityStack extends Task {
                 }
             }
 
+            if (mTmpRect2.isEmpty() && currentMode == WINDOWING_MODE_FREEFORM) {
+                resize(mTmpRect2, false /*preserveWindows*/, true /*deferResume*/);
+            }
             if (!Objects.equals(getRequestedOverrideBounds(), mTmpRect2)) {
                 resize(mTmpRect2, false /*preserveWindows*/, true /*deferResume*/);
             }

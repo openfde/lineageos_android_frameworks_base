@@ -31,6 +31,7 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.util.proto.ProtoInputStream;
 import android.util.proto.ProtoOutputStream;
 import android.util.proto.WireTypeMismatchException;
@@ -688,6 +689,12 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      * @hide
      */
     public boolean hasWindowDecorCaption() {
+        if (SystemProperties.getBoolean("persist.waydroid.multi_windows", false)) {
+            return (mWindowingMode == WINDOWING_MODE_FREEFORM
+                || mWindowingMode == WINDOWING_MODE_FULLSCREEN
+                || mWindowingMode == WINDOWING_MODE_UNDEFINED )
+                && getActivityType() != ACTIVITY_TYPE_HOME;
+        }
         return mActivityType == ACTIVITY_TYPE_STANDARD && (mWindowingMode == WINDOWING_MODE_FREEFORM
                 || mDisplayWindowingMode == WINDOWING_MODE_FREEFORM);
     }
