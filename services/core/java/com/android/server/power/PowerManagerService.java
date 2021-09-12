@@ -115,6 +115,7 @@ import com.android.server.power.batterysaver.BatterySaverStateMachine;
 import com.android.server.power.batterysaver.BatterySavingStats;
 
 import lineageos.providers.LineageSettings;
+import lineageos.waydroid.Hardware;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -268,6 +269,7 @@ public final class PowerManagerService extends SystemService
     private final Clock mClock;
     private final Injector mInjector;
 
+    private Hardware mWaydroidHardware = null;
     private LightsManager mLightsManager;
     private BatteryManagerInternal mBatteryManagerInternal;
     private DisplayManagerInternal mDisplayManagerInternal;
@@ -1039,6 +1041,9 @@ public final class PowerManagerService extends SystemService
                 org.lineageos.platform.internal.R.dimen
                         .config_keyboardBrightnessSettingDefaultFloat);
 
+        if (Hardware.getService() != null)
+            mWaydroidHardware = Hardware.getInstance(context);
+
         synchronized (mLock) {
             mWakeLockSuspendBlocker =
                     mInjector.createSuspendBlocker(this, "PowerManagerService.WakeLocks");
@@ -1728,9 +1733,9 @@ public final class PowerManagerService extends SystemService
                     + ", uid=" + uid);
         }
 
-        if (eventTime < mLastSleepTime || eventTime < mLastWakeTime || !mSystemReady) {
+        /*if (eventTime < mLastSleepTime || eventTime < mLastWakeTime || !mSystemReady) {
             return false;
-        }
+        }*/
 
         Trace.traceBegin(Trace.TRACE_TAG_POWER, "userActivity");
         try {
@@ -1812,10 +1817,10 @@ public final class PowerManagerService extends SystemService
             Slog.d(TAG, "wakeUpNoUpdateLocked: eventTime=" + eventTime + ", uid=" + reasonUid);
         }
 
-        if (eventTime < mLastSleepTime || getWakefulnessLocked() == WAKEFULNESS_AWAKE
+        /*if (eventTime < mLastSleepTime || getWakefulnessLocked() == WAKEFULNESS_AWAKE
                 || mForceSuspendActive || !mSystemReady) {
             return false;
-        }
+        }*/
 
         Trace.asyncTraceBegin(Trace.TRACE_TAG_POWER, TRACE_SCREEN_ON, 0);
 
@@ -2765,8 +2770,17 @@ public final class PowerManagerService extends SystemService
                 } else if (shouldNapAtBedTimeLocked()) {
                     changed = napNoUpdateLocked(time, Process.SYSTEM_UID);
                 } else {
-                    changed = goToSleepNoUpdateLocked(time,
-                            PowerManager.GO_TO_SLEEP_REASON_TIMEOUT, 0, Process.SYSTEM_UID);
+                    //changed = goToSleepNoUpdateLocked(time,
+                    //        PowerManager.GO_TO_SLEEP_REASON_TIMEOUT, 0, Process.SYSTEM_UID);
+                    final boolean suspend = SystemProperties.get("persist.waydroid.suspend", "false").equals("true");
+                    final boolean no_open_wins = SystemProperties.get("waydroid.open_windows", "-1").equals("0");
+                    if (mWaydroidHardware != null && suspend && no_open_wins && ((dirty & DIRTY_WAKE_LOCKS) == 0)) {
+                        wakeUpNoUpdateLocked(SystemClock.uptimeMillis(),
+                            PowerManager.WAKE_REASON_UNKNOWN,
+                            "android.server.power:DREAM_FINISHED", Process.SYSTEM_UID,
+                            mContext.getOpPackageName(), Process.SYSTEM_UID);
+                        mWaydroidHardware.suspend();
+                    }
                 }
             }
         }
