@@ -18,6 +18,7 @@ cc_library_shared {
         "-Wno-error=deprecated-declarations",
         "-Wunused",
         "-Wunreachable-code",
+        "-Wno-unused-function"
     ],
 
     cppflags: ["-Wno-conversion-null"],

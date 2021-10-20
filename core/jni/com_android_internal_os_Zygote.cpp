@@ -1644,8 +1644,9 @@ static void SpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray gids,
   // Isolated process / webview / app zygote should be gated by SELinux and file permission
   // so they can't even traverse CE / DE directories.
   if (mount_data_dirs) {
-    isolateAppData(env, pkg_data_info_list, whitelisted_data_info_list,
-            uid, process_name, managed_nice_name, fail_fn);
+    // Disabled in Waydroid
+    /*isolateAppData(env, pkg_data_info_list, whitelisted_data_info_list,
+            uid, process_name, managed_nice_name, fail_fn);*/
     isolateJitProfile(env, pkg_data_info_list, uid, process_name, managed_nice_name, fail_fn);
   }
   // MOUNT_EXTERNAL_INSTALLER, MOUNT_EXTERNAL_PASS_THROUGH, MOUNT_EXTERNAL_ANDROID_WRITABLE apps
