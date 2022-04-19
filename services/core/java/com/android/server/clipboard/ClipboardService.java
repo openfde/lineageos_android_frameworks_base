@@ -68,6 +68,8 @@ import java.io.RandomAccessFile;
 import java.util.HashSet;
 import java.util.List;
 
+import lineageos.waydroid.Clipboard;
+
 // The following class is Android Emulator specific. It is used to read and
 // write contents of the host system's clipboard.
 class HostClipboardMonitor implements Runnable {
@@ -172,6 +174,7 @@ public class ClipboardService extends SystemService {
     private final IBinder mPermissionOwner;
     private HostClipboardMonitor mHostClipboardMonitor = null;
     private Thread mHostMonitorThread = null;
+    private Clipboard mWaydroidClipboard = null;
 
     private final SparseArray<PerUserClipboard> mClipboards = new SparseArray<>();
 
@@ -210,6 +213,9 @@ public class ClipboardService extends SystemService {
             mHostMonitorThread = new Thread(mHostClipboardMonitor);
             mHostMonitorThread.start();
         }
+
+        if (Clipboard.getService() != null)
+            mWaydroidClipboard = Clipboard.getInstance(context);
     }
 
     @Override
@@ -362,6 +368,11 @@ public class ClipboardService extends SystemService {
                 }
                 checkDataOwnerLocked(clip, intendingUid);
                 setPrimaryClipInternal(clip, intendingUid);
+                if (mWaydroidClipboard != null) {
+                    ClipData.Item firstItem = clip.getItemAt(0);
+                    String text = firstItem.getText().toString();
+                    mWaydroidClipboard.sendClipboardData(text);
+                }
             }
         }
 
@@ -389,6 +400,14 @@ public class ClipboardService extends SystemService {
                     return null;
                 }
                 addActiveOwnerLocked(intendingUid, pkg);
+                if (mWaydroidClipboard != null) {
+                    String waydroidPaste = mWaydroidClipboard.getClipboardData();
+                    ClipData clip =
+                        new ClipData("host clipboard",
+                                     new String[]{"text/plain"},
+                                     new ClipData.Item(waydroidPaste));
+                    return clip;
+                }
                 return getClipboard(intendingUserId).primaryClip;
             }
         }
@@ -419,6 +438,10 @@ public class ClipboardService extends SystemService {
                         intendingUid, intendingUserId, false)
                         || isDeviceLocked(intendingUserId)) {
                     return false;
+                }
+                if (mWaydroidClipboard != null) {
+                    String waydroidPaste = mWaydroidClipboard.getClipboardData();
+                    return !waydroidPaste.isEmpty();
                 }
                 return getClipboard(intendingUserId).primaryClip != null;
             }
