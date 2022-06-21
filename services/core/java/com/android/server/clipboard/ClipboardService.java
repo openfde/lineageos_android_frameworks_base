@@ -214,8 +214,7 @@ public class ClipboardService extends SystemService {
             mHostMonitorThread.start();
         }
 
-        if (Clipboard.getService() != null)
-            mWaydroidClipboard = Clipboard.getInstance(context);
+        mWaydroidClipboard = Clipboard.getInstance(context);
     }
 
     @Override
@@ -400,7 +399,7 @@ public class ClipboardService extends SystemService {
                     return null;
                 }
                 addActiveOwnerLocked(intendingUid, pkg);
-                if (mWaydroidClipboard != null) {
+                if (mWaydroidClipboard != null && mWaydroidClipboard.getService() != null) {
                     String waydroidPaste = mWaydroidClipboard.getClipboardData();
                     ClipData clip =
                         new ClipData("host clipboard",
@@ -439,7 +438,7 @@ public class ClipboardService extends SystemService {
                         || isDeviceLocked(intendingUserId)) {
                     return false;
                 }
-                if (mWaydroidClipboard != null) {
+                if (mWaydroidClipboard != null && mWaydroidClipboard.getService() != null) {
                     String waydroidPaste = mWaydroidClipboard.getClipboardData();
                     return !waydroidPaste.isEmpty();
                 }
