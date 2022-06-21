@@ -1041,8 +1041,7 @@ public final class PowerManagerService extends SystemService
                 org.lineageos.platform.internal.R.dimen
                         .config_keyboardBrightnessSettingDefaultFloat);
 
-        if (Hardware.getService() != null)
-            mWaydroidHardware = Hardware.getInstance(context);
+        mWaydroidHardware = Hardware.getInstance(context);
 
         synchronized (mLock) {
             mWakeLockSuspendBlocker =
