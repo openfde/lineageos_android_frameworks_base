@@ -39,6 +39,7 @@ import android.graphics.Insets;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.util.ArraySet;
 import android.util.SparseIntArray;
 import android.view.WindowInsets.Type;
@@ -46,6 +47,7 @@ import android.view.WindowInsets.Type.InsetsType;
 import android.view.WindowManager.LayoutParams.SoftInputModeFlags;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.BoringdroidManager;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
@@ -193,7 +195,7 @@ public class InsetsState implements Parcelable {
         final Rect relativeFrameMax = new Rect(frame);
         for (int type = FIRST_TYPE; type <= LAST_TYPE; type++) {
             InsetsSource source = mSources[type];
-            if (source == null) {
+            if (source == null || shouldForceHide(type)) {
                 int index = indexOf(toPublicType(type));
                 if (typeInsetsMap[index] == null) {
                     typeInsetsMap[index] = Insets.NONE;
@@ -394,6 +396,12 @@ public class InsetsState implements Parcelable {
         return false;
     }
 
+    public static boolean shouldForceHide(@InternalInsetsType int type) {
+        return (type == ITYPE_CLIMATE_BAR ||
+                type == ITYPE_STATUS_BAR) &&
+            !"Waydroid".equals(SystemProperties.get("waydroid.active_apps"));
+    }
+
     /**
      * Returns the source visibility or the default visibility if the source doesn't exist. This is
      * useful if when treating this object as a request.
@@ -403,6 +411,8 @@ public class InsetsState implements Parcelable {
      *         doesn't exist.
      */
     public boolean getSourceOrDefaultVisibility(@InternalInsetsType int type) {
+        if (shouldForceHide(type))
+            return false;
         final InsetsSource source = mSources[type];
         return source != null ? source.isVisible() : getDefaultVisibility(type);
     }
@@ -526,6 +536,8 @@ public class InsetsState implements Parcelable {
     }
 
     public static boolean getDefaultVisibility(@InternalInsetsType int type) {
+        if (shouldForceHide(type))
+            return false;
         return type != ITYPE_IME;
     }
 
