@@ -75,11 +75,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.os.PatternMatcher;
 import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager.ServiceNotFoundException;
 import android.os.StrictMode;
+import android.os.SystemProperties;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.text.Selection;
@@ -951,6 +953,8 @@ public class Activity extends ContextThemeWrapper
 
     private boolean mIsInMultiWindowMode;
     private boolean mIsInPictureInPictureMode;
+
+    private boolean mFakeClickAsTouch;
 
     private final WindowControllerCallback mWindowControllerCallback =
             new WindowControllerCallback() {
@@ -4147,6 +4151,10 @@ public class Activity extends ContextThemeWrapper
      * @return boolean Return true if this event was consumed.
      */
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        int action = ev.getAction();
+        if (mFakeClickAsTouch && (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP)) {
+            ev.setSource(4098);
+        }
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             onUserInteraction();
         }
@@ -8010,6 +8018,17 @@ public class Activity extends ContextThemeWrapper
                 .getWindowingMode();
         mIsInMultiWindowMode = inMultiWindowMode(windowingMode);
         mIsInPictureInPictureMode = windowingMode == WINDOWING_MODE_PINNED;
+
+        String packageName = getPackageName();
+        mFakeClickAsTouch = Arrays.stream(SystemProperties.get("persist.waydroid.fake_touch").split(","))
+            .map(x -> x.replace(".", "\\."))
+            .map(x -> x.replace("*", ".*"))
+            .map(x -> new PatternMatcher(x, PatternMatcher.PATTERN_SIMPLE_GLOB))
+            .anyMatch(p -> p.match(packageName));
+
+        if (mFakeClickAsTouch)
+            Log.d(TAG, "Faking touch inputs for " + packageName);
+
         restoreHasCurrentPermissionRequest(icicle);
         if (persistentState != null) {
             onCreate(icicle, persistentState);
