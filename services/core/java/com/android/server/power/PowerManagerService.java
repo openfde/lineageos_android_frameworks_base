@@ -81,6 +81,7 @@ import android.service.dreams.DreamManagerInternal;
 import android.service.vr.IVrManager;
 import android.service.vr.IVrStateCallbacks;
 import android.sysprop.InitProperties;
+import android.system.Os;
 import android.telephony.TelephonyManager;
 import android.util.KeyValueListParser;
 import android.util.PrintWriterPrinter;
@@ -125,6 +126,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The power manager service is responsible for coordinating power management
@@ -270,6 +273,7 @@ public final class PowerManagerService extends SystemService
     private final Injector mInjector;
 
     private Hardware mWaydroidHardware = null;
+    private boolean mWaydroidSuspendDefault;
     private LightsManager mLightsManager;
     private BatteryManagerInternal mBatteryManagerInternal;
     private DisplayManagerInternal mDisplayManagerInternal;
@@ -1042,6 +1046,15 @@ public final class PowerManagerService extends SystemService
                         .config_keyboardBrightnessSettingDefaultFloat);
 
         mWaydroidHardware = Hardware.getInstance(context);
+        try {
+            Matcher kernel_ver = Pattern.compile("(\\d+)\\.(\\d+)").matcher(Os.uname().release);
+            kernel_ver.find();
+            int kernel_maj = Integer.parseInt(kernel_ver.group(1));
+            int kernel_min = Integer.parseInt(kernel_ver.group(2));
+            mWaydroidSuspendDefault = kernel_maj > 4 || (kernel_maj == 4 && kernel_min >= 9);
+        } catch (Exception e) {
+            mWaydroidSuspendDefault = false;
+        }
 
         synchronized (mLock) {
             mWakeLockSuspendBlocker =
@@ -2771,7 +2784,7 @@ public final class PowerManagerService extends SystemService
                 } else {
                     //changed = goToSleepNoUpdateLocked(time,
                     //        PowerManager.GO_TO_SLEEP_REASON_TIMEOUT, 0, Process.SYSTEM_UID);
-                    final boolean suspend = SystemProperties.get("persist.waydroid.suspend", "false").equals("true");
+                    final boolean suspend = SystemProperties.getBoolean("persist.waydroid.suspend", mWaydroidSuspendDefault);
                     final boolean no_open_wins = SystemProperties.get("waydroid.open_windows", "-1").equals("0");
                     if (mWaydroidHardware != null && suspend && no_open_wins && ((dirty & DIRTY_WAKE_LOCKS) == 0)) {
                         wakeUpNoUpdateLocked(SystemClock.uptimeMillis(),
