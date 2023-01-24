@@ -59,6 +59,7 @@ import android.os.Message;
 import android.os.MessageQueue;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.DeviceConfig;
 import android.provider.Settings;
@@ -417,6 +418,13 @@ public class InputManagerService extends IInputManager.Stub
 
         if (mWiredAccessoryCallbacks != null) {
             mWiredAccessoryCallbacks.systemReady();
+        }
+
+        String wl_keylayout = SystemProperties.get("waydroid.keyboard_layout");
+        if (wl_keylayout != "") {
+            addKeyboardLayoutForInputDevice(new InputDeviceIdentifier("vendor:1,product:1", 1, 1),
+                    "com.android.inputdevices/com.android.inputdevices.InputDeviceReceiver/keyboard_layout_" +
+                        wl_keylayout);
         }
     }
 
