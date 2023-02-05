@@ -350,7 +350,26 @@ static jlong android_server_AlarmManagerService_init(JNIEnv*, jobject)
     }
 
     for (size_t i = 0; i < fds.size(); i++) {
-        fds[i] = timerfd_create(android_alarm_to_clockid[i], TFD_NONBLOCK);
+        clockid_t id = android_alarm_to_clockid[i];
+
+        fds[i] = timerfd_create(id, TFD_NONBLOCK);
+        if (fds[i] < 0 && errno == EPERM) {
+            /*
+             * When capability wake_alarm is allowed,
+             * android inside container wakeup's host machine
+             * if host machine suspended with waydroid running.
+             * So in case no wake_alarm cap, we just ignore error,
+             * and create a non ALARM timer in order not to break the logic below
+             * plus android services
+             */
+            switch (id) {
+                case CLOCK_BOOTTIME_ALARM: id = CLOCK_BOOTTIME; break;
+                case CLOCK_REALTIME_ALARM: id = CLOCK_REALTIME; break;
+            }
+
+            fds[i] = timerfd_create(id, TFD_NONBLOCK);
+        }
+        
         if (fds[i] < 0) {
             log_timerfd_create_error(android_alarm_to_clockid[i]);
             close(epollfd);
