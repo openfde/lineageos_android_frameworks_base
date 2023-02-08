@@ -3553,7 +3553,7 @@ public class SettingsProvider extends ContentProvider {
         }
 
         private final class UpgradeController {
-            private static final int SETTINGS_VERSION = 191;
+            private static final int SETTINGS_VERSION = 192;
 
             private final int mUserId;
 
@@ -4920,6 +4920,16 @@ public class SettingsProvider extends ContentProvider {
                                 null, true, SettingsState.SYSTEM_PACKAGE_NAME);
                     }
                     currentVersion = 191;
+                }
+
+                if (currentVersion == 191) {
+                    final SettingsState secureSettings = getSecureSettingsLocked(userId);
+                    secureSettings.insertSettingOverrideableByRestoreLocked(
+                            Settings.Secure.SHOW_IME_WITH_HARD_KEYBOARD,
+                            getContext().getResources().getBoolean(
+                                    R.bool.def_show_ime_with_hard_keyboard) ? "1" : "0",
+                            null, true, SettingsState.SYSTEM_PACKAGE_NAME);
+                    currentVersion = 192;
                 }
 
                 // vXXX: Add new settings above this point.
