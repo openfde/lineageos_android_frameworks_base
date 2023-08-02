@@ -123,7 +123,8 @@ public class DisplayRotation {
      * @see #updateRotationUnchecked
      */
     @Surface.Rotation
-    private int mRotation;
+    private int mRotation = 0;
+
 
     @VisibleForTesting
     int mLandscapeRotation;  // default landscape
@@ -407,6 +408,10 @@ public class DisplayRotation {
      *         THE SCREEN.
      */
     boolean updateRotationUnchecked(boolean forceUpdate) {
+        //add
+        if (true) {
+            return true;
+        }//end
         final int displayId = mDisplayContent.getDisplayId();
         if (!forceUpdate) {
             if (mDeferredRotationPauseCount > 0) {

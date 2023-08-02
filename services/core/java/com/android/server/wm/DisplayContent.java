@@ -30,6 +30,7 @@ import static android.app.WindowConfiguration.WINDOWING_MODE_SPLIT_SCREEN_SECOND
 import static android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSET;
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER;
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
@@ -2396,6 +2397,9 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
     @ScreenOrientation
     @Override
     int getOrientation() {
+        if(true){
+            return SCREEN_ORIENTATION_LANDSCAPE;
+        }
         mLastOrientationSource = null;
 
         if (mIgnoreRotationForApps) {
