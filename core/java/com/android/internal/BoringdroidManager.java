@@ -52,7 +52,7 @@ public class BoringdroidManager {
     }
 
     public static boolean isPCModeEnabled() {
-        return SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
+        return true; //SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
     }
 
     private static boolean isInPCModeDisallowedList(String packageName) {
