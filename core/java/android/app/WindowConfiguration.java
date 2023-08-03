@@ -689,7 +689,7 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      * @hide
      */
     public boolean hasWindowDecorCaption() {
-        if (SystemProperties.getBoolean("persist.waydroid.multi_windows", false)) {
+        if (true /*SystemProperties.getBoolean("persist.waydroid.multi_windows", false)*/) {
             return (mWindowingMode == WINDOWING_MODE_FREEFORM
                 || mWindowingMode == WINDOWING_MODE_FULLSCREEN
                 || mWindowingMode == WINDOWING_MODE_UNDEFINED )
