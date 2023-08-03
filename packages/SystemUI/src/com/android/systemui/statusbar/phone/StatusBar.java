@@ -1164,6 +1164,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                         mNotificationPanelViewController.notifyBarPanelExpansionChanged();
                     }
                     mStatusBarView.setBouncerShowing(mBouncerShowing);
+                    mStatusBarView.setVisibility(View.GONE);
                     if (oldStatusBarView != null) {
                         float fraction = oldStatusBarView.getExpansionFraction();
                         boolean expanded = oldStatusBarView.isExpanded();
