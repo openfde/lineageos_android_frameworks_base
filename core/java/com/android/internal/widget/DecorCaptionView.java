@@ -29,6 +29,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
@@ -91,6 +92,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private View mMinimize;
     private View mMaximize;
     private View mClose;
+    private TextView mApplicationLable;
+    private Context mContext;
 
     // Fields for detecting drag events.
     private int mTouchDownX;
@@ -131,6 +134,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     }
 
     private void init(Context context) {
+        mContext = context;
         mDragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mGestureDetector = new GestureDetector(context, this);
         setContentDescription(context.getString(R.string.accessibility_freeform_caption,
@@ -167,6 +171,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mMinimize = findViewById(R.id.minimize_window);
         mMaximize = findViewById(R.id.maximize_window);
         mClose = findViewById(R.id.close_window);
+        mApplicationLable = findViewById(R.id.application_lable);
+        if(mContext != null){
+            mApplicationLable.setText(mContext.getPackageManager().getApplicationLabel(mContext.getApplicationInfo()));
+        }
     }
 
     @Override

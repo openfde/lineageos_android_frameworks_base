@@ -2279,6 +2279,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
+    public boolean isWindowMaximized(){
+        final WindowConfiguration winConfig = getResources().getConfiguration().windowConfiguration;
+        return winConfig.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
+    }
+
     private void setLightDecorCaptionShade(DecorCaptionView view) {
         // region @boringdroid
         view.findViewById(R.id.back_window).setBackgroundResource(
@@ -2289,8 +2294,15 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 R.drawable.decor_pip_button_light);
         view.findViewById(R.id.minimize_window).setBackgroundResource(
                 R.drawable.decor_minimize_button_light);
-        view.findViewById(R.id.maximize_window).setBackgroundResource(
-                R.drawable.decor_maximize_button_light);
+        // region @fde
+        if(isWindowMaximized()){
+            view.findViewById(R.id.maximize_window).setBackgroundResource(
+                    R.drawable.decor_unmaximize_button_light);
+        }else{
+            view.findViewById(R.id.maximize_window).setBackgroundResource(
+                    R.drawable.decor_maximize_button_light);
+        }
+        // endregion
         view.findViewById(R.id.close_window).setBackgroundResource(
                 R.drawable.decor_close_button_light);
     }
@@ -2305,8 +2317,15 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 R.drawable.decor_pip_button_dark);
 		view.findViewById(R.id.minimize_window).setBackgroundResource(
                 R.drawable.decor_minimize_button_dark);
-        view.findViewById(R.id.maximize_window).setBackgroundResource(
-                R.drawable.decor_maximize_button_dark);
+        // region @fde
+        if(isWindowMaximized()){
+            view.findViewById(R.id.maximize_window).setBackgroundResource(
+                    R.drawable.decor_unmaximize_button_dark);
+        }else{
+            view.findViewById(R.id.maximize_window).setBackgroundResource(
+                    R.drawable.decor_maximize_button_dark);
+        }
+        // endregion
         view.findViewById(R.id.close_window).setBackgroundResource(
                 R.drawable.decor_close_button_dark);
     }
