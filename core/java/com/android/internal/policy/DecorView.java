@@ -106,6 +106,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.android.internal.R;
 import com.android.internal.policy.PhoneWindow.PanelFeatureState;
@@ -1202,7 +1203,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             if (mHasCaption) {
                 final int captionColor = calculateStatusBarColor();
                 //mDecorCaptionView.getCaption().setBackgroundColor(captionColor);
-                mDecorCaptionView.getCaption().setBackgroundColor(Color.BLACK);
                 updateDecorCaptionShade();
             }
         }
@@ -2239,10 +2239,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     private void setDecorCaptionShade(DecorCaptionView view) {
-        if(true){
-            setLightDecorCaptionShade(view);
-            return;
-        }
         final int shade = mWindow.getDecorCaptionShade();
         switch (shade) {
             case DECOR_CAPTION_SHADE_LIGHT:
@@ -2305,6 +2301,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         // endregion
         view.findViewById(R.id.close_window).setBackgroundResource(
                 R.drawable.decor_close_button_light);
+        view.getCaption().setBackgroundColor(Color.BLACK);
+        ((TextView)view.findViewById(R.id.application_lable)).setTextColor(Color.WHITE);
     }
 
     private void setDarkDecorCaptionShade(DecorCaptionView view) {
@@ -2325,6 +2323,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             view.findViewById(R.id.maximize_window).setBackgroundResource(
                     R.drawable.decor_maximize_button_dark);
         }
+        view.getCaption().setBackgroundColor(Color.WHITE);
+        ((TextView)view.findViewById(R.id.application_lable)).setTextColor(Color.BLACK);
         // endregion
         view.findViewById(R.id.close_window).setBackgroundResource(
                 R.drawable.decor_close_button_dark);
