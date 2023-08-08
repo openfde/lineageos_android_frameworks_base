@@ -29,6 +29,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.Window;
+import android.os.Handler;
 import android.widget.TextView;
 
 import com.android.internal.R;
@@ -92,6 +93,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private View mMinimize;
     private View mMaximize;
     private View mClose;
+    private View mFullScreen;
     private TextView mApplicationLable;
     private Context mContext;
 
@@ -116,6 +118,31 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private View mBack;
     private final Rect mBackRect = new Rect();
     // endregion
+
+    // region @fde
+    private final Rect mFullScreenRect = new Rect();
+    
+    Handler mHandler = new Handler();
+    Runnable myRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(mOwner != null){
+                DecorView decorView = (DecorView)mOwner.getDecorView();
+                decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }
+    };
+    // endregion
+
     private IWaydroidWindow mWaydroidWindow;
 
     public DecorCaptionView(Context context) {
@@ -175,6 +202,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(mContext != null){
             mApplicationLable.setText(mContext.getPackageManager().getApplicationLabel(mContext.getApplicationInfo()));
         }
+        mFullScreen = findViewById(R.id.fullscreen_window);
     }
 
     @Override
@@ -201,6 +229,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             }
             if (mCloseRect.contains(x, y - mRootScrollY)) {
                 mClickTarget = mClose;
+            }
+            if (mFullScreenRect.contains(x, y - mRootScrollY)) {
+                mClickTarget = mFullScreen;
             }
         }
         return mClickTarget != null;
@@ -342,6 +373,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             mMinimize.getHitRect(mMinimizeRect);
             mMaximize.getHitRect(mMaximizeRect);
             mClose.getHitRect(mCloseRect);
+            mFullScreen.getHitRect(mFullScreenRect);
         } else {
             captionHeight = 0;
             // region @boringdroid
@@ -351,6 +383,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             mMinimizeRect.setEmpty();
             mMaximizeRect.setEmpty();
             mCloseRect.setEmpty();
+            mFullScreenRect.setEmpty();
         }
 
         if (mContent != null) {
@@ -433,6 +466,27 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             callback.exitTask();
         }
     }
+
+    private void startFullScreenWindow(){
+        if(mOwner != null){
+            DecorView decorView = (DecorView)mOwner.getDecorView();
+            if(!decorView.isWindowMaximized()){
+                toggleFreeformWindowingMode();
+                mHandler.postDelayed(myRunnable, 500);
+            }else{
+                decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }
+    }
     // endregion
 
     public boolean isCaptionShowing() {
@@ -506,6 +560,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             //mOwner.dispatchOnWindowDismissed(
             //        true /*finishTask*/, false /*suppressWindowTransition*/);
             exitTask();
+        }else if (mClickTarget == mFullScreen) {
+            startFullScreenWindow();
         }
         return true;
     }

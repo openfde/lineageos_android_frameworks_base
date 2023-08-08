@@ -2298,6 +2298,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             view.findViewById(R.id.maximize_window).setBackgroundResource(
                     R.drawable.decor_maximize_button_light);
         }
+        view.findViewById(R.id.fullscreen_window).setBackgroundResource(
+                    R.drawable.decor_fullscreen_button_light);
         // endregion
         view.findViewById(R.id.close_window).setBackgroundResource(
                 R.drawable.decor_close_button_light);
@@ -2323,6 +2325,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             view.findViewById(R.id.maximize_window).setBackgroundResource(
                     R.drawable.decor_maximize_button_dark);
         }
+        view.findViewById(R.id.fullscreen_window).setBackgroundResource(
+                    R.drawable.decor_fullscreen_button_dark);
         view.getCaption().setBackgroundColor(Color.WHITE);
         ((TextView)view.findViewById(R.id.application_lable)).setTextColor(Color.BLACK);
         // endregion
