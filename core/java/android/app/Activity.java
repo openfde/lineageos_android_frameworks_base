@@ -1038,6 +1038,13 @@ public class Activity extends ContextThemeWrapper
         }
         // endregion
 
+        // region @fde
+        @Override
+        public void exitTask() {
+            Activity.this.finishAndRemoveTask();
+        }
+        // endregion
+
     };
 
     private static native String getDlWarning();

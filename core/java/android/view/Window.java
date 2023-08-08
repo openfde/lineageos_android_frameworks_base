@@ -673,6 +673,10 @@ public abstract class Window {
         // region @boringdroid
         default void onBackPressed() {};
         // endregion
+
+        // region @fde
+        void exitTask();
+        // endregion
     }
 
     /**
