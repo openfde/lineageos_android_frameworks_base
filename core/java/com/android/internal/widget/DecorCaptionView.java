@@ -396,6 +396,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     }
     // region @bliss
     private boolean supportPip() {
+        if(true){
+            return false;
+        }
         Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
         if (callback != null) {
             return callback.supportPictureInPictureMode();
