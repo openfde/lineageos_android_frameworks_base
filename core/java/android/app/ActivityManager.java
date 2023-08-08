@@ -4553,6 +4553,16 @@ public class ActivityManager {
         return ActivityTaskManager.getService();
     }
 
+    @RequiresPermission(android.Manifest.permission.REORDER_TASKS)
+    public boolean moveTaskToBack(boolean nonRoot, int taskId) {
+        try {
+            return ActivityTaskManager.getService().moveActivityTaskToBackByid(taskId, nonRoot);
+        } catch (RemoteException e) {
+                // Empty
+        }
+        return false;
+    }
+
     @UnsupportedAppUsage
     private static final Singleton<IActivityManager> IActivityManagerSingleton =
             new Singleton<IActivityManager>() {

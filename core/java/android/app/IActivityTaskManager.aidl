@@ -178,6 +178,7 @@ interface IActivityTaskManager {
     void setImmersive(in IBinder token, boolean immersive);
     boolean isTopActivityImmersive();
     boolean moveActivityTaskToBack(in IBinder token, boolean nonRoot);
+    boolean moveActivityTaskToBackByid(int taskId, boolean nonRoot);
     ActivityManager.TaskDescription getTaskDescription(int taskId);
     void overridePendingTransition(in IBinder token, in String packageName,
             int enterAnim, int exitAnim);
