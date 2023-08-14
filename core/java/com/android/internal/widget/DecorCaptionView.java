@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.os.RemoteException;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Slog;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,6 +32,7 @@ import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.os.Handler;
 import android.widget.TextView;
+import android.content.SharedPreferences;
 
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
@@ -86,6 +88,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private boolean mDragging = false;
 
     private boolean mOverlayWithAppContent = false;
+
+    private boolean isTurnOnFullScreen = false;
+    private SharedPreferences mSharedPreferences = null;
 
     private View mCaption;
     private View mContent;
@@ -162,6 +167,13 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     private void init(Context context) {
         mContext = context;
+        if(mContext != null){
+            try{
+                mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+            }catch(Exception e){
+                Slog.w(TAG,"pengtg getSharedPreferences error: " + e);
+            }
+        }
         mDragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mGestureDetector = new GestureDetector(context, this);
         setContentDescription(context.getString(R.string.accessibility_freeform_caption,
@@ -203,6 +215,35 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             mApplicationLable.setText(mContext.getPackageManager().getApplicationLabel(mContext.getApplicationInfo()));
         }
         mFullScreen = findViewById(R.id.fullscreen_window);
+        if(mSharedPreferences != null){
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+            Slog.w(TAG,"pengtg setPhoneWindow isTurnOnFullScreen: " + isTurnOnFullScreen);
+            if(isTurnOnFullScreen){
+                startFullScreenWindow();
+            }
+        }
+    }
+
+    @Override
+    public boolean onInterceptHoverEvent(MotionEvent event) {
+        final int y = (int) event.getY();
+        if(mSharedPreferences != null){
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+            //Slog.w(TAG,"pengtg onInterceptHoverEvent start isTurnOnFullScreen: " + isTurnOnFullScreen);
+        }
+        if(isTurnOnFullScreen){
+            if(y < 12 && !mShow){
+                mShow = true;
+            }else if(y >= 52){
+                mShow = false;
+                startFullScreenWindow();
+            }
+            updateCaptionVisibility();
+        }else if(!mShow){
+            mShow = true;
+            updateCaptionVisibility();
+        }
+        return false;
     }
 
     @Override
@@ -318,7 +359,11 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
      * @param show True if the caption should be shown.
      */
     public void onConfigurationChanged(boolean show) {
+        if(mSharedPreferences != null){
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+        }
         mShow = show;
+        mShow &= !isTurnOnFullScreen;
         updateCaptionVisibility();
     }
 
@@ -467,15 +512,27 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         }
     }
 
+    private void exitFullScreenWindow(){
+        if(mOwner != null){
+            DecorView decorView = (DecorView)mOwner.getDecorView();
+            decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+    }
     private void startFullScreenWindow(){
         if(mOwner != null){
             DecorView decorView = (DecorView)mOwner.getDecorView();
             if(!decorView.isWindowMaximized()){
                 toggleFreeformWindowingMode();
+                if(mHandler.hasCallbacks(myRunnable)){
+                    mHandler.removeCallbacks(myRunnable);
+                }
                 mHandler.postDelayed(myRunnable, 500);
             }else{
                 decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
                         // Set the content to appear under the system bars so that the
                         // content doesn't resize when the system bars hide and show.
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -555,12 +612,30 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         } else if (mClickTarget == mPip) {
             pipWindow();
         } else if (mClickTarget == mMaximize) {
+            if(mSharedPreferences != null){
+                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+            }
+            if(isTurnOnFullScreen){
+                if(mSharedPreferences != null){
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putBoolean("mTurnOnFullScreen", false);
+                    editor.apply();
+                    Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                }
+            }
+            exitFullScreenWindow();
             toggleFreeformWindowingMode();
         } else if (mClickTarget == mClose) {
             //mOwner.dispatchOnWindowDismissed(
             //        true /*finishTask*/, false /*suppressWindowTransition*/);
             exitTask();
         }else if (mClickTarget == mFullScreen) {
+            if(mSharedPreferences != null){
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putBoolean("mTurnOnFullScreen", true);
+                editor.apply();
+                Slog.w(TAG,"pengtg mTurnOnFullScreen seted true ----------->>>>>>>>");
+            }
             startFullScreenWindow();
         }
         return true;

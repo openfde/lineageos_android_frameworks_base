@@ -107,6 +107,7 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.content.SharedPreferences;
 
 import com.android.internal.R;
 import com.android.internal.policy.PhoneWindow.PanelFeatureState;
@@ -299,6 +300,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     };
     // endregion
+
+    // region @fde
+    private SharedPreferences mSharedPreferences = null;
+    // endregion
+
     private PendingInsetsController mPendingInsetsController = new PendingInsetsController();
 
     DecorView(Context context, int featureId, PhoneWindow window,
@@ -332,6 +338,36 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         mLegacyNavigationBarBackgroundPaint.setColor(Color.BLACK);
         // region @boringdroid
         mWindowCornerRadius = context.getResources().getDimension(R.dimen.decor_corner_radius);
+        // endregion
+
+        // region @fde
+        try{
+            mSharedPreferences = context.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+        }catch(Exception e){
+            Slog.w(TAG,"pengtg getSharedPreferences error: " + e);
+        }
+        boolean isTurnOnFullScreen = false;
+        if(mSharedPreferences != null){
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+        }
+        Slog.w(TAG,"pengtg isTurnOnFullScreen: " + isTurnOnFullScreen);
+        if(isTurnOnFullScreen){
+            setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }else{
+            setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
         // endregion
 
         try {
