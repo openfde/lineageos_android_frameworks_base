@@ -1522,7 +1522,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         task.mInRemoveTask = true;
         try {
             task.performClearTask(reason);
-            cleanUpRemovedTaskLocked(task, killProcess, removeFromRecents);
+            cleanUpRemovedTaskLocked(task, killProcess, removeFromRecents, reason);
             mService.getLockTaskController().clearLockedTask(task);
             mService.getTaskChangeNotificationController().notifyTaskStackChanged();
             if (task.isPersistable) {
@@ -1582,6 +1582,73 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                 }
 
                 if (proc.hasForegroundServices()) {
+                    // Don't kill process(es) with foreground service.
+                    return;
+                }
+
+                // Add process to kill list.
+                procsToKill.add(proc);
+            }
+        }
+
+        // Kill the running processes. Post on handle since we don't want to hold the service lock
+        // while calling into AM.
+        final Message m = PooledLambda.obtainMessage(
+                ActivityManagerInternal::killProcessesForRemovedTask, mService.mAmInternal,
+                procsToKill);
+        mService.mH.sendMessage(m);
+    }
+
+    void cleanUpRemovedTaskLocked(Task task, boolean killProcess, boolean removeFromRecents, String reason) {
+        boolean isRemovedByDecorCaption = reason != null ? reason.equals("decorcaption-finish-activity") : false;
+        if (removeFromRecents) {
+            mRecentTasks.remove(task);
+        }
+        ComponentName component = task.getBaseIntent().getComponent();
+        if (component == null) {
+            Slog.w(TAG, "No component for base intent of task: " + task);
+            return;
+        }
+
+        // Find any running services associated with this app and stop if needed.
+        final Message msg = PooledLambda.obtainMessage(ActivityManagerInternal::cleanUpServices,
+                mService.mAmInternal, task.mUserId, component, new Intent(task.getBaseIntent()));
+        mService.mH.sendMessage(msg);
+
+        if (!killProcess) {
+            return;
+        }
+
+        // Determine if the process(es) for this task should be killed.
+        final String pkg = component.getPackageName();
+        Slog.w(TAG,"pengtg pkg: " + pkg);
+        ArrayList<Object> procsToKill = new ArrayList<>();
+        ArrayMap<String, SparseArray<WindowProcessController>> pmap =
+                mService.mProcessNames.getMap();
+        for (int i = 0; i < pmap.size(); i++) {
+            SparseArray<WindowProcessController> uids = pmap.valueAt(i);
+            for (int j = 0; j < uids.size(); j++) {
+                WindowProcessController proc = uids.valueAt(j);
+                if (proc.mUserId != task.mUserId) {
+                    // Don't kill process for a different user.
+                    continue;
+                }
+                if (proc == mService.mHomeProcess) {
+                    // Don't kill the home process along with tasks from the same package.
+                    continue;
+                }
+                if (!proc.mPkgList.contains(pkg)) {
+                    // Don't kill process that is not associated with this task.
+                    continue;
+                }
+
+                if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByDecorCaption) {
+                    // Don't kill process(es) that has an activity in a different task that is also
+                    // in recents, or has an activity not stopped.
+                    return;
+                }
+
+                if (proc.hasForegroundServices() && !isRemovedByDecorCaption) {
                     // Don't kill process(es) with foreground service.
                     return;
                 }

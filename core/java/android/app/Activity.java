@@ -758,6 +758,12 @@ public class Activity extends ContextThemeWrapper
      */
     public static final int FINISH_TASK_WITH_ACTIVITY = 2;
 
+    /**
+     * @hide Task is finished if decorcaption close button clicked. The task is also removed from recents.
+     * The process will be killed.
+     */
+    public static final int FINISH_TASK_WITH_DECOR_CAPTION_CLOSE_BUTTON = 3;
+
     @UnsupportedAppUsage
     static final String FRAGMENTS_TAG = "android:fragments";
     private static final String LAST_AUTOFILL_ID = "android:lastAutofillId";
@@ -1041,7 +1047,7 @@ public class Activity extends ContextThemeWrapper
         // region @fde
         @Override
         public void exitTask() {
-            Activity.this.finishAndRemoveTask();
+            Activity.this.exitTask();
         }
         // endregion
 
@@ -6554,6 +6560,11 @@ public class Activity extends ContextThemeWrapper
      */
     public void finishAndRemoveTask() {
         finish(FINISH_TASK_WITH_ROOT_ACTIVITY);
+    }
+
+    /** @hide */
+    public void exitTask() {
+        finish(FINISH_TASK_WITH_DECOR_CAPTION_CLOSE_BUTTON);
     }
 
     /**

@@ -1752,7 +1752,12 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 boolean res;
                 final boolean finishWithRootActivity =
                         finishTask == Activity.FINISH_TASK_WITH_ROOT_ACTIVITY;
-                if (finishTask == Activity.FINISH_TASK_WITH_ACTIVITY
+                if(finishTask == Activity.FINISH_TASK_WITH_DECOR_CAPTION_CLOSE_BUTTON){
+                    mStackSupervisor.removeTask(tr, true /*killProcess*/,
+                            true, "decorcaption-finish-activity");
+                    res = true;
+                    r.mRelaunchReason = RELAUNCH_REASON_NONE;
+                }else if (finishTask == Activity.FINISH_TASK_WITH_ACTIVITY
                         || (finishWithRootActivity && r == rootR)) {
                     // If requested, remove the task that is associated to this activity only if it
                     // was the root activity in the task. The result code and data is ignored
