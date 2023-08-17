@@ -222,6 +222,17 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 startFullScreenWindow();
             }
         }
+        if(mContext != null){
+            String packageName = mContext.getPackageName();
+            Slog.w(TAG,"pengtg setPhoneWindow packageName: " + packageName);
+            if(packageName != null && packageName.equals("com.sohu.inputmethod.sogou") || 
+                packageName.equals("com.smile.gifmaker") || 
+                packageName.equals("com.kuaishou.nebula") || 
+                packageName.equals("com.jingdong.app.mall")){
+                mFullScreen.setVisibility(View.GONE);
+                mMaximize.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
