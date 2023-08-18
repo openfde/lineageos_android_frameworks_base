@@ -3428,13 +3428,13 @@ public class DisplayPolicy {
 
     @NavigationBarPosition
     int navigationBarPosition(int displayWidth, int displayHeight, int displayRotation) {
-        if (navigationBarCanMove() && displayWidth > displayHeight) {
-            if (displayRotation == Surface.ROTATION_270) {
-                return NAV_BAR_LEFT;
-            } else if (displayRotation == Surface.ROTATION_90) {
-                return NAV_BAR_RIGHT;
-            }
-        }
+        // if (navigationBarCanMove() && displayWidth > displayHeight) {
+        //     if (displayRotation == Surface.ROTATION_270) {
+        //         return NAV_BAR_LEFT;
+        //     } else if (displayRotation == Surface.ROTATION_90) {
+        //         return NAV_BAR_RIGHT;
+        //     }
+        // }
         return NAV_BAR_BOTTOM;
     }
 

@@ -166,7 +166,7 @@ public class NavigationBarInflaterView extends FrameLayout
             return getContext().getString(defaultResource).replace(HOME_HANDLE, "");
         }
         // region @boringdroid
-        if (BoringdroidManager.IS_SYSTEMUI_PLUGIN_ENABLED) {
+        if (true) {
             return getContext().getString(R.string.boring_config_navBarLayout);
         } else {
             return getContext().getString(defaultResource);
@@ -402,7 +402,12 @@ public class NavigationBarInflaterView extends FrameLayout
         if (v == null) return null;
 
         v = applySize(v, buttonSpec, landscape, start);
-        parent.addView(v);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams)parent.getLayoutParams();
+        layoutParams.gravity = Gravity.RIGHT;
+        int w = (int) v.getContext().getResources().getDimension(R.dimen.boring_navigation_key_width);
+        layoutParams.width = w;
+        parent.addView(v, layoutParams);
+        Log.e(TAG, "huyang " + parent + "  v " + v + " width = " + v.getWidth()  +  " pw = " + parent.getWidth());
         addToDispatchers(v);
         View lastView = landscape ? mLastLandscape : mLastPortrait;
         View accessibilityView = v;
@@ -512,8 +517,11 @@ public class NavigationBarInflaterView extends FrameLayout
             }
         }
         // region @boringdroid
-        if (BoringdroidManager.IS_SYSTEMUI_PLUGIN_ENABLED && v instanceof KeyButtonView) {
-            ViewGroup.LayoutParams layoutParams = v.getLayoutParams();
+        if (true && v instanceof KeyButtonView) {
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)v.getLayoutParams();
+            // Log.e(TAG, "huyang " + " gradf = " + v.getParent().getParent() + " parent = " + v.getParent() + " v = " + v); 
+            // Log.e(TAG, "huyang " + " fw = " + ((View)v.getParent().getParent()).getWidth() + " parent = " + ((View)v.getParent()).getWidth() + " v = " + v.getWidth()); 
+            // layoutParams.gravity = Gravity.RIGHT;
             layoutParams.width =
                     (int) v.getContext()
                             .getResources()

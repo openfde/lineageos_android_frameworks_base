@@ -42,6 +42,8 @@
     <com.android.systemui.statusbar.phone.NavigationBarInflaterView
         android:id="@+id/navigation_inflater"
         android:layout_width="match_parent"
+        android:layout_gravity="right"
+        android:gravity="right"
         android:layout_height="match_parent" />
 
 </com.android.systemui.statusbar.phone.NavigationBarView>

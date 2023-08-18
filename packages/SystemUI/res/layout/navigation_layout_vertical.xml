@@ -38,13 +38,16 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:clipToPadding="false"
+            android:layout_gravity="right"
+            android:gravity="right"
             android:clipChildren="false" />
 
         <com.android.systemui.statusbar.phone.ReverseLinearLayout
             android:id="@+id/center_group"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:layout_gravity="right"
+            android:gravity="right"
             android:orientation="vertical"
             android:clipToPadding="false"
             android:clipChildren="false" />
