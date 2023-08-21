@@ -162,9 +162,10 @@ public class FragmentHostManager {
         if (mConfigChanges.applyNewConfig(mContext.getResources())) {
             reloadFragments();
             // region @boringdroid
-            if (BoringdroidManager.IS_SYSTEMUI_PLUGIN_ENABLED) {
+            if (true) {
                 Intent intent = new Intent(
-                        PluginManagerImpl.PLUGIN_CHANGED,
+                    //    PluginManagerImpl.PLUGIN_CHANGED,
+                        "android.intent.action.PACKAGE_REMOVED",
                         Uri.fromParts("package", "com.boringdroid.systemui", null)
                 );
                 mContext.sendBroadcast(intent);
