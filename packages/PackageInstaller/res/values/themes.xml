@@ -20,14 +20,24 @@
     <style name="Theme.AlertDialogActivity.NoAnimation"
            parent="@style/Theme.AlertDialogActivity.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimAmount">0</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 
     <style name="Theme.AlertDialogActivity"
-            parent="@android:style/Theme.DeviceDefault.Light.Dialog.Alert" />
+            parent="@android:style/Theme.DeviceDefault.Light.Dialog.Alert">
+        <item name="android:backgroundDimAmount">0</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 
     <style name="Theme.AlertDialogActivity.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimAmount">0</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
     </style>
 
 </resources>
