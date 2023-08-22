@@ -402,12 +402,12 @@ public class NavigationBarInflaterView extends FrameLayout
         if (v == null) return null;
 
         v = applySize(v, buttonSpec, landscape, start);
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams)parent.getLayoutParams();
-        layoutParams.gravity = Gravity.RIGHT;
-        int w = (int) v.getContext().getResources().getDimension(R.dimen.boring_navigation_key_width);
-        layoutParams.width = w;
-        parent.addView(v, layoutParams);
-        Log.e(TAG, "huyang " + parent + "  v " + v + " width = " + v.getWidth()  +  " pw = " + parent.getWidth());
+//        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams)parent.getLayoutParams();
+//        layoutParams.gravity = Gravity.RIGHT;
+//        int w = (int) v.getContext().getResources().getDimension(R.dimen.boring_navigation_key_width);
+//        layoutParams.width = w;
+        parent.addView(v);
+//        Log.e(TAG, "huyang " + parent + "  v " + v + " width = " + v.getWidth()  +  " pw = " + parent.getWidth());
         addToDispatchers(v);
         View lastView = landscape ? mLastLandscape : mLastPortrait;
         View accessibilityView = v;
