@@ -49,6 +49,7 @@ public class BoringdroidManager {
     static {
         DISALLOWED_LIST.add("android");
         DISALLOWED_LIST.add("com.android.systemui");
+        DISALLOWED_LIST.add("com.android.settings");
     }
 
     public static boolean isPCModeEnabled() {
