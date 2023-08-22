@@ -228,6 +228,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             if(packageName != null && packageName.equals("com.sohu.inputmethod.sogou") || 
                 packageName.equals("com.smile.gifmaker") || 
                 packageName.equals("com.kuaishou.nebula") || 
+                packageName.equals("com.sina.weibo") || 
                 packageName.equals("com.jingdong.app.mall")){
                 mFullScreen.setVisibility(View.GONE);
                 mMaximize.setVisibility(View.GONE);
@@ -526,12 +527,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private void exitFullScreenWindow(){
         if(mOwner != null){
             DecorView decorView = (DecorView)mOwner.getDecorView();
-            decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         }
     }
+
     private void startFullScreenWindow(){
         if(mOwner != null){
             DecorView decorView = (DecorView)mOwner.getDecorView();
