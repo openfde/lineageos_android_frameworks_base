@@ -2531,8 +2531,10 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                     params.softInputMode);
         }
 
-        if (a.getBoolean(R.styleable.Window_backgroundDimEnabled,
-                mIsFloating)) {
+        // region @fde for PAA-237
+        if (false/*a.getBoolean(R.styleable.Window_backgroundDimEnabled,
+                mIsFloating)*/) {
+        // endregion
             /* All dialogs should have the window dimmed */
             if ((getForcedWindowFlags()&WindowManager.LayoutParams.FLAG_DIM_BEHIND) == 0) {
                 params.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
