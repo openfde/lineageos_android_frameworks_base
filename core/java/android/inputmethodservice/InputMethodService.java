@@ -1117,8 +1117,9 @@ public class InputMethodService extends AbstractInputMethodService {
 
         @UnsupportedAppUsage
         private boolean shouldShowImeWithHardKeyboard() {
+	    return false;
             // Lazily initialize as needed.
-            if (mShowImeWithHardKeyboard == ShowImeWithHardKeyboardType.UNKNOWN) {
+            /*if (mShowImeWithHardKeyboard == ShowImeWithHardKeyboardType.UNKNOWN) {
                 mShowImeWithHardKeyboard = Settings.Secure.getInt(mService.getContentResolver(),
                         Settings.Secure.SHOW_IME_WITH_HARD_KEYBOARD, 0) != 0 ?
                         ShowImeWithHardKeyboardType.TRUE : ShowImeWithHardKeyboardType.FALSE;
@@ -1132,6 +1133,7 @@ public class InputMethodService extends AbstractInputMethodService {
                     Log.e(TAG, "Unexpected mShowImeWithHardKeyboard=" + mShowImeWithHardKeyboard);
                     return false;
             }
+	    */
         }
 
         @Override
