@@ -28,6 +28,8 @@ public final class FakeWifi {
     private FakeWifi() {}
 
     public static boolean isHackEnabled(@NonNull Context context) {
+        return true;
+		/*
         String packageName = context.getOpPackageName();
         boolean enabled = Arrays.stream(SystemProperties.get("persist.waydroid.fake_wifi").split(","))
             .map(x -> x.replace(".", "\\."))
@@ -39,6 +41,7 @@ public final class FakeWifi {
             Log.d(LOG_TAG, "Faking wifi for " + packageName);
 
         return enabled;
+        */
     }
 
     @NonNull
