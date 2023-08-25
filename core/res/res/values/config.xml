@@ -4327,6 +4327,17 @@
         <!-- <item>com.android.settings</item> -->
     </string-array>
 
+    <!-- Names of packages that window should not be maximized. -->
+    <string-array name="config_packagesDisallowedMaximize" translatable="false">
+        <!-- Add packages here, example: -->
+	<!-- <item>com.android.settings</item> -->
+	<item>com.sohu.inputmethod.sogou</item>
+	<item>com.smile.gifmaker</item>
+	<item>com.kuaishou.nebula</item>
+	<item>com.sina.weibo</item>
+	<item>com.jingdong.app.mall</item>
+    </string-array>
+
 
     <!-- Class name of the custom country detector to be used. -->
     <string name="config_customCountryDetector" translatable="false">com.android.server.location.ComprehensiveCountryDetector</string>

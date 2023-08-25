@@ -40,6 +40,10 @@ import com.android.internal.policy.PhoneWindow;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import android.annotation.NonNull;
 
 import vendor.waydroid.window.V1_0.IWaydroidWindow;
 
@@ -223,17 +227,24 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             }
         }
         if(mContext != null){
-            String packageName = mContext.getPackageName();
-            Slog.w(TAG,"pengtg setPhoneWindow packageName: " + packageName);
-            if(packageName != null && packageName.equals("com.sohu.inputmethod.sogou") || 
-                packageName.equals("com.smile.gifmaker") || 
-                packageName.equals("com.kuaishou.nebula") || 
-                packageName.equals("com.sina.weibo") || 
-                packageName.equals("com.jingdong.app.mall")){
+            if(isDisallowedShowMaximizeButton(mContext)){
                 mFullScreen.setVisibility(View.GONE);
                 mMaximize.setVisibility(View.GONE);
             }
         }
+    }
+
+    public boolean isDisallowedShowMaximizeButton(@NonNull Context context){
+        boolean disallowed = false;
+        String packageName = context.getPackageName();
+        List<String> packages = Arrays.asList(context.getResources().getStringArray(R.array.config_packagesDisallowedMaximize));
+        List<String> filteredList = packages.stream().filter(str->str.equals(packageName)).collect(Collectors.toList());
+        if(filteredList.size() != 0){
+            disallowed = true;
+        }
+        if (disallowed)
+            Slog.w(TAG,"pengtg Disallowed maximize for " + packageName);
+        return disallowed;
     }
 
     @Override

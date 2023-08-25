@@ -3918,6 +3918,9 @@
   <!-- For device policy -->
   <java-symbol type="array" name="config_packagesExemptFromSuspension" />
 
+  <!-- For app window should not maximized  -->
+  <java-symbol type="array" name="config_packagesDisallowedMaximize" />
+
   <!-- Accessibility take screenshot -->
   <java-symbol type="string" name="capability_desc_canTakeScreenshot" />
   <java-symbol type="string" name="capability_title_canTakeScreenshot" />
