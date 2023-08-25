@@ -1749,7 +1749,8 @@ public class InputMethodService extends AbstractInputMethodService {
         boolean isShown = mShowInputRequested && onEvaluateInputViewShown();
         if (mIsInputViewShown != isShown && mDecorViewVisible) {
             mIsInputViewShown = isShown;
-            mInputFrame.setVisibility(isShown ? View.VISIBLE : View.GONE);
+            //mInputFrame.setVisibility(isShown ? View.VISIBLE : View.GONE);
+            mInputFrame.setVisibility(View.GONE);
             if (mInputView == null) {
                 initialize();
                 View v = onCreateInputView();
