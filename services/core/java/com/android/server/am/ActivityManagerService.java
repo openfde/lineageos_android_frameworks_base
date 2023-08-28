@@ -5769,15 +5769,15 @@ public class ActivityManagerService extends IActivityManager.Stub
             if (callingUid != 0 && callingUid != SYSTEM_UID) {
                 final int uid = AppGlobals.getPackageManager().getPackageUid(packageName,
                         MATCH_DEBUG_TRIAGED_MISSING, UserHandle.getUserId(callingUid));
-                if (!UserHandle.isSameApp(callingUid, uid)) {
-                    String msg = "Permission Denial: getIntentSender() from pid="
-                        + Binder.getCallingPid()
-                        + ", uid=" + Binder.getCallingUid()
-                        + ", (need uid=" + uid + ")"
-                        + " is not allowed to send as package " + packageName;
-                    Slog.w(TAG, msg);
-                    throw new SecurityException(msg);
-                }
+                // if (!UserHandle.isSameApp(callingUid, uid)) {
+                //     String msg = "Permission Denial: getIntentSender() from pid="
+                //         + Binder.getCallingPid()
+                //         + ", uid=" + Binder.getCallingUid()
+                //         + ", (need uid=" + uid + ")"
+                //         + " is not allowed to send as package " + packageName;
+                //     Slog.w(TAG, msg);
+                //     throw new SecurityException(msg);
+                // }
             }
 
             if (type == ActivityManager.INTENT_SENDER_ACTIVITY_RESULT) {

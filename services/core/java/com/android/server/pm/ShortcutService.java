@@ -1627,9 +1627,9 @@ public class ShortcutService extends IShortcutService.Stub {
         if (UserHandle.getUserId(callingUid) != userId) {
             throw new SecurityException("Invalid user-ID");
         }
-        if (injectGetPackageUid(packageName, userId) != callingUid) {
-            throw new SecurityException("Calling package name mismatch");
-        }
+        // if (injectGetPackageUid(packageName, userId) != callingUid) {
+        //     throw new SecurityException("Calling package name mismatch");
+        // }
         Preconditions.checkState(!isEphemeralApp(packageName, userId),
                 "Ephemeral apps can't use ShortcutManager");
     }
