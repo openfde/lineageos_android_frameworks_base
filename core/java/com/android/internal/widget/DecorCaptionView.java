@@ -33,6 +33,7 @@ import android.view.Window;
 import android.os.Handler;
 import android.widget.TextView;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
@@ -130,7 +131,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     // region @fde
     private final Rect mFullScreenRect = new Rect();
-    
+
     Handler mHandler = new Handler();
     Runnable myRunnable = new Runnable() {
         @Override
@@ -215,6 +216,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mMaximize = findViewById(R.id.maximize_window);
         mClose = findViewById(R.id.close_window);
         mApplicationLable = findViewById(R.id.application_lable);
+
         if(mContext != null){
             mApplicationLable.setText(mContext.getPackageManager().getApplicationLabel(mContext.getApplicationInfo()));
         }
@@ -353,6 +355,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (!mDragging) {
+                    doubleClick();
                     break;
                 }
                 // Abort the ongoing dragging.
@@ -671,6 +674,41 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     public void onLongPress(MotionEvent e) {
 
     }
+
+    //存储时间的数组
+    long[] mHits = new long[2];
+    public void doubleClick() {
+        // 双击事件响应
+        /**
+        * arraycopy,拷贝数组
+        * src 要拷贝的源数组
+        * srcPos 源数组开始拷贝的下标位置
+        * dst 目标数组
+        * dstPos 开始存放的下标位置
+        * length 要拷贝的长度(元素的个数)
+        **/
+        //实现数组的移位操作，点击一次，左移一位，末尾补上当前开机时间(cpu的时间)
+        System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
+        mHits[mHits.length - 1] = SystemClock.uptimeMillis();
+        //双击事件的时间间隔500ms
+        if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
+            //双击后具体的操作
+            if(mSharedPreferences != null){
+                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+            }
+            if(isTurnOnFullScreen){
+                if(mSharedPreferences != null){
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putBoolean("mTurnOnFullScreen", false);
+                    editor.apply();
+                    Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                }
+            }
+            exitFullScreenWindow();
+            toggleFreeformWindowingMode();
+        }
+    }
+
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
