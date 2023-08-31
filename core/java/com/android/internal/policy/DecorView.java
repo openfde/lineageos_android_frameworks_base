@@ -363,10 +363,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
         }else{
-            setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         }
         // endregion
 

@@ -133,7 +133,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private final Rect mFullScreenRect = new Rect();
 
     Handler mHandler = new Handler();
-    Runnable myRunnable = new Runnable() {
+    Runnable hideSystemUIRunnable = new Runnable() {
         @Override
         public void run() {
             if(mOwner != null){
@@ -148,6 +148,16 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                         // Hide the nav bar and status bar
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }
+    };
+    Runnable showSystemUIRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(mOwner != null){
+                Slog.w(TAG,"pengtg showSystemUIRunnable start ---------->>>>>>");
+                DecorView decorView = (DecorView)mOwner.getDecorView();
+                decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             }
         }
     };
@@ -226,6 +236,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             Slog.w(TAG,"pengtg setPhoneWindow isTurnOnFullScreen: " + isTurnOnFullScreen);
             if(isTurnOnFullScreen){
                 startFullScreenWindow();
+            }else{
+                exitFullScreenWindow();
             }
         }
         if(mContext != null){
@@ -264,9 +276,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 startFullScreenWindow();
             }
             updateCaptionVisibility();
-        }else if(!mShow){
-            mShow = true;
-            updateCaptionVisibility();
+        }else {
+            exitFullScreenWindow();
+            if(!mShow){
+                mShow = true;
+                updateCaptionVisibility();
+            }
         }
         return false;
     }
@@ -539,10 +554,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     }
 
     private void exitFullScreenWindow(){
-        if(mOwner != null){
-            DecorView decorView = (DecorView)mOwner.getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        if(mHandler.hasCallbacks(showSystemUIRunnable)){
+            mHandler.removeCallbacks(showSystemUIRunnable);
         }
+        mHandler.postDelayed(showSystemUIRunnable, 500);
     }
 
     private void startFullScreenWindow(){
@@ -550,10 +565,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             DecorView decorView = (DecorView)mOwner.getDecorView();
             if(!decorView.isWindowMaximized()){
                 toggleFreeformWindowingMode();
-                if(mHandler.hasCallbacks(myRunnable)){
-                    mHandler.removeCallbacks(myRunnable);
+                if(mHandler.hasCallbacks(hideSystemUIRunnable)){
+                    mHandler.removeCallbacks(hideSystemUIRunnable);
                 }
-                mHandler.postDelayed(myRunnable, 500);
+                mHandler.postDelayed(hideSystemUIRunnable, 500);
             }else{
                 decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_IMMERSIVE
