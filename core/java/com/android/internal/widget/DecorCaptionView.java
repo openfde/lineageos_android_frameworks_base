@@ -707,20 +707,24 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mHits[mHits.length - 1] = SystemClock.uptimeMillis();
         //双击事件的时间间隔500ms
         if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
-            //双击后具体的操作
-            if(mSharedPreferences != null){
-                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-            }
-            if(isTurnOnFullScreen){
-                if(mSharedPreferences != null){
-                    SharedPreferences.Editor editor = mSharedPreferences.edit();
-                    editor.putBoolean("mTurnOnFullScreen", false);
-                    editor.apply();
-                    Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+            if(mContext != null){
+                if(!isDisallowedShowMaximizeButton(mContext)){
+                    //双击后具体的操作
+                    if(mSharedPreferences != null){
+                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                    }
+                    if(isTurnOnFullScreen){
+                        if(mSharedPreferences != null){
+                            SharedPreferences.Editor editor = mSharedPreferences.edit();
+                            editor.putBoolean("mTurnOnFullScreen", false);
+                            editor.apply();
+                            Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                        }
+                    }
+                    exitFullScreenWindow();
+                    toggleFreeformWindowingMode();
                 }
             }
-            exitFullScreenWindow();
-            toggleFreeformWindowingMode();
         }
     }
 
