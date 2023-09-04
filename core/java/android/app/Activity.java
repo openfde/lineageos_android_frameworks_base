@@ -961,6 +961,7 @@ public class Activity extends ContextThemeWrapper
     private boolean mIsInPictureInPictureMode;
 
     private boolean mFakeClickAsTouch;
+	private boolean mClickAsTouch;
 
     private final WindowControllerCallback mWindowControllerCallback =
             new WindowControllerCallback() {
@@ -1605,6 +1606,7 @@ public class Activity extends ContextThemeWrapper
     @MainThread
     @CallSuper
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        mClickAsTouch = SystemProperties.getBoolean("fde.click_as_touch", false);
         if (DEBUG_LIFECYCLE) Slog.v(TAG, "onCreate " + this + ": " + savedInstanceState);
 
         if (mLastNonConfigurationInstances != null) {
@@ -4165,8 +4167,8 @@ public class Activity extends ContextThemeWrapper
      */
     public boolean dispatchTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
-        if (mFakeClickAsTouch && (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP)) {
-            ev.setSource(4098);
+        if ((mClickAsTouch || mFakeClickAsTouch) && (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP)) {
+			ev.setSource(4098);
         }
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             onUserInteraction();

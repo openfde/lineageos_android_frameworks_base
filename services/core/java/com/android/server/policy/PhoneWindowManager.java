@@ -937,6 +937,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
                     LineageSettings.System.CLICK_PARTIAL_SCREENSHOT), false, this,
                     UserHandle.USER_ALL);
+			resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.CLICK_AS_TOUCH), false, this,
+                    UserHandle.USER_ALL);
 
             updateSettings();
         }
@@ -2451,6 +2454,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mClickPartialScreenshot = LineageSettings.System.getIntForUser(resolver,
                     LineageSettings.System.CLICK_PARTIAL_SCREENSHOT, 0,
                     UserHandle.USER_CURRENT) == 1;
+
+			boolean clickAsTouch = LineageSettings.System.getIntForUser(resolver,
+                    LineageSettings.System.CLICK_AS_TOUCH, 0,
+                    UserHandle.USER_CURRENT) == 1;
+			SystemProperties.set("fde.click_as_touch", clickAsTouch ? "true" : "false");
 
             // Configure wake gesture.
             boolean wakeGestureEnabledSetting = Settings.Secure.getIntForUser(resolver,
