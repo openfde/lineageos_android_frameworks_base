@@ -35,6 +35,7 @@ import com.android.systemui.shared.recents.utilities.Utilities;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Objects;
+import android.os.SystemClock;
 
 /**
  * A task in the recent tasks list.
@@ -432,5 +433,9 @@ public class Task {
         }
         writer.print(" "); writer.print(title);
         writer.println();
+    }
+
+    public void touchActiveTime() {
+        key.lastActiveTime = SystemClock.elapsedRealtime();
     }
 }
