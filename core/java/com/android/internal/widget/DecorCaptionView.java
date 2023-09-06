@@ -96,6 +96,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     private boolean isTurnOnFullScreen = false;
     private SharedPreferences mSharedPreferences = null;
+    private boolean mToggleFreeformWindowingModeing = false;
 
     private View mCaption;
     private View mContent;
@@ -177,6 +178,13 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                     decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
                 }
             }
+        }
+    };
+
+    Runnable resetToggleStateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mToggleFreeformWindowingModeing = false;
         }
     };
     // endregion
@@ -522,14 +530,21 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
      * Maximize or restore the window by moving it to the maximized or freeform workspace stack.
      **/
     private void toggleFreeformWindowingMode() {
-        Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
-        if (callback != null) {
-            try {
-                callback.toggleFreeformWindowingMode();
-            } catch (RemoteException ex) {
-                Log.e(TAG, "Cannot change task workspace.");
+        if(!mToggleFreeformWindowingModeing){
+            mToggleFreeformWindowingModeing = true;
+            Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
+            if (callback != null) {
+                try {
+                    callback.toggleFreeformWindowingMode();
+                } catch (RemoteException ex) {
+                    Log.e(TAG, "Cannot change task workspace.");
+                }
             }
         }
+        if(mHandler.hasCallbacks(resetToggleStateRunnable)){
+            mHandler.removeCallbacks(resetToggleStateRunnable);
+        }
+        mHandler.postDelayed(resetToggleStateRunnable, 600);
     }
     // region @bliss
     private boolean supportPip() {
@@ -739,6 +754,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mHits[mHits.length - 1] = SystemClock.uptimeMillis();
         //双击事件的时间间隔500ms
         if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
+            mHits[mHits.length - 1] = 0;
             if(mContext != null){
                 if(!isDisallowedShowMaximizeButton(mContext)){
                     //双击后具体的操作
