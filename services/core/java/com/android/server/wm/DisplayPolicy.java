@@ -4033,13 +4033,15 @@ public class DisplayPolicy {
     }
 
     private int setNavBarTranslucentFlag(int visibility) {
-        visibility &= ~View.NAVIGATION_BAR_TRANSPARENT;
-        return visibility | View.NAVIGATION_BAR_TRANSLUCENT;
+        return visibility & ~(View.NAVIGATION_BAR_TRANSLUCENT | View.NAVIGATION_BAR_TRANSPARENT);
+        //visibility &= ~View.NAVIGATION_BAR_TRANSPARENT;
+        //return visibility | View.NAVIGATION_BAR_TRANSLUCENT;
     }
 
     private int setNavBarTransparentFlag(int visibility) {
-        visibility &= ~View.NAVIGATION_BAR_TRANSLUCENT;
-        return visibility | View.NAVIGATION_BAR_TRANSPARENT;
+        return visibility & ~(View.NAVIGATION_BAR_TRANSLUCENT | View.NAVIGATION_BAR_TRANSPARENT);
+        //visibility &= ~View.NAVIGATION_BAR_TRANSLUCENT;
+        //return visibility | View.NAVIGATION_BAR_TRANSPARENT;
     }
 
     private void clearClearableFlagsLw() {
