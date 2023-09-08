@@ -138,6 +138,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         @Override
         public void run() {
             if(mOwner != null){
+                Slog.w(TAG,"pengtg hideSystemUIRunnable start ---------->>>>>>");
                 DecorView decorView = (DecorView)mOwner.getDecorView();
                 if((decorView.getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                     decorView.setSystemUiVisibility(
@@ -587,6 +588,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     }
 
     private void exitFullScreenWindow(){
+        if(mHandler.hasCallbacks(hideSystemUIRunnable)){
+            mHandler.removeCallbacks(hideSystemUIRunnable);
+        }
         if(mHandler.hasCallbacks(showSystemUIRunnable)){
             mHandler.removeCallbacks(showSystemUIRunnable);
         }
@@ -595,6 +599,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     private void startFullScreenWindow(){
         if(mOwner != null){
+            if(mHandler.hasCallbacks(showSystemUIRunnable)){
+                mHandler.removeCallbacks(showSystemUIRunnable);
+            }
             DecorView decorView = (DecorView)mOwner.getDecorView();
             if(!decorView.isWindowMaximized()){
                 toggleFreeformWindowingMode();
