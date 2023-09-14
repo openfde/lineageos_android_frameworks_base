@@ -1110,7 +1110,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             }
             // IME is up and obscuring this window. Adjust the window position so it is visible.
             if (isImeTarget) {
-                if (inFreeformWindowingMode()) {
+                if (false/*inFreeformWindowingMode()*/) {
                     // Push the freeform window up to make room for the IME. However, don't push
                     // it up past the top of the screen.
                     final int bottomOverlap = windowFrames.mContainingFrame.bottom
