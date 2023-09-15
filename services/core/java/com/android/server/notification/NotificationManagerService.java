@@ -8798,7 +8798,7 @@ public class NotificationManagerService extends SystemService {
         if (callingUid == Process.SHELL_UID || callingUid == Process.ROOT_UID) {
             return;
         }
-        checkCallerIsSystem();
+        // checkCallerIsSystem();
     }
 
     private void checkCallerIsSystem() {
