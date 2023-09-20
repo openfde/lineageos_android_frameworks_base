@@ -1311,6 +1311,7 @@ please see themes_device_defaults.xml.
     <style name="Theme.Material.Light.Dialog.BaseAlert">
         <item name="windowMinWidthMajor">@dimen/dialog_min_width_major</item>
         <item name="windowMinWidthMinor">@dimen/dialog_min_width_minor</item>
+        <item name="windowBackground">@drawable/dialog_background_light</item>
     </style>
 
     <!-- Material light theme for alert dialog windows, which is used by the
