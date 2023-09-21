@@ -574,6 +574,9 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
     @Override
     public void setTitle(CharSequence title) {
         setTitle(title, true);
+        if (mDecor != null) {
+            mDecor.setApplicationLable(title);
+        }
     }
 
     public void setTitle(CharSequence title, boolean updateAccessibilityTitle) {

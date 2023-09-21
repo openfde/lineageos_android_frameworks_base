@@ -275,6 +275,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         }
     }
 
+    public void setApplicationLable(CharSequence text){
+        if(mApplicationLable != null){
+            mApplicationLable.setText(text);
+        }
+    }
+
     public boolean isDisallowedShowMaximizeButton(@NonNull Context context){
         boolean disallowed = false;
         String packageName = context.getPackageName();

@@ -2279,6 +2279,12 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         return decorCaptionView;
     }
 
+    public void setApplicationLable(CharSequence text){
+        if(mDecorCaptionView != null){
+            mDecorCaptionView.setApplicationLable(text);
+        }
+    }
+
     private DecorCaptionView inflateDecorCaptionView(LayoutInflater inflater) {
         final Context context = getContext();
         // We make a copy of the inflater, so it has the right context associated with it.
