@@ -365,12 +365,13 @@ public class NotificationEntryManager implements
     private final NotificationHandler mNotifListener = new NotificationHandler() {
         @Override
         public void onNotificationPosted(StatusBarNotification sbn, RankingMap rankingMap) {
-            final boolean isUpdateToInflatedNotif = mActiveNotifications.containsKey(sbn.getKey());
-            if (isUpdateToInflatedNotif) {
-                updateNotification(sbn, rankingMap);
-            } else {
-                addNotification(sbn, rankingMap);
-            }
+            // FDETHEME move notification to boringdroidsystemui
+            // final boolean isUpdateToInflatedNotif = mActiveNotifications.containsKey(sbn.getKey());
+            // if (isUpdateToInflatedNotif) {
+            //     updateNotification(sbn, rankingMap);
+            // } else {
+            //     addNotification(sbn, rankingMap);
+            // }
         }
 
         @Override
