@@ -64,9 +64,9 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
     private static final String TAG = PluginManagerImpl.class.getSimpleName();
     static final String DISABLE_PLUGIN = "com.android.systemui.action.DISABLE_PLUGIN";
 
-    private static PluginManager sInstance;
+    public static PluginManagerImpl sInstance;
 
-    private final ArrayMap<PluginListener<?>, PluginInstanceManager> mPluginMap
+    public final ArrayMap<PluginListener<?>, PluginInstanceManager> mPluginMap
             = new ArrayMap<>();
     private final Map<String, ClassLoader> mClassLoaders = new ArrayMap<>();
     private final ArraySet<String> mOneShotPackages = new ArraySet<>();
@@ -113,6 +113,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                 initializer.onPluginManagerInit();
             }
         });
+        sInstance = this;
     }
 
     public String[] getWhitelistedPlugins() {

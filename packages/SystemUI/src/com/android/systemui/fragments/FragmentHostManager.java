@@ -40,6 +40,7 @@ import com.android.internal.BoringdroidManager;
 import com.android.settingslib.applications.InterestingConfigChanges;
 import com.android.systemui.Dependency;
 import com.android.systemui.plugins.Plugin;
+import com.android.systemui.shared.plugins.PluginInstanceManager;
 import com.android.systemui.shared.plugins.PluginManagerImpl;
 import com.android.systemui.util.leak.LeakDetector;
 
@@ -162,13 +163,17 @@ public class FragmentHostManager {
         if (mConfigChanges.applyNewConfig(mContext.getResources())) {
             reloadFragments();
             // region @boringdroid
-            if (true) {
-                Intent intent = new Intent(
-                    //    PluginManagerImpl.PLUGIN_CHANGED,
-                        "android.intent.action.PACKAGE_REMOVED",
-                        Uri.fromParts("package", "com.boringdroid.systemui", null)
-                );
-                mContext.sendBroadcast(intent);
+//            if (true) {
+//                Intent intent = new Intent(
+//                    //    PluginManagerImpl.PLUGIN_CHANGED,
+//                        "android.intent.action.PACKAGE_REMOVED",
+//                        Uri.fromParts("package", "com.boringdroid.systemui", null)
+//                );
+//                mContext.sendBroadcast(intent);
+//            }
+            ArrayMap<com.android.systemui.plugins.PluginListener<?>, PluginInstanceManager> mPluginMap = PluginManagerImpl.sInstance.mPluginMap;
+            for (PluginInstanceManager manager : mPluginMap.values()){
+                manager.loadAll();
             }
             // endregion
         } else {
