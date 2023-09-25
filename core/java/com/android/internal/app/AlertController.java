@@ -57,6 +57,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.view.MotionEvent;
 
 import com.android.internal.R;
 
@@ -68,6 +69,8 @@ public class AlertController {
     private final Context mContext;
     private final DialogInterface mDialogInterface;
     protected final Window mWindow;
+    private boolean mCheckForDragging;
+    private boolean mDragging;
 
     @UnsupportedAppUsage
     private CharSequence mTitle;
@@ -556,6 +559,51 @@ public class AlertController {
                 && topPanel.getVisibility() != View.GONE;
         final boolean hasButtonPanel = buttonPanel != null
                 && buttonPanel.getVisibility() != View.GONE;
+
+        parentPanel.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent e) {
+                // Note: There are no mixed events. When a new device gets used (e.g. 1. Mouse, 2. touch)
+                // the old input device events get cancelled first. So no need to remember the kind of
+                // input device we are listening to.
+                final boolean fromMouse = e.getToolType(e.getActionIndex()) == MotionEvent.TOOL_TYPE_MOUSE;
+                final boolean primaryButton = (e.getButtonState() & MotionEvent.BUTTON_PRIMARY) != 0;
+                final int actionMasked = e.getActionMasked();
+                switch (actionMasked) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Checking for a drag action is started if we aren't dragging already and the
+                        // starting event is either a left mouse button or any other input device.
+                        if (!fromMouse || primaryButton) {
+                            mCheckForDragging = true;
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        if (!mDragging && mCheckForDragging && fromMouse) {
+                            mCheckForDragging = false;
+                            mDragging = true;
+                            parentPanel.startMovingTask(e.getRawX(), e.getRawY());
+                            // After the above call the framework will take over the input.
+                            // This handler will receive ACTION_CANCEL soon (possible after a few spurious
+                            // ACTION_MOVE events which are safe to ignore).
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        // Abort the ongoing dragging.
+                        if (actionMasked == MotionEvent.ACTION_UP) {
+                            // If it receives ACTION_UP event, the dragging is already finished and also
+                            // the system can not end drag on ACTION_UP event. So request to finish
+                            // dragging.
+                            parentPanel.finishMovingTask();
+                        }
+                        mDragging = false;
+                        return !mCheckForDragging;
+                }
+                return mDragging || mCheckForDragging;
+            }
+        });
 
         if (!parentPanel.isInTouchMode()) {
             final View content = hasCustomPanel ? customPanel : contentPanel;
