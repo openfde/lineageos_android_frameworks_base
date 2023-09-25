@@ -2348,21 +2348,32 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     }
 
     @Override
-    public boolean moveActivityTaskToBackByid(int taskId, boolean nonRoot) {
+    public boolean moveActivityTaskToBackByid(int taskId, boolean onlyMove) {
         enforceNotIsolatedCaller("moveActivityTaskToBack");
         synchronized (mGlobalLock) {
             final long origId = Binder.clearCallingIdentity();
-            try {
-                // int taskId = ActivityRecord.getTaskForActivityLocked(token, !nonRoot);
-                final Task task = mRootWindowContainer.anyTaskForId(taskId);
-                if (task != null) {
-                    final ActivityRecord topActivity = task.getTopNonFinishingActivity();
-                    if(topActivity != null){
-                        return topActivity.getStack().moveTaskToBack(task);
+            if(onlyMove){
+                try {
+                    // int taskId = ActivityRecord.getTaskForActivityLocked(token, !nonRoot);
+                    final Task task = mRootWindowContainer.anyTaskForId(taskId);
+                    if (task != null) {
+                        final ActivityRecord topActivity = task.getTopNonFinishingActivity();
+                        if(topActivity != null){
+                            return topActivity.getStack().moveTaskToBack(task);
+                        }
                     }
+                } finally {
+                    Binder.restoreCallingIdentity(origId);
                 }
-            } finally {
-                Binder.restoreCallingIdentity(origId);
+            } else {
+                try {
+                if (!mStackSupervisor.removeTaskById(taskId, false,
+                        REMOVE_FROM_RECENTS, "finish-and-remove-task")) {
+                    throw new IllegalArgumentException("Unable to find task ID " + taskId);
+                }
+                } finally {
+                    Binder.restoreCallingIdentity(origId);
+                }
             }
         }
         return false;
