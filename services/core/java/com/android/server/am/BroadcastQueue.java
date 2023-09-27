@@ -589,7 +589,7 @@ public final class BroadcastQueue {
                     synchronized (mService) {
                         Slog.w(TAG, "Can't deliver broadcast to " + app.processName
                                 + " (pid " + app.pid + "). Crashing it.");
-                        app.scheduleCrash("can't deliver broadcast");
+                        // app.scheduleCrash("can't deliver broadcast");
                     }
                     throw ex;
                 }
