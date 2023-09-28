@@ -3556,8 +3556,8 @@ class Task extends WindowContainer<WindowContainer> {
         // Bounds need to be relative, as the dim layer is a child.
         if (inFreeformWindowingMode()) {
             getBounds(mTmpRect);
-            mTmpDimBoundsRect.offsetTo(mTmpDimBoundsRect.left - mTmpRect.left,
-                    mTmpDimBoundsRect.top - mTmpRect.top);
+            mTmpDimBoundsRect.offsetTo(mTmpDimBoundsRect.left - mTmpRect.left + 10,
+                    mTmpDimBoundsRect.top - mTmpRect.top + 10);
         } else {
             mTmpDimBoundsRect.offsetTo(0, 0);
         }
