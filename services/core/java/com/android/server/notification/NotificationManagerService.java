@@ -705,7 +705,7 @@ public class NotificationManagerService extends SystemService {
         }
         int oldFlags = summary.getSbn().getNotification().flags;
         if (needsOngoingFlag) {
-            summary.getSbn().getNotification().flags |= FLAG_ONGOING_EVENT;
+            // summary.getSbn().getNotification().flags |= FLAG_ONGOING_EVENT;
         } else {
             summary.getSbn().getNotification().flags &= ~FLAG_ONGOING_EVENT;
         }
@@ -6743,10 +6743,10 @@ public class NotificationManagerService extends SystemService {
 
                     // Ensure if this is a foreground service that the proper additional
                     // flags are set.
-                    if ((notification.flags & FLAG_FOREGROUND_SERVICE) != 0) {
-                        notification.flags |= FLAG_ONGOING_EVENT
-                                | FLAG_NO_CLEAR;
-                    }
+                    // if ((notification.flags & FLAG_FOREGROUND_SERVICE) != 0) {
+                    //     notification.flags |= FLAG_ONGOING_EVENT
+                    //             | FLAG_NO_CLEAR;
+                    // }
 
                     mRankingHelper.extractSignals(r);
                     mRankingHelper.sort(mNotificationList);
@@ -8384,7 +8384,7 @@ public class NotificationManagerService extends SystemService {
                             null, userId, 0, 0, reason, listenerName);
 
                     FlagChecker flagChecker = (int flags) -> {
-                        int flagsToCheck = FLAG_ONGOING_EVENT | FLAG_NO_CLEAR;
+                        int flagsToCheck = 0 ; // FLAG_ONGOING_EVENT | FLAG_NO_CLEAR;
                         if (REASON_LISTENER_CANCEL_ALL == reason
                                 || REASON_CANCEL_ALL == reason) {
                             flagsToCheck |= FLAG_BUBBLE;
