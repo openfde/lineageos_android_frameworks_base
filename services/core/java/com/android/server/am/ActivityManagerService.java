@@ -16006,6 +16006,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                 || TelephonyManager.ACTION_REQUEST_OMADM_CONFIGURATION_UPDATE.equals(action)
                 || SuggestionSpan.ACTION_SUGGESTION_PICKED.equals(action)
                 || AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION.equals(action)
+                || "notify_action".equals(action)
                 || AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION.equals(action)) {
             // Broadcast is either protected, or it's a public action that
             // we've relaxed, so it's fine for system internals to send.
