@@ -495,6 +495,12 @@ public class InputMethodService extends AbstractInputMethodService {
             info.setTouchableInsets(mTmpInsets.touchableInsets);
         }
 
+        View rootView = mInputFrame.getRootView();
+        info.contentInsets.top = rootView.getHeight();
+        info.visibleInsets.top = rootView.getHeight();
+        Log.w(TAG,"fde_input info.contentInsets.top: " + info.contentInsets.top);
+        Log.w(TAG,"fde_input info.visibleInsets.top: " + info.visibleInsets.top);
+
         if (mInputFrame != null) {
             setImeExclusionRect(mTmpInsets.visibleTopInsets);
         }
