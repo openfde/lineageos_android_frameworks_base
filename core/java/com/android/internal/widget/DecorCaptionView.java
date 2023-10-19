@@ -164,6 +164,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                                 | View.SYSTEM_UI_FLAG_FULLSCREEN);
                 }
+                decorView.updateDecorCaptionShade();
             }
         }
     };
@@ -178,6 +179,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 }else{
                     decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
                 }
+                decorView.updateDecorCaptionShade();
             }
         }
     };
@@ -730,12 +732,24 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             exitTask();
         }else if (mClickTarget == mFullScreen) {
             if(mSharedPreferences != null){
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.putBoolean("mTurnOnFullScreen", true);
-                editor.apply();
-                Slog.w(TAG,"pengtg mTurnOnFullScreen seted true ----------->>>>>>>>");
+                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
             }
-            startFullScreenWindow();
+            if(isTurnOnFullScreen){
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putBoolean("mTurnOnFullScreen", false);
+                editor.apply();
+                Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                exitFullScreenWindow();
+                toggleFreeformWindowingMode();
+            }else{
+                if(mSharedPreferences != null){
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putBoolean("mTurnOnFullScreen", true);
+                    editor.apply();
+                    Slog.w(TAG,"pengtg mTurnOnFullScreen seted true ----------->>>>>>>>");
+                }
+                startFullScreenWindow();
+            }
         }
         return true;
     }
