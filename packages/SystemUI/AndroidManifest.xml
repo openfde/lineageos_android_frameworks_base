@@ -342,8 +342,15 @@
 
         <activity android:name=".screenrecord.ScreenRecordDialog"
             android:theme="@style/ScreenRecord"
+            android:exported="true"
             android:showForAllUsers="true"
-            android:excludeFromRecents="true" />
+            android:excludeFromRecents="true" >
+            <intent-filter>
+                <action android:name="com.ft.record.ENTER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <service android:name=".screenrecord.RecordingService" />
 
         <receiver android:name=".SysuiRestartReceiver"

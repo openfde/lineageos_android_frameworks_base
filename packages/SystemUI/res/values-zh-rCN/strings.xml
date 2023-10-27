@@ -99,6 +99,8 @@
     <string name="screenrecord_mic_label" msgid="2111264835791332350">"麦克风"</string>
     <string name="screenrecord_device_audio_and_mic_label" msgid="1831323771978646841">"设备音频和麦克风"</string>
     <string name="screenrecord_start" msgid="330991441575775004">"开始"</string>
+    <string name="screenrecord_stop" >"停止"</string>
+    <string name="screenrecord_ongoing" msgid="4459670242451527727">"正在录制"</string>
     <string name="screenrecord_ongoing_screen_only" msgid="4459670242451527727">"正在录制屏幕"</string>
     <string name="screenrecord_ongoing_screen_and_audio" msgid="5351133763125180920">"正在录制屏幕和音频"</string>
     <string name="screenrecord_taps_label" msgid="1595690528298857649">"显示触屏位置"</string>

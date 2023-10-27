@@ -86,7 +86,8 @@ public class Toast {
     /** @hide */
     @IntDef(prefix = { "LENGTH_" }, value = {
             LENGTH_SHORT,
-            LENGTH_LONG
+            LENGTH_LONG,
+            LENGTH_CUSTOM
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface Duration {}
@@ -104,6 +105,8 @@ public class Toast {
      * @see #setDuration
      */
     public static final int LENGTH_LONG = 1;
+    /** @hide */
+    public static final int LENGTH_CUSTOM = 2;
 
     /**
      * Text toasts will be rendered by SystemUI instead of in-app, so apps can't circumvent

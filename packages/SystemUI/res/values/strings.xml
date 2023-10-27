@@ -260,7 +260,9 @@
     <string name="screenrecord_device_audio_and_mic_label">Device audio and microphone</string>
     <!-- Button to start a screen recording [CHAR LIMIT=50]-->
     <string name="screenrecord_start">Start</string>
+    <string name="screenrecord_stop">Stop</string>
     <!-- Notification text displayed when we are recording the screen [CHAR LIMIT=100]-->
+    <string name="screenrecord_ongoing">Recording</string>
     <string name="screenrecord_ongoing_screen_only">Recording screen</string>
     <!-- Notification text displayed when we are recording both the screen and audio [CHAR LIMIT=100]-->
     <string name="screenrecord_ongoing_screen_and_audio">Recording screen and audio</string>

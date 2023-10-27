@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.os.CountDownTimer;
 import android.os.UserHandle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.systemui.broadcast.BroadcastDispatcher;
@@ -51,6 +52,7 @@ public class RecordingController
     private PendingIntent mStopIntent;
     private CountDownTimer mCountDownTimer = null;
     private BroadcastDispatcher mBroadcastDispatcher;
+    private Context mContext;
 
     private ArrayList<RecordingStateChangeCallback> mListeners = new ArrayList<>();
 
@@ -68,8 +70,9 @@ public class RecordingController
      * Create a new RecordingController
      */
     @Inject
-    public RecordingController(BroadcastDispatcher broadcastDispatcher) {
+    public RecordingController(Context context, BroadcastDispatcher broadcastDispatcher) {
         mBroadcastDispatcher = broadcastDispatcher;
+        mContext = context;
     }
 
     /**
@@ -99,6 +102,8 @@ public class RecordingController
         mCountDownTimer = new CountDownTimer(ms, interval) {
             @Override
             public void onTick(long millisUntilFinished) {
+                int countdown = (int) Math.floorDiv(millisUntilFinished + 500, 1000);
+                Toast.makeText(mContext,"" + countdown,Toast.LENGTH_CUSTOM).show();
                 for (RecordingStateChangeCallback cb : mListeners) {
                     cb.onCountdown(millisUntilFinished);
                 }

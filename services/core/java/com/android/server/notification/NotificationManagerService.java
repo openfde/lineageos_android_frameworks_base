@@ -7497,7 +7497,8 @@ public class NotificationManagerService extends SystemService {
     {
         mHandler.removeCallbacksAndMessages(r);
         Message m = Message.obtain(mHandler, MESSAGE_DURATION_REACHED, r);
-        int delay = r.getDuration() == Toast.LENGTH_LONG ? LONG_DELAY : SHORT_DELAY;
+        //int delay = r.getDuration() == Toast.LENGTH_LONG ? LONG_DELAY : SHORT_DELAY;
+        int delay = r.getDuration() == Toast.LENGTH_LONG ? LONG_DELAY : (r.getDuration() == Toast.LENGTH_CUSTOM ? 500 : SHORT_DELAY);
         // Accessibility users may need longer timeout duration. This api compares original delay
         // with user's preference and return longer one. It returns original delay if there's no
         // preference.

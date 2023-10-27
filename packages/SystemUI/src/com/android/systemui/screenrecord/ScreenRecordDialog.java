@@ -27,6 +27,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
@@ -71,9 +74,9 @@ public class ScreenRecordDialog extends Activity {
         Window window = getWindow();
         // Inflate the decor view, so the attributes below are not overwritten by the theme.
         window.getDecorView();
-        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         window.addPrivateFlags(WindowManager.LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS);
-        window.setGravity(Gravity.TOP);
+        window.setGravity(Gravity.CENTER);
         setTitle(R.string.screenrecord_name);
 
         setContentView(R.layout.screen_record_dialog);
@@ -84,8 +87,28 @@ public class ScreenRecordDialog extends Activity {
         });
 
         Button startBtn = findViewById(R.id.button_start);
+        LinearLayout optionsLayout = findViewById(R.id.screen_recording_options_parent);
+        TextView recordDescription = findViewById(R.id.screen_record_description);
+        TextView recordState = findViewById(R.id.screen_recording_state);
+
+        if (mController.isRecording()) {
+            optionsLayout.setVisibility(View.GONE);
+            //recordDescription.setVisibility(View.GONE);
+            recordState.setText(R.string.screenrecord_ongoing);
+            startBtn.setText(R.string.screenrecord_stop);
+        }else{
+            optionsLayout.setVisibility(View.VISIBLE);
+            //recordDescription.setVisibility(View.VISIBLE);
+            recordState.setText(R.string.screenrecord_start_label);
+            startBtn.setText(R.string.screenrecord_start);
+        }
+
         startBtn.setOnClickListener(v -> {
-            requestScreenCapture();
+            if (mController.isRecording()) {
+                mController.stopRecording();
+            }else{
+                requestScreenCapture();
+            }
             finish();
         });
 
@@ -105,6 +128,8 @@ public class ScreenRecordDialog extends Activity {
         mOptions.setOnItemClickListenerInt((parent, view, position, id) -> {
             mAudioSwitch.setChecked(true);
         });
+        mOptions.setSelection(1);
+        mAudioSwitch.setChecked(true);
     }
 
     private void requestScreenCapture() {
