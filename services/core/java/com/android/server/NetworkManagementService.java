@@ -1711,7 +1711,8 @@ public class NetworkManagementService extends INetworkManagementService.Stub {
             try {
                 tetherStatsVec = mNetdService.tetherGetStats();
             } catch (RemoteException | ServiceSpecificException e) {
-                throw new IllegalStateException("problem parsing tethering stats: ", e);
+                return new NetworkStats(SystemClock.elapsedRealtime(), 0);
+                //throw new IllegalStateException("problem parsing tethering stats: ", e);
             }
 
             final NetworkStats stats = new NetworkStats(SystemClock.elapsedRealtime(),
