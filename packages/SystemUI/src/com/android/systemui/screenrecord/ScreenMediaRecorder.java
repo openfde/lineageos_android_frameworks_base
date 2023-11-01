@@ -47,6 +47,8 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.Toast;
+import android.database.Cursor;
 
 import com.android.systemui.R;
 
@@ -263,6 +265,18 @@ public class ScreenMediaRecorder {
         Size size = new Size(metrics.widthPixels, metrics.heightPixels);
         SavedRecording recording = new SavedRecording(itemUri, mTempVideoFile, size);
         mTempVideoFile.delete();
+        String[] projection = {MediaStore.Video.Media.DATA};
+        Cursor cursor = resolver.query(itemUri, projection, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+                String filePath = cursor.getString(columnIndex);
+                if(filePath != null){
+                    Toast.makeText(mContext,filePath,Toast.LENGTH_LONG).show();
+                }
+            }
+            cursor.close();
+        }
         return recording;
     }
 

@@ -107,6 +107,7 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -253,6 +254,9 @@ import java.util.List;
  */
 public class PhoneWindowManager implements WindowManagerPolicy {
     static final String TAG = "WindowManager";
+    private static final String SYSUI_PACKAGE = "com.android.systemui";
+    private static final String SYSUI_SCREENRECORD_LAUNCHER =
+            "com.android.systemui.screenrecord.ScreenRecordDialog";
     static final boolean localLOGV = false;
     static final boolean DEBUG_INPUT = false;
     static final boolean DEBUG_KEYGUARD = false;
@@ -633,6 +637,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     private boolean mScreenshotChordPowerKeyTriggered;
     private long mScreenshotChordPowerKeyTime;
+
+    private boolean mScreenrecordChordCtrlKeyTriggered;
 
     // Ringer toggle should reuse timing and triggering from screenshot power and a11y vol up
     private int mRingerToggleChord = VOLUME_HUSH_OFF;
@@ -1643,12 +1649,33 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         @Override
         public void run() {
-            mDefaultDisplayPolicy.takeScreenshot(mScreenshotType, mScreenshotSource,
+            if(mScreenrecordChordCtrlKeyTriggered){
+                final ComponentName launcherComponent = new ComponentName(SYSUI_PACKAGE,
+                    SYSUI_SCREENRECORD_LAUNCHER);
+                final Intent intent = new Intent();
+                intent.setComponent(launcherComponent);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Bundle bundle = new Bundle();
+                bundle.putString("sender","PhoneWindowManager");
+                intent.putExtras(bundle);
+                mContext.startActivity(intent);
+            }else{
+                mDefaultDisplayPolicy.takeScreenshot(mScreenshotType, mScreenshotSource,
                     uri -> { mClickPartialScreenshotAllowed = false; });
+            }
         }
     }
 
     private final ScreenshotRunnable mScreenshotRunnable = new ScreenshotRunnable();
+
+    private class CancelScreenrecordChordCtrlKeyTriggeredRunnable implements Runnable {
+        @Override
+        public void run() {
+            mScreenrecordChordCtrlKeyTriggered = false;
+        }
+    }
+
+    private final CancelScreenrecordChordCtrlKeyTriggeredRunnable mCancelCtrlKeyTriggeredRunnable = new CancelScreenrecordChordCtrlKeyTriggeredRunnable();
 
     @Override
     public void showGlobalActions() {
@@ -3023,6 +3050,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     + repeatCount + " keyguardOn=" + keyguardOn + " canceled=" + canceled);
         }
 
+        if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT){
+            if(down){
+                mScreenrecordChordCtrlKeyTriggered = true;
+            }else{
+                mHandler.removeCallbacks(mCancelCtrlKeyTriggeredRunnable);
+                mHandler.postDelayed(mCancelCtrlKeyTriggeredRunnable, 500);
+            }
+        }
+
         // If we think we might have a volume down & power key chord on the way
         // but we're not sure, then tell the dispatcher to wait a little while and
         // try again later before dispatching.
@@ -3239,7 +3275,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (down && repeatCount == 0) {
                 mScreenshotRunnable.setScreenshotType(TAKE_SCREENSHOT_FULLSCREEN);
                 mScreenshotRunnable.setScreenshotSource(SCREENSHOT_KEY_OTHER);
-                mHandler.post(mScreenshotRunnable);
+                mHandler.postDelayed(mScreenshotRunnable,400);
             }
             return -1;
         } else if (keyCode == KeyEvent.KEYCODE_BRIGHTNESS_UP

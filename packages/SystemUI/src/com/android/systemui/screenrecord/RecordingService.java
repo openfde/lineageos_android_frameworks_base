@@ -322,6 +322,7 @@ public class RecordingService extends Service implements MediaRecorder.OnInfoLis
         setTapsVisible(mOriginalShowTaps);
         if (getRecorder() != null) {
             getRecorder().end();
+            Toast.makeText(this,R.string.screenrecord_stop,Toast.LENGTH_SHORT).show();
             saveRecording(userId);
         } else {
             Log.e(TAG, "stopRecording called, but recorder was null");

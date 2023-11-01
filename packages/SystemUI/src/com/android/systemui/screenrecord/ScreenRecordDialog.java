@@ -36,6 +36,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
+import android.content.Intent;
 
 import com.android.systemui.R;
 import com.android.systemui.settings.CurrentUserContextTracker;
@@ -44,6 +46,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import android.content.SharedPreferences;
+import android.util.Slog;
+
+
 
 /**
  * Activity to select screen recording options
@@ -59,6 +65,7 @@ public class ScreenRecordDialog extends Activity {
     private Switch mAudioSwitch;
     private Spinner mOptions;
     private List<ScreenRecordingAudioSource> mModes;
+    private SharedPreferences mSharedPreferences = null;
 
     @Inject
     public ScreenRecordDialog(RecordingController controller,
@@ -80,6 +87,12 @@ public class ScreenRecordDialog extends Activity {
         setTitle(R.string.screenrecord_name);
 
         setContentView(R.layout.screen_record_dialog);
+
+        try{
+            mSharedPreferences = getSharedPreferences("ScreenRecordPrefs",Context.MODE_PRIVATE);
+        }catch(Exception e){
+            Slog.w(TAG,"getSharedPreferences error: " + e);
+        }
 
         Button cancelBtn = findViewById(R.id.button_cancel);
         cancelBtn.setOnClickListener(v -> {
@@ -127,9 +140,52 @@ public class ScreenRecordDialog extends Activity {
         mOptions.setAdapter(a);
         mOptions.setOnItemClickListenerInt((parent, view, position, id) -> {
             mAudioSwitch.setChecked(true);
+            if(mSharedPreferences != null){
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putBoolean("audio_switch", true);
+                editor.putInt("options", position);
+                editor.apply();
+                Slog.w(TAG,"audio_switch seted true");
+                Slog.w(TAG,"options seted " + position);
+            }
         });
         mOptions.setSelection(1);
         mAudioSwitch.setChecked(true);
+        mAudioSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isChecked = mAudioSwitch.isChecked();
+                if(mSharedPreferences != null){
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putBoolean("audio_switch", isChecked);
+                    editor.apply();
+                    Slog.w(TAG,"audio_switch seted " + isChecked);
+                }
+            }
+        });
+
+        if(mSharedPreferences != null){
+            boolean isChecked = mSharedPreferences.getBoolean("audio_switch",true);
+            mAudioSwitch.setChecked(isChecked);
+            int option = mSharedPreferences.getInt("options",1);
+            mOptions.setSelection(option);
+            Slog.w(TAG,"get audio_switch value: " + isChecked);
+            Slog.w(TAG,"get option value: " + option);
+        }
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        if(bundle != null){
+            String sender = bundle.getString("sender");
+            if(sender != null && sender.equals("PhoneWindowManager")){
+                if (mController.isRecording()) {
+                    mController.stopRecording();
+                }else{
+                    requestScreenCapture();
+                }
+                finish();
+            }
+        }
     }
 
     private void requestScreenCapture() {
