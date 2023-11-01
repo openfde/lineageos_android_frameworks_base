@@ -344,13 +344,13 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         try{
             mSharedPreferences = context.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
         }catch(Exception e){
-            Slog.w(TAG,"pengtg getSharedPreferences error: " + e);
+            Slog.w(TAG,"fde getSharedPreferences error: " + e);
         }
         boolean isTurnOnFullScreen = false;
         if(mSharedPreferences != null){
             isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
         }
-        Slog.w(TAG,"pengtg isTurnOnFullScreen: " + isTurnOnFullScreen);
+        Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
         if(isTurnOnFullScreen){
             if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                 setSystemUiVisibility(
@@ -2168,7 +2168,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private void updateDecorCaptionStatus(Configuration config) {
         final boolean displayWindowDecor = config.windowConfiguration.hasWindowDecorCaption()
                 && !isFillingScreen(config);
-        Slog.w(TAG,"pengtg updateDecorCaptionStatus displayWindowDecor: " + displayWindowDecor);
+        Slog.w(TAG,"fde updateDecorCaptionStatus displayWindowDecor: " + displayWindowDecor);
         if (mDecorCaptionView == null && displayWindowDecor) {
             // Configuration now requires a caption.
             final LayoutInflater inflater = mWindow.getLayoutInflater();
@@ -2245,7 +2245,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     // Free floating overlapping windows require a caption.
     private DecorCaptionView createDecorCaptionView(LayoutInflater inflater) {
-        Slog.w(TAG,"pengtg createDecorCaptionView start ---------------------->>>>>>>>");
+        Slog.w(TAG,"fde createDecorCaptionView start ---------------------->>>>>>>>");
         DecorCaptionView decorCaptionView = null;
         for (int i = getChildCount() - 1; i >= 0 && decorCaptionView == null; i--) {
             View view = getChildAt(i);
@@ -2259,9 +2259,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         final boolean isApplication = attrs.type == TYPE_BASE_APPLICATION ||
                 attrs.type == TYPE_APPLICATION || attrs.type == TYPE_DRAWN_APPLICATION;
         final WindowConfiguration winConfig = getResources().getConfiguration().windowConfiguration;
-        Slog.w(TAG,"pengtg mWindow.isFloating(): " + mWindow.isFloating());
-        Slog.w(TAG,"pengtg isApplication: " + isApplication);
-        Slog.w(TAG,"pengtg winConfig.hasWindowDecorCaption(): " + winConfig.hasWindowDecorCaption());
+        Slog.w(TAG,"fde mWindow.isFloating(): " + mWindow.isFloating());
+        Slog.w(TAG,"fde isApplication: " + isApplication);
+        Slog.w(TAG,"fde winConfig.hasWindowDecorCaption(): " + winConfig.hasWindowDecorCaption());
         // Only a non floating application window on one of the allowed workspaces can get a caption
         if (!mWindow.isFloating() && isApplication && winConfig.hasWindowDecorCaption()) {
             // Dependent on the brightness of the used title we either use the

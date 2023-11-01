@@ -138,7 +138,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         @Override
         public void run() {
             if(mOwner != null){
-                Slog.w(TAG,"pengtg hideSystemUIRunnable start ---------->>>>>>");
+                Slog.w(TAG,"fde hideSystemUIRunnable start ---------->>>>>>");
                 DecorView decorView = (DecorView)mOwner.getDecorView();
                 if((decorView.getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                     decorView.setSystemUiVisibility(
@@ -172,7 +172,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         @Override
         public void run() {
             if(mOwner != null){
-                Slog.w(TAG,"pengtg showSystemUIRunnable start ---------->>>>>>");
+                Slog.w(TAG,"fde showSystemUIRunnable start ---------->>>>>>");
                 DecorView decorView = (DecorView)mOwner.getDecorView();
                 if((decorView.getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                     decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
@@ -215,7 +215,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             try{
                 mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
             }catch(Exception e){
-                Slog.w(TAG,"pengtg getSharedPreferences error: " + e);
+                Slog.w(TAG,"fde getSharedPreferences error: " + e);
             }
         }
         mDragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -262,7 +262,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mFullScreen = findViewById(R.id.fullscreen_window);
         if(mSharedPreferences != null){
             isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-            Slog.w(TAG,"pengtg setPhoneWindow isTurnOnFullScreen: " + isTurnOnFullScreen);
+            Slog.w(TAG,"fde setPhoneWindow isTurnOnFullScreen: " + isTurnOnFullScreen);
             if(isTurnOnFullScreen){
                 startFullScreenWindow();
             }else{
@@ -292,7 +292,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             disallowed = true;
         }
         if (disallowed)
-            Slog.w(TAG,"pengtg Disallowed maximize for " + packageName);
+            Slog.w(TAG,"fde Disallowed maximize for " + packageName);
         return disallowed;
     }
 
@@ -301,7 +301,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         final int y = (int) event.getY();
         if(mSharedPreferences != null){
             isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-            //Slog.w(TAG,"pengtg onInterceptHoverEvent start isTurnOnFullScreen: " + isTurnOnFullScreen);
+            //Slog.w(TAG,"fde onInterceptHoverEvent start isTurnOnFullScreen: " + isTurnOnFullScreen);
         }
         if(isTurnOnFullScreen){
             if(y < 12 && !mShow){
@@ -721,7 +721,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putBoolean("mTurnOnFullScreen", false);
                     editor.apply();
-                    Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                    Slog.w(TAG,"fde mTurnOnFullScreen seted false ----------->>>>>>>>");
                 }
             }
             exitFullScreenWindow();
@@ -738,7 +738,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putBoolean("mTurnOnFullScreen", false);
                 editor.apply();
-                Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                Slog.w(TAG,"fde mTurnOnFullScreen seted false ----------->>>>>>>>");
                 exitFullScreenWindow();
                 toggleFreeformWindowingMode();
             }else{
@@ -746,7 +746,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putBoolean("mTurnOnFullScreen", true);
                     editor.apply();
-                    Slog.w(TAG,"pengtg mTurnOnFullScreen seted true ----------->>>>>>>>");
+                    Slog.w(TAG,"fde mTurnOnFullScreen seted true ----------->>>>>>>>");
                 }
                 startFullScreenWindow();
             }
@@ -764,27 +764,14 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     }
 
-    //存储时间的数组
     long[] mHits = new long[2];
     public void doubleClick() {
-        // 双击事件响应
-        /**
-        * arraycopy,拷贝数组
-        * src 要拷贝的源数组
-        * srcPos 源数组开始拷贝的下标位置
-        * dst 目标数组
-        * dstPos 开始存放的下标位置
-        * length 要拷贝的长度(元素的个数)
-        **/
-        //实现数组的移位操作，点击一次，左移一位，末尾补上当前开机时间(cpu的时间)
         System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
         mHits[mHits.length - 1] = SystemClock.uptimeMillis();
-        //双击事件的时间间隔500ms
         if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {
             mHits[mHits.length - 1] = 0;
             if(mContext != null){
                 if(!isDisallowedShowMaximizeButton(mContext)){
-                    //双击后具体的操作
                     if(mSharedPreferences != null){
                         isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
                     }
@@ -793,7 +780,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                             SharedPreferences.Editor editor = mSharedPreferences.edit();
                             editor.putBoolean("mTurnOnFullScreen", false);
                             editor.apply();
-                            Slog.w(TAG,"pengtg mTurnOnFullScreen seted false ----------->>>>>>>>");
+                            Slog.w(TAG,"fde mTurnOnFullScreen seted false ----------->>>>>>>>");
                         }
                     }
                     exitFullScreenWindow();

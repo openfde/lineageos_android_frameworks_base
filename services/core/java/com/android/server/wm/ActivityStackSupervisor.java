@@ -1621,7 +1621,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
         // Determine if the process(es) for this task should be killed.
         final String pkg = component.getPackageName();
-        Slog.w(TAG,"pengtg pkg: " + pkg);
+        Slog.w(TAG,"fde pkg: " + pkg);
         ArrayList<Object> procsToKill = new ArrayList<>();
         ArrayMap<String, SparseArray<WindowProcessController>> pmap =
                 mService.mProcessNames.getMap();
