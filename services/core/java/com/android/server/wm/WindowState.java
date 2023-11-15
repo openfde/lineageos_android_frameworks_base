@@ -264,7 +264,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
 
     // The thickness of a window resize handle outside the window bounds on the free form workspace
     // to capture touch events in that area.
-    static final int RESIZE_HANDLE_WIDTH_IN_DP = 30;
+    static final int RESIZE_HANDLE_WIDTH_IN_DP = 10;
 
     static final int EXCLUSION_LEFT = 0;
     static final int EXCLUSION_RIGHT = 1;
