@@ -4301,6 +4301,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int keyCode = event.getKeyCode();
         final int displayId = event.getDisplayId();
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
+        if (!mPowerManager.isScreenOn() && !down) {
+            wakeUp(event.getEventTime(), true, PowerManager.WAKE_REASON_WAKE_KEY, "android.policy:KEY", true);
+            return 0;
+        }
 
         // If screen is off then we treat the case where the keyguard is open but hidden
         // the same as if it were open and in front.
@@ -5044,7 +5048,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     @Override
     public int interceptMotionBeforeQueueingNonInteractive(int displayId, long whenNanos,
             int policyFlags) {
-        if ((policyFlags & FLAG_WAKE) != 0) {
+        if (((policyFlags & FLAG_WAKE) != 0) || !mPowerManager.isScreenOn()) {
             if (wakeUp(whenNanos / 1000000, mAllowTheaterModeWakeFromMotion,
                     PowerManager.WAKE_REASON_WAKE_MOTION, "android.policy:MOTION")) {
                 return 0;
