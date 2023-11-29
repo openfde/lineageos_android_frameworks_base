@@ -68,8 +68,8 @@ public class ScreenMediaRecorder {
     private static final int VIDEO_FRAME_RATE_TO_RESOLUTION_RATIO = 6;
     private static final int AUDIO_BIT_RATE = 196000;
     private static final int AUDIO_SAMPLE_RATE = 44100;
-    private static final int MAX_DURATION_MS = 60 * 60 * 1000;
-    private static final long MAX_FILESIZE_BYTES = 5000000000L;
+    private static final int MAX_DURATION_MS = 0;
+    private static final long MAX_FILESIZE_BYTES = 0L;
     private static final String TAG = "ScreenMediaRecorder";
 
 
