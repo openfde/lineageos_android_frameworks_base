@@ -2691,4 +2691,10 @@ enum PageId {
 
     // OS: R QPR2
     BLUETOOTH_PAIRING_RECEIVER = 1851;
+
+    // OPEN: Settings > Network
+    // CATEGORY: SETTINGS
+    // OS: R
+    SETTINGS_SET_NET_FROM_HOST = 1852;
+
 }
