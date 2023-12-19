@@ -98,6 +98,7 @@ public class BatteryControllerImpl extends BroadcastReceiver implements BatteryC
 
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
+        filter.addAction("GET_BATTERY_STATUS");
         filter.addAction(Intent.ACTION_BATTERY_CHANGED);
         filter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
         filter.addAction(ACTION_LEVEL_TEST);
@@ -183,7 +184,7 @@ public class BatteryControllerImpl extends BroadcastReceiver implements BatteryC
             }
 
             fireBatteryLevelChanged();
-        } else if (action.equals(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)) {
+        }else if (action.equals(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)) {
             updatePowerSave();
         } else if (action.equals(ACTION_LEVEL_TEST)) {
             mTestmode = true;

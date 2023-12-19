@@ -36,6 +36,7 @@ import android.widget.LinearLayout;
 import com.android.systemui.R;
 import com.android.systemui.plugins.DarkIconDispatcher.DarkReceiver;
 import com.android.systemui.statusbar.phone.StatusBarSignalPolicy.WifiIconState;
+import android.util.Log;
 
 /**
  * Start small: StatusBarWifiView will be able to layout from a WifiIconState

@@ -76,7 +76,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
+import com.android.systemui.wifi.WifiUtils;
 /** Platform implementation of the network controller. **/
 @Singleton
 public class NetworkControllerImpl extends BroadcastReceiver
@@ -352,6 +352,7 @@ public class NetworkControllerImpl extends BroadcastReceiver
         filter.addAction(Intent.ACTION_SERVICE_STATE);
         filter.addAction(TelephonyManager.ACTION_SERVICE_PROVIDERS_UPDATED);
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction("GET_WIFI_STATUS");
         filter.addAction(ConnectivityManager.INET_CONDITION_ACTION);
         filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         filter.addAction(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED);
@@ -570,6 +571,15 @@ public class NetworkControllerImpl extends BroadcastReceiver
                 refreshLocale();
                 updateAirplaneMode(false);
                 break;
+            case "GET_WIFI_STATUS":
+                int status  = WifiUtils.isWifiEnable(context);
+                // Log.i("bella","-------status------"+status);
+                Intent intentStatus = new Intent("com.fde.action.NETWORK_PANEL_CHANG");
+                intentStatus.putExtra("status",status);
+                intentStatus.putExtra("action","com.fde.action.NETWORK_PANEL_CHANG");
+                intentStatus.putExtra("type","80");
+                context.sendBroadcast(intentStatus);
+                break;    
             case TelephonyManager.ACTION_DEFAULT_VOICE_SUBSCRIPTION_CHANGED:
                 // We are using different subs now, we might be able to make calls.
                 recalculateEmergency();
