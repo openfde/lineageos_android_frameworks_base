@@ -20,8 +20,8 @@ import android.content.Context;
 
 public class WifiUtils{
 
-    /**
-     * 获取网络状态
+ /**
+     * get wifi status
      */
     public static int isWifiEnable(Context context){
         Net net = Net.getInstance(context);
@@ -30,7 +30,7 @@ public class WifiUtils{
     }
 
     /**
-     * 启动和关闭WiFi
+     * enable or disable wifi
      */
     public static int enableWifi(Context context,int enable){
         Net net = Net.getInstance(context);
@@ -40,7 +40,7 @@ public class WifiUtils{
 
 
     /**
-     * 获取wifi详细信息
+     * get wifi details
      */
     public static String getSignalAndSecurity(Context context,String ssid){
         Net net = Net.getInstance(context);
@@ -50,7 +50,7 @@ public class WifiUtils{
 
 
     /**
-     * 连接已保存WiFi 或者断开已保存WiFi
+     * connect  or disconect wifi
      */
     public static int connectActivedWifi(Context context,String ssid,int connect ){
         Net net = Net.getInstance(context);
@@ -59,7 +59,7 @@ public class WifiUtils{
     }
 
     /**
-     * 连接未保存的WiFi
+     * connect wifi if not saved  
      */
     public static int connectSsid(Context context,String wifiName,String password){
         Net net = Net.getInstance(context);
@@ -69,7 +69,7 @@ public class WifiUtils{
 
 
     /**
-     * 连接隐藏的WiFi
+     * connect hide wifi 
      */
     public static int connectHidedWifi(Context context,String wifiName,String password){
         Net net = Net.getInstance(context);
@@ -79,7 +79,7 @@ public class WifiUtils{
 
 
     /**
-     * 获取已保存列表
+     * get all saved wifi list
      */
     public static String connectedWifiList(Context context){
         Net net = Net.getInstance(context);
@@ -89,16 +89,16 @@ public class WifiUtils{
 
 
     /**
-     * 获取当前连接的WiFi
+     * get actived wifi 
      */
-    public static String getActivedWifi(Context context,String wifiName){
+    public static String getActivedWifi(Context context){
         Net net = Net.getInstance(context);
         String curNet = net.getActivedWifi();    
         return curNet ;
     }
 
     /**
-     * 获取所有WiFi
+     * get all wifi 
      */
     public static String getAllSsid(Context context){
         Net net = Net.getInstance(context);
@@ -106,4 +106,40 @@ public class WifiUtils{
         return str ;
     }
 
+    /**
+     * delete saved wifi password
+     */
+    public static int forgetWifi(Context context,String wifiName){
+        Net net = Net.getInstance(context);
+        int status = net.forgetWifi(wifiName);
+        return status ;
+    }
+
+
+    /**
+     * get static ip config
+     */
+    public static String getStaticIpConf(Context context,String getStaticIpConf){
+        Net net = Net.getInstance(context);
+        String str = net.getStaticIpConf(getStaticIpConf);
+        return str ;
+    }
+
+    /**
+     * set dhcp IP
+     */
+    public static int setDHCP(Context context,String interfaceName){
+        Net net = Net.getInstance(context);
+        int status = net.setDHCP(interfaceName);
+        return status ;
+    }
+
+    /**
+     * set static IP
+     */
+    public static int setStaticIp(Context context,String interfaceName, String ipAddress, int networkPrefixLength, String gateway, String dns1, String dns2){
+        Net net = Net.getInstance(context);
+        int status = net.setStaticIp(interfaceName,ipAddress,networkPrefixLength,gateway,dns1,dns2);
+        return status ;
+    }
 }
