@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+* 1.Get the dns being used from host
+*/
 
 package com.android.server.net;
 
@@ -40,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import lineageos.waydroid.Net;
 
 public class IpConfigStore {
     private static final String TAG = "IpConfigStore";
@@ -257,6 +261,7 @@ public class IpConfigStore {
                 loge("Bad version on IP configuration file, ignore read");
                 return null;
             }
+            Net net = Net.getInstance(null);
 
             while (true) {
                 String uniqueToken = null;
@@ -320,8 +325,9 @@ public class IpConfigStore {
                                 }
                             }
                         } else if (key.equals(DNS_KEY)) {
-                            staticIpConfiguration.dnsServers.add(
-                                    NetworkUtils.numericToInetAddress(in.readUTF()));
+                            in.readUTF();
+                            //staticIpConfiguration.dnsServers.add(
+                                   // NetworkUtils.numericToInetAddress(in.readUTF()));
                         } else if (key.equals(PROXY_SETTINGS_KEY)) {
                             proxySettings = ProxySettings.valueOf(in.readUTF());
                         } else if (key.equals(PROXY_HOST_KEY)) {
@@ -333,6 +339,14 @@ public class IpConfigStore {
                         } else if (key.equals(EXCLUSION_LIST_KEY)) {
                             exclusionList = in.readUTF();
                         } else if (key.equals(EOS)) {
+                            String dnss = net.getDns(uniqueToken);
+                            if (dnss == null || dnss.isEmpty()) {
+                                dnss = "114.114.114.114";
+                            }
+                            String[] dnssL = dnss.split(" \\| ");
+                            for (String d : dnssL) {
+                                staticIpConfiguration.dnsServers.add(NetworkUtils.numericToInetAddress(d));
+                            }
                             break;
                         } else {
                             loge("Ignore unknown key " + key + "while reading");
