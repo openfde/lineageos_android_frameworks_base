@@ -536,11 +536,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
      * Updates the visibility of the caption.
      **/
     private void updateCaptionVisibility() {
-     Activity currentActivity = (Activity) mContext;
-	//modify by xudq  2024.1.29
+	 //modify by xudq  2024.1.29
+	 Activity currentActivity = (Activity) mContext;
+	
 	// String str = currentActivity.getClass().toString();
 	// if(str.contains("com.sina.weibo.feed.visitor.VisitorHomeActivity") || str.contains("com.taobao.android.tbabilitykit.pop.StdPopActivityGroup")){
-    if( currentActivity instanceof ActivityGroup){
+     if(currentActivity.getParent() != null &&  currentActivity.getParent() instanceof ActivityGroup){
 	     mCaption.setVisibility(View.GONE);
 	 }else{
 		 mCaption.setVisibility(mShow ? VISIBLE : GONE);
@@ -584,9 +585,11 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     private void minimizeWindow() {
         try {
-            if (mWaydroidWindow != null && mWaydroidWindow.minimize(getContext().getPackageName()))
-                return;
-        } catch (RemoteException ignored) {}
+            if (mWaydroidWindow != null && mWaydroidWindow.minimize(getContext().getPackageName())){
+				return;
+			}
+        } catch (RemoteException ignored) {
+		}
 
         Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
         if (callback != null) {
