@@ -17,6 +17,7 @@
 package com.android.internal.widget;
 
 import android.app.Activity;
+import android.app.ActivityGroup;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.RemoteException;
@@ -214,6 +215,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(mContext != null){
             try{
                 mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+				 Activity currentActivity = (Activity) context;
+				 String str = currentActivity.getClass().toString();
+				 Slog.w(TAG,"fde DecorCaptionView init currentActivity: " + str);
+				
             }catch(Exception e){
                 Slog.w(TAG,"fde getSharedPreferences error: " + e);
             }
@@ -531,8 +536,18 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
      * Updates the visibility of the caption.
      **/
     private void updateCaptionVisibility() {
-        mCaption.setVisibility(mShow ? VISIBLE : GONE);
-        mCaption.setOnTouchListener(this);
+     Activity currentActivity = (Activity) mContext;
+	//modify by xudq  2024.1.29
+	// String str = currentActivity.getClass().toString();
+	// if(str.contains("com.sina.weibo.feed.visitor.VisitorHomeActivity") || str.contains("com.taobao.android.tbabilitykit.pop.StdPopActivityGroup")){
+    if( currentActivity instanceof ActivityGroup){
+	     mCaption.setVisibility(View.GONE);
+	 }else{
+		 mCaption.setVisibility(mShow ? VISIBLE : GONE);
+
+	 }
+     
+     mCaption.setOnTouchListener(this);
     }
 
     /**
