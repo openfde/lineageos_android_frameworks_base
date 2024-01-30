@@ -523,13 +523,11 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 		//modify by xudq  2024.1.29
 		if(mContext instanceof Activity ){
 			Activity currentActivity = (Activity) mContext;
-			   // String str = currentActivity.getClass().toString();
-			   // if(str.contains("com.sina.weibo.feed.visitor.VisitorHomeActivity") || str.contains("com.taobao.android.tbabilitykit.pop.StdPopActivityGroup")){
-				if(currentActivity.getParent() != null &&  currentActivity.getParent() instanceof ActivityGroup){
-					mCaption.setVisibility(View.GONE);
-				}else{
-					mCaption.setVisibility(mShow ? VISIBLE : GONE);
-				}
+			if(currentActivity.getParent() != null &&  currentActivity.getParent() instanceof ActivityGroup){
+				mCaption.setVisibility(View.GONE);
+			}else{
+				mCaption.setVisibility(mShow ? VISIBLE : GONE);
+			}
 		}else{
 			mCaption.setVisibility(mShow ? VISIBLE : GONE);
 		}
