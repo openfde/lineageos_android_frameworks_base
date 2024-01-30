@@ -107,6 +107,7 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.content.SharedPreferences;
 
 import com.android.internal.R;
@@ -463,21 +464,49 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
         if (!mWindow.isDestroyed()) {
             // region @waydroid
-            if (keyCode == KeyEvent.KEYCODE_F11 && isDown) {
-                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
-                final int windowingMode =
-                        getResources().getConfiguration().windowConfiguration.getWindowingMode();
-                try {
-                    if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
-                        callback.toggleFreeformWindowingMode();
-                        updateDecorCaptionShade();
-                    } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
-                        callback.toggleFreeformWindowingMode();
-                        updateDecorCaptionShade();
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && mDecorCaptionView != null && mContext != null) {
+                String packageName = mContext.getPackageName();
+                if(!"com.android.launcher3".equals(packageName)){
+                    try{
+                        mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                    }catch(Exception e){
+                        Slog.w(TAG,"fde getSharedPreferences error: " + e);
                     }
-                    return true;
-                } catch (RemoteException ex) {
-                    Log.e(TAG, "Catch exception when process F11", ex);
+                    boolean isTurnOnFullScreen = false;
+                    if(mSharedPreferences != null){
+                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                        Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
+                        if(isTurnOnFullScreen){
+                            mDecorCaptionView.exitFullScreenWindow();
+                            mDecorCaptionView.toggleFreeformWindowingMode();
+                            SharedPreferences.Editor editor = mSharedPreferences.edit();
+                            editor.putBoolean("mTurnOnFullScreen", false);
+                            editor.apply();
+                            Slog.w(TAG,"fde mTurnOnFullScreen seted false.");
+                        }else{
+                            Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                            mDecorCaptionView.startFullScreenWindow();
+                            SharedPreferences.Editor editor = mSharedPreferences.edit();
+                            editor.putBoolean("mTurnOnFullScreen", true);
+                            editor.apply();
+                            Slog.w(TAG,"fde mTurnOnFullScreen seted true.");
+                        }
+                    }
+                    /*Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                    final int windowingMode =
+                            getResources().getConfiguration().windowConfiguration.getWindowingMode();
+                    try {
+                        if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
+                            callback.toggleFreeformWindowingMode();
+                            updateDecorCaptionShade();
+                        } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
+                            callback.toggleFreeformWindowingMode();
+                            updateDecorCaptionShade();
+                        }
+                        return true;
+                    } catch (RemoteException ex) {
+                        Log.e(TAG, "Catch exception when process F11", ex);
+                    }*/
                 }
             }
             // endregion

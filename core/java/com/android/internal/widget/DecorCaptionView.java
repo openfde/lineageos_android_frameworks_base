@@ -33,6 +33,7 @@ import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.os.Handler;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 
@@ -303,25 +304,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     @Override
     public boolean onInterceptHoverEvent(MotionEvent event) {
-        final int y = (int) event.getY();
-        if(mSharedPreferences != null){
-            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-            //Slog.w(TAG,"fde onInterceptHoverEvent start isTurnOnFullScreen: " + isTurnOnFullScreen);
-        }
         if(isTurnOnFullScreen){
-            if(y < 12 && !mShow){
-                mShow = true;
-            }else if(y >= 52){
-                mShow = false;
-                startFullScreenWindow();
-            }
-            updateCaptionVisibility();
-        }else {
-            exitFullScreenWindow();
-            if(!mShow){
-                mShow = true;
-                updateCaptionVisibility();
-            }
+            startFullScreenWindow();
         }
         return false;
     }
@@ -554,7 +538,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     /**
      * Maximize or restore the window by moving it to the maximized or freeform workspace stack.
      **/
-    private void toggleFreeformWindowingMode() {
+    public void toggleFreeformWindowingMode() {
         if(!mToggleFreeformWindowingModeing){
             mToggleFreeformWindowingModeing = true;
             Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
@@ -613,7 +597,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         }
     }
 
-    private void exitFullScreenWindow(){
+    public void exitFullScreenWindow(){
         if(mHandler.hasCallbacks(hideSystemUIRunnable)){
             mHandler.removeCallbacks(hideSystemUIRunnable);
         }
@@ -623,7 +607,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mHandler.postDelayed(showSystemUIRunnable, 500);
     }
 
-    private void startFullScreenWindow(){
+    public void startFullScreenWindow(){
         if(mOwner != null){
             if(mHandler.hasCallbacks(showSystemUIRunnable)){
                 mHandler.removeCallbacks(showSystemUIRunnable);
@@ -767,6 +751,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                     Slog.w(TAG,"fde mTurnOnFullScreen seted true ----------->>>>>>>>");
                 }
                 startFullScreenWindow();
+                if(mContext != null){
+                    Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                }
             }
         }
         return true;

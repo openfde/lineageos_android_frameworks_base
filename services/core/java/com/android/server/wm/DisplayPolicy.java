@@ -552,6 +552,9 @@ public class DisplayPolicy {
                     @Override
                     public void onSwipeFromTop() {
                         synchronized (mLock) {
+                            if (true) {
+                                return;
+                            }
                             if (mStatusBar != null) {
                                 requestTransientBars(mStatusBar);
                             }
@@ -562,6 +565,9 @@ public class DisplayPolicy {
                     @Override
                     public void onSwipeFromBottom() {
                         synchronized (mLock) {
+                            if (true) {
+                                return;
+                            }
                             if (mNavigationBar != null
                                     && mNavigationBarPosition == NAV_BAR_BOTTOM) {
                                 requestTransientBars(mNavigationBar);
@@ -640,6 +646,9 @@ public class DisplayPolicy {
 
                     @Override
                     public void onMouseHoverAtTop() {
+                        if (true) {
+                            return;
+                        }
                         mHandler.removeMessages(MSG_REQUEST_TRANSIENT_BARS);
                         Message msg = mHandler.obtainMessage(MSG_REQUEST_TRANSIENT_BARS);
                         msg.arg1 = MSG_REQUEST_TRANSIENT_BARS_ARG_STATUS;
@@ -648,6 +657,9 @@ public class DisplayPolicy {
 
                     @Override
                     public void onMouseHoverAtBottom() {
+                        if (true) {
+                            return;
+                        }
                         mHandler.removeMessages(MSG_REQUEST_TRANSIENT_BARS);
                         Message msg = mHandler.obtainMessage(MSG_REQUEST_TRANSIENT_BARS);
                         msg.arg1 = MSG_REQUEST_TRANSIENT_BARS_ARG_NAVIGATION;
