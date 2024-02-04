@@ -109,6 +109,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.SharedPreferences;
+import android.os.Handler;
 
 import com.android.internal.R;
 import com.android.internal.policy.PhoneWindow.PanelFeatureState;
@@ -437,11 +438,39 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mStatusColorViewState.view, mNavigationColorViewState.view);
     }
 
+    Handler mHandler = new Handler();
+    private boolean mChordAltKeyTriggered;
+
+    private class CancelChordAltKeyTriggeredRunnable implements Runnable {
+        @Override
+        public void run() {
+            mChordAltKeyTriggered = false;
+        }
+    }
+
+    private void exitTask(){
+        Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+        if (callback != null) {
+            callback.exitTask();
+        }
+    }
+
+    private final CancelChordAltKeyTriggeredRunnable mCancelAltKeyTriggeredRunnable = new CancelChordAltKeyTriggeredRunnable();
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         final int keyCode = event.getKeyCode();
         final int action = event.getAction();
         final boolean isDown = action == KeyEvent.ACTION_DOWN;
+
+        if(keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT){
+            if(isDown){
+                mChordAltKeyTriggered = true;
+            }else{
+                mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
+                mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
+            }
+        }
 
         if (isDown && (event.getRepeatCount() == 0)) {
             // First handle chording of panel key: if a panel key is held
@@ -463,36 +492,42 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         if (!mWindow.isDestroyed()) {
+            if (keyCode == KeyEvent.KEYCODE_F4 && isDown && mChordAltKeyTriggered){
+                exitTask();
+            }
             // region @waydroid
-            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && mDecorCaptionView != null && mContext != null) {
-                String packageName = mContext.getPackageName();
-                if(!"com.android.launcher3".equals(packageName)){
-                    try{
-                        mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-                    }catch(Exception e){
-                        Slog.w(TAG,"fde getSharedPreferences error: " + e);
-                    }
-                    boolean isTurnOnFullScreen = false;
-                    if(mSharedPreferences != null){
-                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                        Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
-                        if(isTurnOnFullScreen){
-                            mDecorCaptionView.exitFullScreenWindow();
-                            mDecorCaptionView.toggleFreeformWindowingMode();
-                            SharedPreferences.Editor editor = mSharedPreferences.edit();
-                            editor.putBoolean("mTurnOnFullScreen", false);
-                            editor.apply();
-                            Slog.w(TAG,"fde mTurnOnFullScreen seted false.");
-                        }else{
-                            Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
-                            mDecorCaptionView.startFullScreenWindow();
-                            SharedPreferences.Editor editor = mSharedPreferences.edit();
-                            editor.putBoolean("mTurnOnFullScreen", true);
-                            editor.apply();
-                            Slog.w(TAG,"fde mTurnOnFullScreen seted true.");
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown) {
+                if(mDecorCaptionView != null && mContext != null){
+                    String packageName = mContext.getPackageName();
+                    if(!"com.android.launcher3".equals(packageName)){
+                        try{
+                            mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                        }catch(Exception e){
+                            Slog.w(TAG,"fde getSharedPreferences error: " + e);
+                        }
+                        boolean isTurnOnFullScreen = false;
+                        if(mSharedPreferences != null){
+                            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                            Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
+                            if(isTurnOnFullScreen){
+                                mDecorCaptionView.exitFullScreenWindow();
+                                mDecorCaptionView.toggleFreeformWindowingMode();
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putBoolean("mTurnOnFullScreen", false);
+                                editor.apply();
+                                Slog.w(TAG,"fde mTurnOnFullScreen seted false.");
+                            }else{
+                                Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                                mDecorCaptionView.startFullScreenWindow();
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putBoolean("mTurnOnFullScreen", true);
+                                editor.apply();
+                                Slog.w(TAG,"fde mTurnOnFullScreen seted true.");
+                            }
                         }
                     }
-                    /*Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                }else{
+                    Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
                     final int windowingMode =
                             getResources().getConfiguration().windowConfiguration.getWindowingMode();
                     try {
@@ -506,7 +541,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         return true;
                     } catch (RemoteException ex) {
                         Log.e(TAG, "Catch exception when process F11", ex);
-                    }*/
+                    }
                 }
             }
             // endregion
