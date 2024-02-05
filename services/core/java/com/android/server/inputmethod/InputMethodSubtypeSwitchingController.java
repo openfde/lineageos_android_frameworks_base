@@ -275,7 +275,7 @@ final class InputMethodSubtypeSwitchingController {
                 return null;
             }
             if (mImeSubtypeList.size() <= 1) {
-                return null;
+                return mImeSubtypeList.get(0);
             }
             final int currentIndex = getIndex(imi, subtype);
             if (currentIndex < 0) {
@@ -359,12 +359,17 @@ final class InputMethodSubtypeSwitchingController {
                 InputMethodInfo imi, InputMethodSubtype subtype) {
             int currentUsageRank = getUsageRank(imi, subtype);
             if (currentUsageRank < 0) {
-                if (DEBUG) {
-                    Slog.d(TAG, "IME/subtype is not found: " + imi.getId() + ", " + subtype);
-                }
-                return null;
+                // if (DEBUG) {
+                //     Slog.d(TAG, "IME/subtype is not found: " + imi.getId() + ", " + subtype);
+                // }
+                // return null;
+                currentUsageRank = 0;
             }
             final int N = mUsageHistoryOfSubtypeListItemIndex.length;
+            if( N == 1){
+                return mImeSubtypeList.get(0);
+            }
+
             for (int i = 1; i < N; i++) {
                 final int subtypeListItemRank = (currentUsageRank + i) % N;
                 final int subtypeListItemIndex =
@@ -392,6 +397,7 @@ final class InputMethodSubtypeSwitchingController {
     public static class ControllerImpl {
         private final DynamicRotationList mSwitchingAwareRotationList;
         private final StaticRotationList mSwitchingUnawareRotationList;
+        private static int nextIndex = 0;
 
         public static ControllerImpl createFrom(final ControllerImpl currentInstance,
                 final List<ImeSubtypeListItem> sortedEnabledItems) {
@@ -444,12 +450,19 @@ final class InputMethodSubtypeSwitchingController {
             if (imi == null) {
                 return null;
             }
-            if (imi.supportsSwitchingToNextInputMethod()) {
+            if ( nextIndex <= mSwitchingAwareRotationList.mImeSubtypeList.size() - 1) {
+                nextIndex++;
                 return mSwitchingAwareRotationList.getNextInputMethodLocked(onlyCurrentIme, imi,
                         subtype);
             } else {
-                return mSwitchingUnawareRotationList.getNextInputMethodLocked(onlyCurrentIme, imi,
+                if(nextIndex == mSwitchingAwareRotationList.mImeSubtypeList.size() + mSwitchingUnawareRotationList.mImeSubtypeList.size() - 1){
+                    nextIndex = 0;
+                } else {
+                    nextIndex++;
+                }
+                ImeSubtypeListItem itmes1 = mSwitchingUnawareRotationList.getNextInputMethodLocked(onlyCurrentIme, imi,
                         subtype);
+                return itmes1;
             }
         }
 

@@ -191,7 +191,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class InputMethodManagerService extends IInputMethodManager.Stub
         implements ServiceConnection, Handler.Callback {
-    static final boolean DEBUG = false;
+    static final boolean DEBUG = true;
     static final String TAG = "InputMethodManagerService";
 
     @Retention(SOURCE)
@@ -3123,6 +3123,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
     }
 
     /* package */ void setInputMethodLocked(String id, int subtypeId) {
+        Slog.w(TAG, "setInputMethodLocked():  id :" + id + ", subtypeId :" + subtypeId + "");       
         InputMethodInfo info = mMethodMap.get(id);
         if (info == null) {
             throw new IllegalArgumentException("Unknown id: " + id);
@@ -3873,6 +3874,23 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
     }
 
     @BinderThread
+    private boolean switchToNextInputMethod(boolean onlyCurrentIme) {
+        Slog.w(TAG, "inputmms switchToNextInputMethod");
+        synchronized (mMethodMap) {
+            final ImeSubtypeListItem nextSubtype = mSwitchingController.getNextInputMethodLocked(
+                    onlyCurrentIme, mMethodMap.get(mCurMethodId), mCurrentSubtype);
+            if (nextSubtype == null) {
+                return false;
+            }
+            Slog.w(TAG, "inputmms setInputMethodWithSubtypeIdLocked ime:" + nextSubtype.mImi.getId());
+
+            setInputMethodWithSubtypeIdLocked(null, nextSubtype.mImi.getId(),
+                    nextSubtype.mSubtypeId);
+            return true;
+        }
+    }
+
+    @BinderThread
     private boolean shouldOfferSwitchingToNextInputMethod(@NonNull IBinder token) {
         synchronized (mMethodMap) {
             if (!calledWithValidTokenLocked(token)) {
@@ -4173,6 +4191,7 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
     }
 
     private void setInputMethodWithSubtypeIdLocked(IBinder token, String id, int subtypeId) {
+        Slog.w(TAG, "setInputMethodWithSubtypeIdLocked():  token :" + token + ", id :" + id + ", subtypeId :" + subtypeId + "");
         if (token == null) {
             if (mContext.checkCallingOrSelfPermission(
                     android.Manifest.permission.WRITE_SECURE_SETTINGS)
@@ -5194,6 +5213,12 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
             // Do everything in handler so as not to block the caller.
             mService.mHandler.obtainMessage(MSG_SET_INTERACTIVE, interactive ? 1 : 0, 0)
                     .sendToTarget();
+        }
+
+        @Override
+        public boolean switchToNextInputMethod(boolean onlyCurrentIme) {
+            Slog.w(TAG, "localservice impl switchToNextInputMethod");
+            return mService.switchToNextInputMethod(onlyCurrentIme);
         }
 
         @Override

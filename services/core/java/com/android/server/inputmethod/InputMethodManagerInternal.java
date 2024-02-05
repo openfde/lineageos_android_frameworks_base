@@ -94,6 +94,10 @@ public abstract class InputMethodManagerInternal {
      */
     public abstract boolean switchToInputMethod(String imeId, @UserIdInt int userId);
 
+
+    public abstract boolean switchToNextInputMethod(boolean onlyCurrentIme);
+
+
     /**
      * Registers a new {@link InputMethodListListener}.
      */
@@ -141,6 +145,11 @@ public abstract class InputMethodManagerInternal {
                 public List<InputMethodInfo> getInputMethodListAsUser(int userId) {
                     return Collections.emptyList();
                 }
+
+                @Override
+                public boolean switchToNextInputMethod(boolean  onlyCurrentIme) {
+                    return false;
+                }                
 
                 @Override
                 public List<InputMethodInfo> getEnabledInputMethodListAsUser(int userId) {

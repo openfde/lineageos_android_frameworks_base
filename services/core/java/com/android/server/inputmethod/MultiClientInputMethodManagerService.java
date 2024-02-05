@@ -210,6 +210,11 @@ public final class MultiClientInputMethodManagerService {
                         }
 
                         @Override
+                        public boolean switchToNextInputMethod(boolean  userId) {
+                            return false;
+                        }
+
+                        @Override
                         public void registerInputMethodListListener(
                                 InputMethodListListener listener) {
                             reportNotSupported();

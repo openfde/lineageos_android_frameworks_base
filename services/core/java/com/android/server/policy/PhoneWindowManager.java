@@ -258,7 +258,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final String SYSUI_SCREENRECORD_LAUNCHER =
             "com.android.systemui.screenrecord.ScreenRecordDialog";
     static final boolean localLOGV = false;
-    static final boolean DEBUG_INPUT = false;
+    static final boolean DEBUG_INPUT = true;
     static final boolean DEBUG_KEYGUARD = false;
     static final boolean DEBUG_SPLASH_SCREEN = false;
     static final boolean DEBUG_WAKEUP = false;
@@ -3566,7 +3566,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (down && repeatCount == 0
                 && (keyCode == KeyEvent.KEYCODE_LANGUAGE_SWITCH || isCtrlOrMetaSpace)) {
             int direction = (metaState & KeyEvent.META_SHIFT_MASK) != 0 ? -1 : 1;
+            Slog.w(TAG, "direction:"+direction  + "  deviceid:" +  event.getDeviceId());
             mWindowManagerFuncs.switchKeyboardLayout(event.getDeviceId(), direction);
+
+            if (mInputMethodManagerInternal == null) {
+                mInputMethodManagerInternal =  LocalServices.getService(InputMethodManagerInternal.class);
+            }
+            mInputMethodManagerInternal.switchToNextInputMethod(false);
             return -1;
         }
         if (mLanguageSwitchKeyPressed && !down
