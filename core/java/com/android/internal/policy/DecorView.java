@@ -525,6 +525,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                                 Slog.w(TAG,"fde mTurnOnFullScreen seted true.");
                             }
                         }
+                        return true;
                     }
                 }else{
                     Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
