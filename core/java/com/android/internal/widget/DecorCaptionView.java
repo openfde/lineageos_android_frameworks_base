@@ -36,10 +36,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
+import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
+import android.view.WindowManager.LayoutParams;
+import android.view.WindowManager;
 
 import com.android.internal.R;
 import com.android.internal.policy.DecorView;
 import com.android.internal.policy.PhoneWindow;
+import com.android.internal.util.CompatibleConfig;
+
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
@@ -97,6 +102,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private boolean mOverlayWithAppContent = false;
 
     private boolean isTurnOnFullScreen = false;
+    private boolean shouldHideDecorCaption = false;
     private SharedPreferences mSharedPreferences = null;
     private boolean mToggleFreeformWindowingModeing = false;
 
@@ -244,6 +250,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mOwner = owner;
         mShow = show;
         mOverlayWithAppContent = owner.isOverlayWithDecorCaptionEnabled();
+        shouldHideDecorCaption = ((((DecorView)mOwner.getDecorView()).getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) != 0
+                || (((WindowManager.LayoutParams)owner.getAttributes()).flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) == WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                && isCompatibilityFeaturesAllowHideDecorCaption(mContext);
+        if(shouldHideDecorCaption){
+            mShow = false;
+        }
         updateCaptionVisibility();
         // By changing the outline provider to BOUNDS, the window can remove its
         // background without removing the shadow.
@@ -281,6 +293,21 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 mMaximize.setVisibility(View.GONE);
             }
         }
+        if(shouldHideDecorCaption){
+            DecorView decorView = (DecorView)mOwner.getDecorView();
+            if(decorView.isWindowMaximized()){
+                decorView.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_IMMERSIVE
+                            // Set the content to appear under the system bars so that the
+                            // content doesn't resize when the system bars hide and show.
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            // Hide the nav bar and status bar
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+        }
     }
 
     public void setApplicationLable(CharSequence text){
@@ -300,6 +327,19 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if (disallowed)
             Slog.w(TAG,"fde Disallowed maximize for " + packageName);
         return disallowed;
+    }
+
+    public boolean isCompatibilityFeaturesAllowHideDecorCaption(@NonNull Context context){
+        boolean allowHide = false;
+        if(context != null){
+            String packageName = context.getPackageName();
+            String result = CompatibleConfig.queryValueData(context, packageName, "isAllowHideDecorCaption");
+            Slog.w(TAG,"fde allow hide caption for " + packageName + ", result: " + result);
+            if(result != null && result.contains("true")){
+                allowHide = true;
+            }
+        }
+        return allowHide;
     }
 
     @Override
@@ -453,6 +493,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         }
         mShow = show;
         mShow &= !isTurnOnFullScreen;
+        if(shouldHideDecorCaption){
+            mShow = false;
+        }
         updateCaptionVisibility();
     }
 
