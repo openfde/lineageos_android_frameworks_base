@@ -348,6 +348,9 @@
     <!-- region @boringdroid -->
     <string name="boring_config_navBarLayout" translatable="false">;;back,home,recent</string>
     <!-- endregion -->
+    <!-- region @openfde -->
+    <string name="fde_config_navBarLayout" translatable="false">;;</string>
+    <!-- endregion -->
 
     <bool name="quick_settings_show_full_alarm">false</bool>
 

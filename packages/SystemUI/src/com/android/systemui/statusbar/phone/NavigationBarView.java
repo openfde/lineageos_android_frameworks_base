@@ -92,7 +92,7 @@ import java.util.function.Consumer;
 
 public class NavigationBarView extends FrameLayout implements
         NavigationModeController.ModeChangedListener, TunerService.Tunable {
-    final static boolean DEBUG = false;
+    final static boolean DEBUG = true;
     final static String TAG = "StatusBar/NavBarView";
 
     private static final String NAVIGATION_BAR_MENU_ARROW_KEYS =
@@ -339,8 +339,8 @@ public class NavigationBarView extends FrameLayout implements
         mButtonDispatchers.put(R.id.menu_container, mContextualButtonGroup);
         mDeadZone = new DeadZone(this);
 
-        mNavColorSampleMargin = getResources()
-                        .getDimensionPixelSize(R.dimen.navigation_handle_sample_horizontal_margin);
+        mNavColorSampleMargin = 0 ; //getResources()
+                        // .getDimensionPixelSize(R.dimen.navigation_handle_sample_horizontal_margin);
         mEdgeBackGestureHandler = new EdgeBackGestureHandler(context, mOverviewProxyService,
                 mSysUiFlagContainer, mPluginManager, this::updateStates);
         mRegionSamplingHelper = new RegionSamplingHelper(this,

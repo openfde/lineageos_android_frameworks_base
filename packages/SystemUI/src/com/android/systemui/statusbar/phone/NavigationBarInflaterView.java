@@ -165,12 +165,8 @@ public class NavigationBarInflaterView extends FrameLayout
         if (!mIsHintEnabled && defaultResource == R.string.config_navBarLayoutHandle) {
             return getContext().getString(defaultResource).replace(HOME_HANDLE, "");
         }
-        // region @boringdroid
-        if (true) {
-            return getContext().getString(R.string.boring_config_navBarLayout);
-        } else {
-            return getContext().getString(defaultResource);
-        }
+        // region @openfde
+        return getContext().getString(R.string.fde_config_navBarLayout);
         // endregion
     }
 
