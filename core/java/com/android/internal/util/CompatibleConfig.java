@@ -16,6 +16,8 @@ import android.content.Context;
 
 public class CompatibleConfig {
     public static final String COMPATIBLE_URI = "content://com.boringdroid.systemuiprovider";
+    public static final String KEY_CODE_IS_ALLOW_SCREENSHOT_AND_RECORD = "isAllowScreenshotAndRecord";
+    public static final String KEY_CODE_IS_ALLOW_HIDE_DECOR_CAPTION = "isAllowHideDecorCaption";
 
     public static Map<String, Object> queryMapValueData(Context context, String packageName, String keycode) {
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");

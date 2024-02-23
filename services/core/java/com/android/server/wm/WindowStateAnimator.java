@@ -81,6 +81,8 @@ import com.android.server.policy.WindowManagerPolicy;
 import com.android.server.protolog.common.ProtoLog;
 
 import java.io.PrintWriter;
+import com.android.internal.util.CompatibleConfig;
+import android.annotation.NonNull;
 
 /**
  * Keep track of animations and surface operations for a single WindowState.
@@ -476,8 +478,7 @@ class WindowStateAnimator {
 
         int flags = SurfaceControl.HIDDEN;
         final WindowManager.LayoutParams attrs = w.mAttrs;
-
-        if (w.isSecureLocked()) {
+        if (w.isSecureLocked() && !isCompatibilityFeaturesAllowScreenshotAndRecord(mContext,w.mAttrs.packageName)) {
             flags |= SurfaceControl.SECURE;
         }
 
@@ -561,6 +562,22 @@ class WindowStateAnimator {
 
         if (DEBUG) Slog.v(TAG, "Created surface " + this);
         return mSurfaceController;
+    }
+
+    boolean isCompatibilityFeaturesAllowScreenshotAndRecord(@NonNull Context context, String packageName){
+        if(context != null){
+            String result = CompatibleConfig.queryValueData(context, packageName, CompatibleConfig.KEY_CODE_IS_ALLOW_SCREENSHOT_AND_RECORD);
+            if(result != null){
+                if(result.contains("true")){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                return true;
+            }
+        }
+        return true;
     }
 
     private void calculateSurfaceBounds(WindowState w, LayoutParams attrs, Rect outSize) {
