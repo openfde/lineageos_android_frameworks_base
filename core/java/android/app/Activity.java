@@ -965,6 +965,10 @@ public class Activity extends ContextThemeWrapper
 
     private final WindowControllerCallback mWindowControllerCallback =
             new WindowControllerCallback() {
+        @Override
+        public boolean isInFreeformWindowingMode() throws RemoteException {
+            return ActivityTaskManager.getService().isInFreeformWindowingMode(mToken);
+        }
         /**
          * Moves the activity between {@link WindowConfiguration#WINDOWING_MODE_FREEFORM} windowing
          * mode and {@link WindowConfiguration#WINDOWING_MODE_FULLSCREEN}.

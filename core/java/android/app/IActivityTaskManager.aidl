@@ -230,6 +230,7 @@ interface IActivityTaskManager {
     void unregisterTaskStackListener(in ITaskStackListener listener);
     void setTaskResizeable(int taskId, int resizeableMode);
     void toggleFreeformWindowingMode(in IBinder token);
+    boolean isInFreeformWindowingMode(in IBinder token);
 
     /**
      * Resize the task with given bounds

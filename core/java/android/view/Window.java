@@ -634,6 +634,7 @@ public abstract class Window {
 
     /** @hide */
     public interface WindowControllerCallback {
+        boolean isInFreeformWindowingMode() throws RemoteException;
         /**
          * Moves the activity between {@link WindowConfiguration#WINDOWING_MODE_FREEFORM} windowing
          * mode and {@link WindowConfiguration#WINDOWING_MODE_FULLSCREEN}.

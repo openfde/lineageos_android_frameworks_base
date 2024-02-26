@@ -3555,6 +3555,32 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     }
 
     @Override
+    public boolean isInFreeformWindowingMode(IBinder token) {
+        synchronized (mGlobalLock) {
+            long ident = Binder.clearCallingIdentity();
+            try {
+                final ActivityRecord r = ActivityRecord.forTokenLocked(token);
+                if (r == null) {
+                    return false;
+                }
+
+                final ActivityStack stack = r.getRootTask();
+                if (stack == null) {
+                    return false;
+                }
+
+                if (stack.inFreeformWindowingMode()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } finally {
+                Binder.restoreCallingIdentity(ident);
+            }
+        }
+    }
+
+    @Override
     public void toggleFreeformWindowingMode(IBinder token) {
         synchronized (mGlobalLock) {
             long ident = Binder.clearCallingIdentity();

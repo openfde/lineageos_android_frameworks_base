@@ -2398,8 +2398,19 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public boolean isWindowMaximized(){
-        final WindowConfiguration winConfig = getResources().getConfiguration().windowConfiguration;
-        return winConfig.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
+        boolean isMaximized = false;
+        Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+        try {
+            if (callback != null) {
+                isMaximized = !callback.isInFreeformWindowingMode();
+            }
+            Log.w(TAG,"isWindowMaximized: " + isMaximized);
+            return isMaximized;
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Catch exception ", ex);
+        }
+        Log.w(TAG,"isWindowMaximized: " + isMaximized);
+        return isMaximized;
     }
 
     private void setLightDecorCaptionShade(DecorCaptionView view) {
