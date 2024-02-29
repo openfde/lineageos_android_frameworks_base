@@ -3656,7 +3656,7 @@ class Task extends WindowContainer<WindowContainer> {
         info.resizeMode = top != null ? top.mResizeMode : mResizeMode;
         info.topActivityType = top.getActivityType();
         info.isResizeable = isResizeable();
-
+        info.setVisible(hasVisibleChildren());
         ActivityRecord rootActivity = top.getRootActivity();
         if (rootActivity == null || rootActivity.pictureInPictureArgs.empty()) {
             info.pictureInPictureParams = null;

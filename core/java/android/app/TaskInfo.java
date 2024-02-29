@@ -60,6 +60,11 @@ public class TaskInfo {
     public boolean isRunning;
 
     /**
+     * Whether this task is visible.
+     */
+    private boolean isVisible;
+
+    /**
      * The base intent of the task (generally the intent that launched the task). This intent can
      * be used to relaunch the task (if it is no longer running) or brought to the front if it is.
      */
@@ -220,6 +225,17 @@ public class TaskInfo {
     }
 
     /**
+     * Whether this task is visible.
+     */
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    public boolean setVisible(boolean visible) {
+        return isVisible = visible;
+    }
+
+    /**
      * Reads the TaskInfo from a parcel.
      */
     void readFromParcel(Parcel source) {
@@ -238,6 +254,7 @@ public class TaskInfo {
 
         numActivities = source.readInt();
         lastActiveTime = source.readLong();
+        isVisible = source.readBoolean();
 
         taskDescription = source.readInt() != 0
                 ? ActivityManager.TaskDescription.CREATOR.createFromParcel(source)
@@ -280,6 +297,7 @@ public class TaskInfo {
 
         dest.writeInt(numActivities);
         dest.writeLong(lastActiveTime);
+        dest.writeBoolean(isVisible);
 
         if (taskDescription != null) {
             dest.writeInt(1);
