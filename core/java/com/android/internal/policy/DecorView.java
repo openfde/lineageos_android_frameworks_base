@@ -528,21 +528,34 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         return true;
                     }
                 }else{
-                    Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
-                    final int windowingMode =
-                            getResources().getConfiguration().windowConfiguration.getWindowingMode();
-                    try {
-                        if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
-                            callback.toggleFreeformWindowingMode();
-                            updateDecorCaptionShade();
-                        } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
-                            callback.toggleFreeformWindowingMode();
-                            updateDecorCaptionShade();
+                    if(mContext != null){
+                        String packageName = mContext.getPackageName();
+                        if(!"com.android.launcher3".equals(packageName)){
+                            Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                            final int windowingMode =
+                                    getResources().getConfiguration().windowConfiguration.getWindowingMode();
+                            try {
+                                if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
+                                    callback.toggleFreeformWindowingMode();
+                                    updateDecorCaptionShade();
+                                } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
+                                    callback.toggleFreeformWindowingMode();
+                                    updateDecorCaptionShade();
+                                }
+                                return true;
+                            } catch (RemoteException ex) {
+                                Log.e(TAG, "Catch exception when process F11", ex);
+                            }
                         }
-                        return true;
-                    } catch (RemoteException ex) {
-                        Log.e(TAG, "Catch exception when process F11", ex);
                     }
+                }
+            }
+
+            if (keyCode == KeyEvent.KEYCODE_F9 && isDown) {
+                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                if (callback != null) {
+                    callback.moveTaskToBack(true);
+                    return true;
                 }
             }
             // endregion

@@ -3220,7 +3220,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // can never break it, although if keyguard is on, we do let
         // it handle it, because that gives us the correct 5 second
         // timeout.
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
+        if (keyCode == KeyEvent.KEYCODE_HOME || keyCode == KeyEvent.KEYCODE_F10) {
             DisplayHomeButtonHandler handler = mDisplayHomeButtonHandlers.get(displayId);
             if (handler == null) {
                 handler = new DisplayHomeButtonHandler(displayId);
