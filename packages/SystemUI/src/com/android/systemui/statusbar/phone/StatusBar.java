@@ -2258,6 +2258,9 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     @Override
     public void animateExpandNotificationsPanel() {
+        if(true){
+            return;
+        }
         if (SPEW) Log.d(TAG, "animateExpand: mExpandedVisible=" + mExpandedVisible);
         if (!mCommandQueue.panelsEnabled()) {
             return ;
@@ -2270,6 +2273,9 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     @Override
     public void animateExpandSettingsPanel(@Nullable String subPanel) {
+        if(true){
+            return;
+        }
         if (SPEW) Log.d(TAG, "animateExpand: mExpandedVisible=" + mExpandedVisible);
         if (!mCommandQueue.panelsEnabled()) {
             return;
