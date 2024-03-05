@@ -180,7 +180,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         @Override
         public void run() {
             if(mOwner != null){
-                Slog.w(TAG,"fde showSystemUIRunnable start ---------->>>>>>");
                 DecorView decorView = (DecorView)mOwner.getDecorView();
                 if((decorView.getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                     decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
@@ -222,10 +221,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(mContext != null){
             try{
                 mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-				 Activity currentActivity = (Activity) context;
-				 String str = currentActivity.getClass().toString();
-				 Slog.w(TAG,"fde DecorCaptionView init currentActivity: " + str);
-				
             }catch(Exception e){
                 Slog.w(TAG,"fde getSharedPreferences error: " + e);
             }
@@ -789,7 +784,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putBoolean("mTurnOnFullScreen", false);
                     editor.apply();
-                    Slog.w(TAG,"fde mTurnOnFullScreen seted false ----------->>>>>>>>");
                 }
             }
             exitFullScreenWindow();
@@ -806,7 +800,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putBoolean("mTurnOnFullScreen", false);
                 editor.apply();
-                Slog.w(TAG,"fde mTurnOnFullScreen seted false ----------->>>>>>>>");
                 exitFullScreenWindow();
                 toggleFreeformWindowingMode();
             }else{
@@ -814,7 +807,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putBoolean("mTurnOnFullScreen", true);
                     editor.apply();
-                    Slog.w(TAG,"fde mTurnOnFullScreen seted true ----------->>>>>>>>");
                 }
                 startFullScreenWindow();
                 if(mContext != null){
@@ -851,7 +843,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                             SharedPreferences.Editor editor = mSharedPreferences.edit();
                             editor.putBoolean("mTurnOnFullScreen", false);
                             editor.apply();
-                            Slog.w(TAG,"fde mTurnOnFullScreen seted false ----------->>>>>>>>");
                         }
                     }
                     exitFullScreenWindow();
