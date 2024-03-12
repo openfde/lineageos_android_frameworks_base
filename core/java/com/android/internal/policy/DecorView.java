@@ -457,6 +457,182 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     private final CancelChordAltKeyTriggeredRunnable mCancelAltKeyTriggeredRunnable = new CancelChordAltKeyTriggeredRunnable();
 
+    public void toggleFreeformWindowingMode(){
+        Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+        final int windowingMode =
+                getResources().getConfiguration().windowConfiguration.getWindowingMode();
+        try {
+            if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
+                callback.toggleFreeformWindowingMode();
+                updateDecorCaptionShade();
+            } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
+                callback.toggleFreeformWindowingMode();
+                updateDecorCaptionShade();
+            }
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Catch exception when process F11", ex);
+        }
+    }
+
+    public void startFullScreenWindow(){
+        if(mHandler.hasCallbacks(showSystemUIRunnable)){
+            mHandler.removeCallbacks(showSystemUIRunnable);
+        }
+        if(!isWindowMaximized()){
+            toggleFreeformWindowingMode();
+            if(mHandler.hasCallbacks(hideSystemUIRunnable)){
+                mHandler.removeCallbacks(hideSystemUIRunnable);
+            }
+            mHandler.postDelayed(hideSystemUIRunnable, 500);
+        }else{
+            if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
+                setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }else{
+                setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+            updateDecorCaptionShade();
+        }
+    }
+
+    public void exitFullScreenWindow(){
+        if(mHandler.hasCallbacks(hideSystemUIRunnable)){
+            mHandler.removeCallbacks(hideSystemUIRunnable);
+        }
+        if(mHandler.hasCallbacks(showSystemUIRunnable)){
+            mHandler.removeCallbacks(showSystemUIRunnable);
+        }
+        mHandler.postDelayed(showSystemUIRunnable, 500);
+    }
+
+    Runnable hideSystemUIRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
+                setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+                            // Set the content to appear under the system bars so that the
+                            // content doesn't resize when the system bars hide and show.
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            // Hide the nav bar and status bar
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }else{
+                setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+                            // Set the content to appear under the system bars so that the
+                            // content doesn't resize when the system bars hide and show.
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            // Hide the nav bar and status bar
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            }
+            updateDecorCaptionShade();
+        }
+    };
+
+    Runnable showSystemUIRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }else{
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            }
+            updateDecorCaptionShade();
+        }
+    };
+
+    @Override
+    public boolean dispatchKeyEventPreIme(KeyEvent event) {
+        final int keyCode = event.getKeyCode();
+        final int action = event.getAction();
+        final boolean isDown = action == KeyEvent.ACTION_DOWN;
+        if(keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT){
+            if(isDown){
+                mChordAltKeyTriggered = true;
+            }else{
+                mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
+                mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
+            }
+        }
+        if (!mWindow.isDestroyed()) {
+            if (keyCode == KeyEvent.KEYCODE_F4 && isDown && mChordAltKeyTriggered){
+                exitTask();
+            }
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
+                Slog.d(TAG, "dispatchKeyEventPreIme KEYCODE_F11");
+                if(mContext != null){
+                    String packageName = mContext.getPackageName();
+                    if(!"com.android.launcher3".equals(packageName)){
+                        try{
+                            mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                        }catch(Exception e){
+                            Slog.w(TAG,"fde getSharedPreferences error: " + e);
+                        }
+                        boolean isTurnOnFullScreen = false;
+                        if(mSharedPreferences != null){
+                            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                            Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
+                            if(isTurnOnFullScreen){
+                                exitFullScreenWindow();
+                                toggleFreeformWindowingMode();
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putBoolean("mTurnOnFullScreen", false);
+                                editor.apply();
+                            }else{
+                                Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                                startFullScreenWindow();
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putBoolean("mTurnOnFullScreen", true);
+                                editor.apply();
+                            }
+                        }else{
+                            toggleFreeformWindowingMode();
+                        }
+                        return true;
+                    }
+                }else{
+                    toggleFreeformWindowingMode();
+                    return true;
+                }
+            }
+
+            if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
+                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                if (callback != null) {
+                    callback.moveTaskToBack(true);
+                    return true;
+                }
+            }
+        }
+        return super.dispatchKeyEventPreIme(event);
+    }
+
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         final int keyCode = event.getKeyCode();
@@ -496,8 +672,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 exitTask();
             }
             // region @waydroid
-            if (keyCode == KeyEvent.KEYCODE_F11 && isDown) {
-                if(mDecorCaptionView != null && mContext != null){
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
+                Slog.d(TAG, "dispatchKeyEvent KEYCODE_F11");
+                if(mContext != null){
                     String packageName = mContext.getPackageName();
                     if(!"com.android.launcher3".equals(packageName)){
                         try{
@@ -510,48 +687,30 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                             isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
                             Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
                             if(isTurnOnFullScreen){
-                                mDecorCaptionView.exitFullScreenWindow();
-                                mDecorCaptionView.toggleFreeformWindowingMode();
+                                exitFullScreenWindow();
+                                toggleFreeformWindowingMode();
                                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                                 editor.putBoolean("mTurnOnFullScreen", false);
                                 editor.apply();
-                                Slog.w(TAG,"fde mTurnOnFullScreen seted false.");
                             }else{
                                 Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
-                                mDecorCaptionView.startFullScreenWindow();
+                                startFullScreenWindow();
                                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                                 editor.putBoolean("mTurnOnFullScreen", true);
                                 editor.apply();
-                                Slog.w(TAG,"fde mTurnOnFullScreen seted true.");
                             }
+                        }else{
+                            toggleFreeformWindowingMode();
                         }
                         return true;
                     }
                 }else{
-                    if(mContext != null){
-                        String packageName = mContext.getPackageName();
-                        if(!"com.android.launcher3".equals(packageName)){
-                            Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
-                            final int windowingMode =
-                                    getResources().getConfiguration().windowConfiguration.getWindowingMode();
-                            try {
-                                if (windowingMode == WINDOWING_MODE_FREEFORM && callback != null) {
-                                    callback.toggleFreeformWindowingMode();
-                                    updateDecorCaptionShade();
-                                } else if (windowingMode != WINDOWING_MODE_FREEFORM && callback != null) {
-                                    callback.toggleFreeformWindowingMode();
-                                    updateDecorCaptionShade();
-                                }
-                                return true;
-                            } catch (RemoteException ex) {
-                                Log.e(TAG, "Catch exception when process F11", ex);
-                            }
-                        }
-                    }
+                    toggleFreeformWindowingMode();
+                    return true;
                 }
             }
 
-            if (keyCode == KeyEvent.KEYCODE_F9 && isDown) {
+            if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
                 Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
                 if (callback != null) {
                     callback.moveTaskToBack(true);
