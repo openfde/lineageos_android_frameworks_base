@@ -565,18 +565,6 @@ class WindowStateAnimator {
     }
 
     boolean isCompatibilityFeaturesAllowScreenshotAndRecord(@NonNull Context context, String packageName){
-        if(context != null){
-            String result = CompatibleConfig.queryValueData(context, packageName, CompatibleConfig.KEY_CODE_IS_ALLOW_SCREENSHOT_AND_RECORD);
-            if(result != null){
-                if(result.contains("true")){
-                    return true;
-                }else{
-                    return false;
-                }
-            }else{
-                return true;
-            }
-        }
         return true;
     }
 
