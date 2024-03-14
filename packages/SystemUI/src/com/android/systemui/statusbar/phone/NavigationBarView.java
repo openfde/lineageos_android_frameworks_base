@@ -92,7 +92,7 @@ import java.util.function.Consumer;
 
 public class NavigationBarView extends FrameLayout implements
         NavigationModeController.ModeChangedListener, TunerService.Tunable {
-    final static boolean DEBUG = true;
+    final static boolean DEBUG = false;
     final static String TAG = "StatusBar/NavBarView";
 
     private static final String NAVIGATION_BAR_MENU_ARROW_KEYS =
