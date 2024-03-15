@@ -424,9 +424,6 @@ public class ParsedActivityUtils {
 
     private static int getActivityResizeMode(ParsingPackage pkg, TypedArray sa,
             int screenOrientation) {
-        if(true){
-            return ActivityInfo.RESIZE_MODE_RESIZEABLE;
-        }
         Boolean resizeableActivity = pkg.getResizeableActivity();
 
         if (sa.hasValue(R.styleable.AndroidManifestActivity_resizeableActivity)

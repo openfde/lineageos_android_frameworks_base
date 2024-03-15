@@ -161,6 +161,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import com.android.internal.util.CompatibleConfig;
+import android.content.Context;
 
 class Task extends WindowContainer<WindowContainer> {
     private static final String TAG = TAG_WITH_CLASS_NAME ? "Task" : TAG_ATM;
@@ -2962,12 +2964,34 @@ class Task extends WindowContainer<WindowContainer> {
     }
 
     boolean isResizeable(boolean checkSupportsPip) {
+        if(affinity != null){
+            String[] parts = affinity.split(":");
+            if (parts.length > 1) {
+                String packageName = parts[1];
+                if(!ActivityInfo.isResizeableMode(mResizeMode) && isCompatibilityFeaturesAllowUnresizeable(mAtmService.mContext, packageName)){
+                    return ActivityInfo.isResizeableMode(mResizeMode);
+                }
+            } else {
+                Slog.e(TAG,"isResizeable cannot find ':'");
+            }
+        }
         return (mAtmService.mForceResizableActivities || ActivityInfo.isResizeableMode(mResizeMode)
                 || (checkSupportsPip && mSupportsPictureInPicture));
     }
 
     boolean isResizeable() {
         return isResizeable(true /* checkSupportsPip */);
+    }
+
+    public boolean isCompatibilityFeaturesAllowUnresizeable(@NonNull Context context, String packageName){
+        boolean allowUnresizeable = false;
+        String resultStr = null;
+        resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowUnresizeable");
+        if(resultStr != null && resultStr.contains("true")){
+            allowUnresizeable = true;
+        }
+        //Slog.d(TAG,"fde query " + packageName + ", resultStr: " + resultStr + ", isAllowUnresizeable: " + allowUnresizeable);
+        return allowUnresizeable;
     }
 
     /**

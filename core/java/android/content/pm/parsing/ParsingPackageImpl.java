@@ -1956,8 +1956,7 @@ public class ParsingPackageImpl implements ParsingPackage, Parcelable {
     @Nullable
     @Override
     public Boolean getResizeableActivity() {
-        //return resizeableActivity;
-        return true;
+        return resizeableActivity;
     }
 
     @Override

@@ -4697,6 +4697,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 // Ignore, we cannot do anything if we failed to register VR mode listener
             }
         }
+        Settings.Global.putInt(mContext.getContentResolver(),
+                DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, 1);
     }
 
     private static boolean queryWideColorGamutSupport() {
