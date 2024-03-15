@@ -170,6 +170,30 @@ final class LogicalDisplay {
         return mInfo.get();
     }
 
+    public DisplayInfo getCompatibilityDisplayInfoLocked() {
+        if (mInfo.getCompatibility() == null) {
+            DisplayInfo info = new DisplayInfo();
+            info.copyFrom(mBaseDisplayInfo);
+            if (mOverrideDisplayInfo != null) {
+                info.appWidth = mOverrideDisplayInfo.appWidth;
+                info.appHeight = mOverrideDisplayInfo.appHeight;
+                info.smallestNominalAppWidth = mOverrideDisplayInfo.smallestNominalAppWidth;
+                info.smallestNominalAppHeight = mOverrideDisplayInfo.smallestNominalAppHeight;
+                info.largestNominalAppWidth = mOverrideDisplayInfo.largestNominalAppWidth;
+                info.largestNominalAppHeight = mOverrideDisplayInfo.largestNominalAppHeight;
+                info.logicalWidth = mOverrideDisplayInfo.logicalWidth;
+                info.logicalHeight = mOverrideDisplayInfo.logicalHeight;
+                info.rotation = mOverrideDisplayInfo.rotation;
+                info.displayCutout = mOverrideDisplayInfo.displayCutout;
+                info.logicalDensityDpi = mOverrideDisplayInfo.logicalDensityDpi;
+                info.physicalXDpi = mOverrideDisplayInfo.physicalXDpi;
+                info.physicalYDpi = mOverrideDisplayInfo.physicalYDpi;
+            }
+            mInfo.setCompatibility(info);
+        }
+        return mInfo.getCompatibility();
+    }
+
     /**
      * @see DisplayManagerInternal#getNonOverrideDisplayInfo(int, DisplayInfo)
      */

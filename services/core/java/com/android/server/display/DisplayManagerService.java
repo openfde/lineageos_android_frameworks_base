@@ -116,6 +116,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.json.JSONObject;
+import org.json.JSONException;
+import com.android.internal.util.CompatibleConfig;
 
 import android.os.AsyncTask;
 import com.android.internal.util.CompatibleConfig;
@@ -662,9 +665,35 @@ public final class DisplayManagerService extends SystemService {
                 Slog.wtf("bella", "resultStr: " + resultStr);
             }
             LogicalDisplay display = mLogicalDisplays.get(displayId);
+            String resultStr = null;
             if (display != null) {
                 DisplayInfo info = display.getDisplayInfoLocked();
-                if (info.hasAccess(callingUid)
+                if(mContext != null){
+                    PackageManager manager = mContext.getPackageManager();
+                    if(manager != null){
+                        String[] packageNames = manager.getPackagesForUid(callingUid);
+                        if (packageNames != null && packageNames.length == 1) {
+                            for (String packageName : packageNames) {
+                                resultStr = CompatibleConfig.queryTrainingData(mContext, packageName, "size");
+                                //Slog.wtf(TAG, "getDisplayInfoInternal query " + packageName + " resultStr: " + resultStr);
+                                if(resultStr != null && !"".equals(resultStr)){
+                                    JSONObject jsonObject = null;
+                                    try {
+                                        jsonObject = new JSONObject(resultStr);
+                                        int width = jsonObject.getInt("width");
+                                        int height = jsonObject.getInt("height");
+                                        info = display.getCompatibilityDisplayInfoLocked();
+                                        info.logicalWidth = width;
+                                        info.logicalHeight = height;
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (info != null && info.hasAccess(callingUid)
                         || isUidPresentOnDisplayInternal(callingUid, displayId)) {
                     return info;
                 }

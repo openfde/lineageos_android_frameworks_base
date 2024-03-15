@@ -26,9 +26,11 @@ import android.view.DisplayInfo;
  */
 public class DisplayInfoProxy {
     private DisplayInfo mInfo;
+    private DisplayInfo mCompatibilityInfo;
 
     public DisplayInfoProxy(@Nullable DisplayInfo info) {
         mInfo = info;
+        mCompatibilityInfo = info;
     }
 
     /**
@@ -43,6 +45,17 @@ public class DisplayInfoProxy {
     }
 
     /**
+     * Set the current compatibility {@link DisplayInfo}.
+     *
+     * The also automatically invalidates the display info caches across the entire system.
+     * @param info the new {@link DisplayInfo}.
+     */
+    public void setCompatibility(@Nullable DisplayInfo info) {
+        mCompatibilityInfo = info;
+        DisplayManagerGlobal.invalidateLocalDisplayInfoCaches();
+    }
+
+    /**
      * Returns the current {@link DisplayInfo}.
      *
      * This info <b>must</b> be treated as immutable. Modifying the returned object is undefined
@@ -53,5 +66,18 @@ public class DisplayInfoProxy {
     @Nullable
     public DisplayInfo get() {
         return mInfo;
+    }
+
+    /**
+     * Returns the current {@link DisplayInfo}.
+     *
+     * This info <b>must</b> be treated as immutable. Modifying the returned object is undefined
+     * behavior that <b>will</b> result in inconsistent states across the system.
+     *
+     * @return the current {@link DisplayInfo}
+     */
+    @Nullable
+    public DisplayInfo getCompatibility() {
+        return mCompatibilityInfo;
     }
 }
