@@ -565,7 +565,14 @@ class WindowStateAnimator {
     }
 
     boolean isCompatibilityFeaturesAllowScreenshotAndRecord(@NonNull Context context, String packageName){
-        return true;
+        boolean allowScreenshotAndRecord = false;
+        String resultStr = null;
+        resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowScreenshotRecord");
+        if(resultStr != null && resultStr.contains("true")){
+            allowScreenshotAndRecord = true;
+        }
+        Slog.d(TAG,"fde query " + packageName + ", resultStr: " + resultStr + ", isAllowScreenshotAndRecord: " + allowScreenshotAndRecord);
+        return allowScreenshotAndRecord;
     }
 
     private void calculateSurfaceBounds(WindowState w, LayoutParams attrs, Rect outSize) {
