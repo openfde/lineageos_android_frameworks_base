@@ -440,6 +440,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     Handler mHandler = new Handler();
     private boolean mChordAltKeyTriggered;
+    private boolean mIgnoreKeyCodeF11 = false;
 
     private class CancelChordAltKeyTriggeredRunnable implements Runnable {
         @Override
@@ -448,14 +449,26 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
-    private void exitTask(){
-        Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
-        if (callback != null) {
-            callback.exitTask();
+    private class RestoreResponseF11KeyTriggeredRunnable implements Runnable {
+        @Override
+        public void run() {
+            mIgnoreKeyCodeF11 = false;
+        }
+    }
+
+    private class ExitTaskRunnable implements Runnable {
+        @Override
+        public void run() {
+            Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+            if (callback != null) {
+                callback.exitTask();
+            }
         }
     }
 
     private final CancelChordAltKeyTriggeredRunnable mCancelAltKeyTriggeredRunnable = new CancelChordAltKeyTriggeredRunnable();
+    private final RestoreResponseF11KeyTriggeredRunnable mRestoreResponseF11KeyTriggeredRunnable = new RestoreResponseF11KeyTriggeredRunnable();
+    private final ExitTaskRunnable mExitTaskRunnable = new ExitTaskRunnable();
 
     public void toggleFreeformWindowingMode(){
         Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
@@ -578,45 +591,56 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
                 mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
             }
+            return true;
         }
         if (!mWindow.isDestroyed()) {
-            if (keyCode == KeyEvent.KEYCODE_F4 && isDown && mChordAltKeyTriggered){
-                exitTask();
+            if (keyCode == KeyEvent.KEYCODE_F4 && isDown && (event.getRepeatCount() == 0) && mChordAltKeyTriggered){
+                mChordAltKeyTriggered = false;
+                mHandler.removeCallbacks(mExitTaskRunnable);
+                mHandler.postDelayed(mExitTaskRunnable, 100);
+                return true;
             }
             if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
                 Slog.d(TAG, "dispatchKeyEventPreIme KEYCODE_F11");
-                if(mContext != null){
-                    String packageName = mContext.getPackageName();
-                    if(!"com.android.launcher3".equals(packageName)){
-                        try{
-                            mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-                        }catch(Exception e){
-                            Slog.w(TAG,"fde getSharedPreferences error: " + e);
-                        }
-                        boolean isTurnOnFullScreen = false;
-                        if(mSharedPreferences != null){
-                            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                            Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
-                            if(isTurnOnFullScreen){
-                                exitFullScreenWindow();
-                                toggleFreeformWindowingMode();
-                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                editor.putBoolean("mTurnOnFullScreen", false);
-                                editor.apply();
-                            }else{
-                                Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
-                                startFullScreenWindow();
-                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                editor.putBoolean("mTurnOnFullScreen", true);
-                                editor.apply();
+                if(!mIgnoreKeyCodeF11){
+                    mIgnoreKeyCodeF11 = true;
+                    mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
+                    mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
+                    if(mContext != null){
+                        String packageName = mContext.getPackageName();
+                        if(!"com.android.launcher3".equals(packageName)){
+                            try{
+                                mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                            }catch(Exception e){
+                                Slog.w(TAG,"fde getSharedPreferences error: " + e);
                             }
-                        }else{
-                            toggleFreeformWindowingMode();
+                            boolean isTurnOnFullScreen = false;
+                            if(mSharedPreferences != null){
+                                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                                Slog.w(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
+                                if(isTurnOnFullScreen){
+                                    exitFullScreenWindow();
+                                    toggleFreeformWindowingMode();
+                                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                    editor.putBoolean("mTurnOnFullScreen", false);
+                                    editor.apply();
+                                }else{
+                                    Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                                    startFullScreenWindow();
+                                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                    editor.putBoolean("mTurnOnFullScreen", true);
+                                    editor.apply();
+                                }
+                            }else{
+                                toggleFreeformWindowingMode();
+                            }
+                            return true;
                         }
+                    }else{
+                        toggleFreeformWindowingMode();
                         return true;
                     }
                 }else{
-                    toggleFreeformWindowingMode();
                     return true;
                 }
             }
@@ -646,6 +670,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
                 mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
             }
+            return true;
         }
 
         if (isDown && (event.getRepeatCount() == 0)) {
@@ -668,8 +693,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         if (!mWindow.isDestroyed()) {
-            if (keyCode == KeyEvent.KEYCODE_F4 && isDown && mChordAltKeyTriggered){
-                exitTask();
+            if (keyCode == KeyEvent.KEYCODE_F4 && isDown && (event.getRepeatCount() == 0) && mChordAltKeyTriggered){
+                mChordAltKeyTriggered = false;
+                mHandler.removeCallbacks(mExitTaskRunnable);
+                mHandler.postDelayed(mExitTaskRunnable, 100);
+                return true;
             }
             // region @waydroid
             if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {

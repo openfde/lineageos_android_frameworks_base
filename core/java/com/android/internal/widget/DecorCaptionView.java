@@ -745,8 +745,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     public boolean onSingleTapUp(MotionEvent e) {
         // region @boringdroid
         if (mClickTarget == mBack) {
+            Log.w(TAG, "onSingleTapUp mBack clicked");
             Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
             if (callback != null) {
+                Log.w(TAG, "onSingleTapUp callback.onBackPressed");
                 callback.onBackPressed();
             }
             return true;
