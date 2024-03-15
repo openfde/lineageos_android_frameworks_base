@@ -13,11 +13,32 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import java.util.concurrent.CountDownLatch;
+
+import android.os.Binder;
+import android.os.Process;
+
+import android.util.Slog;
+import android.os.SystemProperties;
+import android.os.UserManager;
+import android.app.ActivityManager;
 
 public class CompatibleConfig {
     public static final String COMPATIBLE_URI = "content://com.boringdroid.systemuiprovider";
     public static final String KEY_CODE_IS_ALLOW_SCREENSHOT_AND_RECORD = "isAllowScreenshotAndRecord";
     public static final String KEY_CODE_IS_ALLOW_HIDE_DECOR_CAPTION = "isAllowHideDecorCaption";
+
+    private static CompatibleConfig instance;
+
+    private CompatibleConfig() {
+    }
+
+    public static synchronized CompatibleConfig getInstance() {
+        if (instance == null) {
+            instance = new CompatibleConfig();
+        }
+        return instance;
+    }
 
     public static Map<String, Object> queryMapValueData(Context context, String packageName, String keycode) {
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
@@ -52,6 +73,49 @@ public class CompatibleConfig {
         return result;
     }
 
+    static String result = "";
+
+    public static String queryThreadWaitData(Context context, String packageName, String keycode) {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                result = queryValueData(context, packageName, keycode);
+                latch.countDown();
+            }
+        });
+        thread1.start();
+        try {
+            latch.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static String queryTrainingData(Context context, String packageName, String keycode) {
+        result = null;
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                result = queryValueData(context, packageName, keycode);
+            }
+        });
+        thread1.start();
+        for (int i = 0; i < 10; i++) {
+            try {
+                Thread.sleep(5);
+                if (result != null) {
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
     public static String queryValueData(Context context, String packageName, String keycode) {
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
         Cursor cursor = null;
@@ -74,6 +138,92 @@ public class CompatibleConfig {
         }
         return result;
     }
+
+    // public static String queryValueData(Context context, String packageName,
+    // String keycode) {
+    // String bootCompleted = SystemProperties.get("sys.boot_completed", "0");
+    // Slog.wtf("bella", "getDisplayInfoInternal start... " + bootCompleted);
+
+    // if (bootCompleted.equals("1")) {
+    // Slog.wtf("bella", "bootCompleted is is ready open........");
+
+    // CountDownLatch latch = new CountDownLatch(1);
+
+    // Thread threadQuery = new Thread(() -> {
+    // try {
+    // Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+    // Cursor cursor = null;
+
+    // String selection = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+    // String[] selectionArgs = { packageName, keycode };
+    // try {
+    // ContentResolver contentResolver = context.getContentResolver();
+
+    // boolean isRun = isRunApp(context);
+    // if (UserManager.get(context).isUserUnlocked(contentResolver.getUserId()) &&
+    // isRun) {
+    // Slog.wtf("bella", "11111111111111111111 isRun ");
+    // // Thread.sleep(500);
+    // int callId = Binder.getCallingUid();
+    // int pid = Process.myUid();
+    // if (callId != pid) {
+
+    // Slog.wtf("bella",
+    // "is not == my UID callId " + callId + " ,pid " + pid + " ,isRun " + isRun);
+    // final long token = Binder.clearCallingIdentity();
+    // try {
+    // cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+    // if (cursor != null && cursor.moveToFirst()) {
+    // result = cursor.getString(cursor.getColumnIndex("VALUE"));
+    // }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // } finally {
+    // Binder.restoreCallingIdentity(token);
+    // }
+    // } else {
+    // Slog.wtf("bella", "is == my UID callId " + callId + " ,pid " + pid + ",isRun
+    // " + isRun);
+    // cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+    // if (cursor != null && cursor.moveToFirst()) {
+    // result = cursor.getString(cursor.getColumnIndex("VALUE"));
+    // }
+    // }
+
+    // } else {
+    // Slog.wtf("bella", "00000000000000 isRun ");
+    // result = null;
+    // }
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // } finally {
+    // if (cursor != null) {
+    // cursor.close();
+    // }
+    // }
+    // latch.countDown();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // });
+
+    // threadQuery.start();
+
+    // try {
+    // latch.await();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+
+    // return result;
+    // } else
+
+    // {
+    // Slog.wtf("bella", "bootCompleted is not ready.....");
+    // return null;
+    // }
+    // }
 
     public static void insertValueData(Context context, String packageName, String keycode, String value) {
         try {
