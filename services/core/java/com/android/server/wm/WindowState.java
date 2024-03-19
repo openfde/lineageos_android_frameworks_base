@@ -250,6 +250,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import com.android.internal.util.CompatibleConfig;
 
 /** A window in the window manager. */
 class WindowState extends WindowContainer<WindowState> implements WindowManagerPolicy.WindowState,
@@ -261,6 +262,8 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
     //                     use hard-coded min sizes for now.
     static final int MINIMUM_VISIBLE_WIDTH_IN_DP = 48;
     static final int MINIMUM_VISIBLE_HEIGHT_IN_DP = 32;
+    public int mMinVisibleWidth = 48;
+    public int mMinVisibleHeight = 32;
 
     // The thickness of a window resize handle outside the window bounds on the free form workspace
     // to capture touch events in that area.
@@ -872,6 +875,24 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         mOwnerCanAddInternalSystemWindow = ownerCanAddInternalSystemWindow;
         mWindowId = new WindowId(this);
         mAttrs.copyFrom(a);
+        String minWidthResults = CompatibleConfig.queryTrainingData(service.getWMSContext(), mAttrs.packageName, "minBoundsVisibleWidth");
+        String minHeightResults = CompatibleConfig.queryTrainingData(service.getWMSContext(), mAttrs.packageName, "minBoundsVisibleHeight");
+        if(minWidthResults != null && !"".equals(minWidthResults)){
+            Slog.d(TAG,"packageName: " + mAttrs.packageName + " minWidthResults: " + minWidthResults);
+            try{
+                mMinVisibleWidth = Integer.parseInt(minWidthResults);
+            }catch (NumberFormatException e) {
+                Slog.e(TAG,"parseInt error: " + e);
+            }
+        }
+        if(minHeightResults != null && !"".equals(minHeightResults)){
+            Slog.d(TAG,"packageName: " + mAttrs.packageName + " minHeightResults: " + minHeightResults);
+            try{
+                mMinVisibleHeight = Integer.parseInt(minHeightResults);
+            }catch (NumberFormatException e) {
+                Slog.e(TAG,"parseInt error: " + e);
+            }
+        }
         mLastSurfaceInsets.set(mAttrs.surfaceInsets);
         mViewVisibility = viewVisibility;
         mPolicy = mWmService.mPolicy;
@@ -983,6 +1004,14 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
                 || (mActivityRecord != null && mActivityRecord.hasSizeCompatBounds()
                         // Exclude starting window because it is not displayed by the application.
                         && mAttrs.type != TYPE_APPLICATION_STARTING);
+    }
+
+    public int getMinVisibleWidth(){
+        return mMinVisibleWidth;
+    }
+
+    public int getMinVisibleHeight(){
+        return mMinVisibleHeight;
     }
 
     /**

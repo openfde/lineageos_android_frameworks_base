@@ -268,8 +268,8 @@ class TaskPositioner implements IBinder.DeathRecipient {
         mService.mTaskPositioningController.showInputSurface(win.getDisplayId());
 
         final DisplayMetrics displayMetrics = displayContent.getDisplayMetrics();
-        mMinVisibleWidth = dipToPixel(MINIMUM_VISIBLE_WIDTH_IN_DP, displayMetrics);
-        mMinVisibleHeight = dipToPixel(MINIMUM_VISIBLE_HEIGHT_IN_DP, displayMetrics);
+        mMinVisibleWidth = dipToPixel(win.getMinVisibleWidth(), displayMetrics);
+        mMinVisibleHeight = dipToPixel(win.getMinVisibleHeight(), displayMetrics);
         mMaxVisibleSize.set(displayBounds.width(), displayBounds.height());
 
         mDragEnded = false;
