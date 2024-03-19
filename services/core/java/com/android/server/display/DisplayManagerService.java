@@ -634,36 +634,9 @@ public final class DisplayManagerService extends SystemService {
                 Settings.Secure.MINIMAL_POST_PROCESSING_ALLOWED, 1, UserHandle.USER_CURRENT) != 0;
     }
 
-	class TestTask extends AsyncTask<Void, Void, String> {
-        Context context;
-        String packageName;
-        String keyCode;
-
-        public TestTask(Context context, String packageName, String keyCode) {
-            this.context = context;
-            this.packageName = packageName;
-            this.keyCode = keyCode;
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            resultStr = CompatibleConfig.queryValueData(context, packageName,
-                    keyCode);
-            return resultStr;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            resultStr = result;
-        }
-    }
 
     private DisplayInfo getDisplayInfoInternal(int displayId, int callingUid) {
         synchronized (mSyncRoot) {
-			new TestTask(mContext, "com.android.gallery3d", "isAllowHideDecorCaption").execute();
-            if (resultStr != null) {
-                Slog.wtf("bella", "resultStr: " + resultStr);
-            }
             LogicalDisplay display = mLogicalDisplays.get(displayId);
             String resultStr = null;
             if (display != null) {
