@@ -234,7 +234,7 @@ class Task extends WindowContainer<WindowContainer> {
      * Used to identify if the activity that is installed from device's system image.
      */
     boolean mIsEffectivelySystemApp;
-
+    boolean mIsAllowUnresizeable = false;
     String affinity;        // The affinity name for this task, or null; may change identity.
     String rootAffinity;    // Initial base affinity, or null; does not change from initial root.
     String mWindowLayoutAffinity; // Launch param affinity of this task or null. Used when saving
@@ -2507,7 +2507,6 @@ class Task extends WindowContainer<WindowContainer> {
                 display.getStableRect(stableBounds);
                 parentBounds.intersect(stableBounds);
             }
-
             fitWithinBounds(outOverrideBounds, parentBounds,
                     (int) (density * WindowState.MINIMUM_VISIBLE_WIDTH_IN_DP),
                     (int) (density * WindowState.MINIMUM_VISIBLE_HEIGHT_IN_DP));
@@ -2964,11 +2963,12 @@ class Task extends WindowContainer<WindowContainer> {
     }
 
     boolean isResizeable(boolean checkSupportsPip) {
+        String packageName = null;
         if(affinity != null){
             String[] parts = affinity.split(":");
             if (parts.length > 1) {
-                String packageName = parts[1];
-                if(!ActivityInfo.isResizeableMode(mResizeMode) && isCompatibilityFeaturesAllowUnresizeable(mAtmService.mContext, packageName)){
+                packageName = parts[1];
+                if(!ActivityInfo.isResizeableMode(mResizeMode) && (mIsAllowUnresizeable || isCompatibilityFeaturesAllowUnresizeable(mAtmService.mContext, packageName))){
                     return ActivityInfo.isResizeableMode(mResizeMode);
                 }
             } else {
@@ -2989,6 +2989,7 @@ class Task extends WindowContainer<WindowContainer> {
         resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowUnresizeable");
         if(resultStr != null && resultStr.contains("true")){
             allowUnresizeable = true;
+            mIsAllowUnresizeable = true;
         }
         //Slog.d(TAG,"fde query " + packageName + ", resultStr: " + resultStr + ", isAllowUnresizeable: " + allowUnresizeable);
         return allowUnresizeable;
