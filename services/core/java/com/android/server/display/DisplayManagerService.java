@@ -659,7 +659,7 @@ public final class DisplayManagerService extends SystemService {
                                         info.logicalWidth = width;
                                         info.logicalHeight = height;
                                     } catch (JSONException e) {
-                                        throw new RuntimeException(e);
+                                        Slog.e(TAG,"getDisplayInfoInternal error: " + e);
                                     }
                                 }
                             }
