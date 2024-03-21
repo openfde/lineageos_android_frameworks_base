@@ -246,7 +246,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mShow = show;
         mOverlayWithAppContent = owner.isOverlayWithDecorCaptionEnabled();
         shouldHideDecorCaption = ((((DecorView)mOwner.getDecorView()).getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) != 0
-                || (((WindowManager.LayoutParams)owner.getAttributes()).flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) == WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                || (((WindowManager.LayoutParams)owner.getAttributes()).flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) == WindowManager.LayoutParams.FLAG_FULLSCREEN
+                || (((WindowManager.LayoutParams)owner.getAttributes()).flags & WindowManager.LayoutParams.FLAG_DIM_BEHIND) == WindowManager.LayoutParams.FLAG_DIM_BEHIND)
                 && isCompatibilityFeaturesAllowHideDecorCaption(mContext);
         if(shouldHideDecorCaption){
             mShow = false;
