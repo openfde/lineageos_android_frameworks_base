@@ -3215,6 +3215,17 @@
     <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
     <string name="android_start_title" product="device">Device is starting\u2026</string>
 
+
+    <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+    <string name="android_start_title_fde" product="default">OpenFDE is starting\u2026</string>
+    <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+    <string name="android_start_title_fde" product="automotive">OpenFDE is starting\u2026</string>
+    <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+    <string name="android_start_title_fde" product="tablet">OpenFDE is starting\u2026</string>
+    <!-- [CHAR LIMIT=40] Title of dialog that is shown when system is starting. -->
+    <string name="android_start_title_fde" product="device">OpenFDE is starting\u2026</string>
+
+
     <!-- [CHAR LIMIT=NONE] Message shown in upgrading dialog when doing an fstrim. -->
     <string name="android_upgrading_fstrim">Optimizing storage.</string>
 

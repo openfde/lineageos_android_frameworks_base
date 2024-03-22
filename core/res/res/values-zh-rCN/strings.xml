@@ -1193,6 +1193,12 @@
     <string name="android_start_title" product="automotive" msgid="7917984412828168079">"Android 正在启动…"</string>
     <string name="android_start_title" product="tablet" msgid="4429767260263190344">"平板电脑正在启动…"</string>
     <string name="android_start_title" product="device" msgid="6967413819673299309">"设备正在启动…"</string>
+    <string name="android_start_title_fde" product="default" msgid="4036708252778757652">"OpenFDE正在启动…"</string>
+    <string name="android_start_title_fde" product="automotive" msgid="7917984412828168079">"OpenFDE正在启动…"</string>
+    <string name="android_start_title_fde" product="tablet" msgid="4429767260263190344">"OpenFDE正在启动…"</string>
+    <string name="android_start_title_fde" product="device" msgid="6967413819673299309">"OpenFDE正在启动…"</string>
+
+
     <string name="android_upgrading_fstrim" msgid="3259087575528515329">"正在优化存储空间。"</string>
     <string name="android_upgrading_notification_title" product="default" msgid="3509927005342279257">"正在完成系统更新…"</string>
     <string name="app_upgrading_toast" msgid="1016267296049455585">"正在升级<xliff:g id="APPLICATION">%1$s</xliff:g>…"</string>

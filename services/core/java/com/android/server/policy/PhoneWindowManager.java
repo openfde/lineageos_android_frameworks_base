@@ -5803,7 +5803,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     if (mPackageManager.isDeviceUpgrading()) {
                         mBootMsgDialog.setTitle(R.string.android_upgrading_title);
                     } else {
-                        mBootMsgDialog.setTitle(R.string.android_start_title);
+                        mBootMsgDialog.setTitle(R.string.android_start_title_fde);
                     }
                     mBootMsgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                     mBootMsgDialog.setIndeterminate(true);

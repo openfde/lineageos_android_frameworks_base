@@ -562,7 +562,7 @@ class UserController implements Handler.Callback {
 
         // Prepare app storage before we go any further
         uss.mUnlockProgress.setProgress(5,
-                    mInjector.getContext().getString(R.string.android_start_title));
+                    mInjector.getContext().getString(R.string.android_start_title_fde));
 
         // Call onBeforeUnlockUser on a worker thread that allows disk I/O
         FgThread.getHandler().post(() -> {
