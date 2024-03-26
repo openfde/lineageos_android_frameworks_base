@@ -606,6 +606,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     mIgnoreKeyCodeF11 = true;
                     mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
                     mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
+                    if(mWindow.getWindowControllerCallback() == null){
+                        return true;
+                    }
                     if(mContext != null){
                         String packageName = mContext.getPackageName();
                         if(!"com.android.launcher3".equals(packageName)){
@@ -2561,6 +2564,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     private void setDecorCaptionShade(DecorCaptionView view) {
+        if(mWindow.getWindowControllerCallback() == null){
+            setDisabledDecorCaptionShade(view);
+            return;
+        }
         final int shade = mWindow.getDecorCaptionShade();
         switch (shade) {
             case DECOR_CAPTION_SHADE_LIGHT:
@@ -2683,6 +2690,39 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         // endregion
         view.findViewById(R.id.close_window).setBackgroundResource(
                 R.drawable.decor_close_button_dark);
+    }
+
+    private void setDisabledDecorCaptionShade(DecorCaptionView view) {
+        view.findViewById(R.id.back_window).setBackgroundResource(
+                R.drawable.decor_back_button_dark
+        );
+        view.findViewById(R.id.pip_window).setBackgroundResource(
+                R.drawable.decor_pip_button_dark);
+        view.findViewById(R.id.minimize_window).setBackgroundResource(
+                R.drawable.decor_minimize_button_disabled);
+        if(isWindowMaximized()){
+            view.findViewById(R.id.maximize_window).setBackgroundResource(
+                    R.drawable.decor_unmaximize_button_disabled);
+        }else{
+            view.findViewById(R.id.maximize_window).setBackgroundResource(
+                    R.drawable.decor_maximize_button_disabled);
+        }
+        boolean isTurnOnFullScreen = false;
+        if(mSharedPreferences != null){
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+        }
+        if(isTurnOnFullScreen){
+            view.findViewById(R.id.fullscreen_window).setBackgroundResource(
+                            R.drawable.decor_exit_fullscreen_button_disabled);
+        }else{
+            view.findViewById(R.id.fullscreen_window).setBackgroundResource(
+                            R.drawable.decor_fullscreen_button_disabled);
+        }
+        view.findViewById(R.id.close_window).setBackgroundResource(
+                R.drawable.decor_close_button_disabled);
+        view.getCaption().setBackgroundResource(
+                R.drawable.decor_caption_title_unfocused);
+        ((TextView)view.findViewById(R.id.application_lable)).setTextColor(Color.BLACK);
     }
 
     /**

@@ -2272,14 +2272,19 @@
   <java-symbol type="id" name="minimize_window" />
   <java-symbol type="id" name="maximize_window" />
   <java-symbol type="id" name="close_window" />
+  <java-symbol type="id" name="caption" />
   <java-symbol type="layout" name="decor_caption" />
   <java-symbol type="drawable" name="decor_caption_title_focused" />
+  <java-symbol type="drawable" name="decor_caption_title_unfocused" />
   <java-symbol type="drawable" name="decor_close_button_dark" />
   <java-symbol type="drawable" name="decor_close_button_light" />
+  <java-symbol type="drawable" name="decor_close_button_disabled" />
   <java-symbol type="drawable" name="decor_minimize_button_dark" />
   <java-symbol type="drawable" name="decor_minimize_button_light" />
+  <java-symbol type="drawable" name="decor_minimize_button_disabled" />
   <java-symbol type="drawable" name="decor_maximize_button_dark" />
   <java-symbol type="drawable" name="decor_maximize_button_light" />
+  <java-symbol type="drawable" name="decor_maximize_button_disabled" />
   <java-symbol type="drawable" name="decor_pip_button_dark" />
   <java-symbol type="drawable" name="decor_pip_button_light" />
 
@@ -2288,16 +2293,20 @@
   <java-symbol type="id" name="fullscreen_window" />
   <java-symbol type="drawable" name="decor_exit_fullscreen_button_dark" />
   <java-symbol type="drawable" name="decor_exit_fullscreen_button_light" />
+  <java-symbol type="drawable" name="decor_exit_fullscreen_button_disabled" />
   <java-symbol type="drawable" name="decor_unmaximize_button_dark" />
   <java-symbol type="drawable" name="decor_unmaximize_button_light" />
+  <java-symbol type="drawable" name="decor_unmaximize_button_disabled" />
   <java-symbol type="drawable" name="decor_fullscreen_button_dark" />
   <java-symbol type="drawable" name="decor_fullscreen_button_light" />
+  <java-symbol type="drawable" name="decor_fullscreen_button_disabled" />
   <!-- endregion -->
 
   <!-- region @boringdroid -->
   <java-symbol type="id" name="back_window" />
   <java-symbol type="drawable" name="decor_back_button_dark" />
   <java-symbol type="drawable" name="decor_back_button_light" />
+  <java-symbol type="drawable" name="decor_back_button_disabled" />
   <!-- endregion -->
   <java-symbol type="color" name="decor_button_dark_color" />
   <java-symbol type="color" name="decor_button_light_color" />

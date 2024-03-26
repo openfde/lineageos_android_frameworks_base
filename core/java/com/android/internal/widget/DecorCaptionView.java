@@ -52,6 +52,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import android.annotation.NonNull;
+import android.app.Instrumentation;
+import android.view.KeyEvent;
 
 import vendor.waydroid.window.V1_0.IWaydroidWindow;
 
@@ -742,6 +744,19 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     }
 
+    public void sendKeyCode(int keyCode){
+        new Thread () {
+            public void run () {
+                try {
+                    Instrumentation inst=new Instrumentation();
+                    inst.sendKeyDownUpSync(keyCode);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         // region @boringdroid
@@ -751,7 +766,14 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             if (callback != null) {
                 Log.w(TAG, "onSingleTapUp callback.onBackPressed");
                 callback.onBackPressed();
+            }else{
+                Log.w(TAG, "onSingleTapUp sendKeyCode KEYCODE_BACK");
+                sendKeyCode(KeyEvent.KEYCODE_BACK);
             }
+            return true;
+        }
+        Window.WindowControllerCallback cb = mOwner.getWindowControllerCallback();
+        if(cb == null){
             return true;
         }
         // endregion
