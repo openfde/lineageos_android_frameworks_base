@@ -54,6 +54,9 @@ import java.util.stream.Collectors;
 import android.annotation.NonNull;
 import android.app.Instrumentation;
 import android.view.KeyEvent;
+import android.hardware.input.InputManager;
+import android.view.KeyCharacterMap;
+import android.view.InputDevice;
 
 import vendor.waydroid.window.V1_0.IWaydroidWindow;
 
@@ -744,17 +747,13 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     }
 
-    public void sendKeyCode(int keyCode){
-        new Thread () {
-            public void run () {
-                try {
-                    Instrumentation inst=new Instrumentation();
-                    inst.sendKeyDownUpSync(keyCode);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+    private void sendEvent(int action, int code, int flags) {
+        long when = SystemClock.uptimeMillis();
+        final KeyEvent ev = new KeyEvent(when, when, action, code, 0 /* repeat */,
+                0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD, 0 /* scancode */,
+                flags | KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
+                InputDevice.SOURCE_KEYBOARD);
+        InputManager.getInstance().injectInputEvent(ev, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
     @Override
@@ -762,14 +761,13 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         // region @boringdroid
         if (mClickTarget == mBack) {
             Log.w(TAG, "onSingleTapUp mBack clicked");
-            Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
+            sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 0);
+            sendEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK, 0);
+            /*Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
             if (callback != null) {
                 Log.w(TAG, "onSingleTapUp callback.onBackPressed");
                 callback.onBackPressed();
-            }else{
-                Log.w(TAG, "onSingleTapUp sendKeyCode KEYCODE_BACK");
-                sendKeyCode(KeyEvent.KEYCODE_BACK);
-            }
+            }*/
             return true;
         }
         Window.WindowControllerCallback cb = mOwner.getWindowControllerCallback();
