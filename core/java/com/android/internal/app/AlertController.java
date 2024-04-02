@@ -579,7 +579,7 @@ public class AlertController {
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        if (!mDragging && mCheckForDragging && fromMouse) {
+                        if (!mDragging && mCheckForDragging) {
                             mCheckForDragging = false;
                             mDragging = true;
                             parentPanel.startMovingTask(e.getRawX(), e.getRawY());
