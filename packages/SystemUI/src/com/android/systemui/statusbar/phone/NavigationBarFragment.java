@@ -1115,6 +1115,9 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
 
     /** Applies auto dimming animation on navigation bar when touched. */
     public void touchAutoDim() {
+        if(true){
+            return;
+        }
         getBarTransitions().setAutoDim(false);
         mHandler.removeCallbacks(mAutoDim);
         int state = mStatusBarStateController.getState();
