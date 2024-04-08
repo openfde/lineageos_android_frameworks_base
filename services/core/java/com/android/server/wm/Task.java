@@ -2963,18 +2963,6 @@ class Task extends WindowContainer<WindowContainer> {
     }
 
     boolean isResizeable(boolean checkSupportsPip) {
-        String packageName = null;
-        if(affinity != null){
-            String[] parts = affinity.split(":");
-            if (parts.length > 1) {
-                packageName = parts[1];
-                if(!ActivityInfo.isResizeableMode(mResizeMode) && (mIsAllowUnresizeable || isCompatibilityFeaturesAllowUnresizeable(mAtmService.mContext, packageName))){
-                    return ActivityInfo.isResizeableMode(mResizeMode);
-                }
-            } else {
-                Slog.e(TAG,"isResizeable cannot find ':'");
-            }
-        }
         return (mAtmService.mForceResizableActivities || ActivityInfo.isResizeableMode(mResizeMode)
                 || (checkSupportsPip && mSupportsPictureInPicture));
     }

@@ -294,7 +294,7 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
             getTaskBounds(root, display, layout, resolvedMode, hasInitialBounds, outParams.mBounds);
         }
         // region @boringdroid
-        else if (resolvedMode == WINDOWING_MODE_FREEFORM && BoringdroidManager.isPCModeEnabled()) {
+        else if (resolvedMode == WINDOWING_MODE_FREEFORM && (activity == null ? BoringdroidManager.isPCModeEnabled() : BoringdroidManager.isPCModeEnabled(activity.getContext(), activity.getPackageName()))) {
             // We should use similar AOSP's default bounds mechanism to assign bounds for task, that
             // started on non-freeform display with freeform windowing mode.
             if (outParams.mBounds.isEmpty()) {

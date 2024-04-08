@@ -33,6 +33,8 @@ import android.view.IWindowManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import com.android.internal.util.CompatibleConfig;
+import android.annotation.NonNull;
 
 /**
  * @hide
@@ -54,6 +56,24 @@ public class BoringdroidManager {
 
     public static boolean isPCModeEnabled() {
         return true; //SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
+    }
+
+    public static boolean isPCModeEnabled(Context context, String packageName) {
+        if(isAllowUnresizeable(context, packageName)){
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isAllowUnresizeable(@NonNull Context context, String packageName){
+        boolean allowUnresizeable = false;
+        String resultStr = null;
+        resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowUnresizeable");
+        if(resultStr != null && resultStr.contains("true")){
+            allowUnresizeable = true;
+        }
+        Slog.d(TAG,"fde query " + packageName + ", resultStr: " + resultStr + ", isAllowUnresizeable: " + allowUnresizeable);
+        return allowUnresizeable;
     }
 
     private static boolean isInPCModeDisallowedList(String packageName) {
@@ -87,7 +107,7 @@ public class BoringdroidManager {
                     + ", and mode " + windowingMode + ", before file is ready");
             return;
         }
-        if (!isPCModeEnabled()) {
+        if (!isPCModeEnabled(context, packageName)) {
             Slog.e(TAG, "Don't save package windowing mode when pc mode disabled");
             return;
         }
@@ -170,7 +190,7 @@ public class BoringdroidManager {
         // 4. If none of above, we will try to get windowing mode of package from saved shared
         //    preferences, what will be modified when user changing window mode with shortcut
         //    or decor caption bar. The default is WINDOWING_MODE_FREEFORM.
-        if (!isPCModeEnabled()) {
+        if (!isPCModeEnabled(context, packageName)) {
             return WindowConfiguration.WINDOWING_MODE_UNDEFINED;
         }
         // If the package is in the multi window black list, it will run in default

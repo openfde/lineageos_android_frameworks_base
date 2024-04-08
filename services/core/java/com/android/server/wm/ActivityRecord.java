@@ -334,6 +334,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import android.content.Context;
 
 /**
  * An entry in the history stack, representing an activity.
@@ -1665,6 +1666,14 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
         }
 
         mActivityRecordInputSink = new ActivityRecordInputSink(this, sourceRecord);
+    }
+
+    public Context getContext(){
+        return mAtmService.mContext;
+    }
+
+    public String getPackageName(){
+        return packageName;
     }
 
     /**
