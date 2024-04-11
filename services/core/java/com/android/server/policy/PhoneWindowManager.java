@@ -2536,10 +2536,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     LineageSettings.System.CLICK_PARTIAL_SCREENSHOT, 0,
                     UserHandle.USER_CURRENT) == 1;
 
-			boolean clickAsTouch = LineageSettings.System.getIntForUser(resolver,
-                    LineageSettings.System.CLICK_AS_TOUCH, 0,
-                    UserHandle.USER_CURRENT) == 1;
-			SystemProperties.set("fde.click_as_touch", clickAsTouch ? "true" : "false");
+			//boolean clickAsTouch = LineageSettings.System.getIntForUser(resolver,
+            //        LineageSettings.System.CLICK_AS_TOUCH, 0,
+            //        UserHandle.USER_CURRENT) == 1;
+            //SystemProperties.set("fde.click_as_touch", clickAsTouch ? "true" : "false");
+            SystemProperties.set("fde.click_as_touch", "true");
+            Slog.d(TAG,"set fde.click_as_touch true");
 
             // Configure wake gesture.
             boolean wakeGestureEnabledSetting = Settings.Secure.getIntForUser(resolver,
