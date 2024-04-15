@@ -50,8 +50,13 @@ import com.android.settingslib.RestrictedLockUtils;
 import com.android.settingslib.RestrictedLockUtilsInternal;
 import com.android.systemui.Dependency;
 import com.android.systemui.broadcast.BroadcastDispatcher;
-
+import java.io.DataOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import org.json.JSONObject;
 
 public class BrightnessController implements ToggleSlider.Listener {
     private static final String TAG = "StatusBar.BrightnessController";
@@ -65,14 +70,11 @@ public class BrightnessController implements ToggleSlider.Listener {
     private static final int MSG_VR_MODE_CHANGED = 5;
     private static final int MSG_BRIGHTNESS_RESTRICTION = 6;
 
-    private static final Uri BRIGHTNESS_MODE_URI =
-            Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE);
-    private static final Uri BRIGHTNESS_URI =
-            Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS);
-    private static final Uri BRIGHTNESS_FLOAT_URI =
-            Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_FLOAT);
-    private static final Uri BRIGHTNESS_FOR_VR_FLOAT_URI =
-            Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_FOR_VR_FLOAT);
+    private static final Uri BRIGHTNESS_MODE_URI = Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_MODE);
+    private static final Uri BRIGHTNESS_URI = Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS);
+    private static final Uri BRIGHTNESS_FLOAT_URI = Settings.System.getUriFor(Settings.System.SCREEN_BRIGHTNESS_FLOAT);
+    private static final Uri BRIGHTNESS_FOR_VR_FLOAT_URI = Settings.System
+            .getUriFor(Settings.System.SCREEN_BRIGHTNESS_FOR_VR_FLOAT);
 
     private final float mMinimumBacklight;
     private final float mMaximumBacklight;
@@ -92,10 +94,9 @@ public class BrightnessController implements ToggleSlider.Listener {
     private final Handler mBackgroundHandler;
     private final BrightnessObserver mBrightnessObserver;
 
-    private ArrayList<BrightnessStateChangeCallback> mChangeCallbacks =
-            new ArrayList<BrightnessStateChangeCallback>();
+    private ArrayList<BrightnessStateChangeCallback> mChangeCallbacks = new ArrayList<BrightnessStateChangeCallback>();
 
-    private volatile boolean mAutomatic;  // Brightness adjusted automatically using ambient light.
+    private volatile boolean mAutomatic; // Brightness adjusted automatically using ambient light.
     private volatile boolean mIsVrModeEnabled;
     private boolean mListening;
     private boolean mExternalChange;
@@ -121,7 +122,8 @@ public class BrightnessController implements ToggleSlider.Listener {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            if (selfChange) return;
+            if (selfChange)
+                return;
 
             if (BRIGHTNESS_MODE_URI.equals(uri)) {
                 mBackgroundHandler.post(mUpdateModeRunnable);
@@ -216,7 +218,8 @@ public class BrightnessController implements ToggleSlider.Listener {
     };
 
     /**
-     * Fetch the brightness mode from the system settings and update the icon. Should be called from
+     * Fetch the brightness mode from the system settings and update the icon.
+     * Should be called from
      * background thread.
      */
     private final Runnable mUpdateModeRunnable = new Runnable() {
@@ -238,7 +241,8 @@ public class BrightnessController implements ToggleSlider.Listener {
     };
 
     /**
-     * Fetch the brightness from the system settings and update the slider. Should be called from
+     * Fetch the brightness from the system settings and update the slider. Should
+     * be called from
      * background thread.
      */
     private final Runnable mUpdateSliderRunnable = new Runnable() {
@@ -295,7 +299,7 @@ public class BrightnessController implements ToggleSlider.Listener {
                         updateVrMode(msg.arg1 != 0);
                         break;
                     case MSG_BRIGHTNESS_RESTRICTION:
-                        ((ToggleSliderView)mControl).setEnforcedAdmin(
+                        ((ToggleSliderView) mControl).setEnforcedAdmin(
                                 (RestrictedLockUtils.EnforcedAdmin) msg.obj);
                         break;
                     default:
@@ -337,7 +341,6 @@ public class BrightnessController implements ToggleSlider.Listener {
         mDefaultBacklightForVr = pm.getBrightnessConstraint(
                 PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_DEFAULT_VR);
 
-
         mAutomaticAvailable = context.getResources().getBoolean(
                 com.android.internal.R.bool.config_automatic_brightness_available);
         mDisplayManager = context.getSystemService(DisplayManager.class);
@@ -348,9 +351,9 @@ public class BrightnessController implements ToggleSlider.Listener {
             @Override
             public void onClick(View v) {
                 Settings.System.putIntForUser(mContext.getContentResolver(),
-                        Settings.System.SCREEN_BRIGHTNESS_MODE, mAutomatic ?
-                            Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL :
-                            Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC,
+                        Settings.System.SCREEN_BRIGHTNESS_MODE,
+                        mAutomatic ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                                : Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC,
                         UserHandle.USER_CURRENT);
             }
         });
@@ -383,7 +386,8 @@ public class BrightnessController implements ToggleSlider.Listener {
     public void onChanged(ToggleSlider toggleSlider, boolean tracking, boolean automatic,
             int value, boolean stopTracking) {
         updateIcon(mAutomatic);
-        if (mExternalChange) return;
+        if (mExternalChange)
+            return;
 
         if (mSliderAnimator != null) {
             mSliderAnimator.cancel();
@@ -416,14 +420,14 @@ public class BrightnessController implements ToggleSlider.Listener {
                     BrightnessSynchronizer.brightnessFloatToInt(mContext, valFloat));
 
         }
-        setBrightness(valFloat);
+        setBrightness(valFloat, value, stopTracking);
         if (!tracking) {
             AsyncTask.execute(new Runnable() {
-                    public void run() {
-                        Settings.System.putFloatForUser(mContext.getContentResolver(),
-                                settingToChange, valFloat, UserHandle.USER_CURRENT);
-                    }
-                });
+                public void run() {
+                    Settings.System.putFloatForUser(mContext.getContentResolver(),
+                            settingToChange, valFloat, UserHandle.USER_CURRENT);
+                }
+            });
         }
 
         for (BrightnessStateChangeCallback cb : mChangeCallbacks) {
@@ -435,7 +439,8 @@ public class BrightnessController implements ToggleSlider.Listener {
         mHandler.obtainMessage(MSG_BRIGHTNESS_RESTRICTION,
                 RestrictedLockUtilsInternal.checkIfRestrictionEnforced(mContext,
                         UserManager.DISALLOW_CONFIG_BRIGHTNESS,
-                        mUserTracker.getCurrentUserId())).sendToTarget();
+                        mUserTracker.getCurrentUserId()))
+                .sendToTarget();
     }
 
     private void setMode(int mode) {
@@ -444,15 +449,70 @@ public class BrightnessController implements ToggleSlider.Listener {
                 mUserTracker.getCurrentUserId());
     }
 
-    private void setBrightness(float brightness) {
+    private void setBrightness(float brightness, int value, boolean stopTracking) {
+        int pro = 100 * value / 65535;
+        Log.i("bella", "setBrightness brightness " + brightness + " ,value " + value + " ,pro " + pro);
         mDisplayManager.setTemporaryBrightness(brightness);
+        if (stopTracking) {
+            sendPostRequest(mContext, pro);
+        }
+    }
+
+    public void sendPostRequest(Context context, int jsonNumber) {
+        final String POST_URL = "http://127.0.0.1:18080/api/v1/brightness";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(POST_URL);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json"); // 设置请求头，发送JSON格式数据
+                    conn.setDoOutput(true);
+
+                    JSONObject jsonInputString = new JSONObject();
+                    jsonInputString.put("Brightness", String.valueOf(jsonNumber));
+                    String json = jsonInputString.toString();
+
+                    conn.setDoInput(true);
+                    conn.setDoOutput(true);
+
+                    DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                    wr.writeBytes(json);
+                    wr.flush();
+                    wr.close();
+
+                    int responseCode = conn.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        String inputLine;
+                        StringBuffer response = new StringBuffer();
+
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine);
+                        }
+                        JSONObject resJson = new JSONObject(response.toString());
+                        int code = resJson.getInt("Code");
+                        if (200 == code) {
+                            // Settings.System.putInt(
+                            // context.getContentResolver(),
+                            // Settings.System.SCREEN_BRIGHTNESS,
+                            // jsonNumber);
+                        }
+                        in.close();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void updateIcon(boolean automatic) {
         if (mIcon != null) {
-            mIcon.setImageResource(mAutomatic ?
-                    com.android.systemui.R.drawable.ic_qs_brightness_auto_on :
-                    com.android.systemui.R.drawable.ic_qs_brightness_auto_off);
+            mIcon.setImageResource(mAutomatic ? com.android.systemui.R.drawable.ic_qs_brightness_auto_on
+                    : com.android.systemui.R.drawable.ic_qs_brightness_auto_off);
         }
     }
 
@@ -477,7 +537,8 @@ public class BrightnessController implements ToggleSlider.Listener {
         if (BrightnessSynchronizer.floatEquals(brightnessValue,
                 convertGammaToLinearFloat(mControl.getValue(), min, max))) {
             // If the value in the slider is equal to the value on the current brightness
-            // then the slider does not need to animate, since the brightness will not change.
+            // then the slider does not need to animate, since the brightness will not
+            // change.
             return;
         }
         // Returns GAMMA_SPACE_MIN - GAMMA_SPACE_MAX
@@ -487,7 +548,8 @@ public class BrightnessController implements ToggleSlider.Listener {
 
     private void animateSliderTo(int target) {
         if (!mControlValueInitialized) {
-            // Don't animate the first value since its default state isn't meaningful to users.
+            // Don't animate the first value since its default state isn't meaningful to
+            // users.
             mControl.setValue(target);
             mControlValueInitialized = true;
         }
