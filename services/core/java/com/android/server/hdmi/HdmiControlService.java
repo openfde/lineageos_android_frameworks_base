@@ -736,7 +736,7 @@ public class HdmiControlService extends SystemService {
                     mMhlController.setOption(OPTION_MHL_POWER_CHARGE, toInt(enabled));
                     break;
                 case Global.DEVICE_NAME:
-                    String deviceName = readStringSetting(option, Build.MODEL);
+                    String deviceName = readStringSetting(option, "OpenFDE device");
                     setDisplayName(deviceName);
                     break;
             }
@@ -1326,7 +1326,7 @@ public class HdmiControlService extends SystemService {
     }
 
     private HdmiDeviceInfo createDeviceInfo(int logicalAddress, int deviceType, int powerStatus) {
-        String displayName = readStringSetting(Global.DEVICE_NAME, Build.MODEL);
+        String displayName = readStringSetting(Global.DEVICE_NAME, "OpenFDE device");
         return new HdmiDeviceInfo(logicalAddress,
                 getPhysicalAddress(), pathToPortId(getPhysicalAddress()), deviceType,
                 getVendorId(), displayName, powerStatus);
