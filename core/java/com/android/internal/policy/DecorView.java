@@ -129,6 +129,10 @@ import java.util.NoSuchElementException;
 import android.util.Slog;
 
 import vendor.waydroid.window.V1_1.IWaydroidWindow;
+import android.hardware.input.InputManager;
+import android.view.KeyCharacterMap;
+import android.view.InputDevice;
+import android.os.SystemClock;
 
 /** @hide */
 public class DecorView extends FrameLayout implements RootViewSurfaceTaker, WindowCallbacks {
@@ -466,9 +470,18 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
+    private class ComeBackRunnable implements Runnable {
+        @Override
+        public void run() {
+            sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 0);
+            sendEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK, 0);
+        }
+    }
+
     private final CancelChordAltKeyTriggeredRunnable mCancelAltKeyTriggeredRunnable = new CancelChordAltKeyTriggeredRunnable();
     private final RestoreResponseF11KeyTriggeredRunnable mRestoreResponseF11KeyTriggeredRunnable = new RestoreResponseF11KeyTriggeredRunnable();
     private final ExitTaskRunnable mExitTaskRunnable = new ExitTaskRunnable();
+    private final ComeBackRunnable mComeBackRunnable = new ComeBackRunnable();
 
     public void toggleFreeformWindowingMode(){
         Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
@@ -655,8 +668,25 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     return true;
                 }
             }
+            if(keyCode == KeyEvent.KEYCODE_ESCAPE){
+                Slog.d(TAG,"dispatchKeyEventPreIme KeyEvent.KEYCODE_ESCAPE isDown: " + isDown);
+                if(!isDown){
+                    mHandler.removeCallbacks(mComeBackRunnable);
+                    mHandler.postDelayed(mComeBackRunnable, 50);
+                }
+                return true;
+            }
         }
         return super.dispatchKeyEventPreIme(event);
+    }
+
+    private void sendEvent(int action, int code, int flags) {
+        long when = SystemClock.uptimeMillis();
+        final KeyEvent ev = new KeyEvent(when, when, action, code, 0 /* repeat */,
+                0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD, 0 /* scancode */,
+                flags | KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
+                InputDevice.SOURCE_KEYBOARD);
+        InputManager.getInstance().injectInputEvent(ev, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
 
