@@ -151,7 +151,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         @Override
         public void run() {
             if(mOwner != null){
-                Slog.w(TAG,"fde hideSystemUIRunnable start ---------->>>>>>");
+                Slog.d(TAG,"fde hideSystemUIRunnable start ---------->>>>>>");
                 DecorView decorView = (DecorView)mOwner.getDecorView();
                 if((decorView.getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                     decorView.setSystemUiVisibility(
@@ -227,7 +227,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             try{
                 mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
             }catch(Exception e){
-                Slog.w(TAG,"fde getSharedPreferences error: " + e);
+                Slog.e(TAG,"fde getSharedPreferences error: " + e);
             }
         }
         mDragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -305,7 +305,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             disallowed = true;
         }
         if (disallowed)
-            Slog.w(TAG,"fde Disallowed maximize for " + packageName);
+            Slog.d(TAG,"fde Disallowed maximize for " + packageName);
         return disallowed;
     }
 
@@ -314,7 +314,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(context != null){
             String packageName = context.getPackageName();
             String result = CompatibleConfig.queryValueData(context, packageName, "isAllowHideDecorCaption");
-            Slog.w(TAG,"fde allow hide caption for " + packageName + ", result: " + result);
+            Slog.d(TAG,"fde allow hide caption for " + packageName + ", result: " + result);
             if(result != null && result.contains("true")){
                 allowHide = true;
             }
