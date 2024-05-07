@@ -40,7 +40,7 @@ cc_binary {
         "audioplay.cpp",
     ],
 
-    init_rc: ["bootanim.rc"],
+    //init_rc: ["bootanim.rc"],
 
     cflags: [
         "-Wno-deprecated-declarations",
