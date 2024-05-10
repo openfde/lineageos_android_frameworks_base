@@ -668,8 +668,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     return true;
                 }
             }
-            if(keyCode == KeyEvent.KEYCODE_ESCAPE){
-                Slog.d(TAG,"dispatchKeyEventPreIme KeyEvent.KEYCODE_ESCAPE isDown: " + isDown);
+            if(keyCode == KeyEvent.KEYCODE_F8){
+                Slog.d(TAG,"dispatchKeyEventPreIme KeyEvent.KEYCODE_F8 isDown: " + isDown);
                 if(!isDown){
                     mHandler.removeCallbacks(mComeBackRunnable);
                     mHandler.postDelayed(mComeBackRunnable, 50);
