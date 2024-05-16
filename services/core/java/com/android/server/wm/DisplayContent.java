@@ -170,6 +170,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserHandle;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.ArraySet;
 import android.util.DisplayMetrics;
@@ -232,6 +233,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.android.internal.util.CompatibleConfig;
 
 /**
  * Utility class for keeping track of the WindowStates and other pertinent contents of a
@@ -3344,10 +3346,40 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         if (mFocusedApp == newFocus) {
             return false;
         }
+        String packageName = newFocus.getPackageName();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName);
+            }
+        });
+        thread.start();
+
         mFocusedApp = newFocus;
         getInputMonitor().setFocusedAppLw(newFocus);
         updateTouchExcludeRegion();
         return true;
+    }
+
+    public void ConfigCompatibilityFeaturesTurnOffSimulatedTouch(@NonNull Context context, String packageName){
+        boolean isTurnOffSimulatedTouch = false;
+        String resultStr = null;
+        if(context != null){
+            resultStr = CompatibleConfig.queryThreadWaitData(context, packageName, "isTurnOffSimulatedTouch");
+            Slog.d(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query resultStr: " + resultStr);
+        }else{
+            Slog.e(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query failed, context is null.");
+        }
+        if(resultStr != null && resultStr.contains("true")){
+            isTurnOffSimulatedTouch = true;
+        }
+        if(isTurnOffSimulatedTouch){
+            SystemProperties.set("fde.click_as_touch", "false");
+            Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch false");
+        }else{
+            SystemProperties.set("fde.click_as_touch", "true");
+            Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch true");
+        }
     }
 
     /** Updates the layer assignment of windows on this display. */
