@@ -18,6 +18,7 @@
 //#define LOG_NDEBUG 0
 
 #include "SpriteController.h"
+#include <cutils/properties.h>
 
 #include <log/log.h>
 #include <utils/String8.h>
@@ -398,6 +399,8 @@ void SpriteController::SpriteImpl::setIcon(const SpriteIcon& icon) {
                 || mLocked.state.icon.hotSpotY != icon.hotSpotY) {
             mLocked.state.icon.hotSpotX = icon.hotSpotX;
             mLocked.state.icon.hotSpotY = icon.hotSpotY;
+            property_set("fde.mouse_icon_hotspot_x", std::to_string(icon.hotSpotX).c_str());
+            property_set("fde.mouse_icon_hotspot_y", std::to_string(icon.hotSpotY).c_str());
             dirty = DIRTY_BITMAP | DIRTY_HOTSPOT;
         } else {
             dirty = DIRTY_BITMAP;
@@ -405,6 +408,7 @@ void SpriteController::SpriteImpl::setIcon(const SpriteIcon& icon) {
 
         if (mLocked.state.icon.style != icon.style) {
             mLocked.state.icon.style = icon.style;
+            property_set("fde.mouse_icon_id", std::to_string(icon.style).c_str());
             dirty |= DIRTY_ICON_STYLE;
         }
     } else if (mLocked.state.icon.isValid()) {

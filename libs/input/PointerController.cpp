@@ -23,6 +23,7 @@
 #include "PointerController.h"
 
 #include <log/log.h>
+#include <cutils/properties.h>
 
 namespace android {
 
@@ -95,6 +96,9 @@ PointerController::PointerController(const sp<PointerControllerPolicyInterface>&
     mLocked.pointerSprite = mSpriteController->createSprite();
     mLocked.pointerIconChanged = false;
     mLocked.requestedPointerType = mPolicy->getDefaultPointerIconId();
+    property_set("fde.mouse_icon_id", std::to_string(mLocked.requestedPointerType).c_str());
+    property_set("fde.mouse_icon_hotspot_x", "5");
+    property_set("fde.mouse_icon_hotspot_y", "5");
 
     mLocked.animationFrameIndex = 0;
     mLocked.lastFrameUpdatedTime = 0;
@@ -647,12 +651,14 @@ void PointerController::updatePointerLocked() REQUIRES(mLock) {
     mLocked.pointerSprite->setPosition(mLocked.pointerX, mLocked.pointerY);
     mLocked.pointerSprite->setDisplayId(mLocked.viewport.displayId);
 
-    if (mLocked.pointerAlpha > 0) {
+    /*if (mLocked.pointerAlpha > 0) {
         mLocked.pointerSprite->setAlpha(mLocked.pointerAlpha);
         mLocked.pointerSprite->setVisible(true);
     } else {
         mLocked.pointerSprite->setVisible(false);
-    }
+    }*/
+    mLocked.pointerSprite->setAlpha(255);
+    mLocked.pointerSprite->setVisible(true);
 
     if (mLocked.pointerIconChanged || mLocked.presentationChanged) {
         if (mLocked.presentation == PRESENTATION_POINTER) {
