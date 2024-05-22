@@ -54,9 +54,10 @@ using namespace android;
 static void usage(const char* pname, PhysicalDisplayId displayId)
 {
     fprintf(stderr,
-            "usage: %s [-hp] [-d display-id] [FILENAME]\n"
+            "usage: %s [-hpj] [-d display-id] [FILENAME]\n"
             "   -h: this message\n"
             "   -p: save the file as a png.\n"
+            "   -j: save the file as a down scaled jpeg.\n"
             "   -d: specify the physical display ID to capture (default: %"
                     ANDROID_PHYSICAL_DISPLAY_ID_FORMAT ")\n"
             "       see \"dumpsys SurfaceFlinger --display-id\" for valid display IDs.\n"
@@ -148,9 +149,13 @@ int main(int argc, char** argv)
 
     const char* pname = argv[0];
     bool png = false;
+    bool jpeg = false;
     int c;
-    while ((c = getopt(argc, argv, "phd:")) != -1) {
+    while ((c = getopt(argc, argv, "jphd:")) != -1) {
         switch (c) {
+            case 'j':
+                jpeg = true;
+                break;
             case 'p':
                 png = true;
                 break;
@@ -231,7 +236,7 @@ int main(int argc, char** argv)
     f = outBuffer->getPixelFormat();
     size = s * h * bytesPerPixel(f);
 
-    if (png) {
+    if (png || jpeg) {
         const SkImageInfo info =
             SkImageInfo::Make(w, h, flinger2skia(f), kPremul_SkAlphaType,
                               dataSpaceToColorSpace(outDataspace));
@@ -246,7 +251,15 @@ int main(int argc, char** argv)
             return size == 0 || ::write(fFd, buffer, size) > 0;
           }
         } fdStream(fd);
-        (void)SkEncodeImage(&fdStream, pixmap, SkEncodedImageFormat::kPNG, 100);
+	if (jpeg) {
+		const SkImageInfo scaleInfo = SkImageInfo::Make(w/4, h/4, flinger2skia(f), kOpaque_SkAlphaType,
+			dataSpaceToColorSpace(outDataspace));
+		const SkPixmap scalePixmap(scaleInfo, base, s * bytesPerPixel(f));
+			pixmap.scalePixels(scalePixmap,kNone_SkFilterQuality);
+		(void)SkEncodeImage(&fdStream, scalePixmap, SkEncodedImageFormat::kJPEG,80);
+	}else{
+		(void)SkEncodeImage(&fdStream, pixmap, SkEncodedImageFormat::kPNG, 100);
+	}
         if (fn != NULL) {
             notifyMediaScanner(fn);
         }
