@@ -793,8 +793,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             exitFullScreenWindow();
             toggleFreeformWindowingMode();
         } else if (mClickTarget == mClose) {
-            //mOwner.dispatchOnWindowDismissed(
-            //        true /*finishTask*/, false /*suppressWindowTransition*/);
+            mOwner.dispatchOnWindowDismissed(
+                   true /*finishTask*/, false /*suppressWindowTransition*/);
             exitTask();
         }else if (mClickTarget == mFullScreen) {
             if(mSharedPreferences != null){
