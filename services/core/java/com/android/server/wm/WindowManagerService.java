@@ -5383,6 +5383,8 @@ public class WindowManagerService extends IWindowManager.Stub
         } finally {
             Binder.restoreCallingIdentity(ident);
         }
+        InputManager.getInstance().setPointerIconType(PointerIcon.TYPE_WAIT);
+        InputManager.getInstance().setPointerIconType(PointerIcon.TYPE_DEFAULT);
     }
 
     @Override
