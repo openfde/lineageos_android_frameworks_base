@@ -5383,8 +5383,10 @@ public class WindowManagerService extends IWindowManager.Stub
         } finally {
             Binder.restoreCallingIdentity(ident);
         }
+        // region @fde fixed the issue of mouse cursor disappearing
         InputManager.getInstance().setPointerIconType(PointerIcon.TYPE_WAIT);
         InputManager.getInstance().setPointerIconType(PointerIcon.TYPE_DEFAULT);
+        // endregion
     }
 
     @Override
