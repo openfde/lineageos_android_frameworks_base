@@ -795,7 +795,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         } else if (mClickTarget == mClose) {
             mOwner.dispatchOnWindowDismissed(
                    true /*finishTask*/, false /*suppressWindowTransition*/);
-            exitTask();
         }else if (mClickTarget == mFullScreen) {
             if(mSharedPreferences != null){
                 isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
