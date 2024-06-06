@@ -4103,7 +4103,7 @@ public class Activity extends ContextThemeWrapper
      */
     @Override
     public void onWindowDismissed(boolean finishTask, boolean suppressWindowTransition) {
-+        Activity.this.exitTask();
+        Activity.this.exitTask();
     }
 
 
