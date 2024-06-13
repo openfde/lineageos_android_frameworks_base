@@ -3346,14 +3346,17 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         if (mFocusedApp == newFocus) {
             return false;
         }
-        String packageName = newFocus.getPackageName();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName);
-            }
-        });
-        thread.start();
+
+        if(newFocus != null){
+            String packageName = newFocus.getPackageName();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName);
+                }
+            });
+            thread.start();
+        }
 
         mFocusedApp = newFocus;
         getInputMonitor().setFocusedAppLw(newFocus);
