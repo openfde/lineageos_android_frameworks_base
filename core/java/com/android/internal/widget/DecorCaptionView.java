@@ -286,7 +286,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             }
         }
         if(shouldHideDecorCaption){
-            mHandler.postDelayed(hideSystemUIRunnable, 500);
+            mHandler.post(hideSystemUIRunnable);
         }
     }
 
@@ -600,7 +600,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(mHandler.hasCallbacks(resetToggleStateRunnable)){
             mHandler.removeCallbacks(resetToggleStateRunnable);
         }
-        mHandler.postDelayed(resetToggleStateRunnable, 600);
+        mHandler.post(resetToggleStateRunnable);
     }
     // region @bliss
     private boolean supportPip() {
@@ -651,7 +651,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(mHandler.hasCallbacks(showSystemUIRunnable)){
             mHandler.removeCallbacks(showSystemUIRunnable);
         }
-        mHandler.postDelayed(showSystemUIRunnable, 500);
+        mHandler.post(showSystemUIRunnable);
     }
 
     public void startFullScreenWindow(){
@@ -665,7 +665,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                 if(mHandler.hasCallbacks(hideSystemUIRunnable)){
                     mHandler.removeCallbacks(hideSystemUIRunnable);
                 }
-                mHandler.postDelayed(hideSystemUIRunnable, 500);
+                mHandler.post(hideSystemUIRunnable);
             }else{
                 if((decorView.getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                     decorView.setSystemUiVisibility(
