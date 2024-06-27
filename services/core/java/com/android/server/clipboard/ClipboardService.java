@@ -373,6 +373,10 @@ public class ClipboardService extends SystemService {
                     	String text = firstItem.getText().toString();
                     	mWaydroidClipboard.sendClipboardData(text);
 		    }
+		    if (firstItem.getUri() != null ){
+			String text = firstItem.getUri().toString();
+			mWaydroidClipboard.sendClipboardData(text);
+		    }
                 }
             }
         }
@@ -403,11 +407,13 @@ public class ClipboardService extends SystemService {
                 addActiveOwnerLocked(intendingUid, pkg);
                 if (mWaydroidClipboard != null && mWaydroidClipboard.getService() != null) {
                     String waydroidPaste = mWaydroidClipboard.getClipboardData();
-                    ClipData clip =
-                        new ClipData("host clipboard",
-                                     new String[]{"text/plain"},
-                                     new ClipData.Item(waydroidPaste));
-                    return clip;
+                    if ( !waydroidPaste.isEmpty() &&  !waydroidPaste.startsWith("content://") ){
+			    ClipData clip =
+				new ClipData("host clipboard",
+					     new String[]{"text/plain"},
+					     new ClipData.Item(waydroidPaste));
+			    return clip;
+		    }
                 }
                 return getClipboard(intendingUserId).primaryClip;
             }
