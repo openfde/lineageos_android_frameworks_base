@@ -509,7 +509,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             if(mHandler.hasCallbacks(hideSystemUIRunnable)){
                 mHandler.removeCallbacks(hideSystemUIRunnable);
             }
-            mHandler.postDelayed(hideSystemUIRunnable, 500);
+            mHandler.post(hideSystemUIRunnable);
         }else{
             if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                 setSystemUiVisibility(
@@ -546,7 +546,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if(mHandler.hasCallbacks(showSystemUIRunnable)){
             mHandler.removeCallbacks(showSystemUIRunnable);
         }
-        mHandler.postDelayed(showSystemUIRunnable, 500);
+        mHandler.post(showSystemUIRunnable);
     }
 
     Runnable hideSystemUIRunnable = new Runnable() {
@@ -602,7 +602,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mChordAltKeyTriggered = true;
             }else{
                 mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
-                mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
+                mHandler.post(mCancelAltKeyTriggeredRunnable);
             }
             return true;
         }
@@ -610,7 +610,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             if (keyCode == KeyEvent.KEYCODE_F4 && isDown && (event.getRepeatCount() == 0) && mChordAltKeyTriggered){
                 mChordAltKeyTriggered = false;
                 mHandler.removeCallbacks(mExitTaskRunnable);
-                mHandler.postDelayed(mExitTaskRunnable, 100);
+                mHandler.post(mExitTaskRunnable);
                 return true;
             }
             if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
@@ -618,7 +618,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 if(!mIgnoreKeyCodeF11){
                     mIgnoreKeyCodeF11 = true;
                     mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
-                    mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
+                    mHandler.post(mRestoreResponseF11KeyTriggeredRunnable);
                     if(mWindow.getWindowControllerCallback() == null){
                         return true;
                     }
@@ -672,7 +672,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 Slog.d(TAG,"dispatchKeyEventPreIme KeyEvent.KEYCODE_F8 isDown: " + isDown);
                 if(!isDown){
                     mHandler.removeCallbacks(mComeBackRunnable);
-                    mHandler.postDelayed(mComeBackRunnable, 50);
+                    mHandler.post(mComeBackRunnable);
                 }
                 return true;
             }
@@ -701,7 +701,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mChordAltKeyTriggered = true;
             }else{
                 mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
-                mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
+                mHandler.post(mCancelAltKeyTriggeredRunnable);
             }
             return true;
         }
@@ -729,7 +729,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             if (keyCode == KeyEvent.KEYCODE_F4 && isDown && (event.getRepeatCount() == 0) && mChordAltKeyTriggered){
                 mChordAltKeyTriggered = false;
                 mHandler.removeCallbacks(mExitTaskRunnable);
-                mHandler.postDelayed(mExitTaskRunnable, 100);
+                mHandler.post(mExitTaskRunnable);
                 return true;
             }
             // region @waydroid
