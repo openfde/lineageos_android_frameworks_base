@@ -406,15 +406,17 @@ public class ClipboardService extends SystemService {
                 }
                 addActiveOwnerLocked(intendingUid, pkg);
                 if (mWaydroidClipboard != null && mWaydroidClipboard.getService() != null) {
-                    String waydroidPaste = mWaydroidClipboard.getClipboardData();
-                    if ( !waydroidPaste.isEmpty() &&  !waydroidPaste.startsWith("content://") ){
-			    ClipData clip =
-				new ClipData("host clipboard",
+			String waydroidPaste = mWaydroidClipboard.getClipboardData();
+			if ( !waydroidPaste.isEmpty() ){
+				if ((!waydroidPaste.startsWith("content://")) || ( getClipboard(intendingUserId).primaryClip == null) ){
+					ClipData clip =
+					new ClipData("host clipboard",
 					     new String[]{"text/plain"},
 					     new ClipData.Item(waydroidPaste));
-			    return clip;
-		    }
-                }
+					return clip;
+				}
+			}
+		}
                 return getClipboard(intendingUserId).primaryClip;
             }
         }
