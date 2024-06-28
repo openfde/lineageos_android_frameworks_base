@@ -221,6 +221,10 @@ int32_t PointerController::getDisplayId() const {
 void PointerController::fade(Transition transition) {
     AutoMutex _l(mLock);
 
+    if(transition == TRANSITION_GRADUAL){
+        return;
+    }
+
     // Remove the inactivity timeout, since we are fading now.
     removeInactivityTimeoutLocked();
 
@@ -650,6 +654,12 @@ void PointerController::updatePointerLocked() REQUIRES(mLock) {
     mLocked.pointerSprite->setLayer(Sprite::BASE_LAYER_POINTER);
     mLocked.pointerSprite->setPosition(mLocked.pointerX, mLocked.pointerY);
     mLocked.pointerSprite->setDisplayId(mLocked.viewport.displayId);
+
+    if(mLocked.pointerAlpha == 0){
+        property_set("fde.show_wayland_cursor", "false");
+    }else{
+        property_set("fde.show_wayland_cursor", "true");
+    }
 
     /*if (mLocked.pointerAlpha > 0) {
         mLocked.pointerSprite->setAlpha(mLocked.pointerAlpha);
