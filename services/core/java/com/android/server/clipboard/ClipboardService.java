@@ -371,11 +371,14 @@ public class ClipboardService extends SystemService {
                     ClipData.Item firstItem = clip.getItemAt(0);
 		    if (firstItem.getText() != null ){
                     	String text = firstItem.getText().toString();
+			Slog.w(TAG," set primary clip get text" + text);
                     	mWaydroidClipboard.sendClipboardData(text);
-		    }
-		    if (firstItem.getUri() != null ){
-			String text = firstItem.getUri().toString();
-			mWaydroidClipboard.sendClipboardData(text);
+		    }else {
+			    if (firstItem.getUri() != null ){
+				String text = firstItem.getUri().toString();
+				Slog.w(TAG," set primary clip get uri" + text);
+				mWaydroidClipboard.sendClipboardData(text);
+			    }
 		    }
                 }
             }
