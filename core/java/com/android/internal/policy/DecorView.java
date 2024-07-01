@@ -356,32 +356,16 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if(mSharedPreferences != null){
             isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
         }
+        if("com.android.provision".equals(context.getPackageName())){
+            isTurnOnFullScreen = true;
+        }
+
         Slog.d(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
         if(isTurnOnFullScreen){
-            if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
-                setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_IMMERSIVE
-                            // Set the content to appear under the system bars so that the
-                            // content doesn't resize when the system bars hide and show.
-                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            // Hide the nav bar and status bar
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }else{
-                setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_IMMERSIVE
-                            // Set the content to appear under the system bars so that the
-                            // content doesn't resize when the system bars hide and show.
-                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            // Hide the nav bar and status bar
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            if(mHandler.hasCallbacks(hideSystemUIRunnable)){
+                mHandler.removeCallbacks(hideSystemUIRunnable);
             }
+            mHandler.post(hideSystemUIRunnable);
         }else{
             if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
                 setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
@@ -389,6 +373,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             }
         }
+        if("com.android.provision".equals(context.getPackageName())){
+            startFullScreenWindow();
+        }
+
         // endregion
 
         try {
@@ -511,30 +499,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             }
             mHandler.post(hideSystemUIRunnable);
         }else{
-            if((getWindowSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0){
-                setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_IMMERSIVE
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }else{
-                setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_IMMERSIVE
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            if(mHandler.hasCallbacks(hideSystemUIRunnable)){
+                mHandler.removeCallbacks(hideSystemUIRunnable);
             }
+            mHandler.post(hideSystemUIRunnable);
             updateDecorCaptionShade();
         }
     }
