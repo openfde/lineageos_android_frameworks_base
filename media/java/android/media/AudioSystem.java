@@ -1892,5 +1892,14 @@ public class AudioSystem
      * Keep in sync with core/jni/android_media_DeviceCallback.h.
      */
     final static int NATIVE_EVENT_ROUTING_CHANGE = 1000;
+
+    /** @hide */
+    public static native String getDevs(boolean input);
+    /** @hide */
+    public static native int setDevVolume(boolean input, String devNmae, float volume);
+    /** @hide */
+    public static native int setDevMute(boolean input, String devName, boolean mute);
+    /** @hide */
+    public static native String setDefaultDev(boolean input, String devNmae, boolean needInfo);
 }
 

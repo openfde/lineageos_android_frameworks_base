@@ -2445,6 +2445,57 @@ android_media_AudioSystem_getDevicesForAttributes(JNIEnv *env, jobject thiz,
     return jStatus;
 }
 
+static jstring
+android_media_AudioSystem_getDevs(JNIEnv *env, jobject thiz, jboolean input)
+{
+    return env->NewStringUTF(AudioSystem::getDevs(input).string());
+}
+
+static jint
+android_media_AudioSystem_setDevVolume(JNIEnv *env, jobject thiz, jboolean input, 
+jstring devName, jfloat volume)
+{
+    const jchar* c_devName = env->GetStringCritical(devName, 0);
+    String8 c_devName8;
+    if (c_devName) {
+        c_devName8 = String8(
+            reinterpret_cast<const char16_t*>(c_devName),
+            env->GetStringLength(devName));
+        env->ReleaseStringCritical(devName, c_devName);
+    }
+    return (jint) check_AudioSystem_Command(AudioSystem::setDevVolume(input, c_devName8, volume));
+}
+
+static jint
+android_media_AudioSystem_setDevMute(JNIEnv *env, jobject thiz, jboolean input, 
+jstring devName, jboolean mute)
+{
+    const jchar* c_devName = env->GetStringCritical(devName, 0);
+    String8 c_devName8;
+    if (c_devName) {
+        c_devName8 = String8(
+            reinterpret_cast<const char16_t*>(c_devName),
+            env->GetStringLength(devName));
+        env->ReleaseStringCritical(devName, c_devName);
+    }
+    return (jint) check_AudioSystem_Command(AudioSystem::setDevMute(input, c_devName8, mute));
+}
+
+static jstring
+android_media_AudioSystem_setDefaultDev(JNIEnv *env, jobject thiz, jboolean input, 
+jstring devName, jboolean needInfo)
+{
+    const jchar* c_devName = env->GetStringCritical(devName, 0);
+    String8 c_devName8;
+    if (c_devName) {
+        c_devName8 = String8(
+            reinterpret_cast<const char16_t*>(c_devName),
+            env->GetStringLength(devName));
+        env->ReleaseStringCritical(devName, c_devName);
+    }
+    return env->NewStringUTF(AudioSystem::setDefaultDev(input, c_devName8, needInfo).string());
+}
+
 // ----------------------------------------------------------------------------
 
 static const JNINativeMethod gMethods[] =
@@ -2561,7 +2612,11 @@ static const JNINativeMethod gMethods[] =
           (void *)android_media_AudioSystem_setUserIdDeviceAffinities},
          {"removeUserIdDeviceAffinities", "(I)I",
           (void *)android_media_AudioSystem_removeUserIdDeviceAffinities},
-         {"setCurrentImeUid", "(I)I", (void *)android_media_AudioSystem_setCurrentImeUid}};
+         {"setCurrentImeUid", "(I)I", (void *)android_media_AudioSystem_setCurrentImeUid},
+         {"getDevs", "(Z)Ljava/lang/String;", (void *)android_media_AudioSystem_getDevs},
+         {"setDevVolume", "(ZLjava/lang/String;F)I", (void *)android_media_AudioSystem_setDevVolume},
+         {"setDevMute", "(ZLjava/lang/String;Z)I", (void *)android_media_AudioSystem_setDevMute},
+         {"setDefaultDev", "(ZLjava/lang/String;Z)Ljava/lang/String;", (void *)android_media_AudioSystem_setDefaultDev}};
 
 static const JNINativeMethod gEventHandlerMethods[] = {
     {"native_setup",
