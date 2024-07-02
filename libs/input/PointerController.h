@@ -172,6 +172,7 @@ private:
         sp<Sprite> pointerSprite;
         SpriteIcon pointerIcon;
         bool pointerIconChanged;
+        bool pointerIconTypeNull;
 
         std::map<int32_t, SpriteIcon> additionalMouseResources;
         std::map<int32_t, PointerAnimation> animationResources;
