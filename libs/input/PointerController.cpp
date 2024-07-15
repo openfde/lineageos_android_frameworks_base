@@ -96,7 +96,6 @@ PointerController::PointerController(const sp<PointerControllerPolicyInterface>&
     mLocked.pointerSprite = mSpriteController->createSprite();
     mLocked.pointerIconChanged = false;
     mLocked.requestedPointerType = mPolicy->getDefaultPointerIconId();
-    property_set("fde.mouse_icon_id", std::to_string(mLocked.requestedPointerType).c_str());
     property_set("fde.mouse_icon_hotspot_x", "5");
     property_set("fde.mouse_icon_hotspot_y", "5");
 

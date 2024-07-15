@@ -408,7 +408,6 @@ void SpriteController::SpriteImpl::setIcon(const SpriteIcon& icon) {
 
         if (mLocked.state.icon.style != icon.style) {
             mLocked.state.icon.style = icon.style;
-            property_set("fde.mouse_icon_id", std::to_string(icon.style).c_str());
             dirty |= DIRTY_ICON_STYLE;
         }
     } else if (mLocked.state.icon.isValid()) {
