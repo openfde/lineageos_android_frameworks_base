@@ -712,9 +712,15 @@ void PointerController::updatePointerLocked() REQUIRES(mLock) {
     }
 
     if(mLocked.pointerAlpha == 0 || mLocked.pointerIconTypeNull){
-        property_set("fde.show_wayland_cursor", "false");
+        if(mLocked.showCursor){
+            property_set("fde.show_wayland_cursor", "false");
+            mLocked.showCursor = false;
+        }
     }else{
-        property_set("fde.show_wayland_cursor", "true");
+        if(!mLocked.showCursor){
+            property_set("fde.show_wayland_cursor", "true");
+            mLocked.showCursor = true;
+        }
     }
 
     mSpriteController->closeTransaction();
