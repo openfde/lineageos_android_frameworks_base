@@ -604,7 +604,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
                 mHandler.post(mCancelAltKeyTriggeredRunnable);
             }
-            return true;
         }
         if (!mWindow.isDestroyed()) {
             if (keyCode == KeyEvent.KEYCODE_F4 && isDown && (event.getRepeatCount() == 0) && mChordAltKeyTriggered){
@@ -695,16 +694,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         final int keyCode = event.getKeyCode();
         final int action = event.getAction();
         final boolean isDown = action == KeyEvent.ACTION_DOWN;
-
-        if(keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT){
-            if(isDown){
-                mChordAltKeyTriggered = true;
-            }else{
-                mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
-                mHandler.post(mCancelAltKeyTriggeredRunnable);
-            }
-            return true;
-        }
 
         if (isDown && (event.getRepeatCount() == 0)) {
             // First handle chording of panel key: if a panel key is held
