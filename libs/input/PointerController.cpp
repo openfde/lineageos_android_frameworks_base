@@ -247,6 +247,10 @@ void PointerController::unfade(Transition transition) {
     // Start unfading.
     if (transition == TRANSITION_IMMEDIATE) {
         mLocked.pointerFadeDirection = 0;
+        if(mLocked.pointerAlpha != 1){
+            ALOGI("unfade set mouse_icon_addr: 0");
+            property_set("fde.mouse_icon_addr", "0");
+        }
         mLocked.pointerAlpha = 1.0f;
         updatePointerLocked();
     } else {
@@ -654,24 +658,17 @@ void PointerController::updatePointerLocked() REQUIRES(mLock) {
     mLocked.pointerSprite->setPosition(mLocked.pointerX, mLocked.pointerY);
     mLocked.pointerSprite->setDisplayId(mLocked.viewport.displayId);
 
-    /*if (mLocked.pointerAlpha > 0) {
+    if (mLocked.pointerAlpha > 0) {
         mLocked.pointerSprite->setAlpha(mLocked.pointerAlpha);
         mLocked.pointerSprite->setVisible(true);
     } else {
         mLocked.pointerSprite->setVisible(false);
-    }*/
-    mLocked.pointerSprite->setAlpha(255);
-    mLocked.pointerSprite->setVisible(true);
+    }
 
     if (mLocked.pointerIconChanged || mLocked.presentationChanged) {
         if (mLocked.presentation == PRESENTATION_POINTER) {
             if (mLocked.requestedPointerType == mPolicy->getDefaultPointerIconId()) {
                 mLocked.pointerSprite->setIcon(mLocked.pointerIcon);
-                if(mLocked.pointerIcon.isValid()){
-                    mLocked.pointerIconTypeNull = false;
-                }else{
-                    mLocked.pointerIconTypeNull = true;
-                }
             } else {
                 std::map<int32_t, SpriteIcon>::const_iterator iter =
                     mLocked.additionalMouseResources.find(mLocked.requestedPointerType);
@@ -684,43 +681,16 @@ void PointerController::updatePointerLocked() REQUIRES(mLock) {
                         startAnimationLocked();
                     }
                     mLocked.pointerSprite->setIcon(iter->second);
-                    if(iter->second.isValid()){
-                        mLocked.pointerIconTypeNull = false;
-                    }else{
-                        mLocked.pointerIconTypeNull = true;
-                    }
                 } else {
                     ALOGW("Can't find the resource for icon id %d", mLocked.requestedPointerType);
                     mLocked.pointerSprite->setIcon(mLocked.pointerIcon);
-                    if(mLocked.pointerIcon.isValid()){
-                        mLocked.pointerIconTypeNull = false;
-                    }else{
-                        mLocked.pointerIconTypeNull = true;
-                    }
                 }
             }
         } else {
             mLocked.pointerSprite->setIcon(mResources.spotAnchor);
-            if(mResources.spotAnchor.isValid()){
-                mLocked.pointerIconTypeNull = false;
-            }else{
-                mLocked.pointerIconTypeNull = true;
-            }
         }
         mLocked.pointerIconChanged = false;
         mLocked.presentationChanged = false;
-    }
-
-    if(mLocked.pointerAlpha == 0 || mLocked.pointerIconTypeNull){
-        if(mLocked.showCursor){
-            property_set("fde.show_wayland_cursor", "false");
-            mLocked.showCursor = false;
-        }
-    }else{
-        if(!mLocked.showCursor){
-            property_set("fde.show_wayland_cursor", "true");
-            mLocked.showCursor = true;
-        }
     }
 
     mSpriteController->closeTransaction();

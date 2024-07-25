@@ -219,6 +219,9 @@ void SpriteController::doUpdateSprites() {
                 }
 
                 status = surface->unlockAndPost();
+
+                property_set("fde.mouse_icon_addr", std::to_string(reinterpret_cast<int64_t>(update.state.icon.bitmap.get())).c_str());
+
                 if (status) {
                     ALOGE("Error %d unlocking and posting sprite surface after drawing.", status);
                 } else {
@@ -390,7 +393,6 @@ SpriteController::SpriteImpl::~SpriteImpl() {
 
 void SpriteController::SpriteImpl::setIcon(const SpriteIcon& icon) {
     AutoMutex _l(mController->mLock);
-
     uint32_t dirty;
     if (icon.isValid()) {
         mLocked.state.icon.bitmap = icon.bitmap.copy(ANDROID_BITMAP_FORMAT_RGBA_8888);
