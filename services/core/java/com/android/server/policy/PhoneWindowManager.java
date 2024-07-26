@@ -4560,6 +4560,55 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     MediaSessionLegacyHelper.getHelper(mContext).sendVolumeKeyEvent(
                             event, AudioManager.USE_DEFAULT_STREAM_TYPE, true);
                 }
+                result &= ~ACTION_PASS_TO_USER;
+
+                String[] tokens = null;
+                String[] tokens2 = null;
+                String devName;
+                float volume;
+                String mute;
+                if ((down && (keyCode != KeyEvent.KEYCODE_VOLUME_MUTE)) || (!down && (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE))) {
+                    String ss = AudioSystem.getDevs(false);
+                    tokens = ss.split(";");
+                    //name1 port1=desc1=volume1=mute1;name2 port2=desc2=volume2=mute2
+                    tokens2 = tokens.length > 0 ? tokens[0].split("=") : null;
+                }
+
+                if (down) {
+                    if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                        if (tokens2.length == 4) {
+                            devName = tokens2[0];
+                            volume = Float.parseFloat(tokens2[2]);
+                            mute = tokens2[3];
+                        } else {
+                            Log.e(TAG, "info less!!");
+                            break;
+                        }
+                        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                            volume += 0.1f;
+                            if (volume > 1.0f) {
+                                volume = 1.0f;
+                            }
+                        } else {
+                            volume -= 0.1f;
+                            if (volume < 0.0f) {
+                                volume = 0.0f;
+                            }
+                        }
+                        if (mute.equals("1")) {
+                            AudioSystem.setDevMute(false, devName, false);
+                        }
+                        AudioSystem.setDevVolume(false, devName, volume);
+                    }
+                } else if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+                    if (tokens2.length == 4) {
+                        devName = tokens2[0];
+                        mute = tokens2[3];
+                        AudioSystem.setDevMute(false, devName, !mute.equals("1"));
+                    } else {
+                        Log.e(TAG, "info less!!!");
+                    }
+                }
                 break;
             }
 
