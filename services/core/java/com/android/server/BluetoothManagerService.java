@@ -1600,7 +1600,8 @@ class BluetoothManagerService extends IBluetoothManager.Stub {
     }
 
     public String getAddress() {
-        if (TextUtils.equals(SystemProperties.get("fde.fake_bluetooth_mac", "0"), "1")) {
+        if (!TextUtils.equals(SystemProperties.get("fde.fake_bt", "0"), "1")
+            && TextUtils.equals(SystemProperties.get("fde.fake_bluetooth_mac", "0"), "1")) {
             return BluetoothAdapter.DEFAULT_MAC_ADDRESS;
         }
         mContext.enforceCallingOrSelfPermission(BLUETOOTH_PERM, "Need BLUETOOTH permission");
