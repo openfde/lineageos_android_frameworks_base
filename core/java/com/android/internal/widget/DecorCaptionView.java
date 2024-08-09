@@ -100,7 +100,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private final static String TAG = "DecorCaptionView";
     private PhoneWindow mOwner = null;
     private boolean mShow = false;
-
+    private boolean mEnabled = true;
     // True if the window is being dragged.
     private boolean mDragging = false;
 
@@ -405,6 +405,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         // Note: There are no mixed events. When a new device gets used (e.g. 1. Mouse, 2. touch)
         // the old input device events get cancelled first. So no need to remember the kind of
         // input device we are listening to.
+        if(!mEnabled){
+            return false;
+        }
+
         final int x = (int) e.getX();
         final int y = (int) e.getY();
         final boolean fromMouse = e.getToolType(e.getActionIndex()) == MotionEvent.TOOL_TYPE_MOUSE;
@@ -695,6 +699,11 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             }
         }
     }
+
+    public void setOperateEnabled(boolean enable) {
+        this.mEnabled = enable;
+    }
+
     // endregion
 
     public boolean isCaptionShowing() {
@@ -759,6 +768,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         // region @boringdroid
+        if(!mEnabled){
+            return true;
+        }
         if (mClickTarget == mBack) {
             Log.w(TAG, "onSingleTapUp mBack clicked");
             sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 0);
