@@ -125,7 +125,7 @@ import static com.android.server.wm.Task.LOCK_TASK_AUTH_DONT_LOCK;
 import static com.android.server.wm.Task.REPARENT_KEEP_STACK_AT_FRONT;
 import static com.android.server.wm.Task.REPARENT_LEAVE_STACK_IN_PLACE;
 import static com.android.server.wm.WindowContainer.POSITION_TOP;
-
+import android.text.TextUtils;
 import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -1825,16 +1825,47 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 if (r == null) {
                     return;
                 }
+                Task task = r.getTask();
+                if(r.intent != null){
+                    task.type = mStackSupervisor.
+                            getMagicWindowType(r.intent.getComponent().getPackageName(),
+                    r.intent.getComponent().getClassName());
+                }
+                Task bottomMostTask = mRootWindowContainer.getBottomMostTask();
+                while(bottomMostTask != null ){
+                    // Slog.e(TAG, "activityIdle s:" + task + " s1" + bottomMostTask);
+                    if(isSameMagicTask(task, bottomMostTask)){
+                        ActivityRecord r1 = bottomMostTask.getRootActivity();
+                        if(r1 != r){
+                            r1.finishIfPossible(0, null, null,
+                                    "app-request", true /* oomAdj */);
+                        }
+                    }
+                    bottomMostTask = mRootWindowContainer.getTaskAbove(bottomMostTask);
+                }
                 mStackSupervisor.activityIdleInternal(r, false /* fromTimeout */,
                         false /* processPausingActivities */, config);
                 if (stopProfiling && r.hasProcess()) {
                     r.app.clearProfilerIfNeeded();
+                }
+                if(task.type == 2 && task.affinity.contains("com.tencent.mm")){
+                    Task magicMainTask = mRootWindowContainer.findMagicMainTask(task.affinity);
+                    if(magicMainTask != null && magicMainTask.getTopNonFinishingActivity() != null ){
+                        magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly(true);
+                    }
                 }
             }
         } finally {
             Trace.traceEnd(TRACE_TAG_WINDOW_MANAGER);
             Binder.restoreCallingIdentity(origId);
         }
+    }
+
+    boolean isSameMagicTask(Task task1, Task task2){
+        if(task1 == null || task2 == null || task1.type != 2 || task2.type != 2){
+            return false;
+        }
+        return TextUtils.equals(task1.affinity, task2.affinity);
     }
 
     @Override
@@ -2599,6 +2630,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             ActivityOptions realOptions = options != null
                     ? options.getOptions(mStackSupervisor)
                     : null;
+            Slog.e(TAG, "findTaskToMoveToFront task:" + task + " flags:" + flags + " realOptions" + realOptions);
             mStackSupervisor.findTaskToMoveToFront(task, flags, realOptions, "moveTaskToFront",
                     false /* forceNonResizable */);
 
@@ -3424,6 +3456,30 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
                 // After reparenting (which only resizes the task to the stack bounds), resize the
                 // task to the actual bounds provided
+                if(task.type == 2 || task.type ==1 ){
+                    Task bMostTask = mRootWindowContainer.getBottomMostTask();
+                    Task relative = null;
+                    while(bMostTask != null ){
+                        if( TextUtils.equals(task.affinity, bMostTask.affinity)){
+                            relative = bMostTask;
+                            break;
+                        }
+                        Task above = mRootWindowContainer.getTaskAbove(bMostTask);
+                        Slog.e(TAG, "resizeTask: bMostTask=" + bMostTask + " above=" + above);
+                        bMostTask = above;
+                    }
+                    if(relative != null && relative != task){
+                        Rect b = new Rect(bounds);
+                        if(relative.type == 2){
+                            b.left = b.left + bounds.right - bounds.left;
+                            b.right = b.right + bounds.right - bounds.left;
+                        } else if(relative.type == 1){
+                            b.left = b.left - bounds.right + bounds.left;
+                            b.right = b.right - bounds.right + bounds.left;
+                        }
+                        relative.resize(b, resizeMode, preserveWindow);
+                     }
+                }
                 return task.resize(bounds, resizeMode, preserveWindow);
             }
         } finally {

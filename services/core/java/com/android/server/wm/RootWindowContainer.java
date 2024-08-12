@@ -169,6 +169,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import android.text.TextUtils;
 
 /** Root {@link WindowContainer} for the device. */
 class RootWindowContainer extends WindowContainer<DisplayContent>
@@ -2301,6 +2302,35 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
 
         if (DEBUG_TASKS && mTmpFindTaskResult.mRecord == null) Slog.d(TAG_TASKS, "No task found");
         return mTmpFindTaskResult.mRecord;
+    }
+
+    public Task findMagicTask(String windowAffinity){
+        Task bottomMostTask = getBottomMostTask();
+        while(bottomMostTask != null ){
+            // Slog.e(TAG, "findMagicTask():  windowAffinity :" + windowAffinity + " bottomMostTask:" + bottomMostTask);
+            if( bottomMostTask.affinity!= null 
+                    && bottomMostTask.affinity.contains(windowAffinity)
+                    && bottomMostTask.type == 2){
+                return bottomMostTask;
+            }
+            bottomMostTask = getTaskAbove(bottomMostTask);
+        }
+        return null;
+    }
+    
+    public Task findMagicMainTask(String windowAffinity){
+        Task bottomMostTask = getBottomMostTask();
+        while(bottomMostTask != null ){
+            // Slog.e(TAG, "findMagicMainTask():  windowAffinity :" + windowAffinity
+                    // + " bottomMostTask:" + bottomMostTask.affinity + " type:" + bottomMostTask.type);
+            if( bottomMostTask.affinity!= null
+                    && bottomMostTask.affinity.contains(windowAffinity)
+                    && bottomMostTask.type == 1){
+                return bottomMostTask;
+            }
+            bottomMostTask = getTaskAbove(bottomMostTask);
+        }
+        return null;
     }
 
     /**

@@ -45,6 +45,7 @@ import android.app.WindowConfiguration;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.util.Slog;
 import android.view.Gravity;
 import android.view.View;
@@ -121,6 +122,17 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
             root = task.getRootActivity() == null ? activity : task.getRootActivity();
         } else {
             root = activity;
+        }
+        if(task != null && task.type == 2 && source != null
+                && source.getTask() != null
+                && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)
+                && source.getTask().type == 1) {
+            Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
+            if(rect != null ){
+                rect.offset(rect.right - rect.left, 0);
+                outParams.mBounds.set(rect);
+                return RESULT_CONTINUE;
+            }
         }
 
         // TODO: Investigate whether we can safely ignore all cases where we don't have root
@@ -272,6 +284,11 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         // We skip making adjustments if the params are fully resolved from previous results.
         final int resolvedMode = (launchMode != WINDOWING_MODE_UNDEFINED) ? launchMode
                 : display.getWindowingMode();
+//        Slog.e(TAG, "calculate 0 bounds:" + outParams.mBounds);
+//        if(task != null && task.type == 2){
+//            Slog.e(TAG, "calculate 0.1 bounds:" + outParams.mBounds);
+//            fullyResolvedCurrentParam = true;
+//        }
         if (fullyResolvedCurrentParam) {
             if (resolvedMode == WINDOWING_MODE_FREEFORM) {
                 // Make sure bounds are in the display if it's possibly in a different display/area.

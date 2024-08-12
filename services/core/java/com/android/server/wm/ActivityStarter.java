@@ -162,6 +162,8 @@ class ActivityStarter {
     private int mLaunchMode;
     private boolean mLaunchTaskBehind;
     private int mLaunchFlags;
+    private boolean mMagicLaunch = false;
+    private String mWindowAffinity = null;
 
     private LaunchParams mLaunchParams = new LaunchParams();
 
@@ -860,6 +862,19 @@ class ActivityStarter {
         final int startFlags = request.startFlags;
         final SafeActivityOptions options = request.activityOptions;
         Task inTask = request.inTask;
+        // Slog.e(TAG, "executeRequest: aInfo=" + aInfo.tofullString());
+        int magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
+        Task task = mRootWindowContainer.findMagicMainTask(aInfo.taskAffinity);
+        // Slog.e(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name + " magicType:" + magicType);
+        if( magicType == 2) {
+            if(task != null){
+                mMagicLaunch = true;
+                aInfo.documentLaunchMode = 2;
+            }
+            mWindowAffinity = aInfo.taskAffinity;
+        } else {
+            mMagicLaunch = false;
+        }
 
         int err = ActivityManager.START_SUCCESS;
         // Pull the optional Ephemeral Installer-only bundle out of the options early.
@@ -1617,7 +1632,14 @@ class ActivityStarter {
 
         mIntent.setFlags(mLaunchFlags);
 
-        final Task reusedTask = getReusableTask();
+        Task reusedTask = null;
+        if(mMagicLaunch){
+            reusedTask  = mRootWindowContainer.findMagicTask(mWindowAffinity);
+            // Slog.e(TAG, "getmagic task:" + reusedTask);
+            mAddingToTask = true;
+        } else {
+            reusedTask = getReusableTask();
+        }
 
         // If requested, freeze the task list
         if (mOptions != null && mOptions.freezeRecentTasksReordering()
@@ -1764,7 +1786,9 @@ class ActivityStarter {
     }
 
     private Task computeTargetTask() {
-        if (mStartActivity.resultTo == null && mInTask == null && !mAddingToTask
+        if(mMagicLaunch) {
+            return null;
+        } else if (mStartActivity.resultTo == null && mInTask == null && !mAddingToTask
                 && (mLaunchFlags & FLAG_ACTIVITY_NEW_TASK) != 0) {
             // A new task should be created instead of using existing one.
             return null;
