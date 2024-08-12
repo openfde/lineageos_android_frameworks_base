@@ -182,10 +182,11 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     public HashMap<String, String> mMagicWindowConfig = new HashMap<>();
     private static final String MAGIC_WINDOW_DIRNAME = "magicwindow_config";
     private static final String MAGIC_WINDOW_FILE_SUFFIX = ".xml";
-    private static final String MAGIC_WINDOW_CONFIG_FILENAME = "config";
+    private static final String MAGIC_WINDOW_CONFIG_FILENAME = "magic_config";
     private static final String MAGIC_WINDOW_TAG = "package";
     private static final String MAGIC_WINDOW_KEY = "packagename";
     private static final String MAGIC_WINDOW_VALUE = "main";
+    private static final String MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM = "/system_ext/etc/magicwindow_config/";
 
 
     /** How long we wait until giving up on the last activity telling us it is idle. */
@@ -458,9 +459,12 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     public void loadMagicWindowConfig(int userId) {
         IntFunction<File> userFolderGetter = Environment::getDataSystemCeDirectory;
         File userFolder = userFolderGetter.apply(userId);
-        File magicWindowConfigFileDir = new File(userFolder, MAGIC_WINDOW_DIRNAME);
+         File magicWindowConfigFileDir = new File(userFolder, MAGIC_WINDOW_DIRNAME);
         if (!magicWindowConfigFileDir.isDirectory()) {
             Slog.i(TAG, "Didn't find magic config folder for user " + userId);
+            magicWindowConfigFileDir = new File(MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM);
+        } else if(!magicWindowConfigFileDir.isDirectory()){
+            Slog.i(TAG, "Didn't find magic config folder in system for user " + userId);
             return;
         }
         File magicWindowConfigFile = new File(magicWindowConfigFileDir,

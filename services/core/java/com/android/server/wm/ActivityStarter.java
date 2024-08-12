@@ -866,6 +866,7 @@ class ActivityStarter {
         int magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
         Task task = mRootWindowContainer.findMagicMainTask(aInfo.taskAffinity);
         // Slog.e(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name + " magicType:" + magicType);
+        mSupervisor.loadMagicWindowConfig(0);
         if( magicType == 2) {
             if(task != null){
                 mMagicLaunch = true;
