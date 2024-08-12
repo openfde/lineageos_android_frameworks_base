@@ -627,12 +627,12 @@ public class ApplicationPackageManager extends PackageManager {
     @Override
     public boolean hasSystemFeature(String name) {
         // Log.w(TAG, "hasSystemFeature:" + name);
-        // if("oplus.hardware.type.tablet".equals(name)
-        //  || "android.hardware.touchscreen".equals(name)
-        //  || "com.oppo.feature.screen.heteromorphism".equals(name)
-        // ){
-        //     return true;
-        // }
+         if("oplus.hardware.type.tablet".equals(name)
+          || "android.hardware.touchscreen".equals(name)
+          || "com.oppo.feature.screen.heteromorphism".equals(name)
+         ){
+             return true;
+         }
         return hasSystemFeature(name, 0);
     }
 
