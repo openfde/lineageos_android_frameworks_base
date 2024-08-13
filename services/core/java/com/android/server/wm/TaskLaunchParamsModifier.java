@@ -37,7 +37,9 @@ import static android.view.Display.INVALID_DISPLAY;
 
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.TAG_ATM;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.TAG_WITH_CLASS_NAME;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
@@ -123,10 +125,12 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         } else {
             root = activity;
         }
-        if(task != null && task.type == 2 && source != null
+
+        // fde start MAGIC WINDOW
+        if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && source != null
                 && source.getTask() != null
                 && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)
-                && source.getTask().type == 1) {
+                && source.getTask().type == MAGIC_MAIN_WINDOW) {
             Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
             if(rect != null ){
                 rect.offset(rect.right - rect.left, 0);
@@ -134,6 +138,7 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
                 return RESULT_CONTINUE;
             }
         }
+        // fde end
 
         // TODO: Investigate whether we can safely ignore all cases where we don't have root
         // activity available. Note we can't know if the bounds are valid if we're not sure of the
@@ -284,11 +289,6 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         // We skip making adjustments if the params are fully resolved from previous results.
         final int resolvedMode = (launchMode != WINDOWING_MODE_UNDEFINED) ? launchMode
                 : display.getWindowingMode();
-//        Slog.e(TAG, "calculate 0 bounds:" + outParams.mBounds);
-//        if(task != null && task.type == 2){
-//            Slog.e(TAG, "calculate 0.1 bounds:" + outParams.mBounds);
-//            fullyResolvedCurrentParam = true;
-//        }
         if (fullyResolvedCurrentParam) {
             if (resolvedMode == WINDOWING_MODE_FREEFORM) {
                 // Make sure bounds are in the display if it's possibly in a different display/area.

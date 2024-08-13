@@ -213,7 +213,8 @@ class Task extends WindowContainer<WindowContainer> {
     static final int INVALID_MIN_SIZE = -1;
     private float mShadowRadius = 0;
 
-    public int type = 0; // main magic window: 1  additional main window: 2
+    public int type = NOT_MAGIC_WINDOW; // main magic window: 1  additional main window: 2
+    public static final int NOT_MAGIC_WINDOW = 0 , MAGIC_MAIN_WINDOW = 1, MAGIC_ADDITIONAL_WINDOW = 2;
     /**
      * The modes to control how the stack is moved to the front when calling {@link Task#reparent}.
      */
@@ -954,6 +955,8 @@ class Task extends WindowContainer<WindowContainer> {
         boolean updateIdentity = false;
         if(info != null){
             type = mStackSupervisor.getMagicWindowType(info.packageName, info.name);
+        } else {
+            type = mStackSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
         }
         if (this.intent == null) {
             updateIdentity = true;

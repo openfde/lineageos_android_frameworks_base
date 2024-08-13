@@ -91,7 +91,9 @@ import static com.android.server.wm.WindowManagerService.WINDOWS_FREEZING_SCREEN
 import static com.android.server.wm.WindowSurfacePlacer.SET_ORIENTATION_CHANGE_COMPLETE;
 import static com.android.server.wm.WindowSurfacePlacer.SET_UPDATE_ROTATION;
 import static com.android.server.wm.WindowSurfacePlacer.SET_WALLPAPER_ACTION_PENDING;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import static java.lang.Integer.MAX_VALUE;
 
 import android.annotation.IntDef;
@@ -2304,34 +2306,22 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         return mTmpFindTaskResult.mRecord;
     }
 
-    public Task findMagicTask(String windowAffinity){
-        Task bottomMostTask = getBottomMostTask();
-        while(bottomMostTask != null ){
-            // Slog.e(TAG, "findMagicTask():  windowAffinity :" + windowAffinity + " bottomMostTask:" + bottomMostTask);
-            if( bottomMostTask.affinity!= null 
-                    && bottomMostTask.affinity.contains(windowAffinity)
-                    && bottomMostTask.type == 2){
-                return bottomMostTask;
+    // fde start MAGIC WINODW
+    public Task findMagicTask(String windowAffinity, int type){
+        Task bMostTask = getBottomMostTask();
+        while(bMostTask != null ){
+        // Slog.e(TAG, "findMagicTask():  windowAffinity :" + windowAffinity + " bMostTask:" + bMostTask);
+            if( bMostTask.mWindowLayoutAffinity!= null 
+                    && bMostTask.mWindowLayoutAffinity.contains(windowAffinity)
+                    && bMostTask.type == type){
+                return bMostTask;
             }
-            bottomMostTask = getTaskAbove(bottomMostTask);
+            bMostTask = getTaskAbove(bMostTask);
         }
         return null;
     }
+    // fde end MAGIC WINDOW
     
-    public Task findMagicMainTask(String windowAffinity){
-        Task bottomMostTask = getBottomMostTask();
-        while(bottomMostTask != null ){
-            // Slog.e(TAG, "findMagicMainTask():  windowAffinity :" + windowAffinity
-                    // + " bottomMostTask:" + bottomMostTask.affinity + " type:" + bottomMostTask.type);
-            if( bottomMostTask.affinity!= null
-                    && bottomMostTask.affinity.contains(windowAffinity)
-                    && bottomMostTask.type == 1){
-                return bottomMostTask;
-            }
-            bottomMostTask = getTaskAbove(bottomMostTask);
-        }
-        return null;
-    }
 
     /**
      * Finish the topmost activities in all stacks that belong to the crashed app.

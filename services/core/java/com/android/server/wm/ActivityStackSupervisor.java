@@ -82,7 +82,9 @@ import static com.android.server.wm.Task.REPARENT_KEEP_STACK_AT_FRONT;
 import static com.android.server.wm.WindowContainer.AnimationFlags.PARENTS;
 import static com.android.server.wm.WindowContainer.AnimationFlags.TRANSITION;
 import static com.android.server.wm.WindowContainer.POSITION_TOP;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import android.Manifest;
 import android.annotation.Nullable;
 import android.app.Activity;
@@ -453,24 +455,24 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         mLaunchParamsPersister = new LaunchParamsPersister(mPersisterQueue, this);
         mLaunchParamsController = new LaunchParamsController(mService, mLaunchParamsPersister);
         mLaunchParamsController.registerDefaultModifiers(this);
-        loadMagicWindowConfig(0);
+        loadMagicWindowConfig();
     }
 
-    public void loadMagicWindowConfig(int userId) {
+    public void loadMagicWindowConfig() {
         IntFunction<File> userFolderGetter = Environment::getDataSystemCeDirectory;
-        File userFolder = userFolderGetter.apply(userId);
+        File userFolder = userFolderGetter.apply(0);
          File magicWindowConfigFileDir = new File(userFolder, MAGIC_WINDOW_DIRNAME);
         if (!magicWindowConfigFileDir.isDirectory()) {
-            Slog.i(TAG, "Didn't find magic config folder for user " + userId);
+            Slog.i(TAG, "Didn't find magic config folder for user " + 0);
             magicWindowConfigFileDir = new File(MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM);
         } else if(!magicWindowConfigFileDir.isDirectory()){
-            Slog.i(TAG, "Didn't find magic config folder in system for user " + userId);
+            Slog.i(TAG, "Didn't find magic config folder in system for user " + 0);
             return;
         }
         File magicWindowConfigFile = new File(magicWindowConfigFileDir,
                 MAGIC_WINDOW_CONFIG_FILENAME + MAGIC_WINDOW_FILE_SUFFIX);
         if (!magicWindowConfigFile.exists()) {
-            Slog.i(TAG, "Didn't find magic config file for user " + userId);
+            Slog.i(TAG, "Didn't find magic config file for user " + 0);
             return;
         }
         BufferedReader reader = null;
@@ -505,7 +507,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     }
                 }
                 if (!TextUtils.isEmpty(packagename) && !TextUtils.isEmpty(main)) {
-                    Slog.e(TAG, "magic window packagename:" + packagename + " main:" + main);
+                    // Slog.e(TAG, "magic window packagename:" + packagename + " main:" + main);
                     mMagicWindowConfig.put(packagename, main);
                 }
             }
@@ -519,18 +521,18 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
 
-    public int getMagicWindowType(String packageName, String name) {
-        // Slog.e(TAG, " package:" + packageName + " name:" + name);
-        if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(name)){
-            return 0; //not magic window
+    public int getMagicWindowType(String packageName, String activity) {
+        // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
+        if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
+            return NOT_MAGIC_WINDOW; //not magic window
         } else if(!mMagicWindowConfig.containsKey(packageName)) {
-            return 0; // not magic window
-        } else if(!name.contains(mMagicWindowConfig.get(packageName))){
-            return 2; //  magic additional window
-        } else if(name.contains(mMagicWindowConfig.get(packageName))){
-            return 1; //  magic main window
+            return NOT_MAGIC_WINDOW; // not magic window
+        } else if(!activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_ADDITIONAL_WINDOW; //  magic additional window
+        } else if(activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_MAIN_WINDOW; //  magic main window
         }
-        return 0;
+        return NOT_MAGIC_WINDOW;
     }
 
 
@@ -544,7 +546,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         // unlocked.
         mPersisterQueue.startPersisting();
         mLaunchParamsPersister.onUnlockUser(userId);
-        loadMagicWindowConfig(userId);
+        loadMagicWindowConfig();
     }
 
     public ActivityMetricsLogger getActivityMetricsLogger() {
