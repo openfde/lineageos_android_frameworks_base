@@ -1879,9 +1879,6 @@ public class TelephonyManager {
     @RequiresPermission(android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE)
     @Nullable
     public String getDeviceSoftwareVersion(int slotIndex) {
-        if (TextUtils.equals(SystemProperties.get("fde.fake_sim_info", "0"), "1")) {
-            return "00";
-        }
         ITelephony telephony = getITelephony();
         if (telephony == null) return null;
 
@@ -2055,9 +2052,6 @@ public class TelephonyManager {
     @SuppressAutoDoc // No support for device / profile owner or carrier privileges (b/72967236).
     @RequiresPermission(android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE)
     public String getImei(int slotIndex) {
-        if (TextUtils.equals(SystemProperties.get("fde.fake_sim_info", "0"), "1")) {
-            return "869287200494089";
-        }
         ITelephony telephony = getITelephony();
         if (telephony == null) return null;
 
@@ -4488,9 +4482,6 @@ public class TelephonyManager {
     })
     @UnsupportedAppUsage
     public String getLine1Number(int subId) {
-        if (TextUtils.equals(SystemProperties.get("fde.fake_sim_info", "0"), "1")) {
-            return "+8618888888888";
-		}
         String number = null;
         try {
             ITelephony telephony = getITelephony();
