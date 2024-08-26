@@ -3881,6 +3881,19 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
                     onlyCurrentIme, mMethodMap.get(mCurMethodId), mCurrentSubtype);
             if (nextSubtype == null) {
                 return false;
+            } else if (nextSubtype.mImi.getId() == mCurMethodId) {
+                final InputMethodInfo info = nextSubtype.mImi;
+                final String id = info.getId();
+                final InputMethodSubtype subtype = info.getSubtypeAt(nextSubtype.mSubtypeId);
+                final ImeSubtypeListItem nextNextSubtype = mSwitchingController.getNextInputMethodLocked(
+                        onlyCurrentIme, info, subtype);
+                if (nextNextSubtype == null) {
+                    return false;
+                }
+                Slog.w(TAG, "inputmms setInputMethodWithSubtypeIdLocked ime:" + nextNextSubtype.mImi.getId());
+                setInputMethodWithSubtypeIdLocked(null, nextNextSubtype.mImi.getId(),
+                        nextNextSubtype.mSubtypeId);
+                return true;
             }
             Slog.w(TAG, "inputmms setInputMethodWithSubtypeIdLocked ime:" + nextSubtype.mImi.getId());
 
