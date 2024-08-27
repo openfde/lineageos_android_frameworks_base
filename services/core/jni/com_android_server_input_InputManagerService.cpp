@@ -35,6 +35,7 @@
 #include <android_runtime/AndroidRuntime.h>
 #include <android_runtime/Log.h>
 
+#include <cutils/properties.h>
 #include <utils/Log.h>
 #include <utils/Looper.h>
 #include <utils/threads.h>
@@ -47,6 +48,7 @@
 #include <ui/Region.h>
 
 #include <inputflinger/InputManager.h>
+#include <inputflinger/reader/include/InputReader.h>
 
 #include <android_os_MessageQueue.h>
 #include <android_view_InputChannel.h>
@@ -1484,19 +1486,24 @@ static jint nativeInjectInputEvent(JNIEnv* env, jclass /* clazz */,
                                                                          uint32_t(policyFlags));
         return static_cast<jint>(result);
     } else if (env->IsInstanceOf(inputEventObj, gMotionEventClassInfo.clazz)) {
-        const MotionEvent* motionEvent = android_view_MotionEvent_getNativePtr(env, inputEventObj);
+        MotionEvent* motionEvent = android_view_MotionEvent_getNativePtr(env, inputEventObj);
         if (!motionEvent) {
             jniThrowRuntimeException(env, "Could not read contents of MotionEvent object.");
             return INPUT_EVENT_INJECTION_FAILED;
         }
-
-        const int32_t result =
-                (jint)im->getInputManager()
-                        ->getDispatcher()
-                        ->injectInputEvent(motionEvent, injectorPid, injectorUid, syncMode,
-                                           std::chrono::milliseconds(timeoutMillis),
-                                           uint32_t(policyFlags));
-        return static_cast<jint>(result);
+        if (property_get_bool("fde.inject_as_touch", false)) {
+            sp<InputReader> mReader = (im->getInputManager()->getReader());
+            mReader->injectMotionEvent(motionEvent, syncMode, timeoutMillis, uint32_t(policyFlags));
+            return INPUT_EVENT_INJECTION_SUCCEEDED;
+        } else {
+            const int32_t result =
+                    (jint)im->getInputManager()
+                            ->getDispatcher()
+                            ->injectInputEvent(motionEvent, injectorPid, injectorUid, syncMode,
+                                               std::chrono::milliseconds(timeoutMillis),
+                                               uint32_t(policyFlags));
+            return static_cast<jint>(result);
+        }
     } else {
         jniThrowRuntimeException(env, "Invalid input event type.");
         return INPUT_EVENT_INJECTION_FAILED;
