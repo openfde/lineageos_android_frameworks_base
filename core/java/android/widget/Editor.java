@@ -5192,6 +5192,9 @@ public class Editor {
         }
 
         protected final void updateMagnifier(@NonNull final MotionEvent event) {
+            if(true){
+                return;
+            }
             if (getMagnifierAnimator() == null) {
                 return;
             }
