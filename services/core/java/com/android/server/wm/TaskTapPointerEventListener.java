@@ -86,17 +86,17 @@ public class TaskTapPointerEventListener implements PointerEventListener {
                 if (task != null) {
                     task.getDimBounds(mTmpRect);
                     if (!mTmpRect.isEmpty() && !mTmpRect.contains(x, y)) {
-                        if (x < mTmpRect.left) {
+                        if (x <= mTmpRect.left) {
                             iconType =
                                 (y < mTmpRect.top) ? TYPE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW :
                                 (y > mTmpRect.bottom) ? TYPE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW :
                                 TYPE_HORIZONTAL_DOUBLE_ARROW;
-                        } else if (x > mTmpRect.right) {
+                        } else if (x >= mTmpRect.right) {
                             iconType =
                                 (y < mTmpRect.top) ? TYPE_TOP_RIGHT_DIAGONAL_DOUBLE_ARROW :
                                 (y > mTmpRect.bottom) ? TYPE_TOP_LEFT_DIAGONAL_DOUBLE_ARROW :
                                 TYPE_HORIZONTAL_DOUBLE_ARROW;
-                        } else if (y < mTmpRect.top || y > mTmpRect.bottom) {
+                        } else if (y <= mTmpRect.top || y >= mTmpRect.bottom) {
                             iconType = TYPE_VERTICAL_DOUBLE_ARROW;
                         }
                     }

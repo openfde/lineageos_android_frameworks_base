@@ -345,16 +345,16 @@ class TaskPositioner implements IBinder.DeathRecipient {
         mPreserveOrientation = preserveOrientation;
 
         if (resize) {
-            if (startX < startBounds.left) {
+            if (startX <= startBounds.left) {
                 mCtrlType |= CTRL_LEFT;
             }
-            if (startX > startBounds.right) {
+            if (startX >= startBounds.right) {
                 mCtrlType |= CTRL_RIGHT;
             }
-            if (startY < startBounds.top) {
+            if (startY <= startBounds.top) {
                 mCtrlType |= CTRL_TOP;
             }
-            if (startY > startBounds.bottom) {
+            if (startY >= startBounds.bottom) {
                 mCtrlType |= CTRL_BOTTOM;
             }
             mResizing = mCtrlType != CTRL_NONE;
