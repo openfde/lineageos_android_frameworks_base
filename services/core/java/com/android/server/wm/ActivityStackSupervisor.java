@@ -1642,13 +1642,13 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     continue;
                 }
 
-                if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByDecorCaption) {
+                if (!proc.shouldKillProcessForRemovedTask(task)) {
                     // Don't kill process(es) that has an activity in a different task that is also
                     // in recents, or has an activity not stopped.
                     return;
                 }
 
-                if (proc.hasForegroundServices() && !isRemovedByDecorCaption) {
+                if (proc.hasForegroundServices()) {
                     // Don't kill process(es) with foreground service.
                     return;
                 }
