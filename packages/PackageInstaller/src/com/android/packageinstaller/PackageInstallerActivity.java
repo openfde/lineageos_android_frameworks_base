@@ -46,7 +46,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-
+import android.text.TextUtils;
 import com.android.internal.app.AlertActivity;
 
 import java.io.File;
@@ -89,7 +89,7 @@ public class PackageInstallerActivity extends AlertActivity {
     PackageInfo mPkgInfo;
     String mCallingPackage;
     ApplicationInfo mSourceInfo;
-
+    private boolean isThirdUpdate, isFromMarket = false;
     // ApplicationInfo object primarily used for already existing applications
     private ApplicationInfo mAppInfo = null;
 
@@ -124,6 +124,9 @@ public class PackageInstallerActivity extends AlertActivity {
             viewToEnable = (mAppInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0
                     ? requireViewById(R.id.install_confirm_question_update_system)
                     : requireViewById(R.id.install_confirm_question_update);
+            if(mAppInfo != null && (mAppInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0){
+                isThirdUpdate = true;
+            }
         } else {
             // This is a new application with no permissions.
             viewToEnable = requireViewById(R.id.install_confirm_question);
@@ -267,8 +270,17 @@ public class PackageInstallerActivity extends AlertActivity {
         } catch (NameNotFoundException e) {
             mAppInfo = null;
         }
+        if(isThirdUpdate && isFromMarket){
+            if (mSessionId != -1) {
+                mInstaller.setPermissionsResult(mSessionId, true);
+                finish();
+            } else {
+                startInstall();
+            }
+        } else {
+            startInstallConfirm();
+        }
 
-        startInstallConfirm();
     }
 
     void setPmResult(int pmResult) {
@@ -325,7 +337,7 @@ public class PackageInstallerActivity extends AlertActivity {
             mOriginatingURI = intent.getParcelableExtra(Intent.EXTRA_ORIGINATING_URI);
             mReferrerURI = intent.getParcelableExtra(Intent.EXTRA_REFERRER);
         }
-
+        isFromMarket = TextUtils.equals(mOriginatingPackage, InstallStart.MARKET_QQDOWNLOAD_NAME);
         // if there's nothing to do, quietly slip into the ether
         if (packageUri == null) {
             Log.w(TAG, "Unspecified source");
@@ -349,9 +361,36 @@ public class PackageInstallerActivity extends AlertActivity {
     protected void onResume() {
         super.onResume();
 
+
         if (mAppSnippet != null) {
             // load dummy layout with OK button disabled until we override this layout in
             // startInstallConfirm
+            String pkgName = mPkgInfo.packageName;
+            // Check if there is already a package on the device with this name
+            // but it has been renamed to something else.
+            String[] oldName = mPm.canonicalToCurrentPackageNames(new String[] { pkgName });
+            if (oldName != null && oldName.length > 0 && oldName[0] != null) {
+                pkgName = oldName[0];
+                mPkgInfo.packageName = pkgName;
+                mPkgInfo.applicationInfo.packageName = pkgName;
+            }
+            // Check if package is already installed. display confirmation dialog if replacing pkg
+            try {
+                // This is a little convoluted because we want to get all uninstalled
+                // apps, but this may include apps with just data, and if it is just
+                // data we still want to count it as "installed".
+                mAppInfo = mPm.getApplicationInfo(pkgName,
+                        PackageManager.MATCH_UNINSTALLED_PACKAGES);
+                if ((mAppInfo.flags&ApplicationInfo.FLAG_INSTALLED) == 0) {
+                    mAppInfo = null;
+                } else {
+                    if(mAppInfo != null && (mAppInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0){
+                        isThirdUpdate = true;
+                    }
+                }
+            } catch (NameNotFoundException e) {
+                mAppInfo = null;
+            }
             bindUi();
             checkIfAllowedAndInitiateInstall();
         }
@@ -379,6 +418,10 @@ public class PackageInstallerActivity extends AlertActivity {
     }
 
     private void bindUi() {
+        if(isFromMarket && isThirdUpdate){
+            return;
+        }
+
         mAlert.setIcon(mAppSnippet.icon);
         mAlert.setTitle(mAppSnippet.label);
         mAlert.setView(R.layout.install_content_view);
@@ -561,7 +604,11 @@ public class PackageInstallerActivity extends AlertActivity {
         newIntent.putExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO,
                 mPkgInfo.applicationInfo);
         newIntent.setData(mPackageURI);
-        newIntent.setClass(this, InstallInstalling.class);
+        if(isThirdUpdate && isFromMarket){
+            newIntent.setClass(this, SilentInstallInstalling.class);
+        } else {
+            newIntent.setClass(this, InstallInstalling.class);
+        }
         String installerPackageName = getIntent().getStringExtra(
                 Intent.EXTRA_INSTALLER_PACKAGE_NAME);
         if (mOriginatingURI != null) {
@@ -581,6 +628,9 @@ public class PackageInstallerActivity extends AlertActivity {
             newIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
         }
         newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+        if(isThirdUpdate && isFromMarket){
+            newIntent.putExtra("isSilent", true);
+        }
         if(localLOGV) Log.i(TAG, "downloaded app uri="+mPackageURI);
         startActivity(newIntent);
         finish();

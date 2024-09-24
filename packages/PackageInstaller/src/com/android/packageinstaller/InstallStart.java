@@ -40,6 +40,7 @@ import android.permission.IPermissionManager;
 import android.util.Log;
 
 import java.util.List;
+import android.text.TextUtils;
 
 /**
  * Select which activity is the first visible activity of the installation and forward the intent to
@@ -53,6 +54,8 @@ public class InstallStart extends Activity {
     private IPermissionManager mIPermissionManager;
     private UserManager mUserManager;
     private boolean mAbortInstall = false;
+    private boolean isThirdUpdate, isFromMarket = false;
+    public static final String MARKET_QQDOWNLOAD_NAME = "com.tencent.android.qqdownloader";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -119,13 +122,20 @@ public class InstallStart extends Activity {
         } else {
             Uri packageUri = intent.getData();
 
+            String mOriginatingPackage = (originatingUid != PackageInstaller.SessionParams.UID_UNKNOWN)
+                    ? getPackageNameForUid(originatingUid) : null;
+            isFromMarket = TextUtils.equals(mOriginatingPackage, MARKET_QQDOWNLOAD_NAME);
             if (packageUri != null && packageUri.getScheme().equals(
                     ContentResolver.SCHEME_CONTENT)) {
                 // [IMPORTANT] This path is deprecated, but should still work. Only necessary
                 // features should be added.
 
                 // Copy file to prevent it from being changed underneath this process
-                nextActivity.setClass(this, InstallStaging.class);
+                if(isFromMarket){
+                    nextActivity.setClass(this, SilentInstallStaging.class);
+                } else {
+                    nextActivity.setClass(this, InstallStaging.class);
+                }
             } else if (packageUri != null && packageUri.getScheme().equals(
                     PackageInstallerActivity.SCHEME_PACKAGE)) {
                 nextActivity.setClass(this, PackageInstallerActivity.class);
@@ -143,6 +153,23 @@ public class InstallStart extends Activity {
             startActivity(nextActivity);
         }
         finish();
+    }
+
+    private String getPackageNameForUid(int sourceUid) {
+        String[] packagesForUid = getPackageManager().getPackagesForUid(sourceUid);
+        if (packagesForUid == null) {
+            return null;
+        }
+        if (packagesForUid.length > 1) {
+            if (getIntent().getStringExtra("EXTRA_CALLING_PACKAGE") != null) {
+                for (String packageName : packagesForUid) {
+                    if (packageName.equals(getIntent().getStringExtra("EXTRA_CALLING_PACKAGE"))) {
+                        return packageName;
+                    }
+                }
+            }
+        }
+        return packagesForUid[0];
     }
 
     private boolean declaresAppOpPermission(int uid, String permission) {

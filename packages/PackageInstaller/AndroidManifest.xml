@@ -67,6 +67,20 @@
             android:theme="@style/Theme.AlertDialogActivity.NoActionBar"
             android:exported="false" />
 
+
+        <activity android:name=".SilentDeleteStagedFileOnResult"
+            android:exported="true"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:documentLaunchMode="always">
+            <layout
+                android:defaultHeight="1dp"
+                android:defaultWidth="1dp"
+                android:minHeight="1dp"
+                android:minWidth="1dp"
+                />
+        </activity>  
+
         <activity android:name=".PackageInstallerActivity"
                 android:theme="@style/Theme.AlertDialogActivity"
                 android:exported="false" />
@@ -74,7 +88,30 @@
         <activity android:name=".InstallInstalling"
                 android:theme="@style/Theme.AlertDialogActivity.NoAnimation"
                 android:exported="false" />
-
+        <activity android:name=".SilentInstallInstalling"
+            android:exported="true"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:documentLaunchMode="always">
+            <layout
+                android:defaultHeight="1dp"
+                android:defaultWidth="1dp"
+                android:minHeight="1dp"
+                android:minWidth="1dp"
+                />
+        </activity>      
+        <activity android:name=".SilentInstallStaging"
+            android:exported="true"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:documentLaunchMode="always">
+            <layout
+                android:defaultHeight="1dp"
+                android:defaultWidth="1dp"
+                android:minHeight="1dp"
+                android:minWidth="1dp"
+                />
+        </activity>   
         <receiver android:name=".InstallEventReceiver"
                 android:permission="android.permission.INSTALL_PACKAGES"
                 android:exported="true">
