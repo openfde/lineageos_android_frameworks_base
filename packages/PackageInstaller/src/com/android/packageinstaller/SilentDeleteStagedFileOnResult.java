@@ -55,7 +55,7 @@ import java.io.File;
 /**
  * Trampoline activity. Calls PackageInstallerActivity and deletes staged install file onResult.
  */
-public class DeleteStagedFileOnResult extends Activity {
+public class SilentDeleteStagedFileOnResult extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,4 +77,5 @@ public class DeleteStagedFileOnResult extends Activity {
         setResult(resultCode, data);
         finish();
     }
+
 }
