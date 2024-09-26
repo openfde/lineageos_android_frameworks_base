@@ -1614,20 +1614,20 @@ class WindowContainer<E extends WindowContainer> extends ConfigurationContainer<
         }
     }
 
-    Task getTaskAbove(Task t) {
+    public Task getTaskAbove(Task t) {
         return getTask(
                 (above) -> true, t, false /*includeBoundary*/, false /*traverseTopToBottom*/);
     }
 
-    Task getTaskBelow(Task t) {
+    public Task getTaskBelow(Task t) {
         return getTask((below) -> true, t, false /*includeBoundary*/, true /*traverseTopToBottom*/);
     }
 
-    Task getBottomMostTask() {
+    public Task getBottomMostTask() {
         return getTask((t) -> true, false /*traverseTopToBottom*/);
     }
 
-    Task getTopMostTask() {
+    public Task getTopMostTask() {
         return getTask((t) -> true, true /*traverseTopToBottom*/);
     }
 

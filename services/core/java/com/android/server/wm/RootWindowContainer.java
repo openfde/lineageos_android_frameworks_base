@@ -91,7 +91,9 @@ import static com.android.server.wm.WindowManagerService.WINDOWS_FREEZING_SCREEN
 import static com.android.server.wm.WindowSurfacePlacer.SET_ORIENTATION_CHANGE_COMPLETE;
 import static com.android.server.wm.WindowSurfacePlacer.SET_UPDATE_ROTATION;
 import static com.android.server.wm.WindowSurfacePlacer.SET_WALLPAPER_ACTION_PENDING;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import static java.lang.Integer.MAX_VALUE;
 
 import android.annotation.IntDef;
@@ -169,6 +171,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import android.text.TextUtils;
 
 /** Root {@link WindowContainer} for the device. */
 class RootWindowContainer extends WindowContainer<DisplayContent>
@@ -2302,6 +2305,23 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         if (DEBUG_TASKS && mTmpFindTaskResult.mRecord == null) Slog.d(TAG_TASKS, "No task found");
         return mTmpFindTaskResult.mRecord;
     }
+
+    // fde start MAGIC WINODW
+    public Task findMagicTask(String windowAffinity, int type){
+        Task bMostTask = getBottomMostTask();
+        while(bMostTask != null ){
+        // Slog.e(TAG, "findMagicTask():  windowAffinity :" + windowAffinity + " bMostTask:" + bMostTask);
+            if( bMostTask.mWindowLayoutAffinity!= null 
+                    && bMostTask.mWindowLayoutAffinity.contains(windowAffinity)
+                    && bMostTask.type == type){
+                return bMostTask;
+            }
+            bMostTask = getTaskAbove(bMostTask);
+        }
+        return null;
+    }
+    // fde end MAGIC WINDOW
+    
 
     /**
      * Finish the topmost activities in all stacks that belong to the crashed app.

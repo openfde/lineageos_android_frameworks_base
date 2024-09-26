@@ -213,6 +213,8 @@ class Task extends WindowContainer<WindowContainer> {
     static final int INVALID_MIN_SIZE = -1;
     private float mShadowRadius = 0;
 
+    public int type = NOT_MAGIC_WINDOW; // main magic window: 1  additional main window: 2
+    public static final int NOT_MAGIC_WINDOW = 0 , MAGIC_MAIN_WINDOW = 1, MAGIC_ADDITIONAL_WINDOW = 2;
     /**
      * The modes to control how the stack is moved to the front when calling {@link Task#reparent}.
      */
@@ -235,7 +237,7 @@ class Task extends WindowContainer<WindowContainer> {
      */
     boolean mIsEffectivelySystemApp;
     boolean mIsAllowUnresizeable = false;
-    String affinity;        // The affinity name for this task, or null; may change identity.
+    public String affinity;        // The affinity name for this task, or null; may change identity.
     String rootAffinity;    // Initial base affinity, or null; does not change from initial root.
     String mWindowLayoutAffinity; // Launch param affinity of this task or null. Used when saving
                                 // launch params of this task.
@@ -951,6 +953,11 @@ class Task extends WindowContainer<WindowContainer> {
      */
     void setIntent(ActivityRecord r, @Nullable Intent intent, @Nullable ActivityInfo info) {
         boolean updateIdentity = false;
+        if(info != null){
+            type = mStackSupervisor.getMagicWindowType(info.packageName, info.name);
+        } else {
+            type = mStackSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
+        }
         if (this.intent == null) {
             updateIdentity = true;
         } else if (!mNeverRelinquishIdentity) {
@@ -4039,6 +4046,8 @@ class Task extends WindowContainer<WindowContainer> {
         sb.append(Integer.toHexString(System.identityHashCode(this)));
         sb.append(" #");
         sb.append(mTaskId);
+        sb.append(" type=" + type);
+        sb.append(" mWindowLayoutAffinity=" + mWindowLayoutAffinity);
         sb.append(" visible=" + shouldBeVisible(null /* starting */));
         sb.append(" type=" + activityTypeToString(getActivityType()));
         sb.append(" mode=" + windowingModeToString(getWindowingMode()));
