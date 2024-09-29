@@ -42,7 +42,9 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
-
+import com.android.internal.util.CompatibleConfig;
+import android.content.Context;
+import android.text.TextUtils;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -86,6 +88,8 @@ public final class Display {
     private final String mOwnerPackageName;
     private final Resources mResources;
     private DisplayAdjustments mDisplayAdjustments;
+    @UnsupportedAppUsage
+    private Context mContext;
 
     @UnsupportedAppUsage
     private DisplayInfo mDisplayInfo; // never null
@@ -110,6 +114,7 @@ public final class Display {
      * the application window is laid out.
      */
     private boolean mMayAdjustByFixedRotation;
+
 
     /**
      * The default Display id, which is the id of the primary display assuming there is one.
@@ -567,6 +572,13 @@ public final class Display {
      */
     public int getLayerStack() {
         return mLayerStack;
+    }
+    /**
+     * set the context.
+     * @hide
+     */
+    public void setContext(@Nullable Context context){
+        mContext = context;
     }
 
     /**
@@ -1163,6 +1175,13 @@ public final class Display {
      */
     public void getRealSize(Point outSize) {
         synchronized (this) {
+            if(mContext != null){
+                String resultStr = CompatibleConfig.queryTrainingData(mContext, mContext.getPackageName(), "isAllowRealDisplaySize");
+                if(TextUtils.equals(resultStr, "true")){
+                    getSize(outSize);
+                    return;
+                }
+            }
             updateDisplayInfoLocked();
             outSize.x = mDisplayInfo.logicalWidth;
             outSize.y = mDisplayInfo.logicalHeight;
@@ -1185,6 +1204,13 @@ public final class Display {
      */
     public void getRealMetrics(DisplayMetrics outMetrics) {
         synchronized (this) {
+            if(mContext != null){
+                String resultStr = CompatibleConfig.queryTrainingData(mContext,  mContext.getPackageName(), "isAllowRealDisplaySize");
+                if(TextUtils.equals(resultStr, "true")){
+                    getMetrics(outMetrics);
+                    return;
+                }
+            }
             updateDisplayInfoLocked();
             mDisplayInfo.getLogicalMetrics(outMetrics,
                     CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO, null);
