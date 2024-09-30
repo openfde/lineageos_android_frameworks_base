@@ -6479,12 +6479,14 @@ public class NotificationManagerService extends SystemService {
                     return;
                 }
 
-                if ((r.getNotification().flags & mMustHaveFlags) != mMustHaveFlags) {
-                    return;
-                }
-                if ((r.getNotification().flags & mMustNotHaveFlags) != 0) {
-                    return;
-                }
+                //fde start all notify cation can cancel
+                // if ((r.getNotification().flags & mMustHaveFlags) != mMustHaveFlags) {
+                //     return;
+                // }
+                // if ((r.getNotification().flags & mMustNotHaveFlags) != 0) {
+                //     return;
+                // }
+                // fde end
 
                 // Bubbled children get to stick around if the summary was manually cancelled
                 // (user removed) from systemui.
