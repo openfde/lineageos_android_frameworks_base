@@ -68,7 +68,7 @@ import java.io.RandomAccessFile;
 import java.util.HashSet;
 import java.util.List;
 
-import lineageos.waydroid.Clipboard;
+import android.openfde.Clipboard;
 
 // The following class is Android Emulator specific. It is used to read and
 // write contents of the host system's clipboard.
