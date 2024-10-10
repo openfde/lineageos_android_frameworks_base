@@ -125,7 +125,10 @@ import static com.android.server.wm.Task.LOCK_TASK_AUTH_DONT_LOCK;
 import static com.android.server.wm.Task.REPARENT_KEEP_STACK_AT_FRONT;
 import static com.android.server.wm.Task.REPARENT_LEAVE_STACK_IN_PLACE;
 import static com.android.server.wm.WindowContainer.POSITION_TOP;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
+import android.text.TextUtils;
 import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -1825,16 +1828,43 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 if (r == null) {
                     return;
                 }
+                // fde start MAGIC WINDOW
+                // finish activity below, only one activity in additonal task
+                Task task = r.getTask();
+                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW){
+                    ActivityRecord r1 = task.getRootActivity();
+                    if(r1 != r && r1 != task.getTopNonFinishingActivity()){
+                        Slog.e(TAG, " finishIfPossible r1:" + r1 + " r:" + r);
+                        r1.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
+                    }
+                }
+                // fde end
                 mStackSupervisor.activityIdleInternal(r, false /* fromTimeout */,
                         false /* processPausingActivities */, config);
                 if (stopProfiling && r.hasProcess()) {
                     r.app.clearProfilerIfNeeded();
                 }
+                // fde start MAGIC WINDOW       
+                // com.tencent.mm LaunchUI need a pause lifecycle to ensure focus update
+                if(task.type == MAGIC_ADDITIONAL_WINDOW && task.affinity.contains("com.tencent.mm")){
+                    Task magicMainTask = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+                    if(magicMainTask != null && magicMainTask.getTopNonFinishingActivity() != null ){
+                        magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly(true);
+                    }
+                }
+                // fde end
             }
         } finally {
             Trace.traceEnd(TRACE_TAG_WINDOW_MANAGER);
             Binder.restoreCallingIdentity(origId);
         }
+    }
+
+    boolean isSameMagicTask(Task task1, Task task2){
+        if(task1 == null || task2 == null || task1.type != MAGIC_ADDITIONAL_WINDOW || task2.type != MAGIC_ADDITIONAL_WINDOW){
+            return false;
+        }
+        return TextUtils.equals(task1.affinity, task2.affinity);
     }
 
     @Override
@@ -2599,6 +2629,22 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             ActivityOptions realOptions = options != null
                     ? options.getOptions(mStackSupervisor)
                     : null;
+            // fde start MAGIC WINDOW
+            if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW){
+                Task companion = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, task.type);
+                if(companion != null){
+                    Slog.e(TAG, "findTaskToMoveToFront task:" + task + " flags:" + flags + " companion" + companion);
+                    ActivityStack currentStack = companion.getStack();
+                    currentStack.moveTaskToFront(companion, false /* noAnimation */, null,
+                        companion.getTopNonFinishingActivity() == null ? null : companion.getTopNonFinishingActivity().appTimeTracker, "moveTaskToFront");
+                }
+                final ActivityRecord topActivity = task.getTopNonFinishingActivity();
+                if (topActivity != null) {
+                    topActivity.showStartingWindow(null /* prev */, false /* newTask */,
+                            true /* taskSwitch */);
+                }
+            }
+            // fde end
             mStackSupervisor.findTaskToMoveToFront(task, flags, realOptions, "moveTaskToFront",
                     false /* forceNonResizable */);
 
@@ -3422,6 +3468,32 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 // Reparent the task to the right stack if necessary
                 boolean preserveWindow = (resizeMode & RESIZE_MODE_PRESERVE_WINDOW) != 0;
 
+                // fde start MAGIC WINDOW
+                if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW ){
+                    Task bMostTask = mRootWindowContainer.getBottomMostTask();
+                    Task relative = null;
+                    while(bMostTask != null ){
+                        if( TextUtils.equals(task.affinity, bMostTask.affinity)){
+                            relative = bMostTask;
+                            break;
+                        }
+                        Task above = mRootWindowContainer.getTaskAbove(bMostTask);
+                        // Slog.e(TAG, "resizeTask: bMostTask=" + bMostTask + " above=" + above);
+                        bMostTask = above;
+                    }
+                    if(relative != null && relative != task){
+                        Rect b = new Rect(bounds);
+                        if(relative.type == MAGIC_ADDITIONAL_WINDOW){
+                            b.left = b.left + bounds.right - bounds.left;
+                            b.right = b.right + bounds.right - bounds.left;
+                        } else if(relative.type == MAGIC_MAIN_WINDOW){
+                            b.left = b.left - bounds.right + bounds.left;
+                            b.right = b.right - bounds.right + bounds.left;
+                        }
+                        relative.resize(b, resizeMode, preserveWindow);
+                     }
+                }
+                // fde end
                 // After reparenting (which only resizes the task to the stack bounds), resize the
                 // task to the actual bounds provided
                 return task.resize(bounds, resizeMode, preserveWindow);

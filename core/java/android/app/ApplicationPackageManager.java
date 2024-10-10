@@ -626,6 +626,10 @@ public class ApplicationPackageManager extends PackageManager {
 
     @Override
     public boolean hasSystemFeature(String name) {
+        // Log.w(TAG, "hasSystemFeature:" + name);
+         if("oplus.hardware.type.tablet".equals(name)){
+             return true;
+         }
         return hasSystemFeature(name, 0);
     }
 

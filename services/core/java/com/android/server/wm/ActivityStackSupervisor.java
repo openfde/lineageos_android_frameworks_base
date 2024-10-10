@@ -82,7 +82,9 @@ import static com.android.server.wm.Task.REPARENT_KEEP_STACK_AT_FRONT;
 import static com.android.server.wm.WindowContainer.AnimationFlags.PARENTS;
 import static com.android.server.wm.WindowContainer.AnimationFlags.TRANSITION;
 import static com.android.server.wm.WindowContainer.POSITION_TOP;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import android.Manifest;
 import android.annotation.Nullable;
 import android.app.Activity;
@@ -112,6 +114,7 @@ import android.graphics.Rect;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Debug;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -125,11 +128,13 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.WorkSource;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.MergedConfiguration;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.Xml;
 
 import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
@@ -137,6 +142,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.content.ReferrerIntent;
 import com.android.internal.os.TransferPipe;
 import com.android.internal.util.ArrayUtils;
+import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.function.pooled.PooledConsumer;
 import com.android.internal.util.function.pooled.PooledLambda;
 import com.android.server.am.ActivityManagerService;
@@ -144,11 +150,19 @@ import com.android.server.am.UserState;
 import com.android.server.uri.NeededUriGrants;
 import com.android.server.wm.ActivityMetricsLogger.LaunchingState;
 
+import org.xmlpull.v1.XmlPullParser;
+
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.IntFunction;
+import libcore.io.IoUtils;
 
 // TODO: This class has become a dumping ground. Let's
 // - Move things relating to the hierarchy to RootWindowContainer
@@ -163,6 +177,19 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     private static final String TAG_STACK = TAG + POSTFIX_STACK;
     private static final String TAG_SWITCH = TAG + POSTFIX_SWITCH;
     static final String TAG_TASKS = TAG + POSTFIX_TASKS;
+
+    /**
+     * load magic window config
+     */
+    public HashMap<String, String> mMagicWindowConfig = new HashMap<>();
+    private static final String MAGIC_WINDOW_DIRNAME = "magicwindow_config";
+    private static final String MAGIC_WINDOW_FILE_SUFFIX = ".xml";
+    private static final String MAGIC_WINDOW_CONFIG_FILENAME = "magic_config";
+    private static final String MAGIC_WINDOW_TAG = "package";
+    private static final String MAGIC_WINDOW_KEY = "packagename";
+    private static final String MAGIC_WINDOW_VALUE = "main";
+    private static final String MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM = "/system_ext/etc/magicwindow_config/";
+
 
     /** How long we wait until giving up on the last activity telling us it is idle. */
     private static final int IDLE_TIMEOUT = 10 * 1000;
@@ -428,7 +455,86 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         mLaunchParamsPersister = new LaunchParamsPersister(mPersisterQueue, this);
         mLaunchParamsController = new LaunchParamsController(mService, mLaunchParamsPersister);
         mLaunchParamsController.registerDefaultModifiers(this);
+        loadMagicWindowConfig();
     }
+
+    public void loadMagicWindowConfig() {
+        IntFunction<File> userFolderGetter = Environment::getDataSystemCeDirectory;
+        File userFolder = userFolderGetter.apply(0);
+         File magicWindowConfigFileDir = new File(userFolder, MAGIC_WINDOW_DIRNAME);
+        if (!magicWindowConfigFileDir.isDirectory()) {
+            Slog.i(TAG, "Didn't find magic config folder for user " + 0);
+            magicWindowConfigFileDir = new File(MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM);
+        } else if(!magicWindowConfigFileDir.isDirectory()){
+            Slog.i(TAG, "Didn't find magic config folder in system for user " + 0);
+            return;
+        }
+        File magicWindowConfigFile = new File(magicWindowConfigFileDir,
+                MAGIC_WINDOW_CONFIG_FILENAME + MAGIC_WINDOW_FILE_SUFFIX);
+        if (!magicWindowConfigFile.exists()) {
+            Slog.i(TAG, "Didn't find magic config file for user " + 0);
+            return;
+        }
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(magicWindowConfigFile));
+            final XmlPullParser parser = Xml.newPullParser();
+            parser.setInput(reader);
+            int event;
+            while ((event = parser.next()) != XmlPullParser.END_DOCUMENT
+                   ) {
+                if (event != XmlPullParser.START_TAG) {
+                    continue;
+                }
+
+                final String tagName = parser.getName();
+                if (!MAGIC_WINDOW_TAG.equals(tagName)) {
+                    Slog.w(TAG, "Unexpected tag name: " + tagName);
+                    continue;
+                }
+                String packagename = null, main = null;
+                for (int i = 0; i < parser.getAttributeCount(); ++i) {
+                    final String attrValue = parser.getAttributeValue(i);
+                    switch (parser.getAttributeName(i)) {
+                        case MAGIC_WINDOW_KEY:
+                            packagename = attrValue;
+                            break;
+                        case MAGIC_WINDOW_VALUE:
+                            main = attrValue;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (!TextUtils.isEmpty(packagename) && !TextUtils.isEmpty(main)) {
+                    // Slog.e(TAG, "magic window packagename:" + packagename + " main:" + main);
+                    mMagicWindowConfig.put(packagename, main);
+                }
+            }
+
+        } catch (Exception e) {
+            Slog.w(TAG, "Failed to loadmagic config for " + magicWindowConfigFileDir.getName(), e);
+            magicWindowConfigFile.delete();
+        } finally {
+            IoUtils.closeQuietly(reader);
+        }
+    }
+
+
+    public int getMagicWindowType(String packageName, String activity) {
+        // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
+        if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
+            return NOT_MAGIC_WINDOW; //not magic window
+        } else if(!mMagicWindowConfig.containsKey(packageName)) {
+            return NOT_MAGIC_WINDOW; // not magic window
+        } else if(!activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_ADDITIONAL_WINDOW; //  magic additional window
+        } else if(activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_MAIN_WINDOW; //  magic main window
+        }
+        return NOT_MAGIC_WINDOW;
+    }
+
 
     void onSystemReady() {
         mLaunchParamsPersister.onSystemReady();
@@ -440,6 +546,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         // unlocked.
         mPersisterQueue.startPersisting();
         mLaunchParamsPersister.onUnlockUser(userId);
+        loadMagicWindowConfig();
     }
 
     public ActivityMetricsLogger getActivityMetricsLogger() {

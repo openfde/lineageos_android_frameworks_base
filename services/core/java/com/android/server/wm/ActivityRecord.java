@@ -423,7 +423,7 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     final int launchedFromUid; // always the uid who started the activity.
     final String launchedFromPackage; // always the package who started the activity.
     final @Nullable String launchedFromFeatureId; // always the feature in launchedFromPackage
-    final Intent intent;    // the original intent that generated us
+    public final Intent intent;    // the original intent that generated us
     final String shortComponentName; // the short component name of the intent
     final String resolvedType; // as per original caller;
     final String processName; // process where this component wants to run
@@ -7005,12 +7005,16 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
                 "Ensuring correct configuration: " + this);
 
         final int newDisplayId = getDisplayId();
-        final boolean displayChanged = mLastReportedDisplayId != newDisplayId;
+        boolean displayChanged = mLastReportedDisplayId != newDisplayId;
         if (displayChanged) {
             mLastReportedDisplayId = newDisplayId;
         }
         // TODO(b/36505427): Is there a better place to do this?
         updateSizeCompatMode();
+        
+        if(intent.getComponent().getClassName().contains("ChattingUI")){
+            displayChanged = true;
+        }
 
         // Short circuit: if the two full configurations are equal (the common case), then there is
         // nothing to do.  We test the full configuration instead of the global and merged override
@@ -7285,6 +7289,24 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
         configChangeFlags = 0;
         deferRelaunchUntilPaused = false;
         preserveWindowOnDeferredRelaunch = false;
+    }
+
+
+    void pauseActivityLockedOnly(boolean preserveWindow) {
+        try {
+
+            final ActivityLifecycleItem lifecycleItem  = PauseActivityItem.obtain();
+            final ClientTransaction transaction = ClientTransaction.obtain(app.getThread(), appToken);
+            transaction.setLifecycleStateRequest(lifecycleItem);
+            mAtmService.getLifecycleManager().scheduleTransaction(transaction);
+            // Note: don't need to call pauseIfSleepingLocked() here, because the caller will only
+            // request resume if this activity is currently resumed, which implies we aren't
+            // sleeping.
+            removePauseTimeout();
+            setState(PAUSED, "relaunchActivityLockedOnly");
+        } catch (RemoteException e) {
+            if (DEBUG_SWITCH || DEBUG_STATES) Slog.i(TAG_SWITCH, "relaunchActivityLockedOnly failed", e);
+        }
     }
 
     /**
