@@ -37,7 +37,9 @@ import static android.view.Display.INVALID_DISPLAY;
 
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.TAG_ATM;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.TAG_WITH_CLASS_NAME;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
@@ -45,6 +47,7 @@ import android.app.WindowConfiguration;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.util.Slog;
 import android.view.Gravity;
 import android.view.View;
@@ -122,6 +125,20 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         } else {
             root = activity;
         }
+
+        // fde start MAGIC WINDOW
+        if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && source != null
+                && source.getTask() != null
+                && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)
+                && source.getTask().type == MAGIC_MAIN_WINDOW) {
+            Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
+            if(rect != null ){
+                rect.offset(rect.right - rect.left, 0);
+                outParams.mBounds.set(rect);
+                return RESULT_CONTINUE;
+            }
+        }
+        // fde end
 
         // TODO: Investigate whether we can safely ignore all cases where we don't have root
         // activity available. Note we can't know if the bounds are valid if we're not sure of the

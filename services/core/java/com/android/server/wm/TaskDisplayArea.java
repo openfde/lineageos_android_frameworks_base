@@ -44,7 +44,9 @@ import static com.android.server.wm.ProtoLogGroup.WM_DEBUG_ORIENTATION;
 import static com.android.server.wm.RootWindowContainer.TAG_STATES;
 import static com.android.server.wm.WindowManagerDebugConfig.DEBUG_STACK;
 import static com.android.server.wm.WindowManagerDebugConfig.TAG_WM;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
 import android.app.WindowConfiguration;
@@ -635,6 +637,10 @@ final class TaskDisplayArea extends DisplayArea<ActivityStack> {
             }
         }
 
+        // fde start MAGIC WINDOW
+        recheckStackOrdering();
+        // fde end
+
         int layer = 0;
         // Place home stacks to the bottom.
         layer = adjustRootTaskLayer(t, mTmpHomeStacks, layer, false /* normalStacks */);
@@ -654,6 +660,28 @@ final class TaskDisplayArea extends DisplayArea<ActivityStack> {
         t.setLayer(mSplitScreenDividerAnchor, mTmpLayerForSplitScreenDividerAnchor);
         t.setLayer(mBoostedAppAnimationLayer, layerForBoostedAnimationLayer);
     }
+
+    // fde start MAGIC WINDOW
+    // reorder if magic window on top
+    private void recheckStackOrdering() {
+        int size = mTmpNormalStacks.size();
+        if(size == 0 ){
+            return;
+        }
+        ActivityStack topTask = mTmpNormalStacks.get(size - 1);
+        if(topTask.type == MAGIC_MAIN_WINDOW || topTask.type == MAGIC_ADDITIONAL_WINDOW){
+            Task magicTask = mRootWindowContainer.findMagicTask(topTask.mWindowLayoutAffinity,
+                    topTask.type == MAGIC_MAIN_WINDOW ? MAGIC_ADDITIONAL_WINDOW : MAGIC_MAIN_WINDOW);
+            if(mTmpNormalStacks.contains(magicTask)){
+                mTmpNormalStacks.remove(magicTask);
+                mTmpNormalStacks.remove(topTask);
+                mTmpNormalStacks.add((ActivityStack)magicTask);
+                mTmpNormalStacks.add(topTask);
+            }
+        }
+
+    }
+    // fde end
 
     private int adjustNormalStackLayer(ActivityStack s, int layer) {
         if (s.inSplitScreenWindowingMode()) {
