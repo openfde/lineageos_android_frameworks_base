@@ -116,7 +116,7 @@ import com.android.server.power.batterysaver.BatterySaverStateMachine;
 import com.android.server.power.batterysaver.BatterySavingStats;
 
 import lineageos.providers.LineageSettings;
-import lineageos.waydroid.Hardware;
+import android.openfde.Hardware;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

@@ -15,7 +15,7 @@
  */
 
 package com.android.systemui.wifi;
-import lineageos.waydroid.Net;
+import android.openfde.Net;
 import android.content.Context;
 
 public class WifiUtils{
