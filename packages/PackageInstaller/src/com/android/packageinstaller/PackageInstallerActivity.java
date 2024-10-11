@@ -48,7 +48,7 @@ import android.view.View;
 import android.widget.Button;
 import android.text.TextUtils;
 import com.android.internal.app.AlertActivity;
-
+import android.widget.Toast;
 import java.io.File;
 
 /**
@@ -124,7 +124,7 @@ public class PackageInstallerActivity extends AlertActivity {
             viewToEnable = (mAppInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0
                     ? requireViewById(R.id.install_confirm_question_update_system)
                     : requireViewById(R.id.install_confirm_question_update);
-            if(mAppInfo != null && (mAppInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0){
+            if(mAppInfo != null){
                 isThirdUpdate = true;
             }
         } else {
@@ -384,7 +384,7 @@ public class PackageInstallerActivity extends AlertActivity {
                 if ((mAppInfo.flags&ApplicationInfo.FLAG_INSTALLED) == 0) {
                     mAppInfo = null;
                 } else {
-                    if(mAppInfo != null && (mAppInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0){
+                    if(mAppInfo != null){
                         isThirdUpdate = true;
                     }
                 }
@@ -604,11 +604,6 @@ public class PackageInstallerActivity extends AlertActivity {
         newIntent.putExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO,
                 mPkgInfo.applicationInfo);
         newIntent.setData(mPackageURI);
-        if(isThirdUpdate && isFromMarket){
-            newIntent.setClass(this, SilentInstallInstalling.class);
-        } else {
-            newIntent.setClass(this, InstallInstalling.class);
-        }
         String installerPackageName = getIntent().getStringExtra(
                 Intent.EXTRA_INSTALLER_PACKAGE_NAME);
         if (mOriginatingURI != null) {
@@ -629,7 +624,16 @@ public class PackageInstallerActivity extends AlertActivity {
         }
         newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
         if(isThirdUpdate && isFromMarket){
+            newIntent.setClass(this, SilentInstallInstalling.class);
+            if(mAppInfo != null){
+                String appName =mAppInfo.loadLabel(mPm).toString();
+                Toast.makeText(this, this.getString(R.string.start_install_app, appName), Toast.LENGTH_LONG).show();
+            }
             newIntent.putExtra("isSilent", true);
+            newIntent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT|Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        } else {
+            newIntent.setClass(this, InstallInstalling.class);
         }
         if(localLOGV) Log.i(TAG, "downloaded app uri="+mPackageURI);
         startActivity(newIntent);
