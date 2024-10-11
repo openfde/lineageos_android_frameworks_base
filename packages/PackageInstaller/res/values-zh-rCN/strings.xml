@@ -92,4 +92,5 @@
     <string name="app_installed_notification_channel_description" msgid="2695385797601574123">"“应用已安装”通知"</string>
     <string name="notification_installation_success_message" msgid="6450467996056038442">"已成功安装"</string>
     <string name="notification_installation_success_status" msgid="3172502643504323321">"“<xliff:g id="APPNAME">%1$s</xliff:g>”安装成功"</string>
+    <string name="start_install_app">开始安装 %s</string>
 </resources>

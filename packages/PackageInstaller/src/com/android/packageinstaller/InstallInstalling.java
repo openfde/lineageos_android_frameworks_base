@@ -76,6 +76,8 @@ public class InstallInstalling extends AlertActivity {
     /** The button that can cancel this dialog */
     private Button mCancelButton;
 
+    private boolean mSilent;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +85,7 @@ public class InstallInstalling extends AlertActivity {
         ApplicationInfo appInfo = getIntent()
                 .getParcelableExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO);
         mPackageURI = getIntent().getData();
+        mSilent = getIntent().getBooleanExtra("isSilent", false);
 
         if ("package".equals(mPackageURI.getScheme())) {
             try {
@@ -286,6 +289,11 @@ public class InstallInstalling extends AlertActivity {
      * @param statusMessage The detailed installation result.
      */
     private void launchFinishBasedOnResult(int statusCode, int legacyStatus, String statusMessage) {
+        if(mSilent){
+            finish();
+            return;
+        }
+
         if (statusCode == PackageInstaller.STATUS_SUCCESS) {
             launchSuccess();
         } else {
@@ -413,7 +421,7 @@ public class InstallInstalling extends AlertActivity {
             } else {
                 getPackageManager().getPackageInstaller().abandonSession(mSessionId);
 
-                if (!isCancelled()) {
+                if (!isCancelled() && !mSilent) {
                     launchFailure(PackageManager.INSTALL_FAILED_INVALID_APK, null);
                 }
             }
