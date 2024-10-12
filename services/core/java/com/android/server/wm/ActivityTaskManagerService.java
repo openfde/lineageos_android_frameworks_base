@@ -1831,12 +1831,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 // fde start MAGIC WINDOW
                 // finish activity below, only one activity in additonal task
                 Task task = r.getTask();
-                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW){
-                    ActivityRecord r1 = task.getRootActivity();
-                    if(r1 != r && r1 != task.getTopNonFinishingActivity()){
-                        Slog.e(TAG, " finishIfPossible r1:" + r1 + " r:" + r);
-                        r1.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
-                    }
+                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && task.getNumRunningActivities() > 2){
+                    ActivityRecord root = task.getRootActivity();
+                    task.forAllActivities((actR) -> {
+                        if(actR != task.getTopNonFinishingActivity() && actR != root && actR != r){
+                            actR.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
+                        }
+                    });
                 }
                 // fde end
                 mStackSupervisor.activityIdleInternal(r, false /* fromTimeout */,

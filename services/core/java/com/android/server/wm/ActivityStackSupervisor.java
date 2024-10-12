@@ -163,6 +163,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.IntFunction;
 import libcore.io.IoUtils;
+import com.android.internal.util.CompatibleConfig;
+import android.content.Context;
+import android.text.TextUtils;
 
 // TODO: This class has become a dumping ground. Let's
 // - Move things relating to the hierarchy to RootWindowContainer
@@ -461,7 +464,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     public void loadMagicWindowConfig() {
         IntFunction<File> userFolderGetter = Environment::getDataSystemCeDirectory;
         File userFolder = userFolderGetter.apply(0);
-         File magicWindowConfigFileDir = new File(userFolder, MAGIC_WINDOW_DIRNAME);
+        File magicWindowConfigFileDir = new File(userFolder, MAGIC_WINDOW_DIRNAME);
         if (!magicWindowConfigFileDir.isDirectory()) {
             Slog.i(TAG, "Didn't find magic config folder for user " + 0);
             magicWindowConfigFileDir = new File(MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM);
@@ -482,7 +485,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
             parser.setInput(reader);
             int event;
             while ((event = parser.next()) != XmlPullParser.END_DOCUMENT
-                   ) {
+            ) {
                 if (event != XmlPullParser.START_TAG) {
                     continue;
                 }
@@ -507,7 +510,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     }
                 }
                 if (!TextUtils.isEmpty(packagename) && !TextUtils.isEmpty(main)) {
-                    // Slog.e(TAG, "magic window packagename:" + packagename + " main:" + main);
+                    Slog.d(TAG, "magic window packagename:" + packagename + " main:" + main);
                     mMagicWindowConfig.put(packagename, main);
                 }
             }
@@ -522,6 +525,11 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
 
     public int getMagicWindowType(String packageName, String activity) {
+        String resultStr = CompatibleConfig.queryTrainingData(mService.mContext, packageName, "enableMagicWindow");
+        Slog.d(TAG, packageName + ": enableMagicWindow  " + resultStr);
+        if(!TextUtils.equals(resultStr, "true")){
+            return NOT_MAGIC_WINDOW;
+        }
         // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
         if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
             return NOT_MAGIC_WINDOW; //not magic window
@@ -534,7 +542,6 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         }
         return NOT_MAGIC_WINDOW;
     }
-
 
     void onSystemReady() {
         mLaunchParamsPersister.onSystemReady();
