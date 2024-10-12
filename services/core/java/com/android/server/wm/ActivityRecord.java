@@ -7012,10 +7012,6 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
         // TODO(b/36505427): Is there a better place to do this?
         updateSizeCompatMode();
         
-//        if(intent.getComponent().getClassName().contains("ChattingUI")){
-//            displayChanged = true;
-//        }
-
         // Short circuit: if the two full configurations are equal (the common case), then there is
         // nothing to do.  We test the full configuration instead of the global and merged override
         // configurations because there are cases (like moving a task to the pinned stack) where
