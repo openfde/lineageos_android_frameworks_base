@@ -128,6 +128,7 @@ import static com.android.server.wm.WindowContainer.POSITION_TOP;
 import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
 import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
 import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
+import static com.android.server.wm.Task.ADDITIONAL_WINDOW_ACTIVITY_LIMIT;
 import android.text.TextUtils;
 import android.Manifest;
 import android.annotation.IntDef;
@@ -1831,12 +1832,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 // fde start MAGIC WINDOW
                 // finish activity below, only one activity in additonal task
                 Task task = r.getTask();
-                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW){
-                    ActivityRecord r1 = task.getRootActivity();
-                    if(r1 != r && r1 != task.getTopNonFinishingActivity()){
-                        Slog.e(TAG, " finishIfPossible r1:" + r1 + " r:" + r);
-                        r1.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
-                    }
+                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && task.getNumRunningActivities() > ADDITIONAL_WINDOW_ACTIVITY_LIMIT){
+                    ActivityRecord root = task.getRootActivity();
+                    task.forAllActivities((actR) -> {
+                        if(actR != task.getTopNonFinishingActivity() && actR != root && actR != r){
+                            actR.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
+                        }
+                    });
                 }
                 // fde end
                 mStackSupervisor.activityIdleInternal(r, false /* fromTimeout */,
