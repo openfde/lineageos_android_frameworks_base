@@ -523,13 +523,29 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         }
     }
 
+    public void updateMagicFromCompatibleConfig(String packagename, boolean isMagic){
+        if(isMagic || TextUtils.isEmpty(packagename) || !mMagicWindowConfig.containsKey(packagename)){
+            return;
+        }
+        mMagicWindowConfig.remove(packagename);
+    }
+
 
     public int getMagicWindowType(String packageName, String activity) {
-        String resultStr = CompatibleConfig.queryTrainingData(mService.mContext, packageName, "enableMagicWindow");
-        Slog.d(TAG, packageName + ": enableMagicWindow  " + resultStr);
-        if(!TextUtils.equals(resultStr, "true")){
-            return NOT_MAGIC_WINDOW;
+        // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
+        if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
+            return NOT_MAGIC_WINDOW; //not magic window
+        } else if(!mMagicWindowConfig.containsKey(packageName)) {
+            return NOT_MAGIC_WINDOW; // not magic window
+        } else if(!activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_ADDITIONAL_WINDOW; //  magic additional window
+        } else if(activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_MAIN_WINDOW; //  magic main window
         }
+        return NOT_MAGIC_WINDOW;
+    }
+
+    public int getMagicWindowType(String packageName, String activity) {
         // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
         if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
             return NOT_MAGIC_WINDOW; //not magic window
@@ -1186,7 +1202,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
     /** Check if caller is allowed to launch activities on specified display. */
     boolean isCallerAllowedToLaunchOnDisplay(int callingPid, int callingUid, int launchDisplayId,
-            ActivityInfo aInfo) {
+                                             ActivityInfo aInfo) {
         if (DEBUG_TASKS) Slog.d(TAG, "Launch on display check: displayId=" + launchDisplayId
                 + " callingPid=" + callingPid + " callingUid=" + callingUid);
 
@@ -1274,8 +1290,8 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     private int getComponentRestrictionForCallingPackage(ActivityInfo activityInfo,
-            String callingPackage, @Nullable String callingFeatureId, int callingPid,
-            int callingUid, boolean ignoreTargetSecurity) {
+                                                         String callingPackage, @Nullable String callingFeatureId, int callingPid,
+                                                         int callingUid, boolean ignoreTargetSecurity) {
         if (!ignoreTargetSecurity && mService.checkComponentPermission(activityInfo.permission,
                 callingPid, callingUid, activityInfo.applicationInfo.uid, activityInfo.exported)
                 == PERMISSION_DENIED) {
@@ -1302,7 +1318,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     private int getActionRestrictionForCallingPackage(String action, String callingPackage,
-            @Nullable String callingFeatureId, int callingPid, int callingUid) {
+                                                      @Nullable String callingFeatureId, int callingPid, int callingUid) {
         if (action == null) {
             return ACTIVITY_RESTRICTION_NONE;
         }
@@ -1378,7 +1394,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     void activityIdleInternal(ActivityRecord r, boolean fromTimeout,
-            boolean processPausingActivities, Configuration config) {
+                              boolean processPausingActivities, Configuration config) {
         if (DEBUG_ALL) Slog.v(TAG, "Activity idle: " + r);
 
         boolean booting = false;
@@ -1456,7 +1472,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
     /** This doesn't just find a task, it also moves the task to front. */
     void findTaskToMoveToFront(Task task, int flags, ActivityOptions options, String reason,
-            boolean forceNonResizeable) {
+                               boolean forceNonResizeable) {
         ActivityStack currentStack = task.getStack();
         if (currentStack == null) {
             Slog.e(TAG, "findTaskToMoveToFront: can't move task="
@@ -1512,7 +1528,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     private void moveHomeStackToFrontIfNeeded(int flags, TaskDisplayArea taskDisplayArea,
-            String reason) {
+                                              String reason) {
         final ActivityStack focusedStack = taskDisplayArea.getFocusedStack();
 
         if ((taskDisplayArea.getWindowingMode() == WINDOWING_MODE_FULLSCREEN
@@ -1617,7 +1633,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
      * @return Returns true if the given task was found and removed.
      */
     boolean removeTaskById(int taskId, boolean killProcess, boolean removeFromRecents,
-            String reason) {
+                           String reason) {
         final Task task =
                 mRootWindowContainer.anyTaskForId(taskId, MATCH_TASK_IN_STACKS_OR_RECENT_TASKS);
         if (task != null) {
@@ -2009,7 +2025,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
      * activities are idle or drawn.
      */
     private void processStoppingAndFinishingActivities(ActivityRecord launchedActivity,
-            boolean processPausingActivities, String reason) {
+                                                       boolean processPausingActivities, String reason) {
         // Stop any activities that are scheduled to do so but have been waiting for the transition
         // animation to finish.
         ArrayList<ActivityRecord> readyToStopActivities = null;
@@ -2074,7 +2090,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     private void removeHistoryRecords(ArrayList<ActivityRecord> list, WindowProcessController app,
-            String listName) {
+                                      String listName) {
         int i = list.size();
         if (DEBUG_CLEANUP) Slog.v(TAG_CLEANUP,
                 "Removing app " + this + " from list " + listName + " with " + i + " entries");
@@ -2112,7 +2128,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     static boolean printThisActivity(PrintWriter pw, ActivityRecord activity, String dumpPackage,
-            boolean needSep, String prefix, Runnable header) {
+                                     boolean needSep, String prefix, Runnable header) {
         if (activity != null) {
             if (dumpPackage == null || dumpPackage.equals(activity.packageName)) {
                 if (needSep) {
@@ -2130,8 +2146,8 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     static boolean dumpHistoryList(FileDescriptor fd, PrintWriter pw, List<ActivityRecord> list,
-            String prefix, String label, boolean complete, boolean brief, boolean client,
-            String dumpPackage, boolean needNL, Runnable header, Task lastTask) {
+                                   String prefix, String label, boolean complete, boolean brief, boolean client,
+                                   String dumpPackage, boolean needNL, Runnable header, Task lastTask) {
         String innerPrefix = null;
         String[] args = null;
         boolean printed = false;
@@ -2165,7 +2181,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     // Complete + brief == give a summary.  Isn't that obvious?!?
                     if (lastTask.intent != null) {
                         pw.print(prefix); pw.print("  ");
-                                pw.println(lastTask.intent.toInsecureString());
+                        pw.println(lastTask.intent.toInsecureString());
                     }
                 }
             }
@@ -2321,14 +2337,14 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     void handleNonResizableTaskIfNeeded(Task task, int preferredWindowingMode,
-            TaskDisplayArea preferredTaskDisplayArea, ActivityStack actualStack) {
+                                        TaskDisplayArea preferredTaskDisplayArea, ActivityStack actualStack) {
         handleNonResizableTaskIfNeeded(task, preferredWindowingMode, preferredTaskDisplayArea,
                 actualStack, false /* forceNonResizable */);
     }
 
     void handleNonResizableTaskIfNeeded(Task task, int preferredWindowingMode,
-            TaskDisplayArea preferredTaskDisplayArea, ActivityStack actualStack,
-            boolean forceNonResizable) {
+                                        TaskDisplayArea preferredTaskDisplayArea, ActivityStack actualStack,
+                                        boolean forceNonResizable) {
         final boolean isSecondaryDisplayPreferred = preferredTaskDisplayArea != null
                 && preferredTaskDisplayArea.getDisplayId() != DEFAULT_DISPLAY;
         final boolean inSplitScreenMode = actualStack != null
@@ -2647,7 +2663,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     int startActivityFromRecents(int callingPid, int callingUid, int taskId,
-            SafeActivityOptions options) {
+                                 SafeActivityOptions options) {
         Task task = null;
         final String callingPackage;
         final String callingFeatureId;
