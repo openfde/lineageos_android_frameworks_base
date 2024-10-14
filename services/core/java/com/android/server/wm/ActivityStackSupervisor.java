@@ -545,20 +545,6 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         return NOT_MAGIC_WINDOW;
     }
 
-    public int getMagicWindowType(String packageName, String activity) {
-        // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
-        if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
-            return NOT_MAGIC_WINDOW; //not magic window
-        } else if(!mMagicWindowConfig.containsKey(packageName)) {
-            return NOT_MAGIC_WINDOW; // not magic window
-        } else if(!activity.contains(mMagicWindowConfig.get(packageName))){
-            return MAGIC_ADDITIONAL_WINDOW; //  magic additional window
-        } else if(activity.contains(mMagicWindowConfig.get(packageName))){
-            return MAGIC_MAIN_WINDOW; //  magic main window
-        }
-        return NOT_MAGIC_WINDOW;
-    }
-
     void onSystemReady() {
         mLaunchParamsPersister.onSystemReady();
     }
