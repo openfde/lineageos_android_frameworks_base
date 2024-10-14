@@ -62,6 +62,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
 
 /**
  * Base class for implementing application instrumentation code.  When running
@@ -1720,6 +1722,7 @@ public class Instrumentation {
         try {
             intent.migrateExtraStreamToClipData(who);
             intent.prepareToLeaveProcess(who);
+            boolean isMagic = getMagicExtra(intent, who);
             int result = ActivityTaskManager.getService().startActivity(whoThread,
                     who.getBasePackageName(), who.getAttributionTag(), intent,
                     intent.resolveTypeIfNeeded(who.getContentResolver()), token,
@@ -1791,6 +1794,7 @@ public class Instrumentation {
                 intents[i].migrateExtraStreamToClipData(who);
                 intents[i].prepareToLeaveProcess(who);
                 resolvedTypes[i] = intents[i].resolveTypeIfNeeded(who.getContentResolver());
+                boolean isMagic =  getMagicExtra(intents[i], who);
             }
             int result = ActivityTaskManager.getService().startActivities(whoThread,
                     who.getBasePackageName(), who.getAttributionTag(), intents, resolvedTypes,
@@ -1859,6 +1863,7 @@ public class Instrumentation {
         try {
             intent.migrateExtraStreamToClipData(who);
             intent.prepareToLeaveProcess(who);
+            boolean isMagic = getMagicExtra(intent, who);
             int result = ActivityTaskManager.getService().startActivity(whoThread,
                     who.getBasePackageName(), who.getAttributionTag(), intent,
                     intent.resolveTypeIfNeeded(who.getContentResolver()), token, target,
@@ -1868,6 +1873,19 @@ public class Instrumentation {
             throw new RuntimeException("Failure from system", e);
         }
         return null;
+    }
+
+    private boolean getMagicExtra(Intent intent, Context who){
+        if(intent != null && intent.getComponent() != null && intent.getComponent().getPackageName() != null){
+            String packageName =  intent.getComponent().getPackageName();
+            String resultStr = CompatibleConfig.queryValueData(who, packageName, "enableMagicWindow");
+            if(TextUtils.equals(resultStr, "true")){
+                Log.d(TAG,  "put extra fde_magic_window true");
+                intent.setExtraFDE(resultStr);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -6720,6 +6720,7 @@ public class Intent implements Parcelable, Cloneable {
     private int mContentUserHint = UserHandle.USER_CURRENT;
     /** Token to track instant app launches. Local only; do not copy cross-process. */
     private String mLaunchToken;
+    private String extraFDE;
 
     // ---------------------------------------------------------------------
 
@@ -8630,6 +8631,18 @@ public class Intent implements Parcelable, Cloneable {
     public boolean isExcludingStopped() {
         return (mFlags&(FLAG_EXCLUDE_STOPPED_PACKAGES|FLAG_INCLUDE_STOPPED_PACKAGES))
                 == FLAG_EXCLUDE_STOPPED_PACKAGES;
+    }
+
+    /** @hide */
+    @UnsupportedAppUsage
+    public void setExtraFDE(String extra) {
+        this.extraFDE = extra;
+    }
+
+    /** @hide */
+    @UnsupportedAppUsage
+    public String getExtraFDE() {
+        return extraFDE;
     }
 
     /**
@@ -10853,6 +10866,7 @@ public class Intent implements Parcelable, Cloneable {
         }
         out.writeInt(mContentUserHint);
         out.writeBundle(mExtras);
+        out.writeString8(extraFDE);
     }
 
     public static final @android.annotation.NonNull Parcelable.Creator<Intent> CREATOR
@@ -10903,6 +10917,7 @@ public class Intent implements Parcelable, Cloneable {
         }
         mContentUserHint = in.readInt();
         mExtras = in.readBundle();
+        extraFDE = in.readString8();
     }
 
     /**
