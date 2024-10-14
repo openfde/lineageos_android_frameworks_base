@@ -1372,9 +1372,14 @@ class Task extends WindowContainer<WindowContainer> {
      * Return the number of running activities, and the number of non-finishing/initializing
      * activities in the provided {@param reportOut} respectively.
      */
-    private void getNumRunningActivities(TaskActivitiesReport reportOut) {
+    private int getNumRunningActivities(TaskActivitiesReport reportOut) {
         reportOut.reset();
         forAllActivities(reportOut);
+        return reportOut.numActivities;
+    }
+
+    public int getNumRunningActivities() {
+        return getNumRunningActivities(mReuseActivitiesReport);
     }
 
     /**

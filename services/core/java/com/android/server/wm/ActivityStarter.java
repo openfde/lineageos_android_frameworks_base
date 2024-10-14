@@ -349,6 +349,7 @@ class ActivityStarter {
         int filterCallingUid;
         PendingIntentRecord originatingPendingIntent;
         boolean allowBackgroundActivityStart;
+        String extraFDE;
 
         /**
          * If set to {@code true}, allows this activity start to look into
@@ -866,12 +867,24 @@ class ActivityStarter {
         final SafeActivityOptions options = request.activityOptions;
         Task inTask = request.inTask;
         // fde start: MAGIC WINDOW
-        int magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
-        Task task = mRootWindowContainer.findMagicTask(aInfo.taskAffinity, MAGIC_MAIN_WINDOW);
-        Slog.e(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name + 
-        " magicType:" + magicType + " task:" + task);
+        // int magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
+        Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
+        boolean isMagicPackage = false;
+        String extraFDE = request.extraFDE;
+        if(intent != null && extraFDE != null){
+            isMagicPackage = TextUtils.equals(extraFDE, "true");
+            Slog.d(TAG, "query isMagicPackage:" + isMagicPackage  + "  extraFDE:"
+                    + extraFDE);
+            mSupervisor.updateMagicFromCompatibleConfig(aInfo.packageName, isMagicPackage);
+        }
+        int magicType = 0;
+        if(isMagicPackage) {
+            magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
+        }
         // mSupervisor.loadMagicWindowConfig(); for debug
-        if( magicType == MAGIC_ADDITIONAL_WINDOW) {
+        if( isMagicPackage
+                &&  magicType == MAGIC_ADDITIONAL_WINDOW) {
+            Task task = mRootWindowContainer.findMagicTask(aInfo.taskAffinity, MAGIC_MAIN_WINDOW);
             if(task != null){
                 mMagicLaunch = true;
                 aInfo.documentLaunchMode = DOCUMENT_LAUNCH_ALWAYS;
@@ -880,6 +893,7 @@ class ActivityStarter {
         } else {
             mMagicLaunch = false;
         }
+        Slog.d(TAG, "isMagicPackage:" + isMagicPackage + " magicType:" + magicType);
         // fde end
 
         int err = ActivityManager.START_SUCCESS;
@@ -2696,7 +2710,9 @@ class ActivityStarter {
     }
 
     ActivityStarter setIntent(Intent intent) {
+        String extraFDE = intent.getExtraFDE();
         mRequest.intent = intent;
+        mRequest.extraFDE = extraFDE;
         return this;
     }
 
