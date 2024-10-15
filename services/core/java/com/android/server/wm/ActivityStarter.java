@@ -2710,9 +2710,11 @@ class ActivityStarter {
     }
 
     ActivityStarter setIntent(Intent intent) {
-        String extraFDE = intent.getExtraFDE();
+        if(intent != null){
+            String extraFDE = intent.getExtraFDE();
+            mRequest.extraFDE = extraFDE;
+        }
         mRequest.intent = intent;
-        mRequest.extraFDE = extraFDE;
         return this;
     }
 
