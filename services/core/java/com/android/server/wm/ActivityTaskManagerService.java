@@ -1835,7 +1835,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && task.getNumRunningActivities() > ADDITIONAL_WINDOW_ACTIVITY_LIMIT){
                     ActivityRecord root = task.getRootActivity();
                     task.forAllActivities((actR) -> {
-                        if(actR != task.getTopNonFinishingActivity() && actR != root && actR != r){
+                        if(actR != task.getTopNonFinishingActivity() && actR == root && actR != r){
                             actR.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
                         }
                     });
