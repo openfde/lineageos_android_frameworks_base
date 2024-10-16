@@ -23,6 +23,10 @@ import android.os.SystemProperties;
 import android.os.UserManager;
 import android.app.ActivityManager;
 
+import java.io.File;
+import java.nio.file.Files;
+
+
 public class CompatibleConfig {
     public static final String COMPATIBLE_URI = "content://com.boringdroid.systemuiprovider";
     public static final String KEY_CODE_IS_ALLOW_SCREENSHOT_AND_RECORD = "isAllowScreenshotAndRecord";
@@ -95,26 +99,20 @@ public class CompatibleConfig {
     }
 
     public static String queryTrainingData(Context context, String packageName, String keycode) {
-        result = null;
-        Thread thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                result = queryValueData(context, packageName, keycode);
-            }
-        });
-        thread1.start();
-        for (int i = 0; i < 10; i++) {
-            try {
-                Thread.sleep(5);
-                if (result != null) {
-                    break;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
+		String result = null ;
+		String fdebootCompleted = SystemProperties.get("fde.boot_completed", "0");
+		Slog.wtf("queryListValueData", "querySyncData fdebootCompleted... " + fdebootCompleted + ",keycode "+keycode+",packageName "+packageName);
+		   
+		if (fdebootCompleted.equals("1")) {
+			String res	= SystemProperties.get(packageName+"_"+keycode, "");
+			Slog.wtf("queryListValueData", "querySyncData res... " + res);
+			return res ;
+		}else{
+			return	null;
+		}
+       
     }
+
 
     public static String queryValueData(Context context, String packageName, String keycode) {
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
@@ -138,6 +136,7 @@ public class CompatibleConfig {
         }
         return result;
     }
+
 
     // public static String queryValueData(Context context, String packageName,
     // String keycode) {
