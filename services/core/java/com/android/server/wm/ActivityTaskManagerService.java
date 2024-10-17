@@ -1832,13 +1832,23 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 // fde start MAGIC WINDOW
                 // finish activity below, only one activity in additonal task
                 Task task = r.getTask();
-                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && task.getNumRunningActivities() > ADDITIONAL_WINDOW_ACTIVITY_LIMIT){
-                    ActivityRecord root = task.getRootActivity();
-                    task.forAllActivities((actR) -> {
-                        if(actR != task.getTopNonFinishingActivity() && actR == root && actR != r){
-                            actR.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
-                        }
-                    });
+                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW){
+                    //remove more activities, limit 5 for some popu activity
+                    if(task.getNumRunningActivities() > ADDITIONAL_WINDOW_ACTIVITY_LIMIT){
+                        ActivityRecord root = task.getRootActivity();
+                        task.forAllActivities((actR) -> {
+                            if(actR != task.getTopNonFinishingActivity() && actR == root && actR != r){
+                                actR.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
+                            }
+                        });
+                    } else {
+                        task.forAllActivities((actR) -> {
+                            int type = mStackSupervisor.getMagicWindowType(actR.intent.getComponent().getPackageName(), actR.intent.getComponent().flattenToShortString());
+                            if(type == MAGIC_MAIN_WINDOW){
+                                task.type = MAGIC_MAIN_WINDOW;
+                            }
+                        });
+                    }
                 }
                 // fde end
                 mStackSupervisor.activityIdleInternal(r, false /* fromTimeout */,
@@ -3483,17 +3493,19 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                         // Slog.e(TAG, "resizeTask: bMostTask=" + bMostTask + " above=" + above);
                         bMostTask = above;
                     }
+                    //move another magic task,  main task at left side / additional task at right side, they have the same height and custom width
                     if(relative != null && relative != task){
                         Rect b = new Rect(bounds);
+                        Rect rBounds = relative.getBounds();
                         if(relative.type == MAGIC_ADDITIONAL_WINDOW){
-                            b.left = b.left + bounds.right - bounds.left;
-                            b.right = b.right + bounds.right - bounds.left;
+                            b.left = bounds.right;
+                            b.right = b.right + rBounds.right - rBounds.left;
                         } else if(relative.type == MAGIC_MAIN_WINDOW){
-                            b.left = b.left - bounds.right + bounds.left;
                             b.right = b.right - bounds.right + bounds.left;
+                            b.left = b.left - rBounds.right + rBounds.left;
                         }
                         relative.resize(b, resizeMode, preserveWindow);
-                     }
+                    }
                 }
                 // fde end
                 // After reparenting (which only resizes the task to the stack bounds), resize the
