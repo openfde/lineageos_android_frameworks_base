@@ -954,11 +954,16 @@ class Task extends WindowContainer<WindowContainer> {
      */
     void setIntent(ActivityRecord r, @Nullable Intent intent, @Nullable ActivityInfo info) {
         boolean updateIdentity = false;
-        if(info != null){
-            type = mStackSupervisor.getMagicWindowType(info.packageName, info.name);
-        } else {
-            type = mStackSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
+        // fde start MAGIC WINDOW
+        // never update type in main window because it will insert a additional window in this task
+        if(type != MAGIC_MAIN_WINDOW){
+            if(info != null){
+                type = mStackSupervisor.getMagicWindowType(info.packageName, info.name);
+            } else {
+                type = mStackSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().flattenToShortString());
+            }
         }
+        // fde end
         if (this.intent == null) {
             updateIdentity = true;
         } else if (!mNeverRelinquishIdentity) {
