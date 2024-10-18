@@ -7288,22 +7288,30 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     }
 
 
-    void pauseActivityLockedOnly(boolean preserveWindow) {
-        try {
-
-            final ActivityLifecycleItem lifecycleItem  = PauseActivityItem.obtain();
-            final ClientTransaction transaction = ClientTransaction.obtain(app.getThread(), appToken);
-            transaction.setLifecycleStateRequest(lifecycleItem);
-            mAtmService.getLifecycleManager().scheduleTransaction(transaction);
-            // Note: don't need to call pauseIfSleepingLocked() here, because the caller will only
-            // request resume if this activity is currently resumed, which implies we aren't
-            // sleeping.
-            removePauseTimeout();
-            setState(PAUSED, "relaunchActivityLockedOnly");
-        } catch (RemoteException e) {
-            if (DEBUG_SWITCH || DEBUG_STATES) Slog.i(TAG_SWITCH, "relaunchActivityLockedOnly failed", e);
-        }
+    void pauseActivityLockedOnly() {
+        mAtmService.mH.postDelayed(PauseRunnable, 0);
     }
+
+    private final Runnable PauseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                final ActivityLifecycleItem lifecycleItem  = PauseActivityItem.obtain();
+                final ClientTransaction transaction = ClientTransaction.obtain(app.getThread(), appToken);
+                transaction.setLifecycleStateRequest(lifecycleItem);
+                mAtmService.getLifecycleManager().scheduleTransaction(transaction);
+                // Note: don't need to call pauseIfSleepingLocked() here, because the caller will only
+                // request resume if this activity is currently resumed, which implies we aren't
+                // sleeping.
+                removePauseTimeout();
+                setState(PAUSED, "pauseActivityLockedOnly");
+            } catch (RemoteException e) {
+                if (DEBUG_SWITCH || DEBUG_STATES) Slog.i(TAG_SWITCH, "relaunchActivityLockedOnly failed", e);
+            }
+            mRootWindowContainer.resumeFocusedStacksTopActivities();
+        }
+    };
+
 
     /**
      * Request the process of the activity to restart with its saved state (from

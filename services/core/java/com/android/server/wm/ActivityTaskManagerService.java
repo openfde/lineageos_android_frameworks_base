@@ -1861,7 +1861,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 if(task.type == MAGIC_ADDITIONAL_WINDOW && task.affinity.contains("com.tencent.mm")){
                     Task magicMainTask = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
                     if(magicMainTask != null && magicMainTask.getTopNonFinishingActivity() != null ){
-                        magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly(true);
+                        magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly();
                     }
                 }
                 // fde end
