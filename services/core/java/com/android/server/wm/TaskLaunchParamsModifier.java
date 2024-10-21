@@ -127,13 +127,19 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         }
 
         // fde start MAGIC WINDOW
+        // magic window additional task will show in right side of main window task, use width when first lunch.
         if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && source != null
                 && source.getTask() != null
                 && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)
                 && source.getTask().type == MAGIC_MAIN_WINDOW) {
             Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
+            Rect persistRect = currentParams.mBounds;
             if(rect != null ){
-                rect.offset(rect.right - rect.left, 0);
+                if(persistRect != null && persistRect.width() != 0){
+                    rect.set(rect.right, rect.top, rect.right + persistRect.width(), rect.bottom);
+                } else {
+                    rect.offset(rect.right - rect.left, 0);
+                }
                 outParams.mBounds.set(rect);
                 return RESULT_CONTINUE;
             }
