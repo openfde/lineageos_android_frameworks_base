@@ -638,10 +638,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mScreenshotChordPowerKeyTriggered;
     private long mScreenshotChordPowerKeyTime;
 
-    private boolean mChordCtrlKeyTriggered;
-    private boolean mChordShiftKeyTriggered;
-    private boolean mChordAltKeyTriggered;
-
     // Ringer toggle should reuse timing and triggering from screenshot power and a11y vol up
     private int mRingerToggleChord = VOLUME_HUSH_OFF;
 
@@ -1651,85 +1647,29 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         @Override
         public void run() {
-            if(mChordCtrlKeyTriggered){
-                final ComponentName launcherComponent = new ComponentName(SYSUI_PACKAGE,
-                    SYSUI_SCREENRECORD_LAUNCHER);
-                final Intent intent = new Intent();
-                intent.setComponent(launcherComponent);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Bundle bundle = new Bundle();
-                bundle.putString("sender","PhoneWindowManager");
-                intent.putExtras(bundle);
-                mContext.startActivity(intent);
-            }else{
-                mDefaultDisplayPolicy.takeScreenshot(mScreenshotType, mScreenshotSource,
-                    uri -> { mClickPartialScreenshotAllowed = false; });
-            }
+            mDefaultDisplayPolicy.takeScreenshot(mScreenshotType, mScreenshotSource,
+                uri -> { mClickPartialScreenshotAllowed = false; });
         }
     }
 
     private final ScreenshotRunnable mScreenshotRunnable = new ScreenshotRunnable();
 
-    private class ScreenshotOrScreenrecordRunnable implements Runnable{
-        private int mScreenshotType = TAKE_SCREENSHOT_FULLSCREEN;
-        private int mScreenshotSource = SCREENSHOT_KEY_OTHER;
-
-        public void setScreenshotType(int screenshotType) {
-            mScreenshotType = screenshotType;
-        }
-
-        public void setScreenshotSource(int screenshotSource) {
-            mScreenshotSource = screenshotSource;
-        }
+    private class ScreenrecordRunnable implements Runnable{
 
         @Override
         public void run() {
-            if(mChordCtrlKeyTriggered){
-                if(mChordShiftKeyTriggered){
-                    final ComponentName launcherComponent = new ComponentName(SYSUI_PACKAGE,SYSUI_SCREENRECORD_LAUNCHER);
-                    final Intent intent = new Intent();
-                    intent.setComponent(launcherComponent);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("sender","PhoneWindowManager");
-                    intent.putExtras(bundle);
-                    mContext.startActivity(intent);
-                }else if(mChordAltKeyTriggered){
-                    mDefaultDisplayPolicy.takeScreenshot(mScreenshotType, mScreenshotSource,
-                        uri -> { mClickPartialScreenshotAllowed = false; });
-                }
-            }
+            final ComponentName launcherComponent = new ComponentName(SYSUI_PACKAGE,SYSUI_SCREENRECORD_LAUNCHER);
+            final Intent intent = new Intent();
+            intent.setComponent(launcherComponent);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Bundle bundle = new Bundle();
+            bundle.putString("sender","PhoneWindowManager");
+            intent.putExtras(bundle);
+            mContext.startActivity(intent);
         }
     }
 
-    private final ScreenshotOrScreenrecordRunnable mScreenshotOrScreenrecordRunnable = new ScreenshotOrScreenrecordRunnable();
-
-    private class CancelChordCtrlKeyTriggeredRunnable implements Runnable {
-        @Override
-        public void run() {
-            mChordCtrlKeyTriggered = false;
-        }
-    }
-
-    private final CancelChordCtrlKeyTriggeredRunnable mCancelCtrlKeyTriggeredRunnable = new CancelChordCtrlKeyTriggeredRunnable();
-
-    private class CancelChordShiftKeyTriggeredRunnable implements Runnable {
-        @Override
-        public void run() {
-            mChordShiftKeyTriggered = false;
-        }
-    }
-
-    private final CancelChordShiftKeyTriggeredRunnable mCancelShiftKeyTriggeredRunnable = new CancelChordShiftKeyTriggeredRunnable();
-
-    private class CancelChordAltKeyTriggeredRunnable implements Runnable {
-        @Override
-        public void run() {
-            mChordAltKeyTriggered = false;
-        }
-    }
-
-    private final CancelChordAltKeyTriggeredRunnable mCancelAltKeyTriggeredRunnable = new CancelChordAltKeyTriggeredRunnable();
+    private final ScreenrecordRunnable mScreenrecordRunnable = new ScreenrecordRunnable();
 
     @Override
     public void showGlobalActions() {
@@ -3104,38 +3044,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     + repeatCount + " keyguardOn=" + keyguardOn + " canceled=" + canceled);
         }
 
-        if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT){
-            if(down){
-                mChordCtrlKeyTriggered = true;
-            }else{
-                mHandler.removeCallbacks(mCancelCtrlKeyTriggeredRunnable);
-                mHandler.postDelayed(mCancelCtrlKeyTriggeredRunnable, 500);
-            }
-        }
-
-        if(keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT){
-            if(down){
-                mChordShiftKeyTriggered = true;
-            }else{
-                mHandler.removeCallbacks(mCancelShiftKeyTriggeredRunnable);
-                mHandler.postDelayed(mCancelShiftKeyTriggeredRunnable, 500);
-            }
-        }
-
-        if(keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT){
-            if(down){
-                mChordAltKeyTriggered = true;
-            }else{
-                mHandler.removeCallbacks(mCancelAltKeyTriggeredRunnable);
-                mHandler.postDelayed(mCancelAltKeyTriggeredRunnable, 500);
-            }
-        }
-
-        if (keyCode == KeyEvent.KEYCODE_R) {
+        if (keyCode == KeyEvent.KEYCODE_R && event.isCtrlPressed()
+                && event.isShiftPressed()) {
             if (down && repeatCount == 0) {
-                mScreenshotOrScreenrecordRunnable.setScreenshotType(TAKE_SCREENSHOT_FULLSCREEN);
-                mScreenshotOrScreenrecordRunnable.setScreenshotSource(SCREENSHOT_KEY_OTHER);
-                mHandler.postDelayed(mScreenshotOrScreenrecordRunnable,400);
+                mHandler.post(mScreenrecordRunnable);
+                return -1;
             }
         }
 
@@ -3331,7 +3244,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     }
                 }
             }
-        } else if (keyCode == KeyEvent.KEYCODE_S && event.isMetaPressed()
+        } else if (keyCode == KeyEvent.KEYCODE_S && event.isAltPressed()
                 && event.isCtrlPressed()) {
             if (down && repeatCount == 0) {
                 int type = event.isShiftPressed() ? TAKE_SCREENSHOT_SELECTED_REGION
@@ -3355,7 +3268,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (down && repeatCount == 0) {
                 mScreenshotRunnable.setScreenshotType(TAKE_SCREENSHOT_FULLSCREEN);
                 mScreenshotRunnable.setScreenshotSource(SCREENSHOT_KEY_OTHER);
-                mHandler.postDelayed(mScreenshotRunnable,400);
+                mHandler.post(mScreenshotRunnable);
             }
             return -1;
         } else if (keyCode == KeyEvent.KEYCODE_BRIGHTNESS_UP
