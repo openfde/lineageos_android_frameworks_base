@@ -7295,6 +7295,9 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     private final Runnable PauseRunnable = new Runnable() {
         @Override
         public void run() {
+            if(app == null){
+                return;
+            }
             try {
                 final ActivityLifecycleItem lifecycleItem  = PauseActivityItem.obtain();
                 final ClientTransaction transaction = ClientTransaction.obtain(app.getThread(), appToken);

@@ -1858,11 +1858,14 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 }
                 // fde start MAGIC WINDOW       
                 // com.tencent.mm LaunchUI need a pause lifecycle to ensure focus update
-                if(task.type == MAGIC_ADDITIONAL_WINDOW && task.affinity.contains("com.tencent.mm")){
-                    Task magicMainTask = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
-                    if(magicMainTask != null && magicMainTask.getTopNonFinishingActivity() != null ){
-                        magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly();
-                    }
+                if(task.type == MAGIC_ADDITIONAL_WINDOW 
+                    && r.intent !== null && r.intent.getComponent() != null 
+                    && mStackSupervisor.needResumeMain(r.intent.getComponent().getPackageName(), 
+                        r.intent.getComponent().flattenToShortString())){
+                        Task magicMainTask = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+                        if(magicMainTask != null && magicMainTask.getTopNonFinishingActivity() != null ){
+                            magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly();
+                        }
                 }
                 // fde end
             }
