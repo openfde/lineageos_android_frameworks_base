@@ -166,6 +166,7 @@ import libcore.io.IoUtils;
 import com.android.internal.util.CompatibleConfig;
 import android.content.Context;
 import android.text.TextUtils;
+import java.util.Arrays;
 
 // TODO: This class has become a dumping ground. Let's
 // - Move things relating to the hierarchy to RootWindowContainer
@@ -185,6 +186,8 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
      * load magic window config
      */
     public HashMap<String, String> mMagicWindowConfig = new HashMap<>();
+    public HashMap<String, ArrayList<String>> mMagicActivityNeedResume = new HashMap<>();
+
     private static final String MAGIC_WINDOW_DIRNAME = "magicwindow_config";
     private static final String MAGIC_WINDOW_FILE_SUFFIX = ".xml";
     private static final String MAGIC_WINDOW_CONFIG_FILENAME = "magic_config";
@@ -192,7 +195,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     private static final String MAGIC_WINDOW_KEY = "packagename";
     private static final String MAGIC_WINDOW_VALUE = "main";
     private static final String MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM = "/system_ext/etc/magicwindow_config/";
-
+    private static final String MAGIC_WINDOW_ACTIVITY_NEED_RESUME = "activity_need_resume_main";
 
     /** How long we wait until giving up on the last activity telling us it is idle. */
     private static final int IDLE_TIMEOUT = 10 * 1000;
@@ -495,7 +498,8 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     Slog.w(TAG, "Unexpected tag name: " + tagName);
                     continue;
                 }
-                String packagename = null, main = null;
+                String packagename = null, main = null, needResumeString = null ;
+                ArrayList<String> needResumeActivities = null;
                 for (int i = 0; i < parser.getAttributeCount(); ++i) {
                     final String attrValue = parser.getAttributeValue(i);
                     switch (parser.getAttributeName(i)) {
@@ -505,6 +509,9 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                         case MAGIC_WINDOW_VALUE:
                             main = attrValue;
                             break;
+                        case MAGIC_WINDOW_ACTIVITY_NEED_RESUME:
+                            needResumeString = attrValue;
+                            break;
                         default:
                             break;
                     }
@@ -512,6 +519,14 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                 if (!TextUtils.isEmpty(packagename) && !TextUtils.isEmpty(main)) {
                     Slog.d(TAG, "magic window packagename:" + packagename + " main:" + main);
                     mMagicWindowConfig.put(packagename, main);
+
+                    if(needResumeString != null){
+                        String[] activityString = needResumeString.split("/");
+                        Arrays.asList(activityString);
+                        needResumeActivities = new ArrayList<>();
+                        needResumeActivities.addAll(Arrays.asList(activityString));
+                        mMagicActivityNeedResume.put(packagename, needResumeActivities);
+                    }
                 }
             }
 
@@ -521,6 +536,25 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
         } finally {
             IoUtils.closeQuietly(reader);
         }
+    }
+
+    public boolean needResumeMain(String packagename, String activity){
+        // Slog.d(TAG, "needResumeMain packagename:" + packagename + " activity:" + activity );
+        if(!mMagicWindowConfig.containsKey(packagename)
+            || !mMagicActivityNeedResume.containsKey(packagename) 
+            || TextUtils.isEmpty(activity)){
+            return false;
+        }
+        List<String> activities = mMagicActivityNeedResume.get(packagename);
+        if(activities == null || activities.size() == 0){
+            return false;
+        }
+        for(String a: activities){
+            if(activity.contains(a)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public void updateMagicFromCompatibleConfig(String packagename, boolean isMagic){
