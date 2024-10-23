@@ -419,6 +419,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 
+import com.android.internal.util.CompatibleDatabaseHelper;
+import com.android.internal.util.CompatibleConfig;
+
+
+
 public class ActivityManagerService extends IActivityManager.Stub
         implements Watchdog.Monitor, BatteryStatsImpl.BatteryCallback {
 
@@ -5549,6 +5554,8 @@ public class ActivityManagerService extends IActivityManager.Stub
         ZYGOTE_PROCESS.bootCompleted();
         VMRuntime.bootCompleted();
 
+		
+
         IntentFilter pkgFilter = new IntentFilter();
         pkgFilter.addAction(Intent.ACTION_QUERY_PACKAGE_RESTART);
         pkgFilter.addDataScheme("package");
@@ -5569,6 +5576,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                 }
             }
         }, pkgFilter);
+		
 
         // Inform checkpointing systems of success
         try {
@@ -5582,6 +5590,21 @@ public class ActivityManagerService extends IActivityManager.Stub
                      mInjector.getContext().getSystemService(Context.POWER_SERVICE);
             pm.reboot("Checkpoint commit failed");
         }
+
+	    String version = SystemProperties.get("compatible_version","");
+		String fdeVersion = SystemProperties.get("ro.openfde.version","");
+		if(!version.equals(fdeVersion)){
+			//if verison update parseXML
+			int res = CompatibleConfig.parseValueXML(mContext);
+			if(res != -1){
+				SystemProperties.set("compatible_version", fdeVersion);
+			}
+		}
+		
+		CompatibleDatabaseHelper db = new CompatibleDatabaseHelper(mContext);
+		db.readCompatibles();
+	    SystemProperties.set("fde.boot_completed", "1");
+
 
         // Let system services know.
         mSystemServiceManager.startBootPhase(t, SystemService.PHASE_BOOT_COMPLETED);
@@ -5621,7 +5644,13 @@ public class ActivityManagerService extends IActivityManager.Stub
                     || "".equals(VoldProperties.encrypt_progress().orElse(""))) {
                 SystemProperties.set("dev.bootcomplete", "1");
             }
-            mUserController.sendBootCompleted(
+
+
+			Handler handler = new Handler(Looper.getMainLooper());
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+				  mUserController.sendBootCompleted(
                     new IIntentReceiver.Stub() {
                         @Override
                         public void performReceive(Intent intent, int resultCode,
@@ -5633,6 +5662,11 @@ public class ActivityManagerService extends IActivityManager.Stub
                             }
                         }
                     });
+				}
+			}, 500); 
+
+			
+           
             maybeLogUserspaceRebootEvent();
             mUserController.scheduleStartProfiles();
         }

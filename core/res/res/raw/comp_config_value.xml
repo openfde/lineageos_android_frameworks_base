@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+
+    <item
+        isdel="false"
+        keycode="isAllowHideDecorCaption"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.lemon.lv</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.fde.x11</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.tencent.wemeet.app</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="isAllowUnresizeable"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.happyelements.AndroidAnimal.qq</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>bf.sgs.hdexp</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.tencent.tmgp.s3.sgzzlb</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.tencent.tmgp.luobo4</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="isAllowScreenshotRecord"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.jingdong.app.mall</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="size"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.microsoft.office.word</packagename>
+            <defaultvalue>{ width = 800,height = 600 }</defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="minBoundsVisibleWidth"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.tencent.wemeet.app</packagename>
+            <defaultvalue>
+                600
+            </defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="minBoundsVisibleHeight"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.tencent.wemeet.app</packagename>
+            <defaultvalue>
+                600
+            </defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="isTurnOffSimulatedTouch"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.iiordanov.bVNC</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>youqu.android.todesk</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.oray.sunlogin</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+    </item>
+
+    <item
+        isdel="false"
+        keycode="isAllowRealDisplaySize"
+        updatedate="2024-09-29">
+        <package>
+            <packagename>com.taobao.idlefish</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        keycode="enableMagicWindow"
+        updatedate="2024-10-12">
+        <package>
+            <packagename>com.jingdong.app.mall</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.ss.android.article.news</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.zhihu.android</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.xingin.xhs</packagename>
+            <defaultvalue>false</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.sina.weibo</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.moji.mjweather</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+        <package>
+            <packagename>com.kuaishou.nebula</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>ctrip.android.view</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.Qunar</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.tencent.mm</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+    </item>
+
+</library>

@@ -26,11 +26,33 @@ import android.app.ActivityManager;
 import java.io.File;
 import java.nio.file.Files;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.Scanner;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import com.android.internal.util.CompatibleDatabaseHelper;
+
+/**
+	compatible tool api add by xudq 
+
+*/
+
 
 public class CompatibleConfig {
-    public static final String COMPATIBLE_URI = "content://com.boringdroid.systemuiprovider";
-    public static final String KEY_CODE_IS_ALLOW_SCREENSHOT_AND_RECORD = "isAllowScreenshotAndRecord";
-    public static final String KEY_CODE_IS_ALLOW_HIDE_DECOR_CAPTION = "isAllowHideDecorCaption";
+	public static final String COMPATIBLE_STR  = "com.android.compatibleprovider";
+    public static final String COMPATIBLE_URI = "content://"+COMPATIBLE_STR;
+
 
     private static CompatibleConfig instance;
 
@@ -223,6 +245,61 @@ public class CompatibleConfig {
     // return null;
     // }
     // }
+
+
+	
+	public static int parseValueXML(Context context) {
+		   try{
+		        InputStream inputStream = context.getResources().openRawResource(com.android.internal.R.raw.comp_config_value);
+				//final InputStream inputStream = context.getResources().getAssets().open("comp_config_value.xml");
+		        return parseValue(context, inputStream);
+		   } catch (Exception e) {
+			   e.printStackTrace();
+			   return -1;
+		   }
+	   }
+	
+	public static int parseValue(Context context, InputStream inputStream) {
+		   try {
+			   DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			   DocumentBuilder builder = factory.newDocumentBuilder();
+			   Document document = builder.parse(inputStream);
+			   Element rootElement = document.getDocumentElement();
+			   NodeList itemList = document.getElementsByTagName("item");
+			   CompatibleDatabaseHelper db = new CompatibleDatabaseHelper(context);
+	
+			   for (int i = 0; i < itemList.getLength(); i++) {
+				    Element keycodeElement = (Element) itemList.item(i);
+					String date = keycodeElement.getAttribute("updatedate");
+					String isdel = keycodeElement.getAttribute("isdel");
+					String name = keycodeElement.getAttribute("keycode");
+				    NodeList packageList = keycodeElement.getElementsByTagName("package");
+				    for (int j = 0; j < packageList.getLength(); j++) {
+					   Element packageElement = (Element) packageList.item(j);
+					   String packagename = packageElement.getElementsByTagName("packagename").item(0).getTextContent();
+					   String defaultvalue = packageElement.getElementsByTagName("defaultvalue").item(0).getTextContent().replaceAll("\\s", "");
+					   Slog.wtf("parseValue", "name " + name + ",packagename " + packagename + ",date  " + date + ",isDel " + isdel);
+					   Map<String, Object> resMap = db.queryCompatibleByPackageNameAndKeyCode(packagename, name);	
+					    if ("true".equals(isdel)) {
+							db.deleteCompatible(packagename,name);
+						}else if (resMap == null || resMap.get("PACKAGE_NAME") == null ) {
+                            db.insertCompatible(packagename, name, defaultvalue);
+                        } else {
+                            String queryDate = resMap.get("FIELDS1").toString();
+                            if (!date.equals(queryDate)) {
+                                db.updateCompatible( packagename, name, defaultvalue, date);
+                            }
+                        }
+						
+				   }
+			   }
+	
+		   } catch (Exception e) {
+			   e.printStackTrace();
+			   return -1 ;
+		   }
+		   return 0;
+	   }
 
     public static String getCurDateTime() {
         LocalDateTime currentTime = LocalDateTime.now();
