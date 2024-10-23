@@ -26,9 +26,11 @@ public class CompatibleContentProvider extends ContentProvider {
 	private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     private static final int CODE_COMPATIBLE_VALUE = 2;
+	private static final int CODE_RECOVERY = 4;
 
 	static {
         uriMatcher.addURI("com.android.compatibleprovider", TABLE_COMPATIBLE_VALUE, CODE_COMPATIBLE_VALUE);
+		uriMatcher.addURI("com.android.compatibleprovider", "RECOVERY_VALUE", CODE_RECOVERY);
 		uriMatcher.addURI("com.android.compatibleprovider", TABLE_COMPATIBLE_VALUE + "Item", 5);
 	}
  
@@ -54,14 +56,23 @@ public class CompatibleContentProvider extends ContentProvider {
 
 	@Override
 	public Uri  insert(Uri uri, ContentValues values) {
+	    Slog.i("parseValue", "insert............... ");
 		SQLiteDatabase db = dbHelper.getWritableDatabase();	
 		long id = 0 ;
 		switch (uriMatcher.match(uri)) {
-			case CODE_COMPATIBLE_VALUE: {
+			case CODE_COMPATIBLE_VALUE: 
 			    id = db.insert(TABLE_COMPATIBLE_VALUE, null, values);
 	            getContext().getContentResolver().notifyChange(uri, null);
 				break;	
-			}
+
+			case CODE_RECOVERY: 
+				String packageName = values.get("PACKAGE_NAME").toString();
+				Slog.i("parseValue", "insert...............packageName "+packageName);
+				CompatibleConfig.parseValueXML(getContext(),packageName);
+				CompatibleDatabaseHelper codb = new CompatibleDatabaseHelper(getContext());
+				codb.readCompatibles(packageName);
+				break;	
+			
 		}
         db.close();
         return ContentUris.withAppendedId(uri, id);

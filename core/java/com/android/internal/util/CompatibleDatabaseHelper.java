@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import android.util.Slog;
 
 import android.os.SystemProperties;
 
@@ -128,6 +129,36 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
 			cursor.close();
 			db.close();
 		}
+
+	public void readCompatibles(String packageName) {
+		    Slog.wtf("parseValue", "readCompatibles...............packageName "+packageName);
+			SQLiteDatabase db = this.getReadableDatabase();
+			String selection = "PACKAGE_NAME = ?";
+			String[] selectionArgs =  {packageName};
+			Cursor cursor = db.query(TABLE_NAME, null, selection, selectionArgs, null, null, null);
+		
+			if (cursor.moveToFirst()) {
+				do {
+					//int _ID = cursor.getInt(cursor.getColumnIndex("_ID"));
+					String PACKAGE_NAME = cursor.getString(cursor.getColumnIndex("PACKAGE_NAME"));
+					String KEY_CODE = cursor.getString(cursor.getColumnIndex("KEY_CODE"));
+					String VALUE = cursor.getString(cursor.getColumnIndex("VALUE"));
+					String IS_DEL = cursor.getString(cursor.getColumnIndex("IS_DEL"));
+					//String CREATE_DATE = cursor.getString(cursor.getColumnIndex("CREATE_DATE"));
+					//String EDIT_DATE = cursor.getString(cursor.getColumnIndex("EDIT_DATE"));
+
+					String key = PACKAGE_NAME+"_"+KEY_CODE ;
+                    String value = VALUE ;
+					if("1".equals(IS_DEL)){
+						value = "";
+					}
+					SystemProperties.set(key,value);
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+			db.close();
+		}
+	
 	
 
 	

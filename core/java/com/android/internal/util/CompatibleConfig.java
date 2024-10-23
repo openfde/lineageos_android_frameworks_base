@@ -39,6 +39,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Scanner;
 
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import com.android.internal.util.CompatibleDatabaseHelper;
@@ -245,14 +246,17 @@ public class CompatibleConfig {
     // return null;
     // }
     // }
-
-
 	
-	public static int parseValueXML(Context context) {
+	public static int parseValueXML(Context context,String packageName) {
 		   try{
 		        InputStream inputStream = context.getResources().openRawResource(com.android.internal.R.raw.comp_config_value);
-				//final InputStream inputStream = context.getResources().getAssets().open("comp_config_value.xml");
-		        return parseValue(context, inputStream);
+				int res = -1;
+				if("".equals(packageName)){
+					res = parseValue(context, inputStream);
+				}else{
+					res = parseValue(context, inputStream, packageName);
+				}
+				return res;
 		   } catch (Exception e) {
 			   e.printStackTrace();
 			   return -1;
@@ -267,7 +271,6 @@ public class CompatibleConfig {
 			   Element rootElement = document.getDocumentElement();
 			   NodeList itemList = document.getElementsByTagName("item");
 			   CompatibleDatabaseHelper db = new CompatibleDatabaseHelper(context);
-	
 			   for (int i = 0; i < itemList.getLength(); i++) {
 				    Element keycodeElement = (Element) itemList.item(i);
 					String date = keycodeElement.getAttribute("updatedate");
@@ -278,7 +281,7 @@ public class CompatibleConfig {
 					   Element packageElement = (Element) packageList.item(j);
 					   String packagename = packageElement.getElementsByTagName("packagename").item(0).getTextContent();
 					   String defaultvalue = packageElement.getElementsByTagName("defaultvalue").item(0).getTextContent().replaceAll("\\s", "");
-					   Slog.wtf("parseValue", "name " + name + ",packagename " + packagename + ",date  " + date + ",isDel " + isdel);
+					   //Slog.wtf("parseValue", "name " + name + ",packagename " + packagename + ",date  " + date + ",isDel " + isdel);
 					   Map<String, Object> resMap = db.queryCompatibleByPackageNameAndKeyCode(packagename, name);	
 					    if ("true".equals(isdel)) {
 							db.deleteCompatible(packagename,name);
@@ -293,9 +296,53 @@ public class CompatibleConfig {
 						
 				   }
 			   }
+		       db.readCompatibles();
+		   } catch (Exception e) {
+			   e.printStackTrace();
+			   return -1 ;
+		   }
+		   return 0;
+	   }
+
+	public static int parseValue(Context context, InputStream inputStream, String recoPackageName) {
+		   try {
+			   DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			   DocumentBuilder builder = factory.newDocumentBuilder();
+			   Document document = builder.parse(inputStream);
+			   Element rootElement = document.getDocumentElement();
+			   NodeList itemList = document.getElementsByTagName("item");
+			   CompatibleDatabaseHelper db = new CompatibleDatabaseHelper(context);
+			   for (int i = 0; i < itemList.getLength(); i++) {
+				    Element keycodeElement = (Element) itemList.item(i);
+					String date = keycodeElement.getAttribute("updatedate");
+					String isdel = keycodeElement.getAttribute("isdel");
+					String name = keycodeElement.getAttribute("keycode");
+				    NodeList packageList = keycodeElement.getElementsByTagName("package");
+				    for (int j = 0; j < packageList.getLength(); j++) {
+					   Element packageElement = (Element) packageList.item(j);
+					   String packagename = packageElement.getElementsByTagName("packagename").item(0).getTextContent();
+					   //Slog.i("parseValue", "packagename " + packagename + ",recoPackageName " + recoPackageName);
+					   if (packagename.equals(recoPackageName)) {
+						   String defaultvalue = packageElement.getElementsByTagName("defaultvalue").item(0).getTextContent().replaceAll("\\s", "");
+						   //Slog.i("parseValue", "name " + name + ",packagename " + packagename + ",date  " + date + ",isDel " + isdel);
+						   Map<String, Object> resMap = db.queryCompatibleByPackageNameAndKeyCode(packagename, name);	
+						    if ("true".equals(isdel)) {
+								db.deleteCompatible(packagename,name);
+							}else if (resMap == null || resMap.get("PACKAGE_NAME") == null ) {
+	                            db.insertCompatible(packagename, name, defaultvalue);
+	                        } else {
+	                            String queryDate = resMap.get("FIELDS1").toString();
+	                            if (!date.equals(queryDate)) {
+	                                db.updateCompatible( packagename, name, defaultvalue, date);
+	                            }
+	                        }	
+					   }
+				   }
+			   }
 	
 		   } catch (Exception e) {
 			   e.printStackTrace();
+			    Slog.e("parseValue", ""+e.toString());
 			   return -1 ;
 		   }
 		   return 0;

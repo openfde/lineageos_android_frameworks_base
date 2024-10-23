@@ -5595,7 +5595,7 @@ public class ActivityManagerService extends IActivityManager.Stub
 		String fdeVersion = SystemProperties.get("ro.openfde.version","");
 		if(!version.equals(fdeVersion)){
 			//if verison update parseXML
-			int res = CompatibleConfig.parseValueXML(mContext);
+			int res = CompatibleConfig.parseValueXML(mContext,"");
 			if(res != -1){
 				SystemProperties.set("compatible_version", fdeVersion);
 			}
