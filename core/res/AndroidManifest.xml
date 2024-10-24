@@ -5559,8 +5559,8 @@
             android:enabled="true"
             android:exported="true">
         </provider>
-		
-		<provider
+        
+        <provider
             android:name="com.android.internal.util.CompatibleContentProvider"
             android:authorities="com.android.compatibleprovider"
             android:exported="true">

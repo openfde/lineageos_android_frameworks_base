@@ -5554,7 +5554,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         ZYGOTE_PROCESS.bootCompleted();
         VMRuntime.bootCompleted();
 
-		
+        
 
         IntentFilter pkgFilter = new IntentFilter();
         pkgFilter.addAction(Intent.ACTION_QUERY_PACKAGE_RESTART);
@@ -5576,7 +5576,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                 }
             }
         }, pkgFilter);
-		
+        
 
         // Inform checkpointing systems of success
         try {
@@ -5591,19 +5591,19 @@ public class ActivityManagerService extends IActivityManager.Stub
             pm.reboot("Checkpoint commit failed");
         }
 
-	    String version = SystemProperties.get("compatible_version","");
-		String fdeVersion = SystemProperties.get("ro.openfde.version","");
-		if(!version.equals(fdeVersion)){
-			//if verison update parseXML
-			int res = CompatibleConfig.parseValueXML(mContext,"");
-			if(res != -1){
-				SystemProperties.set("compatible_version", fdeVersion);
-			}
-		}
-		
-		CompatibleDatabaseHelper db = new CompatibleDatabaseHelper(mContext);
-		db.readCompatibles();
-	    SystemProperties.set("fde.boot_completed", "1");
+        String version = SystemProperties.get("compatible_version","");
+        String fdeVersion = SystemProperties.get("ro.openfde.version","");
+        if(!version.equals(fdeVersion)){
+            //if verison update parseXML
+            int res = CompatibleConfig.parseValueXML(mContext,"");
+            if(res != -1){
+                SystemProperties.set("compatible_version", fdeVersion);
+            }
+        }
+
+        CompatibleDatabaseHelper db = new CompatibleDatabaseHelper(mContext);
+        db.readCompatibles();
+        SystemProperties.set("fde.boot_completed", "1");
 
 
         // Let system services know.
@@ -5645,21 +5645,21 @@ public class ActivityManagerService extends IActivityManager.Stub
                 SystemProperties.set("dev.bootcomplete", "1");
             }
 
-			Handler handler = new Handler(Looper.getMainLooper());
-			handler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					mUserController.sendBootCompleted(new IIntentReceiver.Stub() {
-						@Override
-						public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser) {
-							synchronized (ActivityManagerService.this) {
-								mOomAdjuster.mCachedAppOptimizer.compactAllSystem();
-								requestPssAllProcsLocked(SystemClock.uptimeMillis(), true, false);
-							}
-						}
-					});
-				}
-			}, 500);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mUserController.sendBootCompleted(new IIntentReceiver.Stub() {
+                            @Override
+                            public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser) {
+                                synchronized (ActivityManagerService.this) {
+                                    mOomAdjuster.mCachedAppOptimizer.compactAllSystem();
+                                    requestPssAllProcsLocked(SystemClock.uptimeMillis(), true, false);
+                                }
+                            }
+                    });
+                }
+            }, 500);
 
            
             maybeLogUserspaceRebootEvent();
