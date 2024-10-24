@@ -20,16 +20,16 @@ import android.util.Slog;
 
 public class CompatibleContentProvider extends ContentProvider {
 	static final String TAG = "CompatibleContentProvider";
-    private CompatibleDatabaseHelper dbHelper;
-    private static final String TABLE_COMPATIBLE_VALUE = "COMPATIBLE_VALUE";
+	private CompatibleDatabaseHelper dbHelper;
+	private static final String TABLE_COMPATIBLE_VALUE = "COMPATIBLE_VALUE";
 
 	private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    private static final int CODE_COMPATIBLE_VALUE = 2;
+	private static final int CODE_COMPATIBLE_VALUE = 2;
 	private static final int CODE_RECOVERY = 4;
 
 	static {
-        uriMatcher.addURI("com.android.compatibleprovider", TABLE_COMPATIBLE_VALUE, CODE_COMPATIBLE_VALUE);
+	    uriMatcher.addURI("com.android.compatibleprovider", TABLE_COMPATIBLE_VALUE, CODE_COMPATIBLE_VALUE);
 		uriMatcher.addURI("com.android.compatibleprovider", "RECOVERY_VALUE", CODE_RECOVERY);
 		uriMatcher.addURI("com.android.compatibleprovider", TABLE_COMPATIBLE_VALUE + "Item", 5);
 	}
@@ -56,7 +56,6 @@ public class CompatibleContentProvider extends ContentProvider {
 
 	@Override
 	public Uri  insert(Uri uri, ContentValues values) {
-	    Slog.i("parseValue", "insert............... ");
 		SQLiteDatabase db = dbHelper.getWritableDatabase();	
 		long id = 0 ;
 		switch (uriMatcher.match(uri)) {
@@ -67,7 +66,6 @@ public class CompatibleContentProvider extends ContentProvider {
 
 			case CODE_RECOVERY: 
 				String packageName = values.get("PACKAGE_NAME").toString();
-				Slog.i("parseValue", "insert...............packageName "+packageName);
 				CompatibleConfig.parseValueXML(getContext(),packageName);
 				CompatibleDatabaseHelper codb = new CompatibleDatabaseHelper(getContext());
 				codb.readCompatibles(packageName);
