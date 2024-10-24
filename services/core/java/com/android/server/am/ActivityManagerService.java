@@ -5645,27 +5645,22 @@ public class ActivityManagerService extends IActivityManager.Stub
                 SystemProperties.set("dev.bootcomplete", "1");
             }
 
-
 			Handler handler = new Handler(Looper.getMainLooper());
 			handler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-				  mUserController.sendBootCompleted(
-                    new IIntentReceiver.Stub() {
-                        @Override
-                        public void performReceive(Intent intent, int resultCode,
-                                String data, Bundle extras, boolean ordered,
-                                boolean sticky, int sendingUser) {
-                            synchronized (ActivityManagerService.this) {
-                                mOomAdjuster.mCachedAppOptimizer.compactAllSystem();
-                                requestPssAllProcsLocked(SystemClock.uptimeMillis(), true, false);
-                            }
-                        }
-                    });
+					mUserController.sendBootCompleted(new IIntentReceiver.Stub() {
+						@Override
+						public void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser) {
+							synchronized (ActivityManagerService.this) {
+								mOomAdjuster.mCachedAppOptimizer.compactAllSystem();
+								requestPssAllProcsLocked(SystemClock.uptimeMillis(), true, false);
+							}
+						}
+					});
 				}
-			}, 500); 
+			}, 500);
 
-			
            
             maybeLogUserspaceRebootEvent();
             mUserController.scheduleStartProfiles();
