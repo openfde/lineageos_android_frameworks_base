@@ -125,11 +125,10 @@ public class CompatibleConfig {
     public static String queryTrainingData(Context context, String packageName, String keycode) {
         String result = null;
         String fdebootCompleted = SystemProperties.get("fde.boot_completed", "0");
-        Slog.wtf("queryListValueData", "querySyncData fdebootCompleted... " + fdebootCompleted + ",keycode " + keycode + ",packageName " + packageName);
+        Slog.d("queryListValueData", "queryTrainingData fdebootCompleted... " + fdebootCompleted + ",keycode " + keycode + ",packageName " + packageName);
 
         if (fdebootCompleted.equals("1")) {
             String res = SystemProperties.get(packageName + "_" + keycode, "");
-            Slog.wtf("queryListValueData", "querySyncData res... " + res);
             return res;
         } else {
             return null;
