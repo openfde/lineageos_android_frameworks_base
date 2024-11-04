@@ -133,7 +133,6 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void readCompatibles(String packageName) {
-        Slog.wtf("parseValue", "readCompatibles...............packageName " + packageName);
         SQLiteDatabase db = this.getReadableDatabase();
         String selection = "PACKAGE_NAME = ?";
         String[] selectionArgs = {packageName};
@@ -252,7 +251,7 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
         values.put("CREATE_DATE", curTime);
         values.put("EDIT_DATE", curTime);
         values.put("FIELDS1", curTime);
-        db.insert(TABLE_NAME, null, values);
+        db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
     }
 
