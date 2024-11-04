@@ -61,7 +61,7 @@ public class CompatibleContentProvider extends ContentProvider {
         long id = 0;
         switch (uriMatcher.match(uri)) {
             case CODE_COMPATIBLE_VALUE:
-                id = db.insert(TABLE_COMPATIBLE_VALUE, null, values);
+                id = db.insertWithOnConflict(TABLE_COMPATIBLE_VALUE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
 
@@ -111,6 +111,12 @@ public class CompatibleContentProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         return null;
+    }
+
+    @Override
+    public void shutdown() {    
+        dbHelper.close();    
+        super.shutdown();
     }
 
 }
