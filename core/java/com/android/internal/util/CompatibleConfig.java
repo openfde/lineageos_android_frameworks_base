@@ -40,7 +40,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Scanner;
 
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -54,6 +53,7 @@ import com.android.internal.util.CompatibleDatabaseHelper;
 public class CompatibleConfig {
     public static final String COMPATIBLE_STR = "com.android.compatibleprovider";
     public static final String COMPATIBLE_URI = "content://" + COMPATIBLE_STR;
+    public static final String TAG = "CompatibleConfig";
 
 
     private static CompatibleConfig instance;
@@ -68,12 +68,12 @@ public class CompatibleConfig {
         return instance;
     }
 
-    public static Map<String, Object> queryMapValueData(Context context, String packageName, String keycode) {
+    public static Map<String, Object> queryMapValueData(Context context, String packageName, String keyCode) {
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
         Cursor cursor = null;
         Map<String, Object> result = null;
         String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND IS_DEL != 1";
-        String[] selectionArgs = {packageName, keycode};
+        String[] selectionArgs = {packageName, keyCode};
         try {
             ContentResolver contentResolver = context.getContentResolver();
             cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
@@ -101,8 +101,10 @@ public class CompatibleConfig {
         return result;
     }
 
-    static String result = "";
 
+
+/*
+    static String result = "";
     public static String queryThreadWaitData(Context context, String packageName, String keycode) {
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -121,28 +123,29 @@ public class CompatibleConfig {
         }
         return result;
     }
+    */
 
-    public static String queryTrainingData(Context context, String packageName, String keycode) {
+    public static String queryValueDataBySharedMemory(Context context, String packageName, String keyCode) {
         String result = null;
         String fdebootCompleted = SystemProperties.get("fde.boot_completed", "0");
-        Slog.d("queryListValueData", "queryTrainingData fdebootCompleted... " + fdebootCompleted + ",keycode " + keycode + ",packageName " + packageName);
+        Slog.d(TAG,"queryValueDataBySharedMemory fdebootCompleted: " + fdebootCompleted + ",keyCode: " + keyCode + ",packageName: " + packageName);
 
         if (fdebootCompleted.equals("1")) {
-            String res = SystemProperties.get(packageName + "_" + keycode, "");
+            String res = SystemProperties.get(packageName + "_" + keyCode, "");
             return res;
         } else {
             return null;
         }
-
     }
 
 
-    public static String queryValueData(Context context, String packageName, String keycode) {
+    public static String queryValueData(Context context, String packageName, String keyCode) {
+        Slog.d(TAG,"queryValueData keyCode: " + keyCode + ",packageName: " + packageName);
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
         Cursor cursor = null;
         String result = null;
         String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND IS_DEL != 1";
-        String[] selectionArgs = {packageName, keycode};
+        String[] selectionArgs = {packageName, keyCode};
         try {
             ContentResolver contentResolver = context.getContentResolver();
             cursor = contentResolver.query(uri, null, selection, selectionArgs, null);

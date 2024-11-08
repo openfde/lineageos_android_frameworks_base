@@ -567,7 +567,7 @@ class WindowStateAnimator {
     boolean isCompatibilityFeaturesAllowScreenshotAndRecord(@NonNull Context context, String packageName){
         boolean allowScreenshotAndRecord = false;
         String resultStr = null;
-        resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowScreenshotRecord");
+        resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isAllowScreenshotRecord");
         if(resultStr != null && resultStr.contains("true")){
             allowScreenshotAndRecord = true;
         }

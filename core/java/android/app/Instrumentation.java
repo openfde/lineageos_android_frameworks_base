@@ -1878,7 +1878,7 @@ public class Instrumentation {
     private boolean getMagicExtra(Intent intent, Context who){
         if(intent != null && intent.getComponent() != null && intent.getComponent().getPackageName() != null){
             String packageName =  intent.getComponent().getPackageName();
-            String resultStr = CompatibleConfig.queryValueData(who, packageName, "enableMagicWindow");
+            String resultStr = CompatibleConfig.queryValueDataBySharedMemory(who, packageName, "enableMagicWindow");
             if(TextUtils.equals(resultStr, "true")){
                 Log.d(TAG,  "put extra fde_magic_window true");
                 intent.setExtraFDE(resultStr);

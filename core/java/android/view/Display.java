@@ -1176,7 +1176,7 @@ public final class Display {
     public void getRealSize(Point outSize) {
         synchronized (this) {
             if(mContext != null){
-                String resultStr = CompatibleConfig.queryTrainingData(mContext, mContext.getPackageName(), "isAllowRealDisplaySize");
+                String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, mContext.getPackageName(), "isAllowRealDisplaySize");
                 if(TextUtils.equals(resultStr, "true")){
                     getSize(outSize);
                     return;
@@ -1205,7 +1205,7 @@ public final class Display {
     public void getRealMetrics(DisplayMetrics outMetrics) {
         synchronized (this) {
             if(mContext != null){
-                String resultStr = CompatibleConfig.queryTrainingData(mContext,  mContext.getPackageName(), "isAllowRealDisplaySize");
+                String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext,  mContext.getPackageName(), "isAllowRealDisplaySize");
                 if(TextUtils.equals(resultStr, "true")){
                     getMetrics(outMetrics);
                     return;

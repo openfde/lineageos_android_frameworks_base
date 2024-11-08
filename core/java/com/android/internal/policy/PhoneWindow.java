@@ -506,8 +506,15 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             // TODO Augment the scenes/transitions API to support this.
             Log.v(TAG, "addContentView does not support content transitions");
         }
-        mContentParent.addView(view, params);
-        mContentParent.requestApplyInsets();
+
+        if(view.getTag() != null && "DecorCaptionView".equals(view.getTag().toString())){
+            mDecor.addChildView(view, params);
+            mDecor.requestApplyInsets();
+        }else{
+            mContentParent.addView(view, params);
+            mContentParent.requestApplyInsets();
+        }
+ 
         final Callback cb = getCallback();
         if (cb != null && !isDestroyed()) {
             cb.onContentChanged();

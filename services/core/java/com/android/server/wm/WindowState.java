@@ -875,8 +875,8 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         mOwnerCanAddInternalSystemWindow = ownerCanAddInternalSystemWindow;
         mWindowId = new WindowId(this);
         mAttrs.copyFrom(a);
-        String minWidthResults = CompatibleConfig.queryTrainingData(service.getWMSContext(), mAttrs.packageName, "minBoundsVisibleWidth");
-        String minHeightResults = CompatibleConfig.queryTrainingData(service.getWMSContext(), mAttrs.packageName, "minBoundsVisibleHeight");
+        String minWidthResults = CompatibleConfig.queryValueDataBySharedMemory(service.getWMSContext(), mAttrs.packageName, "minBoundsVisibleWidth");
+        String minHeightResults = CompatibleConfig.queryValueDataBySharedMemory(service.getWMSContext(), mAttrs.packageName, "minBoundsVisibleHeight");
         if(minWidthResults != null && !"".equals(minWidthResults)){
             Slog.d(TAG,"packageName: " + mAttrs.packageName + " minWidthResults: " + minWidthResults);
             try{

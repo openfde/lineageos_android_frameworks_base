@@ -33,6 +33,7 @@ import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.os.Handler;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
@@ -118,6 +119,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private View mMaximize;
     private View mClose;
     private View mFullScreen;
+    private  LinearLayout mLayoutParent;
     private TextView mApplicationLable;
     private Context mContext;
 
@@ -273,6 +275,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         mMinimize = findViewById(R.id.minimize_window);
         mMaximize = findViewById(R.id.maximize_window);
         mClose = findViewById(R.id.close_window);
+        mLayoutParent= findViewById(R.id.layout_parent);
         mApplicationLable = findViewById(R.id.application_lable);
 
         if(mContext != null){
@@ -313,7 +316,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         boolean allowHide = false;
         if(context != null){
             String packageName = context.getPackageName();
-            String result = CompatibleConfig.queryValueData(context, packageName, "isAllowHideDecorCaption");
+            String result = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isAllowHideDecorCaption");
             Slog.d(TAG,"fde allow hide caption for " + packageName + ", result: " + result);
             if(result != null && result.contains("true")){
                 allowHide = true;
@@ -584,6 +587,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 			mCaption.setVisibility(mShow ? VISIBLE : GONE);
 		}
 		mCaption.setOnTouchListener(this);
+    }
+
+    
+    public void addChildView(View view,ViewGroup.LayoutParams params){
+        mLayoutParent.removeAllViews();
+        mLayoutParent.addView(view);
     }
 
     /**

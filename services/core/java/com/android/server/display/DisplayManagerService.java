@@ -119,9 +119,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.json.JSONObject;
 import org.json.JSONException;
 import com.android.internal.util.CompatibleConfig;
-
 import android.os.AsyncTask;
-import com.android.internal.util.CompatibleConfig;
 
 
 /**
@@ -647,7 +645,7 @@ public final class DisplayManagerService extends SystemService {
                         String[] packageNames = manager.getPackagesForUid(callingUid);
                         if (packageNames != null && packageNames.length == 1) {
                             for (String packageName : packageNames) {
-                                resultStr = CompatibleConfig.queryTrainingData(mContext, packageName, "size");
+                                resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, packageName, "size");
                                 //Slog.wtf(TAG, "getDisplayInfoInternal query " + packageName + " resultStr: " + resultStr);
                                 if(resultStr != null && !"".equals(resultStr)){
                                     JSONObject jsonObject = null;
