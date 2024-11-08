@@ -68,7 +68,7 @@ public class BoringdroidManager {
     public static boolean isAllowUnresizeable(@NonNull Context context, String packageName){
         boolean allowUnresizeable = false;
         String resultStr = null;
-        resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowUnresizeable");
+        resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isAllowUnresizeable");
         if(resultStr != null && resultStr.contains("true")){
             allowUnresizeable = true;
         }

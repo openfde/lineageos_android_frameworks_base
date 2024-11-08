@@ -500,6 +500,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
+    
+    public void addChildView(View view, ViewGroup.LayoutParams params){
+        mDecorCaptionView.addChildView(view,params);
+    }
+
     public void startFullScreenWindow(){
         if(mHandler.hasCallbacks(showSystemUIRunnable)){
             mHandler.removeCallbacks(showSystemUIRunnable);

@@ -2292,6 +2292,7 @@
   <!-- region @fde -->
   <java-symbol type="id" name="application_lable" />
   <java-symbol type="id" name="fullscreen_window" />
+  <java-symbol type="id" name="layout_parent" />
   <java-symbol type="drawable" name="decor_exit_fullscreen_button_dark" />
   <java-symbol type="drawable" name="decor_exit_fullscreen_button_light" />
   <java-symbol type="drawable" name="decor_exit_fullscreen_button_disabled" />

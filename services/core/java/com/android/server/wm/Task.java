@@ -2987,7 +2987,7 @@ class Task extends WindowContainer<WindowContainer> {
     public boolean isCompatibilityFeaturesAllowUnresizeable(@NonNull Context context, String packageName){
         boolean allowUnresizeable = false;
         String resultStr = null;
-        resultStr = CompatibleConfig.queryTrainingData(context, packageName, "isAllowUnresizeable");
+        resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isAllowUnresizeable");
         if(resultStr != null && resultStr.contains("true")){
             allowUnresizeable = true;
             mIsAllowUnresizeable = true;

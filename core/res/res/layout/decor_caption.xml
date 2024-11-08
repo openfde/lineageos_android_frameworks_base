@@ -21,7 +21,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:descendantFocusability="beforeDescendants" >
+        >
     <LinearLayout
             android:id="@+id/caption"
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:gravity="end"
             android:background="@drawable/decor_caption_title"
             android:focusable="false"
-            android:descendantFocusability="blocksDescendants" >
+             >
         <!-- region @boringdroid -->
         <Button
             android:id="@+id/back_window"
@@ -64,7 +64,17 @@
                 android:layout_gravity="center_vertical|end"
                 android:contentDescription="@string/pip_button_text"
                 android:background="@drawable/decor_pip_button_dark" />
-	<Button
+
+        <LinearLayout
+			android:id="@+id/layout_parent"
+			android:layout_width="wrap_content"
+			android:layout_height="32dp"
+			android:minWidth="200dp"
+			android:layout_margin="6dp"
+         />
+
+                
+	    <Button
                 android:id="@+id/fullscreen_window"
                 android:layout_width="32dp"
                 android:layout_height="32dp"

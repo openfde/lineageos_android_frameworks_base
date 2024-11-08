@@ -3368,7 +3368,7 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         boolean isTurnOffSimulatedTouch = false;
         String resultStr = null;
         if(context != null){
-            resultStr = CompatibleConfig.queryThreadWaitData(context, packageName, "isTurnOffSimulatedTouch");
+            resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isTurnOffSimulatedTouch");
             Slog.d(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query resultStr: " + resultStr);
         }else{
             Slog.e(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query failed, context is null.");
