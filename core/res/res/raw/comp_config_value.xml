@@ -76,6 +76,12 @@
                 600
             </defaultvalue>
         </package>
+		<package>
+            <packagename>com.android.documentsui</packagename>
+            <defaultvalue>
+                960
+            </defaultvalue>
+        </package>
     </item>
 
     <item
