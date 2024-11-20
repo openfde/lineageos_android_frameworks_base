@@ -134,9 +134,10 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
                 && source.getTask().type == MAGIC_MAIN_WINDOW) {
             Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
             Rect persistRect = currentParams.mBounds;
+            int additionalWidth = currentParams.mAdditionalMagicWindowWidth;
             if(rect != null ){
-                if(persistRect != null && persistRect.width() != 0){
-                    rect.set(rect.right, rect.top, rect.right + persistRect.width(), rect.bottom);
+                if(additionalWidth != 0){
+                    rect.set(rect.right, rect.top, rect.right + additionalWidth, rect.bottom);
                 } else {
                     rect.offset(rect.right - rect.left, 0);
                 }

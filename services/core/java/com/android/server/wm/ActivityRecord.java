@@ -411,7 +411,7 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     // TODO: rename to mPackageName
     final String packageName;
     // the intent component, or target of an alias.
-    final ComponentName mActivityComponent;
+    public final ComponentName mActivityComponent;
     // Has a wallpaper window as a background.
     // TODO: Rename to mHasWallpaper and also see if it possible to combine this with the
     // mOccludesParent field.
