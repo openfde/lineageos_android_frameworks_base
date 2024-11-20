@@ -36,7 +36,8 @@ import com.android.internal.util.FastXmlSerializer;
 import com.android.server.LocalServices;
 import com.android.server.pm.PackageList;
 import com.android.server.wm.LaunchParamsController.LaunchParams;
-
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
 import libcore.io.IoUtils;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -107,7 +108,7 @@ class LaunchParamsPersister {
 
     @VisibleForTesting
     LaunchParamsPersister(PersisterQueue persisterQueue, ActivityStackSupervisor supervisor,
-            IntFunction<File> userFolderGetter) {
+                          IntFunction<File> userFolderGetter) {
         mPersisterQueue = persisterQueue;
         mSupervisor = supervisor;
         mUserFolderGetter = userFolderGetter;
@@ -153,8 +154,8 @@ class LaunchParamsPersister {
             }
             final String paramsFileName = paramsFile.getName();
             final String componentNameString = paramsFileName.substring(
-                    0 /* beginIndex */,
-                    paramsFileName.length() - LAUNCH_PARAMS_FILE_SUFFIX.length())
+                            0 /* beginIndex */,
+                            paramsFileName.length() - LAUNCH_PARAMS_FILE_SUFFIX.length())
                     .replace(ESCAPED_COMPONENT_SEPARATOR, ORIGINAL_COMPONENT_SEPARATOR);
             final ComponentName name = ComponentName.unflattenFromString(
                     componentNameString);
@@ -225,6 +226,10 @@ class LaunchParamsPersister {
             map = new ArrayMap<>();
             mLaunchParamsMap.put(userId, map);
         }
+        Task magic = null;
+        if(task.type == MAGIC_ADDITIONAL_WINDOW){
+            magic = mSupervisor.mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+        }
 
         params = map.computeIfAbsent(name, componentName -> new PersistableLaunchParams());
         final boolean changed = saveTaskToLaunchParam(task, display, params);
@@ -236,6 +241,27 @@ class LaunchParamsPersister {
                     new LaunchParamsWriteQueueItem(userId, name, params),
                     /* flush */ false);
         }
+        // fde start MAGIC WINDOW
+        if(magic != null && changed){
+            final ComponentName magicName = magic.getTopNonFinishingActivity().mActivityComponent;
+            if (magicName == null) {
+                return;
+            }
+            PersistableLaunchParams magicParams =  map.computeIfAbsent(magicName, componentName -> new PersistableLaunchParams());
+
+            if (task.mLastNonFullscreenBounds != null) {
+                Rect rect = task.mLastNonFullscreenBounds;
+                magicParams.mAdditionalMagicWindowWidth = rect.width();
+                Slog.e(TAG, "save magic Task:" + magicName +  " mAdditionalMagicWindowWidth:" + rect.width());
+
+            } else {
+                magicParams.mAdditionalMagicWindowWidth = 0;
+            }
+            mPersisterQueue.updateLastOrAddItem(
+                    new LaunchParamsWriteQueueItem(userId, magicName, magicParams),
+                    /* flush */ false);
+        }
+        // fde end
     }
 
     private boolean saveTaskToLaunchParam(
@@ -341,6 +367,19 @@ class LaunchParamsPersister {
         }
         outParams.mWindowingMode = persistableParams.mWindowingMode;
         outParams.mBounds.set(persistableParams.mBounds);
+        // fde start MAGIC WINDOW
+        if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW){
+           Task magic = mSupervisor.mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+            if(magic == null){
+                return;
+            }
+            final ComponentName magicName = magic.getTopNonFinishingActivity().mActivityComponent;
+            PersistableLaunchParams magicParams = map.get(magicName);
+            if(magicParams != null && magicParams.mAdditionalMagicWindowWidth != 0){
+                outParams.mAdditionalMagicWindowWidth = magicParams.mAdditionalMagicWindowWidth;
+            }
+        }
+        // fde end
     }
 
     void removeRecordForPackage(String packageName) {
@@ -391,12 +430,12 @@ class LaunchParamsPersister {
     private class LaunchParamsWriteQueueItem
             implements PersisterQueue.WriteQueueItem<LaunchParamsWriteQueueItem> {
         private final int mUserId;
-        private final ComponentName mComponentName;
+        public final ComponentName mComponentName;
 
-        private PersistableLaunchParams mLaunchParams;
+        public PersistableLaunchParams mLaunchParams;
 
         private LaunchParamsWriteQueueItem(int userId, ComponentName componentName,
-                PersistableLaunchParams launchParams) {
+                                           PersistableLaunchParams launchParams) {
             mUserId = userId;
             mComponentName = componentName;
             mLaunchParams = launchParams;
@@ -483,6 +522,7 @@ class LaunchParamsPersister {
         private static final String ATTR_DISPLAY_UNIQUE_ID = "display_unique_id";
         private static final String ATTR_BOUNDS = "bounds";
         private static final String ATTR_WINDOW_LAYOUT_AFFINITY = "window_layout_affinity";
+        private static final String ATTR_ADDITIONAL_MAGIC_WINDOW_WIDTH = "additional_magic_window_width";
 
         /** The bounds within the parent container. */
         final Rect mBounds = new Rect();
@@ -492,6 +532,11 @@ class LaunchParamsPersister {
 
         /** The windowing mode to be in. */
         int mWindowingMode;
+
+        /**
+         * Additional width to be added to the magic window.
+         */
+        int mAdditionalMagicWindowWidth;
 
         /**
          * Last {@link android.content.pm.ActivityInfo.WindowLayout#windowLayoutAffinity} of the
@@ -512,6 +557,9 @@ class LaunchParamsPersister {
             serializer.attribute(null, ATTR_BOUNDS, mBounds.flattenToString());
             if (mWindowLayoutAffinity != null) {
                 serializer.attribute(null, ATTR_WINDOW_LAYOUT_AFFINITY, mWindowLayoutAffinity);
+            }
+            if(mAdditionalMagicWindowWidth > 0){
+                serializer.attribute(null, ATTR_ADDITIONAL_MAGIC_WINDOW_WIDTH, Integer.toString(mAdditionalMagicWindowWidth));
             }
         }
 
@@ -535,6 +583,9 @@ class LaunchParamsPersister {
                     case ATTR_WINDOW_LAYOUT_AFFINITY:
                         mWindowLayoutAffinity = attrValue;
                         break;
+                    case ATTR_ADDITIONAL_MAGIC_WINDOW_WIDTH:
+                        mAdditionalMagicWindowWidth =  Integer.parseInt(attrValue);
+                        break;
                 }
             }
 
@@ -550,6 +601,7 @@ class LaunchParamsPersister {
             builder.append(" windowingMode=" + mWindowingMode);
             builder.append(" displayUniqueId=" + mDisplayUniqueId);
             builder.append(" bounds=" + mBounds);
+            builder.append(" mAdditionalMagicWindowWidth=" + mAdditionalMagicWindowWidth);
             if (mWindowLayoutAffinity != null) {
                 builder.append(" launchParamsAffinity=" + mWindowLayoutAffinity);
             }

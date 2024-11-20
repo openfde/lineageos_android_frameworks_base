@@ -1761,6 +1761,15 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                             true, "decorcaption-finish-activity");
                     res = true;
                     r.mRelaunchReason = RELAUNCH_REASON_NONE;
+                    // fde start MAGIC WINDOW
+                    if(tr.type == MAGIC_MAIN_WINDOW){
+                        Task magic = mRootWindowContainer.findMagicTask(tr.mWindowLayoutAffinity, MAGIC_ADDITIONAL_WINDOW);
+                        if(magic != null){
+                            mStackSupervisor.removeTask(magic, true /*killProcess*/,
+                                    true, "decorcaption-finish-activity");
+                        }
+                    }
+                    // fde end
                 }else if (finishTask == Activity.FINISH_TASK_WITH_ACTIVITY
                         || (finishWithRootActivity && r == rootR)) {
                     // If requested, remove the task that is associated to this activity only if it
@@ -1773,6 +1782,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                     res = true;
                     // Explicitly dismissing the activity so reset its relaunch flag.
                     r.mRelaunchReason = RELAUNCH_REASON_NONE;
+                    
                 } else {
                     r.finishIfPossible(resultCode, resultData, resultGrants,
                             "app-request", true /* oomAdj */);
@@ -2377,24 +2387,55 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     @Override
     public boolean moveActivityTaskToBack(IBinder token, boolean nonRoot) {
         enforceNotIsolatedCaller("moveActivityTaskToBack");
+        boolean result = false;
         synchronized (mGlobalLock) {
             final long origId = Binder.clearCallingIdentity();
             try {
                 int taskId = ActivityRecord.getTaskForActivityLocked(token, !nonRoot);
                 final Task task = mRootWindowContainer.anyTaskForId(taskId);
                 if (task != null) {
-                    return ActivityRecord.getStackLocked(token).moveTaskToBack(task);
+                    result =  ActivityRecord.getStackLocked(token).moveTaskToBack(task);
                 }
             } finally {
                 Binder.restoreCallingIdentity(origId);
             }
         }
-        return false;
+        moveMagicTaskBackIfNeed(token, nonRoot, -1);
+        return result;
     }
+
+    // fde start MAGIC WINDOW
+    private void moveMagicTaskBackIfNeed(IBinder token, boolean nonRoot, int taskId){
+        synchronized (mGlobalLock) {
+            final long origId = Binder.clearCallingIdentity();
+            try {
+                int tid = taskId == -1 ? ActivityRecord.getTaskForActivityLocked(token, !nonRoot) : taskId;
+                final Task task = mRootWindowContainer.anyTaskForId(tid);
+                if (task != null) {
+                    Task magic = null;
+                    if(task.type == MAGIC_ADDITIONAL_WINDOW ){
+                        magic = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+                    } else if(task.type == MAGIC_MAIN_WINDOW){
+                        magic = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_ADDITIONAL_WINDOW);
+                    }
+                    if(magic != null){
+                        final ActivityRecord topActivity = magic.getTopNonFinishingActivity();
+                        if(topActivity != null){
+                            topActivity.getStack().moveTaskToBack(magic);
+                        }
+                    }
+                }
+            } finally {
+                Binder.restoreCallingIdentity(origId);
+            }
+        }
+    }
+    // fde end
 
     @Override
     public boolean moveActivityTaskToBackByid(int taskId, boolean onlyMove) {
         enforceNotIsolatedCaller("moveActivityTaskToBack");
+        boolean result = false;
         synchronized (mGlobalLock) {
             final long origId = Binder.clearCallingIdentity();
             if(onlyMove){
@@ -2404,7 +2445,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                     if (task != null) {
                         final ActivityRecord topActivity = task.getTopNonFinishingActivity();
                         if(topActivity != null){
-                            return topActivity.getStack().moveTaskToBack(task);
+                            result = topActivity.getStack().moveTaskToBack(task);
                         }
                     }
                 } finally {
@@ -2412,16 +2453,17 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 }
             } else {
                 try {
-                if (!mStackSupervisor.removeTaskById(taskId, false,
-                        REMOVE_FROM_RECENTS, "finish-and-remove-task")) {
-                    throw new IllegalArgumentException("Unable to find task ID " + taskId);
-                }
+                    if (!mStackSupervisor.removeTaskById(taskId, false,
+                            REMOVE_FROM_RECENTS, "finish-and-remove-task")) {
+                        throw new IllegalArgumentException("Unable to find task ID " + taskId);
+                    }
                 } finally {
                     Binder.restoreCallingIdentity(origId);
                 }
             }
         }
-        return false;
+        moveMagicTaskBackIfNeed(null, onlyMove, taskId);
+        return result;
     }
 
     @Override
@@ -2646,7 +2688,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                     : null;
             // fde start MAGIC WINDOW
             if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW){
-                Task companion = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, task.type);
+                Task companion = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity,
+                        task.type == MAGIC_MAIN_WINDOW ? MAGIC_ADDITIONAL_WINDOW : MAGIC_MAIN_WINDOW
+                );
                 if(companion != null){
                     Slog.e(TAG, "findTaskToMoveToFront task:" + task + " flags:" + flags + " companion" + companion);
                     ActivityStack currentStack = companion.getStack();
