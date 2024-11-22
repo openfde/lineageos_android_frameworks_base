@@ -33,6 +33,9 @@ import android.view.Surface;
 interface IDisplayManager {
     @UnsupportedAppUsage
     DisplayInfo getDisplayInfo(int displayId);
+
+    DisplayInfo getDisplayInfoWithPid(int displayId, int pid);
+
     int[] getDisplayIds();
 
     boolean isUidPresentOnDisplay(int uid, int displayId);

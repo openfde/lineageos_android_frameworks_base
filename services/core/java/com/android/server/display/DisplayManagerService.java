@@ -120,7 +120,9 @@ import org.json.JSONObject;
 import org.json.JSONException;
 import com.android.internal.util.CompatibleConfig;
 import android.os.AsyncTask;
-
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Manages attached displays.
@@ -632,39 +634,64 @@ public final class DisplayManagerService extends SystemService {
                 Settings.Secure.MINIMAL_POST_PROCESSING_ALLOWED, 1, UserHandle.USER_CURRENT) != 0;
     }
 
+    private String getCallingPackageFromPid(int pid) {
+        String cmdlinePath = "/proc/" + pid + "/cmdline";
+        try (BufferedReader reader = new BufferedReader(new FileReader(cmdlinePath))) {
+            String line = reader.readLine();
+            if (line != null) {
+                return line.trim();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-    private DisplayInfo getDisplayInfoInternal(int displayId, int callingUid) {
+    private DisplayInfo getDisplayInfoInternalWithPid(int displayId, int callingUid, int pid) {
         synchronized (mSyncRoot) {
             LogicalDisplay display = mLogicalDisplays.get(displayId);
+            String packageName = getCallingPackageFromPid(pid);
             String resultStr = null;
             if (display != null) {
                 DisplayInfo info = display.getDisplayInfoLocked();
-                if(mContext != null){
+                if(mContext != null && packageName != null){
                     PackageManager manager = mContext.getPackageManager();
                     if(manager != null){
-                        String[] packageNames = manager.getPackagesForUid(callingUid);
-                        if (packageNames != null && packageNames.length == 1) {
-                            for (String packageName : packageNames) {
-                                resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, packageName, "size");
-                                //Slog.wtf(TAG, "getDisplayInfoInternal query " + packageName + " resultStr: " + resultStr);
-                                if(resultStr != null && !"".equals(resultStr)){
-                                    JSONObject jsonObject = null;
-                                    try {
-                                        jsonObject = new JSONObject(resultStr);
-                                        int width = jsonObject.getInt("width");
-                                        int height = jsonObject.getInt("height");
-                                        info = display.getCompatibilityDisplayInfoLocked();
-                                        info.logicalWidth = width;
-                                        info.logicalHeight = height;
-                                    } catch (JSONException e) {
-                                        Slog.e(TAG,"getDisplayInfoInternal error: " + e);
-                                    }
+                        String uidName = manager.getNameForUid(callingUid);
+                        if(uidName != null && !uidName.startsWith("android.uid.system")){
+                            resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, packageName, "size");
+                            Slog.d(TAG, "getDisplayInfoInternalWithPid: query " + packageName + " resultStr: " + resultStr);
+                            if(resultStr != null && !"".equals(resultStr)){
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(resultStr);
+                                    int width = jsonObject.getInt("width");
+                                    int height = jsonObject.getInt("height");
+                                    info = display.getCompatibilityDisplayInfoLocked();
+                                    info.logicalWidth = width;
+                                    info.logicalHeight = height;
+                                } catch (JSONException e) {
+                                    Slog.e(TAG,"getDisplayInfoInternalWithPid error: " + e);
                                 }
                             }
                         }
                     }
                 }
-                if (info != null && info.hasAccess(callingUid)
+                if (info.hasAccess(callingUid)
+                        || isUidPresentOnDisplayInternal(callingUid, displayId)) {
+                    return info;
+                }
+            }
+            return null;
+        }
+    }
+
+    private DisplayInfo getDisplayInfoInternal(int displayId, int callingUid) {
+        synchronized (mSyncRoot) {
+            LogicalDisplay display = mLogicalDisplays.get(displayId);
+            if (display != null) {
+                DisplayInfo info = display.getDisplayInfoLocked();
+                if (info.hasAccess(callingUid)
                         || isUidPresentOnDisplayInternal(callingUid, displayId)) {
                     return info;
                 }
@@ -1973,6 +2000,26 @@ public final class DisplayManagerService extends SystemService {
             final long token = Binder.clearCallingIdentity();
             try {
                 return getDisplayInfoInternal(displayId, callingUid);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        }
+
+        /**
+         * Returns information about the specified logical display.
+         *
+         * @param displayId The logical display id.
+         * @param pid The process ID of the current application.
+         * @return The logical display info, return {@code null} if the display does not exist or
+         * the calling UID isn't present on the display.  The returned object must be treated as
+         * immutable.
+         */
+        @Override // Binder call
+        public DisplayInfo getDisplayInfoWithPid(int displayId, int pid) {
+            final int callingUid = Binder.getCallingUid();
+            final long token = Binder.clearCallingIdentity();
+            try {
+                return getDisplayInfoInternalWithPid(displayId, callingUid, pid);
             } finally {
                 Binder.restoreCallingIdentity(token);
             }
