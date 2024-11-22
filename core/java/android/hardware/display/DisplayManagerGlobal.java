@@ -108,7 +108,7 @@ public final class DisplayManagerGlobal {
                 @Override
                 protected DisplayInfo recompute(Integer id) {
                     try {
-                        return mDm.getDisplayInfo(id);
+                        return mDm.getDisplayInfoWithPid(id, android.os.Process.myPid());
                     } catch (RemoteException ex) {
                         throw ex.rethrowFromSystemServer();
                     }
@@ -158,7 +158,7 @@ public final class DisplayManagerGlobal {
             info = mDisplayCache.query(displayId);
         } else {
             try {
-                info = mDm.getDisplayInfo(displayId);
+                info = mDm.getDisplayInfoWithPid(displayId, android.os.Process.myPid());
             } catch (RemoteException ex) {
                 ex.rethrowFromSystemServer();
             }
