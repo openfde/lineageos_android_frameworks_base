@@ -667,6 +667,7 @@ public final class DisplayManagerService extends SystemService {
                                     jsonObject = new JSONObject(resultStr);
                                     int width = jsonObject.getInt("width");
                                     int height = jsonObject.getInt("height");
+                                    info = display.getCompatibilityDisplayInfoLocked();
                                     info.logicalWidth = width;
                                     info.logicalHeight = height;
                                 } catch (JSONException e) {
