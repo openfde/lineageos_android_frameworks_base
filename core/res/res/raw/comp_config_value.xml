@@ -1,4 +1,30 @@
-<!--compatible value -->
+<!--compatible value 
+   
+   1、每次更新 updatedate需改成当前日期 
+   2、同一个keycode只允许存在一次，可有多个package
+   3、如果keycode不用了则把对应的isdel 设置true
+   
+   <item
+        isdel="false"
+        keycode="isAllowHideDecorCaption"
+        updatedate="2024-04-23">
+        <package>
+            <packagename>com.lemon.lv</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.fde.x11</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.tencent.wemeet.app</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+    </item>
+-->
+
 <?xml version="1.0" encoding="utf-8"?>
 <library>
 
@@ -60,7 +86,7 @@
     <item
         isdel="false"
         keycode="size"
-        updatedate="2024-04-23">
+        updatedate="2024-11-26">
         <package>
             <packagename>com.microsoft.office.word</packagename>
             <defaultvalue>{ width = 800,height = 600 }</defaultvalue>
