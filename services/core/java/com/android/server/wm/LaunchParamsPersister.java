@@ -38,6 +38,7 @@ import com.android.server.pm.PackageList;
 import com.android.server.wm.LaunchParamsController.LaunchParams;
 import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
 import libcore.io.IoUtils;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -237,6 +238,7 @@ class LaunchParamsPersister {
         addComponentNameToLaunchParamAffinityMapIfNotNull(name, params.mWindowLayoutAffinity);
 
         if (changed) {
+            Slog.d(TAG, "savetask name:" + name + " params:" + params);
             mPersisterQueue.updateLastOrAddItem(
                     new LaunchParamsWriteQueueItem(userId, name, params),
                     /* flush */ false);
@@ -257,6 +259,7 @@ class LaunchParamsPersister {
             } else {
                 magicParams.mAdditionalMagicWindowWidth = 0;
             }
+            Slog.d(TAG, "savetask magicName:" + magicName + " magicParams:" + magicParams);
             mPersisterQueue.updateLastOrAddItem(
                     new LaunchParamsWriteQueueItem(userId, magicName, magicParams),
                     /* flush */ false);
@@ -307,9 +310,10 @@ class LaunchParamsPersister {
         final ComponentName name = task != null ? task.realActivity : activity.mActivityComponent;
         final int userId = task != null ? task.mUserId : activity.mUserId;
         final String windowLayoutAffinity;
+        int magicType = mSupervisor.getMagicWindowType(name.getPackageName(), name.getShortClassName());
         if (task != null) {
             windowLayoutAffinity = task.mWindowLayoutAffinity;
-        } else {
+        } else if(magicType == NOT_MAGIC_WINDOW){
             ActivityInfo.WindowLayout layout = activity.info.windowLayout;
             // region @boringdroid
             // windowLayoutAffinity = layout == null ? null : layout.windowLayoutAffinity;
@@ -324,6 +328,8 @@ class LaunchParamsPersister {
                 windowLayoutAffinity = null;
             }
             // endregion
+        } else {
+             windowLayoutAffinity = null;
         }
 
         outParams.reset();
@@ -334,10 +340,11 @@ class LaunchParamsPersister {
 
         // First use its own record as a reference.
         PersistableLaunchParams persistableParams = map.get(name);
+        // Slog.d(TAG, "getLaunchParams  task:" + task + " activity:" + activity + " name:" + name + " persistableParams:" + persistableParams + " magicType:" + magicType);
         // Next we'll compare these params against all existing params with the same affinity and
         // use the newest one.
         if (windowLayoutAffinity != null
-                && mWindowLayoutAffinityMap.get(windowLayoutAffinity) != null) {
+                && mWindowLayoutAffinityMap.get(windowLayoutAffinity) != null && magicType == NOT_MAGIC_WINDOW) {
             ArraySet<ComponentName> candidates = mWindowLayoutAffinityMap.get(windowLayoutAffinity);
             for (int i = 0; i < candidates.size(); ++i) {
                 ComponentName candidate = candidates.valueAt(i);
@@ -551,6 +558,9 @@ class LaunchParamsPersister {
         long mTimestamp;
 
         void saveToXml(XmlSerializer serializer) throws IOException {
+            if( mDisplayUniqueId == null){
+                return;
+            }
             serializer.attribute(null, ATTR_DISPLAY_UNIQUE_ID, mDisplayUniqueId);
             serializer.attribute(null, ATTR_WINDOWING_MODE,
                     Integer.toString(mWindowingMode));
