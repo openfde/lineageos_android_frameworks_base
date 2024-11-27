@@ -192,11 +192,11 @@
             <packagename>com.sina.weibo</packagename>
             <defaultvalue>true</defaultvalue>
         </package>
-
-        <package>
-            <packagename>com.moji.mjweather</packagename>
-            <defaultvalue>true</defaultvalue>
-        </package>
+<!--        need support-->
+<!--        <package>-->
+<!--            <packagename>com.moji.mjweather</packagename>-->
+<!--            <defaultvalue>true</defaultvalue>-->
+<!--        </package>-->
         <package>
             <packagename>com.kuaishou.nebula</packagename>
             <defaultvalue>true</defaultvalue>
