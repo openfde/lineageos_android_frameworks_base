@@ -7312,6 +7312,7 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
                 if (DEBUG_SWITCH || DEBUG_STATES) Slog.i(TAG_SWITCH, "relaunchActivityLockedOnly failed", e);
             }
             mRootWindowContainer.resumeFocusedStacksTopActivities();
+            setState(RESUMED, "pauseActivityLockedOnly");
         }
     };
 
