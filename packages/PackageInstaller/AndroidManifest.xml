@@ -41,6 +41,12 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true"
             android:excludeFromRecents="true">
+            <layout
+                android:defaultHeight="732dp"
+                android:defaultWidth="412dp"
+                android:minHeight="732dp"
+                android:minWidth="412dp"
+                />
             <intent-filter android:priority="1">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
