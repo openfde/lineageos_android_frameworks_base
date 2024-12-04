@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--compatible value 
    
    1、每次更新 updatedate需改成当前日期 
@@ -24,8 +25,6 @@
         </package>
     </item>
 -->
-
-<?xml version="1.0" encoding="utf-8"?>
 <library>
 
     <item
@@ -192,11 +191,6 @@
             <packagename>com.sina.weibo</packagename>
             <defaultvalue>true</defaultvalue>
         </package>
-<!--        need support-->
-<!--        <package>-->
-<!--            <packagename>com.moji.mjweather</packagename>-->
-<!--            <defaultvalue>true</defaultvalue>-->
-<!--        </package>-->
         <package>
             <packagename>com.kuaishou.nebula</packagename>
             <defaultvalue>true</defaultvalue>
