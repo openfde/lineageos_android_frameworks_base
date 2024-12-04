@@ -219,4 +219,14 @@
 
     </item>
 
+    <item
+        isdel="false"
+        keycode="enabledResourceFixedLayout"
+        updatedate="2024-12-05">
+        <package>
+            <packagename>com.tencent.mm</packagename>
+            <defaultvalue>{ width = 720,height = 1080 }</defaultvalue>
+        </package>
+    </item>
+
 </library>
