@@ -49,7 +49,7 @@
     <!-- Height of the status bar in portrait.
          Do not read this dimen directly. Use {@link SystemBarUtils#getStatusBarHeight} instead.
          -->
-    <dimen name="status_bar_height_portrait">24dp</dimen>
+    <dimen name="status_bar_height_portrait">1dp</dimen>
     <!-- Height of the status bar in landscape.
          Do not read this dimen directly. Use {@link SystemBarUtils#getStatusBarHeight} instead.
          -->
@@ -96,14 +96,14 @@
     <!-- Width of the navigation bar when it is placed vertically on the screen in car mode -->
     <dimen name="navigation_bar_width_car_mode">96dp</dimen>
     <!-- Original dp height of notification icons in the status bar  -->
-    <dimen name="status_bar_icon_size">22dip</dimen>
+    <dimen name="status_bar_icon_size">1dip</dimen>
     <!-- New sp height of notification icons in the status bar  -->
     <dimen name="status_bar_icon_size_sp">22sp</dimen>
     <!-- Desired size of system icons in status bar. -->
     <dimen name="status_bar_system_icon_size">15dp</dimen>
     <!-- Intrinsic size of most system icons in status bar. This is the default value that
          is used if a Drawable reports an intrinsic size of 0. -->
-    <dimen name="status_bar_system_icon_intrinsic_size">17dp</dimen>
+    <dimen name="status_bar_system_icon_intrinsic_size">1dp</dimen>
     <!-- Size of the giant number (unread count) in the notifications -->
     <dimen name="status_bar_content_number_size">48sp</dimen>
     <!-- Margin at the edge of the screen to ignore touch events for in the windowshade. -->
