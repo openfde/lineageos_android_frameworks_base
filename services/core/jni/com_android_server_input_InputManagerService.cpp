@@ -1448,6 +1448,10 @@ void NativeInputManager::setCustomPointerIcon(const SpriteIcon& icon) {
 bool NativeInputManager::setPointerIcon(
         std::variant<std::unique_ptr<SpriteIcon>, PointerIconStyle> icon, int32_t displayId,
         DeviceId deviceId, int32_t pointerId, const sp<IBinder>& inputToken) {
+    if (!ENABLE_POINTER_CHOREOGRAPHER) {
+        setPointerIconType(std::get<PointerIconStyle>(icon));
+        return true;
+    }
     if (!mInputManager->getDispatcher().isPointerInWindow(inputToken, displayId, deviceId,
                                                           pointerId)) {
         LOG(WARNING) << "Attempted to change the pointer icon for deviceId " << deviceId
