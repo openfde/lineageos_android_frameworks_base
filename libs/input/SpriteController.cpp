@@ -22,6 +22,7 @@
 #include <log/log.h>
 #include <utils/String8.h>
 #include <gui/Surface.h>
+#include <cutils/properties.h>
 
 namespace android {
 
@@ -188,6 +189,7 @@ void SpriteController::doUpdateSprites() {
                 && update.state.wantSurfaceVisible()) {
             sp<Surface> surface = update.state.surfaceControl->getSurface();
             if (update.state.icon.draw(surface)) {
+                property_set("fde.mouse_icon_addr", std::to_string(reinterpret_cast<int64_t>(update.state.icon.bitmap.get())).c_str());
                 update.state.surfaceDrawn = true;
                 update.surfaceChanged = surfaceChanged = true;
             }
@@ -393,6 +395,8 @@ void SpriteController::SpriteImpl::setIcon(const SpriteIcon& icon) {
                 || mLocked.state.icon.hotSpotY != icon.hotSpotY) {
             mLocked.state.icon.hotSpotX = icon.hotSpotX;
             mLocked.state.icon.hotSpotY = icon.hotSpotY;
+            property_set("fde.mouse_icon_hotspot_x", std::to_string(icon.hotSpotX).c_str());
+            property_set("fde.mouse_icon_hotspot_y", std::to_string(icon.hotSpotY).c_str());
             dirty = DIRTY_BITMAP | DIRTY_HOTSPOT;
         } else {
             dirty = DIRTY_BITMAP;

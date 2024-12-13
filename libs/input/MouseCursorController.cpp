@@ -24,6 +24,7 @@
 
 #include <input/Input.h>
 #include <log/log.h>
+#include <cutils/properties.h>
 
 namespace {
 // Time to spend fading out the pointer completely.
@@ -148,6 +149,10 @@ void MouseCursorController::unfade(PointerControllerInterface::Transition transi
     // Start unfading.
     if (transition == PointerControllerInterface::Transition::IMMEDIATE) {
         mLocked.pointerFadeDirection = 0;
+        if(mLocked.pointerAlpha != 1){
+            ALOGI("unfade set mouse_icon_addr: 0");
+            property_set("fde.mouse_icon_addr", "0");
+        }
         mLocked.pointerAlpha = 1.0f;
         updatePointerLocked();
     } else {
