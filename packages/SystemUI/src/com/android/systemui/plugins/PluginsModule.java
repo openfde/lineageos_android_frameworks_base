@@ -59,7 +59,7 @@ public abstract class PluginsModule {
     @Provides
     @Named(PLUGIN_DEBUG)
     static boolean providesPluginDebug() {
-        return Build.IS_DEBUGGABLE;
+        return true; //Build.IS_DEBUGGABLE;
     }
 
     @Binds

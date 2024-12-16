@@ -385,4 +385,8 @@ interface IActivityTaskManager {
      * @hide
      */
     void unregisterScreenCaptureObserver(IBinder activityToken, IScreenCaptureObserver observer);
+
+    boolean moveActivityTaskToBackByid(int taskId, boolean nonRoot);
+
+
 }

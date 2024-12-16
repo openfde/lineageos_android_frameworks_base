@@ -5491,6 +5491,16 @@ public class ActivityManager {
         return ActivityTaskManager.getService();
     }
 
+    @FlaggedApi("android.Manifest.permission.REORDER_TASKS")
+    @RequiresPermission(android.Manifest.permission.REORDER_TASKS)
+    public boolean moveTaskToBack(boolean nonRoot, int taskId) {
+        try {
+            return getTaskService().moveActivityTaskToBackByid(taskId, nonRoot);
+        } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+        }
+    }
+
     @UnsupportedAppUsage
     private static final Singleton<IActivityManager> IActivityManagerSingleton =
             new Singleton<IActivityManager>() {

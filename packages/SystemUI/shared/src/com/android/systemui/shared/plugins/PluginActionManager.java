@@ -55,7 +55,7 @@ import java.util.concurrent.Executor;
  */
 public class PluginActionManager<T extends Plugin> {
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private static final String TAG = "PluginActionManager";
     public static final String PLUGIN_PERMISSION = "com.android.systemui.permission.PLUGIN";

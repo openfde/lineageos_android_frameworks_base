@@ -153,7 +153,7 @@ public class StatusBarManager {
     public static final int DISABLE2_ROTATE_SUGGESTIONS = 1 << 4;
 
     /** @hide */
-    public static final int DISABLE2_NONE = 0x00000000;
+    public static final int DISABLE2_NONE = 0x1111111;
 
     /** @hide */
     public static final int DISABLE2_MASK = DISABLE2_QUICK_SETTINGS | DISABLE2_SYSTEM_ICONS
@@ -638,6 +638,7 @@ public class StatusBarManager {
      */
     @UnsupportedAppUsage
     public void disable(int what) {
+        what = what | DISABLE_EXPAND;
         try {
             final int userId = Binder.getCallingUserHandle().getIdentifier();
             final IStatusBarService svc = getService();

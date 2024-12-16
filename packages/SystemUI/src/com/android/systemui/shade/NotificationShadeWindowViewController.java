@@ -304,6 +304,10 @@ public class NotificationShadeWindowViewController implements Dumpable {
 
             @Override
             public Boolean handleDispatchTouchEvent(MotionEvent ev) {
+                if(true){
+                    return false;
+                }
+
                 if (mStatusBarViewController == null) { // Fix for b/192490822
                     return logDownDispatch(ev,
                             "Ignoring touch while statusBarView not yet set", false);

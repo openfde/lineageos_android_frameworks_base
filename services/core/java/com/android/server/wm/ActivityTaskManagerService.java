@@ -2131,6 +2131,26 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         }
     }
 
+
+    @Override
+    public boolean moveActivityTaskToBackByid(int taskId, boolean nonRoot) {
+        enforceNotIsolatedCaller("moveActivityTaskToBack");
+        synchronized (mGlobalLock) {
+            final long origId = Binder.clearCallingIdentity();
+            try {
+                // int taskId = ActivityRecord.getTaskForActivityLocked(token, !nonRoot);
+                final Task task = mRootWindowContainer.anyTaskForId(taskId);
+                if (task != null) {
+                    return task.getRootTask().moveTaskToBack(task);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(origId);
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public void removeAllVisibleRecentTasks() {
         mAmInternal.enforceCallingPermission(REMOVE_TASKS, "removeAllVisibleRecentTasks()");

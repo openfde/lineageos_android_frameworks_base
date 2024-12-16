@@ -52,7 +52,7 @@ import java.util.List;
  */
 public class FreeformTaskTransitionHandler
         implements Transitions.TransitionHandler, FreeformTaskTransitionStarter {
-    private static final int CLOSE_ANIM_DURATION = 400;
+    private static final int CLOSE_ANIM_DURATION = 50;
     private final Context mContext;
     private final Transitions mTransitions;
     private final WindowDecorViewModel mWindowDecorViewModel;
@@ -149,13 +149,13 @@ public class FreeformTaskTransitionHandler
                             transition, info.getType(), change);
                     break;
                 case WindowManager.TRANSIT_TO_BACK:
-                    transitionHandled |= startMinimizeTransition(transition);
+                    // transitionHandled |= startMinimizeTransition(transition);
                     break;
                 case WindowManager.TRANSIT_CLOSE:
-                    if (change.getTaskInfo().getWindowingMode() == WINDOWING_MODE_FREEFORM) {
-                        transitionHandled |= startCloseTransition(transition, change,
-                                finishT, animations, onAnimFinish);
-                    }
+                    // if (change.getTaskInfo().getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+                    //     transitionHandled |= startCloseTransition(transition, change,
+                    //             finishT, animations, onAnimFinish);
+                    // }
                     break;
             }
         }

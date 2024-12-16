@@ -201,7 +201,8 @@ public class NavigationBarInflaterView extends FrameLayout {
         if (!mIsHintEnabled && defaultResource == R.string.config_navBarLayoutHandle) {
             return getContext().getString(defaultResource).replace(HOME_HANDLE, "");
         }
-        return getContext().getString(defaultResource);
+        // return getContext().getString(defaultResource);
+        return getContext().getString(R.string.fde_config_navBarLayout);
     }
 
     private void onNavigationModeChanged(int mode) {

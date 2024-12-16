@@ -209,7 +209,7 @@ public class NavigationBarControllerImpl implements
     @Override
     public void onTaskbarEnabled(boolean enabled) {
         boolean oldShouldShowTaskbar = shouldShowTaskbar();
-        mTaskbarShowing = enabled;
+        mTaskbarShowing = false; //enabled;
         boolean largeScreenChanged = shouldShowTaskbar() != oldShouldShowTaskbar;
         if (largeScreenChanged) {
             updateNavbarForTaskbar();
@@ -280,8 +280,8 @@ public class NavigationBarControllerImpl implements
 
     /** @return {@code true} if taskbar is enabled, false otherwise */
     private boolean initializeTaskbarIfNecessary() {
-        boolean taskbarEnabled = supportsTaskbar() && shouldCreateNavBarAndTaskBar(
-                mContext, mContext.getDisplayId());
+        boolean taskbarEnabled = false; //supportsTaskbar() && shouldCreateNavBarAndTaskBar(
+                // mContext, mContext.getDisplayId());
 
         if (taskbarEnabled) {
             Trace.beginSection("NavigationBarController#initializeTaskbarIfNecessary");
@@ -302,8 +302,9 @@ public class NavigationBarControllerImpl implements
 
     @VisibleForTesting
     boolean supportsTaskbar() {
+        return false;
         // Enable for tablets, unfolded state on a foldable device or (non handheld AND flag is set)
-        return shouldShowTaskbar() || (!mIsPhone && enableTaskbarNavbarUnification());
+        // return shouldShowTaskbar() || (!mIsPhone && enableTaskbarNavbarUnification());
     }
 
     private final CommandQueue.Callbacks mCommandQueueCallbacks = new CommandQueue.Callbacks() {

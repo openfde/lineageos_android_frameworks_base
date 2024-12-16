@@ -4735,6 +4735,7 @@ package android.app {
     method public static boolean isRunningInUserTestHarness();
     method public static boolean isUserAMonkey();
     method @RequiresPermission(android.Manifest.permission.KILL_BACKGROUND_PROCESSES) public void killBackgroundProcesses(String);
+    method @FlaggedApi("android.Manifest.permission.REORDER_TASKS") @RequiresPermission(android.Manifest.permission.REORDER_TASKS) public boolean moveTaskToBack(boolean, int);
     method @RequiresPermission(android.Manifest.permission.REORDER_TASKS) public void moveTaskToFront(int, int);
     method @RequiresPermission(android.Manifest.permission.REORDER_TASKS) public void moveTaskToFront(int, int, android.os.Bundle);
     method @FlaggedApi("android.app.app_start_info") public void removeApplicationStartInfoCompletionListener(@NonNull java.util.function.Consumer<android.app.ApplicationStartInfo>);
