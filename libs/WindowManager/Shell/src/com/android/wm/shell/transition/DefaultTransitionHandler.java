@@ -39,6 +39,8 @@ import static android.view.WindowManager.LayoutParams.ROTATION_ANIMATION_SEAMLES
 import static android.view.WindowManager.LayoutParams.ROTATION_ANIMATION_UNSPECIFIED;
 import static android.view.WindowManager.TRANSIT_CHANGE;
 import static android.view.WindowManager.TRANSIT_CLOSE;
+import static android.view.WindowManager.TRANSIT_TO_FRONT;
+import static android.view.WindowManager.TRANSIT_TO_BACK;
 import static android.view.WindowManager.TRANSIT_KEYGUARD_UNOCCLUDE;
 import static android.view.WindowManager.TRANSIT_RELAUNCH;
 import static android.window.TransitionInfo.FLAG_CROSS_PROFILE_OWNER_THUMBNAIL;
@@ -727,7 +729,10 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
                     (changeFlags & FLAG_SHOW_WALLPAPER) != 0);
         } else if (type == TRANSIT_KEYGUARD_UNOCCLUDE) {
             a = mTransitionAnimation.loadKeyguardUnoccludeAnimation();
-        } else if ( type == TRANSIT_CLOSE && overrideType == ANIM_NONE ){
+        } else if ( (type == TRANSIT_CLOSE 
+        || type == TRANSIT_TO_FRONT
+        || type == TRANSIT_TO_BACK
+        )&& overrideType == ANIM_NONE ){
             return null;
         } else if ((changeFlags & FLAG_IS_VOICE_INTERACTION) != 0) {
             if (isOpeningType) {
