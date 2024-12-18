@@ -38,6 +38,7 @@ import static android.view.WindowManager.LayoutParams.ROTATION_ANIMATION_ROTATE;
 import static android.view.WindowManager.LayoutParams.ROTATION_ANIMATION_SEAMLESS;
 import static android.view.WindowManager.LayoutParams.ROTATION_ANIMATION_UNSPECIFIED;
 import static android.view.WindowManager.TRANSIT_CHANGE;
+import static android.view.WindowManager.TRANSIT_CLOSE;
 import static android.view.WindowManager.TRANSIT_KEYGUARD_UNOCCLUDE;
 import static android.view.WindowManager.TRANSIT_RELAUNCH;
 import static android.window.TransitionInfo.FLAG_CROSS_PROFILE_OWNER_THUMBNAIL;
@@ -111,7 +112,7 @@ import com.android.wm.shell.common.TransactionPool;
 import com.android.wm.shell.protolog.ShellProtoLogGroup;
 import com.android.wm.shell.shared.TransitionUtil;
 import com.android.wm.shell.sysui.ShellInit;
-
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -726,6 +727,8 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
                     (changeFlags & FLAG_SHOW_WALLPAPER) != 0);
         } else if (type == TRANSIT_KEYGUARD_UNOCCLUDE) {
             a = mTransitionAnimation.loadKeyguardUnoccludeAnimation();
+        } else if ( type == TRANSIT_CLOSE && overrideType == ANIM_NONE ){
+            return null;
         } else if ((changeFlags & FLAG_IS_VOICE_INTERACTION) != 0) {
             if (isOpeningType) {
                 a = mTransitionAnimation.loadVoiceActivityOpenAnimation(enter);
@@ -766,6 +769,7 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
             a = loadAttributeAnimation(
                     type, info, change, wallpaperTransit, mTransitionAnimation, isDreamTransition);
         }
+        // Log.e("DefaultHandler", "loadAnimation():  type :" + type + ", overrideType :" + overrideType + ", changeMode :" + changeMode + ", a :" + a + ", isDreamTransition :" + isDreamTransition + "");
 
         if (a != null) {
             if (!a.isInitialized()) {
