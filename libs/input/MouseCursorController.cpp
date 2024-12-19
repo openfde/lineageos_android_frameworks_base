@@ -129,6 +129,10 @@ void MouseCursorController::fade(PointerControllerInterface::Transition transiti
     // Remove the inactivity timeout, since we are fading now.
     mContext.removeInactivityTimeout();
 
+    if(transition == PointerControllerInterface::Transition::GRADUAL){
+        return;
+    }
+
     // Start fading.
     if (transition == PointerControllerInterface::Transition::IMMEDIATE) {
         mLocked.pointerFadeDirection = 0;
