@@ -410,6 +410,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import android.content.Context;
 
 /**
  * An entry in the history task, representing an activity.
@@ -2294,6 +2295,14 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
                             return appContext;
                         });
         mCallerState = new ActivityCallerState(mAtmService);
+    }
+
+    public Context getContext(){
+        return mAtmService.mContext;
+    }
+
+    public String getPackageName(){
+        return packageName;
     }
 
     /**

@@ -275,6 +275,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import android.os.SystemProperties;
 
 /**
  * Utility class for keeping track of the WindowStates and other pertinent contents of a
@@ -4072,6 +4073,18 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         if (mFocusedApp == newFocus) {
             return false;
         }
+
+        if(newFocus != null){
+            String packageName = newFocus.getPackageName();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName);
+                }
+            });
+            thread.start();
+        }
+
         ProtoLog.i(WM_DEBUG_FOCUS_LIGHT, "setFocusedApp %s displayId=%d Callers=%s",
                 newFocus, getDisplayId(), Debug.getCallers(4));
         final Task oldTask = mFocusedApp != null ? mFocusedApp.getTask() : null;
@@ -4085,6 +4098,27 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         getInputMonitor().setFocusedAppLw(newFocus);
         updateTouchExcludeRegion();
         return true;
+    }
+
+    public void ConfigCompatibilityFeaturesTurnOffSimulatedTouch(@NonNull Context context, String packageName){
+        boolean isTurnOffSimulatedTouch = false;
+        String resultStr = null;
+        if(context != null){
+            //resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isTurnOffSimulatedTouch");
+            Slog.d(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query resultStr: " + resultStr);
+        }else{
+            Slog.e(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query failed, context is null.");
+        }
+        if(resultStr != null && resultStr.contains("true")){
+            isTurnOffSimulatedTouch = true;
+        }
+        if(isTurnOffSimulatedTouch){
+            SystemProperties.set("fde.click_as_touch", "false");
+            Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch false");
+        }else{
+            SystemProperties.set("fde.click_as_touch", "true");
+            Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch true");
+        }
     }
 
     /** Update the top activity and the uids of non-finishing activity */
