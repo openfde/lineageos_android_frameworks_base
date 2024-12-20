@@ -408,7 +408,7 @@ class DragResizeInputListener implements AutoCloseable {
             boolean result = false;
             // Check if this is a touch event vs mouse event.
             // Touch events are tracked in four corners. Other events are tracked in resize edges.
-            boolean isTouch = (e.getSource() & SOURCE_TOUCHSCREEN) == SOURCE_TOUCHSCREEN;
+            boolean isTouch = false;//(e.getSource() & SOURCE_TOUCHSCREEN) == SOURCE_TOUCHSCREEN;
             switch (e.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN: {
                     float x = e.getX(0);
