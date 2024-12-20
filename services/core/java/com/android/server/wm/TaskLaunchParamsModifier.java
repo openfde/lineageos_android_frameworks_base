@@ -72,6 +72,9 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
     private static final int DEFAULT_PORTRAIT_PHONE_WIDTH_DP = 412;
     private static final int DEFAULT_PORTRAIT_PHONE_HEIGHT_DP = 732;
 
+    private static final int MIN_WIDTH_APP_OFFSET_TO = 300;
+    private static final int MIN_HEIGHT_APP_OFFSET_TO = 300;
+
     // Allowance of size matching.
     private static final int EPSILON = 2;
 
@@ -945,8 +948,12 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
             default:
                 verticalOffset = 0;
         }
-
-        inOutBounds.offset(horizontalOffset, verticalOffset);
+        if(inOutBounds.left + MIN_WIDTH_APP_OFFSET_TO > availableRect.right
+                || inOutBounds.top + MIN_HEIGHT_APP_OFFSET_TO > availableRect.bottom) {
+            inOutBounds.offset(- availableRect.width()/2, - availableRect.height()/3);
+        } else {
+            inOutBounds.offset(horizontalOffset, verticalOffset);
+        }
     }
 
     private void initLogBuilder(Task task, ActivityRecord activity) {
