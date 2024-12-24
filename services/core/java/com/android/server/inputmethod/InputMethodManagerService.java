@@ -4090,7 +4090,7 @@ public final class InputMethodManagerService extends IInputMethodManager.Stub
         }
 
         mCurFocusedWindow = windowToken;
-        mCurFocusedWindowSoftInputMode = LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
+        mCurFocusedWindowSoftInputMode = softInputMode;
         mCurFocusedWindowClient = cs;
         mCurFocusedWindowEditorInfo = editorInfo;
         mCurPerceptible = true;
