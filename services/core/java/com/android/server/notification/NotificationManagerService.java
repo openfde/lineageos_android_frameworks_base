@@ -6336,7 +6336,9 @@ public class NotificationManagerService extends SystemService {
                         android.Manifest.permission.INTERACT_ACROSS_USERS,
                         "setNotificationListenerAccessGrantedForUser for user " + userId);
             }
-            checkNotificationListenerAccess();
+            if( !listener.getPackageName().contains("boringdroid")){
+                checkNotificationListenerAccess();
+            }
             if (granted && listener.flattenToString().length()
                     > NotificationManager.MAX_SERVICE_COMPONENT_NAME_LENGTH) {
                 throw new IllegalArgumentException(
@@ -11321,7 +11323,7 @@ public class NotificationManagerService extends SystemService {
         if (requiredPermission != null) {
             try {
                 if (mPackageManager.checkPermission(requiredPermission, pkg, userId)
-                        != PackageManager.PERMISSION_GRANTED) {
+                        != PackageManager.PERMISSION_GRANTED || pkg.contains("boringdroid")) {
                     canUseManagedServices = false;
                 }
             } catch (RemoteException e) {
