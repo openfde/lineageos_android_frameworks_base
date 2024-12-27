@@ -2848,6 +2848,9 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
     @ScreenOrientation
     @Override
     int getOrientation() {
+        if(true){
+            return SCREEN_ORIENTATION_LANDSCAPE;
+        }
         if (mWmService.mDisplayFrozen) {
             if (mWmService.mPolicy.isKeyguardLocked()) {
                 // Use the last orientation the while the display is frozen with the keyguard
