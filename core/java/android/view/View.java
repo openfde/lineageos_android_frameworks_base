@@ -4157,6 +4157,13 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      */
     private int mOverScrollMode;
 
+
+    /**
+     * hard code this view to set view visible frame rect.bottom as height, which in freeform mode bottom is not
+     */
+    private static final String SET_PACKAGE_BOTTOM_ASHEIGHT = "com.tencent.mm";
+    private static final String SET_VIEW_BOTTOM_ASHEIGHT = "LayoutListenerView";
+
     /**
      * The parent this view is attached to.
      * {@hide}
@@ -14844,6 +14851,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             outRect.top += insets.top;
             outRect.right -= insets.right;
             outRect.bottom -= insets.bottom;
+            if( getClass().getName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT) 
+                && getClass().getSimpleName().contains(SET_VIEW_BOTTOM_ASHEIGHT)){
+                outRect.bottom = outRect.bottom - outRect.top;
+            }
             return;
         }
         // The view is not attached to a display so we don't have a context.
