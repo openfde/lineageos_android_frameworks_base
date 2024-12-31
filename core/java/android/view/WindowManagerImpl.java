@@ -74,6 +74,11 @@ public final class WindowManagerImpl implements WindowManager {
     public final Context mContext;
     private final Window mParentWindow;
 
+    /**
+     * this window do not show on phone, so ban it to simply edittext location method work in View.java
+     */
+    private static final String BAN_WINDOW_TITILE = "KeyboardWindow@";
+    private static final String SET_PACKAGE_BOTTOM_ASHEIGHT = "com.tencent.mm";
     private IBinder mDefaultToken;
 
     public WindowManagerImpl(Context context) {
@@ -105,6 +110,14 @@ public final class WindowManagerImpl implements WindowManager {
 
     @Override
     public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+        
+        if(params instanceof WindowManager.LayoutParams 
+            && mContext.getPackageName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT)){
+            WindowManager.LayoutParams p = (WindowManager.LayoutParams)params;
+            if((p.getTitle() != null && p.getTitle().toString().contains(BAN_WINDOW_TITILE))){
+                return;
+            }
+        }
         applyDefaultToken(params);
         mGlobal.addView(view, params, mContext.getDisplayNoVerify(), mParentWindow,
                 mContext.getUserId());
@@ -257,7 +270,6 @@ public final class WindowManagerImpl implements WindowManager {
                 | SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         params.setFitInsetsTypes(0);
         params.setFitInsetsSides(0);
-
         return getWindowInsetsFromServer(params, bounds);
     }
 
