@@ -84,7 +84,9 @@ class TaskOperations {
     void minimizeTask(WindowContainerToken taskToken) {
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.reorder(taskToken, false);
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        //region OpenFDE close minimize animation
+        if (false/*Transitions.ENABLE_SHELL_TRANSITIONS*/) {
+        //region end
             mTransitionStarter.startMinimizedModeTransition(wct);
         } else {
             mSyncQueue.queue(wct);
