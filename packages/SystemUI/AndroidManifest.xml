@@ -19,7 +19,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
         package="com.android.systemui"
-        android:sharedUserId="android.uid.systemui"
+        android:sharedUserId="android.uid.system"
         xmlns:tools="http://schemas.android.com/tools"
         coreApp="true">
 
@@ -34,7 +34,11 @@
 
     <!-- Used to read wallpaper -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	
+	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
+	
     <!-- Used to read storage for all users -->
     <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
@@ -297,6 +301,7 @@
         android:defaultToDeviceProtectedStorage="true"
         android:directBootAware="true"
         tools:replace="android:appComponentFactory"
+		android:sharedUserId="android.uid.system"
         android:appComponentFactory=".SystemUIAppComponentFactory">
         <!-- Keep theme in sync with SystemUIApplication.onCreate().
              Setting the theme on the application does not affect views inflated by services.
