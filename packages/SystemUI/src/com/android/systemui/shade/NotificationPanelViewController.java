@@ -791,7 +791,7 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
         });
         mAmbientState = ambientState;
         mView = view;
-        mView.setEnabled(false);
+       // mView.setEnabled(false);
         mStatusBarKeyguardViewManager = statusBarKeyguardViewManager;
         mLockscreenGestureLogger = lockscreenGestureLogger;
         mShadeExpansionStateManager = shadeExpansionStateManager;

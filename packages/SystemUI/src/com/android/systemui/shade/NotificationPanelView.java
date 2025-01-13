@@ -86,10 +86,10 @@ public final class NotificationPanelView extends FrameLayout {
         return !mDozing;
     }
 
-    @Override
-    public void setEnabled(boolean enabled){
-        super.setEnabled(false);
-    }
+   // @Override
+   // public void setEnabled(boolean enabled){
+   //     super.setEnabled(false);
+   // }
 
     void setRtlChangeListener(RtlChangeListener listener) {
         mRtlChangeListener = listener;
