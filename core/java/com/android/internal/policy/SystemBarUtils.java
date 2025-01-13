@@ -49,7 +49,9 @@ public final class SystemBarUtils {
         final int waterfallInsetTop = cutout == null ? 0 : cutout.getWaterfallInsets().top;
         // The status bar height should be:
         // Max(top cutout size, (status bar default height + waterfall top size))
-        return Math.max(safeInsetTop, defaultSize + waterfallInsetTop);
+        // return Math.max(safeInsetTop, defaultSize + waterfallInsetTop);
+	//fde after hide status bar, must set inset height 0; 
+	return 0;
     }
 
     /**
@@ -77,7 +79,10 @@ public final class SystemBarUtils {
                 context.getResources().getDimensionPixelSize(R.dimen.status_bar_height_default);
         // The status bar height should be:
         // Max(top cutout size, (status bar default height + waterfall top size))
-        return Math.max(insets.top, defaultSize + waterfallInsets.top);
+        // return Math.max(insets.top, defaultSize + waterfallInsets.top);
+    	
+	//fde after hide status bar, must set inset height 0; 
+	return 0;
     }
 
     /**
