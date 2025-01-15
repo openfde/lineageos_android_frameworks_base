@@ -629,7 +629,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             mAllowCaptionInputFallthrough = false;
 
             mShadowRadiusId = Resources.ID_NULL;
-            mCornerRadius = 0;
+            mCornerRadius = 8;
 
             mApplyStartTransactionOnDraw = false;
             mSetTaskPositionAndCrop = false;
