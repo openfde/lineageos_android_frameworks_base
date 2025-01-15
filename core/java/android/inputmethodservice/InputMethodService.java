@@ -735,6 +735,13 @@ public class InputMethodService extends AbstractInputMethodService {
             info.touchableRegion.set(mTmpInsets.touchableRegion);
             info.setTouchableInsets(mTmpInsets.touchableInsets);
         }
+        // region @OpenFDE
+        View rootView = mInputFrame.getRootView();
+        info.contentInsets.top = rootView.getHeight();
+        info.visibleInsets.top = rootView.getHeight();
+        Log.d(TAG,"fde_input info.contentInsets.top: " + info.contentInsets.top);
+        Log.d(TAG,"fde_input info.visibleInsets.top: " + info.visibleInsets.top);
+        // endregion
         mNavigationBarController.updateTouchableInsets(mTmpInsets, info);
 
         if (mInputFrame != null) {
