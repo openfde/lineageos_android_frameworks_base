@@ -19,7 +19,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
         package="com.android.systemui"
-        android:sharedUserId="android.uid.systemui"
+        android:sharedUserId="android.uid.system"
         xmlns:tools="http://schemas.android.com/tools"
         coreApp="true">
 
@@ -315,6 +315,8 @@
             <action android:name="android.intent.action.CREATE_NOTE" />
         </intent>
     </queries>
+	
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <!-- Permission to register process observer -->
     <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
@@ -369,6 +371,7 @@
     <protected-broadcast android:name="com.android.systemui.action.ACTION_LAUNCH_MEDIA_OUTPUT_BROADCAST_DIALOG" />
     <protected-broadcast android:name="com.android.systemui.STARTED" />
 
+
     <application
         android:name=".SystemUIApplication"
         android:persistent="true"
@@ -380,6 +383,7 @@
         android:icon="@drawable/android14_patch_adaptive"
         android:process="com.android.systemui"
         android:supportsRtl="true"
+	android:sharedUserId="android.uid.system"
         android:theme="@style/Theme.SystemUI"
         android:defaultToDeviceProtectedStorage="true"
         android:directBootAware="true"
@@ -760,6 +764,7 @@
 
         <service
             android:name=".keyguard.KeyguardService"
+			android:enabled="true"
             android:exported="true" />
 
         <service
