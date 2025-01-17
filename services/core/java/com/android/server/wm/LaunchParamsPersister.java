@@ -380,6 +380,9 @@ class LaunchParamsPersister {
             if(magic == null){
                 return;
             }
+            if(magic.getTopNonFinishingActivity() == null){
+                return;
+            }
             final ComponentName magicName = magic.getTopNonFinishingActivity().mActivityComponent;
             PersistableLaunchParams magicParams = map.get(magicName);
             if(magicParams != null && magicParams.mAdditionalMagicWindowWidth != 0){
