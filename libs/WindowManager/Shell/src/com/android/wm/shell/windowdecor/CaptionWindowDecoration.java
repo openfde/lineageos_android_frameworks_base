@@ -280,6 +280,12 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                         ? R.color.decor_button_light_color
                         : R.color.decor_button_dark_color;
 
+        if(Color.valueOf(captionColor).luminance() < 0.5){
+            captionDrawable.setColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_dark));
+        }else{
+            captionDrawable.setColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_light));
+        }
+
         final ColorStateList buttonTintColor =
                 caption.getResources().getColorStateList(buttonTintColorRes, null /* theme */);
 
