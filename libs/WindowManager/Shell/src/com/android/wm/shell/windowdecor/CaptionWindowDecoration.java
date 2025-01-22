@@ -20,6 +20,8 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.app.WindowConfiguration;
 import android.app.WindowConfiguration.WindowingMode;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -31,6 +33,7 @@ import android.view.SurfaceControl;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.window.WindowContainerTransaction;
+import android.widget.TextView;
 
 import com.android.wm.shell.R;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -252,6 +255,15 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         minimize.setOnClickListener(mOnCaptionButtonClickListener);
         final View maximize = caption.findViewById(R.id.maximize_window);
         maximize.setOnClickListener(mOnCaptionButtonClickListener);
+        PackageManager pm = mContext.getApplicationContext().getPackageManager();
+        final TextView applicationLable = caption.findViewById(R.id.application_lable);
+        if(mTaskInfo != null && mTaskInfo.topActivityInfo != null
+            && mTaskInfo.topActivityInfo.applicationInfo != null){
+            CharSequence appName = pm.getApplicationLabel(mTaskInfo.topActivityInfo.applicationInfo);
+            applicationLable.setText(appName);
+        }else{
+            applicationLable.setText("");
+        }
     }
 
     void setCaptionColor(int captionColor) {
@@ -267,12 +279,16 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 Color.valueOf(captionColor).luminance() < 0.5
                         ? R.color.decor_button_light_color
                         : R.color.decor_button_dark_color;
+
         final ColorStateList buttonTintColor =
                 caption.getResources().getColorStateList(buttonTintColorRes, null /* theme */);
 
         final View back = caption.findViewById(R.id.back_button);
         final VectorDrawable backBackground = (VectorDrawable) back.getBackground();
         backBackground.setTintList(buttonTintColor);
+
+        final TextView applicationLable = caption.findViewById(R.id.application_lable);
+        applicationLable.setTextColor(buttonTintColor);
 
         final View minimize = caption.findViewById(R.id.minimize_window);
         final VectorDrawable minimizeBackground = (VectorDrawable) minimize.getBackground();
