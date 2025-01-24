@@ -246,7 +246,7 @@ import com.android.internal.view.BaseSurfaceHolder;
 import com.android.internal.view.RootViewSurfaceTaker;
 import com.android.internal.view.SurfaceCallbackHelper;
 import com.android.modules.expresslog.Counter;
-
+import android.app.Activity;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -2099,6 +2099,9 @@ public final class ViewRootImpl implements ViewParent,
         mInsetsController.onStateChanged(insetsState);
         final float compatScale = frames.compatScale;
         final boolean frameChanged = !mWinFrame.equals(frame);
+        if(frameChanged && getActivity() != null){
+            getActivity().onConfigurationChanged(mLastConfigurationFromResources);
+        }
         final boolean configChanged = !mLastReportedMergedConfiguration.equals(mergedConfiguration);
         final boolean attachedFrameChanged =
                 !Objects.equals(mTmpFrames.attachedFrame, attachedFrame);
@@ -2150,6 +2153,20 @@ public final class ViewRootImpl implements ViewParent,
             forceLayout(mView);
         }
         requestLayout();
+    }
+
+    private Activity getActivity(){
+        ViewGroup viewGroup = null;
+        if(mView != null && mView instanceof ViewGroup){
+            viewGroup = (ViewGroup) mView;
+        }
+
+        Context ctx;
+        if(viewGroup != null && viewGroup.getChildAt(0) != null && (viewGroup.getChildAt(0).getContext() instanceof  Activity)){
+            ctx = viewGroup.getChildAt(0).getContext();
+            return ((Activity)ctx);
+        }
+        return null;
     }
 
     private final DisplayListener mDisplayListener = new DisplayListener() {
