@@ -40,6 +40,7 @@ import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayLayout;
 import com.android.wm.shell.common.SyncTransactionQueue;
+import android.util.Log;
 
 /**
  * Defines visuals and behaviors of a window decoration of a caption bar and shadows. It works with
@@ -307,6 +308,20 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         final View close = caption.findViewById(R.id.close_window);
         final VectorDrawable closeBackground = (VectorDrawable) close.getBackground();
         closeBackground.setTintList(buttonTintColor);
+    }
+
+    void setCaptionLable(){
+        if (mResult.mRootView == null) {
+            return;
+        }
+
+        final View caption = mResult.mRootView.findViewById(R.id.caption);
+        final TextView applicationLable = caption.findViewById(R.id.application_lable);
+        if(mTaskInfo != null && mTaskInfo.taskDescription != null){
+            if(mTaskInfo.taskDescription.getLabel() != null){
+                applicationLable.setText(mTaskInfo.taskDescription.getLabel());
+            }
+        }
     }
 
     boolean isHandlingDragResize() {

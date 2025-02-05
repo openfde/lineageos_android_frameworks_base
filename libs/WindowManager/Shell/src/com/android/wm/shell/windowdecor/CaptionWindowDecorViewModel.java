@@ -104,6 +104,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
+        setCaptionLable(decoration);
     }
 
     @Override
@@ -153,6 +154,10 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private void setupCaptionColor(RunningTaskInfo taskInfo, CaptionWindowDecoration decoration) {
         final int statusBarColor = taskInfo.taskDescription.getStatusBarColor();
         decoration.setCaptionColor(statusBarColor);
+    }
+
+    private void setCaptionLable(CaptionWindowDecoration decoration){
+        decoration.setCaptionLable();
     }
 
     private boolean shouldShowWindowDecor(RunningTaskInfo taskInfo) {

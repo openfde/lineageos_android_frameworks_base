@@ -7704,6 +7704,8 @@ public class Activity extends ContextThemeWrapper
      */
     public void setTitle(CharSequence title) {
         mTitle = title;
+        mTaskDescription.setLabel(String.valueOf(title));
+        setTaskDescription(mTaskDescription);
         onTitleChanged(title, mTitleColor);
 
         if (mParent != null) {
