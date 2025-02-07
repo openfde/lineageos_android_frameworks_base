@@ -1556,6 +1556,9 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
 
     /** Applies auto dimming animation on navigation bar when touched. */
     public void touchAutoDim() {
+        if(true){
+            return;
+        }
         getBarTransitions().setAutoDim(false);
         mHandler.removeCallbacks(mAutoDim);
         int state = mStatusBarStateController.getState();
