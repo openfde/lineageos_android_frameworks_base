@@ -3349,6 +3349,57 @@ static jboolean android_media_AudioSystem_isBluetoothVariableLatencyEnabled(JNIE
     return enabled;
 }
 
+static jstring
+android_media_AudioSystem_getDevs(JNIEnv *env, jobject thiz, jboolean input)
+{
+    return env->NewStringUTF(AudioSystem::getDevs(input).c_str());
+}
+
+static jint
+android_media_AudioSystem_setDevVolume(JNIEnv *env, jobject thiz, jboolean input, 
+jstring devName, jfloat volume)
+{
+    const jchar* c_devName = env->GetStringCritical(devName, 0);
+    String8 c_devName8;
+    if (c_devName) {
+        c_devName8 = String8(
+            reinterpret_cast<const char16_t*>(c_devName),
+            env->GetStringLength(devName));
+        env->ReleaseStringCritical(devName, c_devName);
+    }
+    return (jint) check_AudioSystem_Command(AudioSystem::setDevVolume(input, c_devName8, volume));
+}
+
+static jint
+android_media_AudioSystem_setDevMute(JNIEnv *env, jobject thiz, jboolean input, 
+jstring devName, jboolean mute)
+{
+    const jchar* c_devName = env->GetStringCritical(devName, 0);
+    String8 c_devName8;
+    if (c_devName) {
+        c_devName8 = String8(
+            reinterpret_cast<const char16_t*>(c_devName),
+            env->GetStringLength(devName));
+        env->ReleaseStringCritical(devName, c_devName);
+    }
+    return (jint) check_AudioSystem_Command(AudioSystem::setDevMute(input, c_devName8, mute));
+}
+
+static jstring
+android_media_AudioSystem_setDefaultDev(JNIEnv *env, jobject thiz, jboolean input, 
+jstring devName, jboolean needInfo)
+{
+    const jchar* c_devName = env->GetStringCritical(devName, 0);
+    String8 c_devName8;
+    if (c_devName) {
+        c_devName8 = String8(
+            reinterpret_cast<const char16_t*>(c_devName),
+            env->GetStringLength(devName));
+        env->ReleaseStringCritical(devName, c_devName);
+    }
+    return env->NewStringUTF(AudioSystem::setDefaultDev(input, c_devName8, needInfo).c_str());
+}
+
 // ----------------------------------------------------------------------------
 
 #define MAKE_AUDIO_SYSTEM_METHOD(x) \
@@ -3520,7 +3571,11 @@ static const JNINativeMethod gMethods[] =
                                 android_media_AudioSystem_clearPreferredMixerAttributes),
          MAKE_AUDIO_SYSTEM_METHOD(supportsBluetoothVariableLatency),
          MAKE_AUDIO_SYSTEM_METHOD(setBluetoothVariableLatencyEnabled),
-         MAKE_AUDIO_SYSTEM_METHOD(isBluetoothVariableLatencyEnabled)};
+         MAKE_AUDIO_SYSTEM_METHOD(isBluetoothVariableLatencyEnabled),
+         {"getDevs", "(Z)Ljava/lang/String;", (void *)android_media_AudioSystem_getDevs},
+         {"setDevVolume", "(ZLjava/lang/String;F)I", (void *)android_media_AudioSystem_setDevVolume},
+         {"setDevMute", "(ZLjava/lang/String;Z)I", (void *)android_media_AudioSystem_setDevMute},
+         {"setDefaultDev", "(ZLjava/lang/String;Z)Ljava/lang/String;", (void *)android_media_AudioSystem_setDefaultDev}};
 
 static const JNINativeMethod gEventHandlerMethods[] =
         {MAKE_JNI_NATIVE_METHOD("native_setup", "(Ljava/lang/Object;)V",

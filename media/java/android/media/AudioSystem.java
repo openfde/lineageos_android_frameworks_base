@@ -2645,4 +2645,13 @@ public class AudioSystem
      * @hide
      */
     public static native boolean isBluetoothVariableLatencyEnabled();
+
+    /** @hide */
+    public static native String getDevs(boolean input);
+    /** @hide */
+    public static native int setDevVolume(boolean input, String devNmae, float volume);
+    /** @hide */
+    public static native int setDevMute(boolean input, String devName, boolean mute);
+    /** @hide */
+    public static native String setDefaultDev(boolean input, String devNmae, boolean needInfo);
 }
