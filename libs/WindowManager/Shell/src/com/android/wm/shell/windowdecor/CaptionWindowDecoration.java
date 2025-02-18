@@ -252,6 +252,9 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         close.setOnClickListener(mOnCaptionButtonClickListener);
         final View back = caption.findViewById(R.id.back_button);
         back.setOnClickListener(mOnCaptionButtonClickListener);
+        final View fullscreen = caption.findViewById(R.id.fullscreen_window);
+        fullscreen.setOnClickListener(mOnCaptionButtonClickListener);
+        fullscreen.setOnTouchListener(mOnCaptionTouchListener);
         final View minimize = caption.findViewById(R.id.minimize_window);
         minimize.setOnClickListener(mOnCaptionButtonClickListener);
         final View maximize = caption.findViewById(R.id.maximize_window);
@@ -296,6 +299,9 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
 
         final TextView applicationLable = caption.findViewById(R.id.application_lable);
         applicationLable.setTextColor(buttonTintColor);
+        final View fullscreen = caption.findViewById(R.id.fullscreen_window);
+        final VectorDrawable fullscreenBackground = (VectorDrawable) fullscreen.getBackground();
+        fullscreenBackground.setTintList(buttonTintColor);
 
         final View minimize = caption.findViewById(R.id.minimize_window);
         final VectorDrawable minimizeBackground = (VectorDrawable) minimize.getBackground();
@@ -317,6 +323,16 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
 
         final View caption = mResult.mRootView.findViewById(R.id.caption);
         final TextView applicationLable = caption.findViewById(R.id.application_lable);
+
+        PackageManager pm = mContext.getApplicationContext().getPackageManager();
+        if(mTaskInfo != null && mTaskInfo.topActivityInfo != null
+            && mTaskInfo.topActivityInfo.applicationInfo != null){
+            CharSequence appName = pm.getApplicationLabel(mTaskInfo.topActivityInfo.applicationInfo);
+            applicationLable.setText(appName);
+        }else{
+            applicationLable.setText("");
+        }
+
         if(mTaskInfo != null && mTaskInfo.taskDescription != null){
             if(mTaskInfo.taskDescription.getLabel() != null){
                 applicationLable.setText(mTaskInfo.taskDescription.getLabel());

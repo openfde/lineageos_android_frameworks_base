@@ -480,6 +480,9 @@ public class DisplayPolicy {
                 @Override
                 public void onSwipeFromTop() {
                     synchronized (mLock) {
+                        if(SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
+                            return;
+                        }
                         requestTransientBars(mTopGestureHost,
                                 getControllableInsets(mTopGestureHost).top > 0);
                     }
@@ -488,6 +491,9 @@ public class DisplayPolicy {
                 @Override
                 public void onSwipeFromBottom() {
                     synchronized (mLock) {
+                        if(SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
+                            return;
+                        }
                         requestTransientBars(mBottomGestureHost,
                                 getControllableInsets(mBottomGestureHost).bottom > 0);
                     }

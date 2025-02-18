@@ -45,6 +45,12 @@
         android:elevation="2dp"/>
     <Button
         style="@style/CaptionButtonStyle"
+        android:id="@+id/fullscreen_window"
+        android:layout_gravity="center_vertical|end"
+        android:background="@drawable/decor_fullscreen_button_dark"
+        android:duplicateParentState="true"/>
+    <Button
+        style="@style/CaptionButtonStyle"
         android:id="@+id/minimize_window"
         android:layout_gravity="center_vertical|end"
         android:contentDescription="@string/minimize_button_text"

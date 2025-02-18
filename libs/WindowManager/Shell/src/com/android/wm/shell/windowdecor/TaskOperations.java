@@ -57,6 +57,25 @@ class TaskOperations {
         sendBackEvent(KeyEvent.ACTION_UP, displayId);
     }
 
+    void injectKey(int displayId, int key){
+        sendKeyEvent(KeyEvent.ACTION_DOWN, key, displayId);
+        sendKeyEvent(KeyEvent.ACTION_UP, key, displayId);
+    }
+
+    private void sendKeyEvent(int action, int key, int displayId){
+        final long when = SystemClock.uptimeMillis();
+        final KeyEvent ev = new KeyEvent(when, when, action, key,
+                0 /* repeat */, 0 /* metaState */, KeyCharacterMap.VIRTUAL_KEYBOARD,
+                0 /* scancode */, KeyEvent.FLAG_FROM_SYSTEM | KeyEvent.FLAG_VIRTUAL_HARD_KEY,
+                InputDevice.SOURCE_KEYBOARD);
+
+        ev.setDisplayId(displayId);
+        if (!mContext.getSystemService(InputManager.class)
+                .injectInputEvent(ev, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC)) {
+            Log.e(TAG, "Inject input event fail");
+        }
+    }
+
     private void sendBackEvent(int action, int displayId) {
         final long when = SystemClock.uptimeMillis();
         final KeyEvent ev = new KeyEvent(when, when, action, KeyEvent.KEYCODE_BACK,
@@ -94,6 +113,7 @@ class TaskOperations {
     }
 
     void maximizeTask(RunningTaskInfo taskInfo) {
+        Log.d(TAG, "maximizeTask RunningTaskInfo taskId: " + taskInfo.taskId);
         WindowContainerTransaction wct = new WindowContainerTransaction();
         int targetWindowingMode = taskInfo.getWindowingMode() != WINDOWING_MODE_FULLSCREEN
                 ? WINDOWING_MODE_FULLSCREEN : WINDOWING_MODE_FREEFORM;
@@ -110,5 +130,9 @@ class TaskOperations {
         } else {
             mSyncQueue.queue(wct);
         }
+    }
+
+    boolean isTaskMaximized(RunningTaskInfo taskInfo){
+        return taskInfo.getWindowingMode() == WINDOWING_MODE_FULLSCREEN;
     }
 }

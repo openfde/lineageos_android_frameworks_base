@@ -120,6 +120,8 @@ import com.android.internal.widget.floatingtoolbar.FloatingToolbar;
 
 import java.util.List;
 import java.util.function.Consumer;
+import android.os.SystemProperties;
+import android.content.Intent;
 
 /** @hide */
 public class DecorView extends FrameLayout implements RootViewSurfaceTaker, WindowCallbacks {
@@ -394,6 +396,53 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         if (!mWindow.isDestroyed()) {
+            // region @fde
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
+                Log.d(TAG, "dispatchKeyEvent KEYCODE_F11");
+                if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+                    if(!SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
+                        SystemProperties.set("com.fde.enable_fullscreen", "true");
+                        final WindowInsetsController insetsController = getWindowInsetsController();
+                        if (insetsController != null) {
+                            insetsController.hide(WindowInsets.Type.statusBars());
+                            insetsController.hide(WindowInsets.Type.navigationBars());
+                            insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                        }
+                        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
+                        intent.putExtra("mode", 1);
+                        mContext.sendBroadcast(intent);
+                    }else{
+                        SystemProperties.set("com.fde.enable_fullscreen", "false");
+                        final WindowInsetsController insetsController = getWindowInsetsController();
+                        if (insetsController != null) {
+                            insetsController.show(WindowInsets.Type.statusBars());
+                            insetsController.show(WindowInsets.Type.navigationBars());
+                            insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+                        }
+                        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
+                        intent.putExtra("mode", 0);
+                        mContext.sendBroadcast(intent);
+                    }
+                    return true;
+                }
+            }
+            if (keyCode == KeyEvent.KEYCODE_ESCAPE && isDown && (event.getRepeatCount() == 0)) {
+                Log.d(TAG, "dispatchKeyEvent KEYCODE_ESCAPE");
+                if(SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
+                    SystemProperties.set("com.fde.enable_fullscreen", "false");
+                    final WindowInsetsController insetsController = getWindowInsetsController();
+                    if (insetsController != null) {
+                        insetsController.show(WindowInsets.Type.statusBars());
+                        insetsController.show(WindowInsets.Type.navigationBars());
+                        insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+                    }
+                    Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
+                    intent.putExtra("mode", 0);
+                    mContext.sendBroadcast(intent);
+                    return true;
+                }
+            }
+            // end region
             final Window.Callback cb = mWindow.getCallback();
             final boolean handled = cb != null && mFeatureId < 0 ? cb.dispatchKeyEvent(event)
                     : super.dispatchKeyEvent(event);
@@ -2291,6 +2340,25 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         } else {
             decorCaptionView = null;
         }
+        // region @fde
+        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+            if(!SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
+                final WindowInsetsController insetsController = getWindowInsetsController();
+                if (insetsController != null) {
+                    insetsController.show(WindowInsets.Type.statusBars());
+                    insetsController.show(WindowInsets.Type.navigationBars());
+                    insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+                }
+            }else{
+                final WindowInsetsController insetsController = getWindowInsetsController();
+                if (insetsController != null) {
+                    insetsController.hide(WindowInsets.Type.statusBars());
+                    insetsController.hide(WindowInsets.Type.navigationBars());
+                    insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                }
+            }
+        }
+        // end region
 
         // Tell the decor if it has a visible caption.
         enableCaption(decorCaptionView != null);
