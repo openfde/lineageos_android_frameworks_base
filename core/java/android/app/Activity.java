@@ -1141,6 +1141,11 @@ public class Activity extends ContextThemeWrapper
             setTaskDescription(mTaskDescription);
         }
 
+        @Override
+        public boolean moveActivityTaskToBack(boolean nonRoot) {
+            return moveTaskToBack(nonRoot);
+        }
+
     };
 
     private static native String getDlWarning();
