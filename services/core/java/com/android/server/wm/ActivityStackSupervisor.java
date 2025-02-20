@@ -1771,7 +1771,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
         // Determine if the process(es) for this task should be killed.
         final String pkg = component.getPackageName();
-        Slog.w(TAG,"fde pkg: " + pkg);
+        Slog.w(TAG,"fde pkg: " + pkg + ", isRemovedByDecorCaption: " + isRemovedByDecorCaption);
         ArrayList<Object> procsToKill = new ArrayList<>();
         ArrayMap<String, SparseArray<WindowProcessController>> pmap =
                 mService.mProcessNames.getMap();
@@ -1792,7 +1792,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     continue;
                 }
 
-                if (!proc.shouldKillProcessForRemovedTask(task)) {
+                if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByDecorCaption) {
                     // Don't kill process(es) that has an activity in a different task that is also
                     // in recents, or has an activity not stopped.
                     return;
