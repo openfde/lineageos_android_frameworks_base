@@ -67,6 +67,16 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private int mRunningTaskId;
 
     private final SparseArray<CaptionWindowDecoration> mWindowDecorByTaskId = new SparseArray<>();
+    private final SparseArray<Boolean> mLastSavedStateIsMaximizedByTaskId = new SparseArray<>();
+    private final SparseArray<Boolean> mIsFullscreenEnabledByTaskId = new SparseArray<>();
+    private class UpdateWindowDecorationRunnable implements Runnable {
+        @Override
+        public void run() {
+            Log.d(TAG, "UpdateWindowDecorationRunnable start");
+            updateWindowDecoration();
+        }
+    }
+    private final UpdateWindowDecorationRunnable mUpdateWindowDecorationRunnable = new UpdateWindowDecorationRunnable();
 
     private final BroadcastReceiver mFullscreenEnabledDisabled  = new BroadcastReceiver() {
         @Override
@@ -79,33 +89,38 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                     case 0:
                         Log.d(TAG,"onReceive 0 disable fullscreen mRunningTaskId: " + mRunningTaskId);
                         if(taskInfo != null){
-                            Log.e("pengtg", "mLastSavedStateIsMaximized: " + mLastSavedStateIsMaximized);
+                            mIsFullscreenEnabledByTaskId.put(mRunningTaskId, false);
+                            mLastSavedStateIsMaximized = mLastSavedStateIsMaximizedByTaskId.get(mRunningTaskId, false);
+                            Log.d(TAG, "mLastSavedStateIsMaximized: " + mLastSavedStateIsMaximized);
                             if(!mLastSavedStateIsMaximized){
                                 mTaskOperations.maximizeTask(taskInfo);
                             }else{
-                                mMainHandler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        updateWindowDecoration();
-                                    }
-                                }, 300);
+                                mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
+                                mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
                             }
                         }
                         break;
                     case 1:
                         Log.d(TAG,"onReceive 1 enable fullscreen mRunningTaskId: " + mRunningTaskId);
                         if(taskInfo != null){
-                            mLastSavedStateIsMaximized = mTaskOperations.isTaskMaximized(taskInfo);
-                            Log.e("pengtg", "mLastSavedStateIsMaximized: " + mLastSavedStateIsMaximized);
-                            if(!mLastSavedStateIsMaximized){
+                            if(!mIsFullscreenEnabledByTaskId.get(mRunningTaskId, false)){
+                                mIsFullscreenEnabledByTaskId.put(mRunningTaskId, true);
+                                mLastSavedStateIsMaximized = mTaskOperations.isTaskMaximized(taskInfo);
+                                mLastSavedStateIsMaximizedByTaskId.put(mRunningTaskId, mLastSavedStateIsMaximized);
+                            }
+                            Log.d(TAG, "mLastSavedStateIsMaximized: " + mLastSavedStateIsMaximized);
+                            if(!mTaskOperations.isTaskMaximized(taskInfo)){
                                 mTaskOperations.maximizeTask(taskInfo);
                             }
-                            mMainHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateWindowDecoration();
-                                }
-                            }, 300);
+                            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
+                            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
+                        }
+                        break;
+                    case 2:
+                        Log.d(TAG,"onReceive 2 mRunningTaskId: " + mRunningTaskId);
+                        if(taskInfo != null){
+                            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
+                            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
                         }
                         break;
                 }
@@ -176,6 +191,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if(taskInfo.isFocused){
             mRunningTaskId = taskInfo.taskId;
             Log.d(TAG,"onTaskInfoChanged mRunningTaskId: " + mRunningTaskId);
+            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
+            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
 
@@ -184,20 +201,6 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
         setCaptionLable(decoration);
-        if(taskInfo.isFocused){
-            mMainHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updateWindowDecoration();
-                }
-            }, 500);
-            mMainHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updateWindowDecoration();
-                }
-            }, 1000);
-        }
     }
 
     @Override
@@ -206,22 +209,13 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl taskSurface,
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
+        Log.d(TAG,"onTaskChanging taskInfo.taskId: " + taskInfo.taskId + ", taskInfo.isFocused: " + taskInfo.isFocused);
         if(taskInfo.isFocused){
             mRunningTaskId = taskInfo.taskId;
-            mMainHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updateWindowDecoration();
-                }
-            }, 500);
-            mMainHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updateWindowDecoration();
-                }
-            }, 1000);
+            Log.d(TAG,"onTaskChanging mRunningTaskId: " + mRunningTaskId);
+            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
+            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
         }
-        Log.d(TAG,"onTaskChanging taskInfo.taskId: " + taskInfo.taskId + ", taskInfo.isFocused: " + taskInfo.isFocused);
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
 
         if (!shouldShowWindowDecor(taskInfo)) {
@@ -245,6 +239,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
             Log.d(TAG,"onTaskClosing taskInfo.taskId: " + taskInfo.taskId);
+        mLastSavedStateIsMaximizedByTaskId.delete(taskInfo.taskId);
+        mIsFullscreenEnabledByTaskId.delete(taskInfo.taskId);
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
         if (decoration == null) return;
 
@@ -379,7 +375,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             }
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
                 final RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
-                if (!taskInfo.isFocused) {
+                if (taskInfo != null && !taskInfo.isFocused) {
                     final WindowContainerTransaction wct = new WindowContainerTransaction();
                     wct.reorder(mTaskToken, true /* onTop */);
                     mSyncQueue.queue(wct);
@@ -405,7 +401,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         @Override
         public boolean handleMotionEvent(@Nullable View v, MotionEvent e) {
             final RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
-            if (taskInfo.getWindowingMode() == WINDOWING_MODE_FULLSCREEN) {
+            if (taskInfo != null && taskInfo.getWindowingMode() == WINDOWING_MODE_FULLSCREEN) {
                 return false;
             }
             switch (e.getActionMasked()) {

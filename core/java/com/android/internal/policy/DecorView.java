@@ -103,6 +103,8 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
+import android.content.SharedPreferences;
+import android.os.Handler;
 
 import com.android.internal.R;
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
@@ -293,6 +295,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private Consumer<Boolean> mCrossWindowBlurEnabledListener;
 
     private final WearGestureInterceptionDetector mWearGestureInterceptionDetector;
+    // region @fde
+    private SharedPreferences mSharedPreferences = null;
+    // endregion
 
     DecorView(Context context, int featureId, PhoneWindow window,
             WindowManager.LayoutParams params) {
@@ -317,7 +322,23 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         updateLogTag(params);
 
         mLegacyNavigationBarBackgroundPaint.setColor(Color.BLACK);
-
+        // region @fde
+        try{
+            mSharedPreferences = context.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+        }catch(Exception e){
+            Log.e(TAG,"fde getSharedPreferences error: " + e);
+        }
+        boolean isTurnOnFullScreen = false;
+        if(mSharedPreferences != null){
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+        }
+        Log.d(TAG,"fde decorView init isTurnOnFullScreen current: " + isTurnOnFullScreen);
+        if(isTurnOnFullScreen){
+            startFullScreenWindow();
+        }else{
+            showStatusBarNavigationBar();
+        }
+        // endregion
         mWearGestureInterceptionDetector =
                 WearGestureInterceptionDetector.isEnabled(context)
                         ? new WearGestureInterceptionDetector(context, this)
@@ -369,6 +390,80 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         mBackgroundFallback.draw(this, mContentRoot, c, mWindow.mContentParent,
                 mStatusColorViewState.view, mNavigationColorViewState.view);
     }
+    Handler mHandler = new Handler();
+    private boolean mIgnoreKeyCodeF11 = false;
+
+    private class RestoreResponseF11KeyTriggeredRunnable implements Runnable {
+        @Override
+        public void run() {
+            mIgnoreKeyCodeF11 = false;
+        }
+    }
+
+    private class UpdateWindowStatusRunnable implements Runnable {
+        @Override
+        public void run() {
+            Log.d(TAG, "UpdateWindowStatusRunnable start");
+            updateWindowStatus();
+        }
+    }
+
+    private final RestoreResponseF11KeyTriggeredRunnable mRestoreResponseF11KeyTriggeredRunnable = new RestoreResponseF11KeyTriggeredRunnable();
+    private final UpdateWindowStatusRunnable mUpdateWindowStatusRunnable = new UpdateWindowStatusRunnable();
+
+    public void showStatusBarNavigationBar(){
+        final WindowInsetsController insetsController = getWindowInsetsController();
+        if (insetsController != null) {
+            insetsController.show(WindowInsets.Type.statusBars());
+            insetsController.show(WindowInsets.Type.navigationBars());
+            insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+        }
+    }
+
+    public void hideStatusBarNavigationBar(){
+        final WindowInsetsController insetsController = getWindowInsetsController();
+        if (insetsController != null) {
+            insetsController.hide(WindowInsets.Type.statusBars());
+            insetsController.hide(WindowInsets.Type.navigationBars());
+            insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        }
+    }
+
+    public void startFullScreenWindow(){
+        hideStatusBarNavigationBar();
+        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
+        intent.putExtra("mode", 1);
+        if(mContext != null) mContext.sendBroadcast(intent);
+    }
+    public void exitFullScreenWindow(){
+        showStatusBarNavigationBar();
+        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
+        intent.putExtra("mode", 0);
+        if(mContext != null) mContext.sendBroadcast(intent);
+    }
+
+    public void updateWindowStatus(){
+        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+            try{
+                mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+            }catch(Exception e){
+                Log.e(TAG,"fde getSharedPreferences error: " + e);
+            }
+            boolean isTurnOnFullScreen = false;
+            if(mSharedPreferences != null){
+                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                Log.d(TAG,"fde updateWindowStatus isTurnOnFullScreen: " + isTurnOnFullScreen);
+                if(isTurnOnFullScreen){
+                    hideStatusBarNavigationBar();
+                }else{
+                    showStatusBarNavigationBar();
+                }
+                Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
+                intent.putExtra("mode", 2);
+                if(mContext != null) mContext.sendBroadcast(intent);
+            }
+        }
+    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -396,60 +491,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         if (!mWindow.isDestroyed()) {
-            // region @fde
-            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
-                Log.d(TAG, "dispatchKeyEvent KEYCODE_F11");
-                if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
-                    if(!SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
-                        SystemProperties.set("com.fde.enable_fullscreen", "true");
-                        final WindowInsetsController insetsController = getWindowInsetsController();
-                        if (insetsController != null) {
-                            insetsController.hide(WindowInsets.Type.statusBars());
-                            insetsController.hide(WindowInsets.Type.navigationBars());
-                            insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-                        }
-                        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
-                        intent.putExtra("mode", 1);
-                        mContext.sendBroadcast(intent);
-                    }else{
-                        SystemProperties.set("com.fde.enable_fullscreen", "false");
-                        final WindowInsetsController insetsController = getWindowInsetsController();
-                        if (insetsController != null) {
-                            insetsController.show(WindowInsets.Type.statusBars());
-                            insetsController.show(WindowInsets.Type.navigationBars());
-                            insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
-                        }
-                        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
-                        intent.putExtra("mode", 0);
-                        mContext.sendBroadcast(intent);
-                    }
-                    return true;
-                }
-            }
-            if (keyCode == KeyEvent.KEYCODE_ESCAPE && isDown && (event.getRepeatCount() == 0)) {
-                Log.d(TAG, "dispatchKeyEvent KEYCODE_ESCAPE");
-                if(SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
-                    SystemProperties.set("com.fde.enable_fullscreen", "false");
-                    final WindowInsetsController insetsController = getWindowInsetsController();
-                    if (insetsController != null) {
-                        insetsController.show(WindowInsets.Type.statusBars());
-                        insetsController.show(WindowInsets.Type.navigationBars());
-                        insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
-                    }
-                    Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
-                    intent.putExtra("mode", 0);
-                    mContext.sendBroadcast(intent);
-                    return true;
-                }
-            }
-            if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
-                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
-                if (callback != null) {
-                    callback.moveActivityTaskToBack(true);
-                    return true;
-                }
-            }
-            // end region
             final Window.Callback cb = mWindow.getCallback();
             final boolean handled = cb != null && mFeatureId < 0 ? cb.dispatchKeyEvent(event)
                     : super.dispatchKeyEvent(event);
@@ -460,6 +501,94 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
         return isDown ? mWindow.onKeyDown(mFeatureId, event.getKeyCode(), event)
                 : mWindow.onKeyUp(mFeatureId, event.getKeyCode(), event);
+    }
+
+    @Override
+    public boolean dispatchKeyEventPreIme(KeyEvent event) {
+        final int keyCode = event.getKeyCode();
+        final int action = event.getAction();
+        final boolean isDown = action == KeyEvent.ACTION_DOWN;
+        if (!mWindow.isDestroyed()) {
+            if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
+                Log.d(TAG, "dispatchKeyEventPreIme KEYCODE_F11");
+                if(!mIgnoreKeyCodeF11){
+                    mIgnoreKeyCodeF11 = true;
+                    mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
+                    mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
+                    if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+                        try{
+                            mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                        }catch(Exception e){
+                            Log.e(TAG,"fde getSharedPreferences error: " + e);
+                        }
+                        boolean isTurnOnFullScreen = false;
+                        if(mSharedPreferences != null){
+                            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                            Log.d(TAG,"fde received F11 isTurnOnFullScreen: " + isTurnOnFullScreen);
+                            if(isTurnOnFullScreen){
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putBoolean("mTurnOnFullScreen", false);
+                                editor.apply();
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        exitFullScreenWindow();
+                                    }
+                                },100);
+                            }else{
+                                //Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putBoolean("mTurnOnFullScreen", true);
+                                editor.apply();
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startFullScreenWindow();
+                                    }
+                                },100);
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+            if (keyCode == KeyEvent.KEYCODE_ESCAPE && isDown && (event.getRepeatCount() == 0)) {
+                Log.d(TAG, "dispatchKeyEvent KEYCODE_ESCAPE");
+                if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+                    try{
+                        mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                    }catch(Exception e){
+                        Log.e(TAG,"fde getSharedPreferences error: " + e);
+                    }
+                    boolean isTurnOnFullScreen = false;
+                    if(mSharedPreferences != null){
+                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                        Log.d(TAG,"fde received ESC isTurnOnFullScreen current: " + isTurnOnFullScreen);
+                        if(isTurnOnFullScreen){
+                            SharedPreferences.Editor editor = mSharedPreferences.edit();
+                            editor.putBoolean("mTurnOnFullScreen", false);
+                            editor.apply();
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    exitFullScreenWindow();
+                                }
+                            },60);
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
+                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+                if (callback != null) {
+                    callback.moveActivityTaskToBack(true);
+                    return true;
+                }
+            }
+        }
+        return super.dispatchKeyEventPreIme(event);
     }
 
     @Override
@@ -1101,6 +1230,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+        mHandler.removeCallbacks(mUpdateWindowStatusRunnable);
+        mHandler.postDelayed(mUpdateWindowStatusRunnable, 500);
         final WindowManager.LayoutParams attrs = mWindow.getAttributes();
         mFloatingInsets.setEmpty();
         if ((attrs.flags & FLAG_LAYOUT_IN_SCREEN) == 0) {
@@ -2347,26 +2478,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         } else {
             decorCaptionView = null;
         }
-        // region @fde
-        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
-            if(!SystemProperties.getBoolean("com.fde.enable_fullscreen",false)){
-                final WindowInsetsController insetsController = getWindowInsetsController();
-                if (insetsController != null) {
-                    insetsController.show(WindowInsets.Type.statusBars());
-                    insetsController.show(WindowInsets.Type.navigationBars());
-                    insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
-                }
-            }else{
-                final WindowInsetsController insetsController = getWindowInsetsController();
-                if (insetsController != null) {
-                    insetsController.hide(WindowInsets.Type.statusBars());
-                    insetsController.hide(WindowInsets.Type.navigationBars());
-                    insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-                }
-            }
-        }
-        // end region
-
         // Tell the decor if it has a visible caption.
         enableCaption(decorCaptionView != null);
         return decorCaptionView;
