@@ -2453,7 +2453,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 }
             } else {
                 try {
-                    if (!mStackSupervisor.removeTaskById(taskId, false,
+                    if (!mStackSupervisor.removeTaskById(taskId, true,
                             REMOVE_FROM_RECENTS, "finish-and-remove-task")) {
                         throw new IllegalArgumentException("Unable to find task ID " + taskId);
                     }

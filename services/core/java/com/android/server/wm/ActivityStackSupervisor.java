@@ -1750,7 +1750,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     void cleanUpRemovedTaskLocked(Task task, boolean killProcess, boolean removeFromRecents, String reason) {
-        boolean isRemovedByDecorCaption = reason != null ? reason.equals("decorcaption-finish-activity") : false;
+        boolean isRemovedByUser = reason != null ? reason.equals("decorcaption-finish-activity") || reason.equals("finish-and-remove-task") : false;
         if (removeFromRecents) {
             mRecentTasks.remove(task);
         }
@@ -1771,7 +1771,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
         // Determine if the process(es) for this task should be killed.
         final String pkg = component.getPackageName();
-        Slog.w(TAG,"fde pkg: " + pkg + ", isRemovedByDecorCaption: " + isRemovedByDecorCaption);
+        Slog.w(TAG,"fde pkg: " + pkg + ", isRemovedByUser: " + isRemovedByUser);
         ArrayList<Object> procsToKill = new ArrayList<>();
         ArrayMap<String, SparseArray<WindowProcessController>> pmap =
                 mService.mProcessNames.getMap();
@@ -1792,7 +1792,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     continue;
                 }
 
-                if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByDecorCaption) {
+                if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByUser) {
                     // Don't kill process(es) that has an activity in a different task that is also
                     // in recents, or has an activity not stopped.
                     return;
