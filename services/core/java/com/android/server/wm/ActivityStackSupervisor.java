@@ -1792,6 +1792,10 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     continue;
                 }
 
+                if ("com.fde.x11".equals(pkg)){
+                    return;
+                }
+
                 if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByUser) {
                     // Don't kill process(es) that has an activity in a different task that is also
                     // in recents, or has an activity not stopped.
