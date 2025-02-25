@@ -212,7 +212,15 @@
         </package>
 
     </item>
-
+    <item
+        isdel="false"
+        keycode="doNotAllowRunningInTheBackground"
+        updatedate="2025-02-25">
+        <package>
+            <packagename>com.tencent.tmgp.luobo4</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+    </item>
     <item
         isdel="false"
         keycode="enabledResourceFixedLayout"

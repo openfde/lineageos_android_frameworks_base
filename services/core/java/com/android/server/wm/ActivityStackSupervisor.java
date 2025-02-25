@@ -167,6 +167,7 @@ import com.android.internal.util.CompatibleConfig;
 import android.content.Context;
 import android.text.TextUtils;
 import java.util.Arrays;
+import com.android.internal.util.CompatibleConfig;
 
 // TODO: This class has become a dumping ground. Let's
 // - Move things relating to the hierarchy to RootWindowContainer
@@ -1750,7 +1751,6 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
     }
 
     void cleanUpRemovedTaskLocked(Task task, boolean killProcess, boolean removeFromRecents, String reason) {
-        boolean isRemovedByUser = reason != null ? reason.equals("decorcaption-finish-activity") || reason.equals("finish-and-remove-task") : false;
         if (removeFromRecents) {
             mRecentTasks.remove(task);
         }
@@ -1771,7 +1771,18 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
         // Determine if the process(es) for this task should be killed.
         final String pkg = component.getPackageName();
-        Slog.w(TAG,"fde pkg: " + pkg + ", isRemovedByUser: " + isRemovedByUser);
+        Slog.w(TAG,"fde cleanUpRemovedTaskLocked pkg: " + pkg + ", reason: " + reason);
+        boolean doNotAllowRunningInTheBackground = false;
+        String resultStr = null;
+        if(mService.mContext != null){
+            resultStr = CompatibleConfig.queryValueDataBySharedMemory(mService.mContext, pkg, "doNotAllowRunningInTheBackground");
+            Slog.w(TAG,"cleanUpRemovedTaskLocked query resultStr: " + resultStr);
+        }else{
+            Slog.e(TAG,"cleanUpRemovedTaskLocked query failed, context is null.");
+        }
+        if(resultStr != null && resultStr.contains("true")){
+            doNotAllowRunningInTheBackground = true;
+        }
         ArrayList<Object> procsToKill = new ArrayList<>();
         ArrayMap<String, SparseArray<WindowProcessController>> pmap =
                 mService.mProcessNames.getMap();
@@ -1792,11 +1803,7 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
                     continue;
                 }
 
-                if ("com.fde.x11".equals(pkg)){
-                    return;
-                }
-
-                if (!proc.shouldKillProcessForRemovedTask(task) && !isRemovedByUser) {
+                if (!proc.shouldKillProcessForRemovedTask(task) && !doNotAllowRunningInTheBackground) {
                     // Don't kill process(es) that has an activity in a different task that is also
                     // in recents, or has an activity not stopped.
                     return;
