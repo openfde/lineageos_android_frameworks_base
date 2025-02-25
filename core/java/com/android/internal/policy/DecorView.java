@@ -2113,8 +2113,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if (!mWindowResizeCallbacksAdded) {
             // If there is no window callback installed there was no window set before. Set it now.
             // Note that our ViewRootImpl object will not change.
-            getViewRootImpl().addWindowCallbacks(this);
-            mWindowResizeCallbacksAdded = true;
+            if(getTitleSuffix(mWindow.getAttributes()) != null && getTitleSuffix(mWindow.getAttributes()) != ""){
+                getViewRootImpl().addWindowCallbacks(this);
+                mWindowResizeCallbacksAdded = true;
+            }
         } else if (mBackdropFrameRenderer != null) {
             // We are resizing and this call happened due to a configuration change. Tell the
             // renderer about it.
