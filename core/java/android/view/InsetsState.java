@@ -399,7 +399,7 @@ public class InsetsState implements Parcelable {
     public static boolean shouldForceHide(@InternalInsetsType int type) {
         return (type == ITYPE_CLIMATE_BAR ||
                 type == ITYPE_STATUS_BAR) &&
-            !"Waydroid".equals(SystemProperties.get("waydroid.active_apps"));
+            !"Openfde".equals(SystemProperties.get("waydroid.active_apps"));
     }
 
     /**
