@@ -1872,7 +1872,8 @@ public class WindowManagerService extends IWindowManager.Stub
         }
 
         Binder.restoreCallingIdentity(origId);
-
+        Slog.d(TAG_WM, "addWindow():  session :" + session + ", client :" + client + ", attrs :" + attrs + ", viewVisibility :" + viewVisibility + ", displayId :" + displayId + ", requestUserId :" + requestUserId + ", requestedVisibleTypes :" + requestedVisibleTypes + ", outInputChannel :" + outInputChannel + ", outInsetsState :" + outInsetsState + ", outActiveControls :" + outActiveControls + ", outAttachedFrame :" + outAttachedFrame + ", outSizeCompatScale :" + outSizeCompatScale + "");
+        Slog.d(TAG_WM, "outInsetsState: " + outInsetsState);
         return res;
     }
 
@@ -2574,6 +2575,8 @@ public class WindowManagerService extends IWindowManager.Stub
         }
 
         Binder.restoreCallingIdentity(origId);
+        Slog.d(TAG_WM, "relayoutWindow():  session :" + session + ", client :" + client + ", attrs :" + attrs + ", requestedWidth :" + requestedWidth + ", requestedHeight :" + requestedHeight + ", viewVisibility :" + viewVisibility + ", flags :" + flags + ", seq :" + seq + ", lastSyncSeqId :" + lastSyncSeqId + ", outFrames :" + outFrames + ", outMergedConfiguration :" + outMergedConfiguration + ", outSurfaceControl :" + outSurfaceControl + ", outInsetsState :" + outInsetsState + ", outActiveControls :" + outActiveControls + ", outSyncIdBundle :" + outSyncIdBundle + "");
+        Slog.d(TAG_WM, "outInsetsState: " + outInsetsState);
         return result;
     }
 

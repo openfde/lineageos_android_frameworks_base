@@ -49,7 +49,7 @@ import android.window.ClientWindowFrames;
  */
 public class WindowLayout {
     private static final String TAG = WindowLayout.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     public static final int UNSPECIFIED_LENGTH = -1;
 
@@ -85,6 +85,15 @@ public class WindowLayout {
         final int bottom = (sides & WindowInsets.Side.BOTTOM) != 0 ? insets.bottom : 0;
         outDisplayFrame.set(windowBounds.left + left, windowBounds.top + top,
                 windowBounds.right - right, windowBounds.bottom - bottom);
+
+        if (type == TYPE_BASE_APPLICATION && outDisplayFrame.top < 28) {
+            final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
+            outDisplayFrame.top = 28;
+            outParentFrame.top = 28;
+            outFrame.top = 28;
+            Log.e(TAG + attrs.getTitle() , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
+                    + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets);
+        }
 
         if (attachedWindowFrame == null) {
             outParentFrame.set(outDisplayFrame);

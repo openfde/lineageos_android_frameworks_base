@@ -1401,6 +1401,18 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         return mWindowFrames.setReportResizeHints();
     }
 
+    private void getstack() {
+        String simpleName = getClass().getSimpleName();
+        String name = getClass().getName();
+        Slog.e(TAG_WM, "getstack:" + simpleName + " name:" + name);
+        try {
+            // 抛出一个异常
+            throw new Exception("resize stack");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Adds the window to the resizing list if any of the parameters we use to track the window
      * dimensions or insets have changed.
@@ -1411,7 +1423,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
                 && !insetsChanged) {
             return;
         }
-
+//        getstack();
         final WindowStateAnimator winAnimator = mWinAnimator;
         final boolean didFrameInsetsChange = setReportResizeHints();
         // The latest configuration will be returned by the out parameter of relayout, so it is
@@ -1462,6 +1474,9 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             if (!mWmService.mResizingWindows.contains(this)) {
                 ProtoLog.v(WM_DEBUG_RESIZE, "Resizing window %s", this);
                 mWmService.mResizingWindows.add(this);
+                Slog.v(TAG_WM, "Resizing " + this + ": didFrameInsetsChange=" + didFrameInsetsChange
+                        + " insetsChanged=" + insetsChanged + " shouldSendRedrawForSync=" + shouldSendRedrawForSync()
+                        + " attachedFrameChanged=" + attachedFrameChanged);
             }
         } else if (getOrientationChanging()) {
             if (isDrawn()) {

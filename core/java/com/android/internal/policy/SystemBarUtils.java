@@ -51,7 +51,7 @@ public final class SystemBarUtils {
         // Max(top cutout size, (status bar default height + waterfall top size))
         // return Math.max(safeInsetTop, defaultSize + waterfallInsetTop);
 	//fde after hide status bar, must set inset height 0; 
-	return 0;
+        return Math.max(safeInsetTop, defaultSize + waterfallInsetTop);
     }
 
     /**
@@ -82,7 +82,7 @@ public final class SystemBarUtils {
         // return Math.max(insets.top, defaultSize + waterfallInsets.top);
     	
 	//fde after hide status bar, must set inset height 0; 
-	return 0;
+        return Math.max(insets.top, defaultSize + waterfallInsets.top);
     }
 
     /**

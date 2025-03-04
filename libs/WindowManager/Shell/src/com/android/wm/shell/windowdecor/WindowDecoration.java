@@ -47,7 +47,6 @@ import android.view.WindowlessWindowManager;
 import android.window.SurfaceSyncGroup;
 import android.window.TaskConstants;
 import android.window.WindowContainerTransaction;
-
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.desktopmode.DesktopModeStatus;
@@ -249,9 +248,20 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
         final Resources resources = mDecorWindowContext.getResources();
         final Configuration taskConfig = mTaskInfo.getConfiguration();
-        final Rect taskBounds = taskConfig.windowConfiguration.getBounds();
         final boolean isFullscreen = taskConfig.windowConfiguration.getWindowingMode()
                 == WINDOWING_MODE_FULLSCREEN;
+        Rect taskBounds = taskConfig.windowConfiguration.getBounds();
+
+        if(isFullscreen){
+            taskConfig.windowConfiguration.getAppBounds().top = 28;
+            taskConfig.windowConfiguration.getMaxBounds().top = 28;
+            taskBounds.top = 28;
+
+            mWindowDecorConfig.windowConfiguration.getAppBounds().top = 28;
+            mWindowDecorConfig.windowConfiguration.getMaxBounds().top = 28;
+            mWindowDecorConfig.windowConfiguration.getBounds().top = 28;
+
+        }
         outResult.mWidth = taskBounds.width();
         outResult.mHeight = taskBounds.height();
 
@@ -282,14 +292,18 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                     .build();
         }
 
+        int offsety = 0;
+        if(isFullscreen){
+            offsety = 28;
+        }
+
         outResult.mCaptionHeight = loadDimensionPixelSize(resources, params.mCaptionHeightId);
         outResult.mCaptionWidth = params.mCaptionWidthId != Resources.ID_NULL
                 ? loadDimensionPixelSize(resources, params.mCaptionWidthId) : taskBounds.width();
         outResult.mCaptionX = (outResult.mWidth - outResult.mCaptionWidth) / 2;
-
         startT.setWindowCrop(mCaptionContainerSurface, outResult.mCaptionWidth,
                         outResult.mCaptionHeight)
-                .setPosition(mCaptionContainerSurface, outResult.mCaptionX, 0 /* y */)
+                .setPosition(mCaptionContainerSurface, outResult.mCaptionX, offsety /* y */)
                 .setLayer(mCaptionContainerSurface, CAPTION_LAYER_Z_ORDER)
                 .show(mCaptionContainerSurface);
 
@@ -361,8 +375,15 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
         if (params.mSetTaskPositionAndCrop) {
             startT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight);
-            finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
-                    .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
+
+            if(isFullscreen){
+                finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
+                        .setPosition(mTaskSurface, 0, 28);
+            } else {
+                finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
+                        .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
+            }
+
         }
 
         startT.setShadowRadius(mTaskSurface, shadowRadius)
@@ -404,6 +425,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         } else {
             lp.inputFeatures &= ~WindowManager.LayoutParams.INPUT_FEATURE_SPY;
         }
+        lp.x = 0;
+        lp.y = 28;
         if (mViewHost == null) {
             mViewHost = mSurfaceControlViewHostFactory.create(mDecorWindowContext, mDisplay,
                     mCaptionWindowManager);

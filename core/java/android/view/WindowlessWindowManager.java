@@ -355,6 +355,7 @@ public class WindowlessWindowManager implements IWindowSession {
             MergedConfiguration outMergedConfiguration, SurfaceControl outSurfaceControl,
             InsetsState outInsetsState, InsetsSourceControl.Array outActiveControls,
             Bundle outSyncSeqIdBundle) {
+        Log.d(TAG, "relayout():  window :" + window + ", inAttrs :" + inAttrs + ", requestedWidth :" + requestedWidth + ", requestedHeight :" + requestedHeight + ", viewFlags :" + viewFlags + ", flags :" + flags + ", seq :" + seq + ", lastSyncSeqId :" + lastSyncSeqId + ", outFrames :" + outFrames + ", outMergedConfiguration :" + outMergedConfiguration + ", outSurfaceControl :" + outSurfaceControl + ", outInsetsState :" + outInsetsState + ", outActiveControls :" + outActiveControls + ", outSyncSeqIdBundle :" + outSyncSeqIdBundle + "");
         final State state;
         synchronized (this) {
             state = mStateForWindow.get(window.asBinder());
@@ -432,6 +433,8 @@ public class WindowlessWindowManager implements IWindowSession {
         }
 
         sendLayoutParamsToParent();
+        Log.d(TAG, "relayoutend:  window :" + window + ", inAttrs :" + inAttrs + ", requestedWidth :" + requestedWidth + ", requestedHeight :" + requestedHeight + ", viewFlags :" + viewFlags + ", flags :" + flags + ", seq :" + seq + ", lastSyncSeqId :" + lastSyncSeqId + ", outFrames :" + outFrames + ", outMergedConfiguration :" + outMergedConfiguration + ", outSurfaceControl :" + outSurfaceControl + ", outInsetsState :" + outInsetsState + ", outActiveControls :" + outActiveControls + ", outSyncSeqIdBundle :" + outSyncSeqIdBundle + "");
+
         return 0;
     }
 
