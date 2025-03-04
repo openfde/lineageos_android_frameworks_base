@@ -2664,11 +2664,11 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
                     endRotation = parent.getWindowConfiguration().getRotation();
                 }
             } else {
-                if(bounds.top ==0){
-                    change.setEndAbsBounds(new Rect(0, 42, 1920, 1080));
-                }else {
+                //if(bounds.top ==0){
+                  //  change.setEndAbsBounds(new Rect(0, 42, 1920, 1080));
+                //}else {
                     change.setEndAbsBounds(bounds);
-                }
+                //}
             }
 
             if (activityRecord != null || (taskFragment != null && taskFragment.isEmbedded())) {

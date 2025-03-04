@@ -86,15 +86,14 @@ public class WindowLayout {
         outDisplayFrame.set(windowBounds.left + left, windowBounds.top + top,
                 windowBounds.right - right, windowBounds.bottom - bottom);
 
-        if (type == TYPE_BASE_APPLICATION && outDisplayFrame.top < 28) {
+        if (type == TYPE_BASE_APPLICATION && outDisplayFrame.top == 0) {
             final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
-            outDisplayFrame.top = 28;
-            outParentFrame.top = 28;
-            outFrame.top = 28;
+            outDisplayFrame.top = statusBarInsets.top;
+            outParentFrame.top = statusBarInsets.top;
+            outFrame.top = statusBarInsets.top;
             Log.e(TAG + attrs.getTitle() , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
                     + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets);
         }
-
         if (attachedWindowFrame == null) {
             outParentFrame.set(outDisplayFrame);
             if ((pfl & PRIVATE_FLAG_INSET_PARENT_FRAME_BY_IME) != 0) {
