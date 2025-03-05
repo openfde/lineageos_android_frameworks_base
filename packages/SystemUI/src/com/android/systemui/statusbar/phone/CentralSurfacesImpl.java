@@ -1066,8 +1066,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
                         mMainExecutor.execute(
                                 () -> plugin.setup(
-                                        mNotificationShadeWindowController.getWindowRootView(),
-                                        getNavigationBarView(),
+//                                        mNotificationShadeWindowController.getWindowRootView(),
+ 					mStatusBarView,
+	    					   getNavigationBarView(),
                                         new Callback(plugin), mDozeParameters));
                     }
 

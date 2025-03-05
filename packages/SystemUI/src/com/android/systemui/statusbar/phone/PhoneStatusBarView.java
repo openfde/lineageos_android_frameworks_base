@@ -311,14 +311,23 @@ public class PhoneStatusBarView extends FrameLayout implements Callbacks {
     }
 
     private void updateStatusBarHeight() {
-        final int waterfallTopInset =
-                mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
-        ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        mStatusBarHeight = SystemBarUtils.getStatusBarHeight(mContext);
-        layoutParams.height = mStatusBarHeight - waterfallTopInset;
-        updateSystemIconsContainerHeight();
-        updatePaddings();
-        setLayoutParams(layoutParams);
+            final int waterfallTopInset =
+            mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
+
+    // 获取布局参数，并判空
+    	ViewGroup.LayoutParams layoutParams = getLayoutParams();
+    	if (layoutParams == null) {
+        	return; // 如果 layoutParams 为 null，直接返回
+    	}
+
+    // 更新状态栏高度
+    	mStatusBarHeight = SystemBarUtils.getStatusBarHeight(mContext);
+    	layoutParams.height = mStatusBarHeight - waterfallTopInset;
+
+    // 更新布局
+    	updateSystemIconsContainerHeight();
+    	updatePaddings();
+     	setLayoutParams(layoutParams);
     }
 
     private void updateSystemIconsContainerHeight() {
