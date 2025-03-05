@@ -292,9 +292,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                     .build();
         }
 
-        int offsety = 0;
+        int offsety;
         if(isFullscreen){
-            offsety = 28;
+            offsety = SystemBarUtils.getStatusBarHeight(getStatusBarHeight);
         }
 
         outResult.mCaptionHeight = loadDimensionPixelSize(resources, params.mCaptionHeightId);
