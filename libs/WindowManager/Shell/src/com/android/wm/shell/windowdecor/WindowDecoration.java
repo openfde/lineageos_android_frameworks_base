@@ -51,7 +51,7 @@ import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.desktopmode.DesktopModeStatus;
 import com.android.wm.shell.windowdecor.WindowDecoration.RelayoutParams.OccludingCaptionElement;
-
+import com.android.internal.policy.SystemBarUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -253,13 +253,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         Rect taskBounds = taskConfig.windowConfiguration.getBounds();
 
         if(isFullscreen){
-            taskConfig.windowConfiguration.getAppBounds().top = 28;
-            taskConfig.windowConfiguration.getMaxBounds().top = 28;
-            taskBounds.top = 28;
-
-            mWindowDecorConfig.windowConfiguration.getAppBounds().top = 28;
-            mWindowDecorConfig.windowConfiguration.getMaxBounds().top = 28;
-            mWindowDecorConfig.windowConfiguration.getBounds().top = 28;
+            mWindowDecorConfig.windowConfiguration.getAppBounds().top = SystemBarUtils.getStatusBarHeight(mContext);;
+            mWindowDecorConfig.windowConfiguration.getMaxBounds().top = SystemBarUtils.getStatusBarHeight(mContext);
+            mWindowDecorConfig.windowConfiguration.getBounds().top = SystemBarUtils.getStatusBarHeight(mContext);
 
         }
         outResult.mWidth = taskBounds.width();
@@ -292,9 +288,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                     .build();
         }
 
-        int offsety;
+        int offsety = 0;
         if(isFullscreen){
-            offsety = SystemBarUtils.getStatusBarHeight(getStatusBarHeight);
+            offsety = SystemBarUtils.getStatusBarHeight(mContext);
         }
 
         outResult.mCaptionHeight = loadDimensionPixelSize(resources, params.mCaptionHeightId);

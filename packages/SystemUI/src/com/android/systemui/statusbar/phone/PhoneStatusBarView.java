@@ -311,7 +311,12 @@ public class PhoneStatusBarView extends FrameLayout implements Callbacks {
     }
 
     private void updateStatusBarHeight() {
-            final int waterfallTopInset =
+	if(!isAttachedToWindow()){
+            return;
+        }
+	
+
+	    final int waterfallTopInset =
             mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
 
     // 获取布局参数，并判空
