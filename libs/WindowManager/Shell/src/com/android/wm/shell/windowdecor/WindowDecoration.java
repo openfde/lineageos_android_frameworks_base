@@ -464,6 +464,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             }
 
             mIsCaptionVisible = source.isVisible();
+            mIsCaptionVisible &= !(mTaskInfo.taskDescription.getWindowDecorationStatus() == 1);
             setCaptionVisibility(rootView, mIsCaptionVisible);
 
             return;

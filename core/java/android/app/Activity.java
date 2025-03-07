@@ -952,6 +952,7 @@ public class Activity extends ContextThemeWrapper
     @UnsupportedAppUsage
     private CharSequence mTitle;
     private int mTitleColor = 0;
+    private int mWindowDecoraitonStatus;
 
     // we must have a handler before the FragmentController is constructed
     @UnsupportedAppUsage
@@ -7716,6 +7717,29 @@ public class Activity extends ContextThemeWrapper
         if (mParent != null) {
             mParent.onChildTitleChanged(this, title);
         }
+    }
+
+    /**
+     * Used to forcibly hide captionbar
+     * Optional parameter values
+     * Window.WINDOW_DECORATION_FORCE_HIDE: captionbar will force hide
+     * Window.WINDOW_DECORATION_FOLLOW_STATUS_BAR: captionbar follow statusbar show or hide
+     */
+    @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
+    public void setWindowDecorationStatus(int status) {
+        mWindowDecoraitonStatus = status;
+        mTaskDescription.setWindowDecorationStatus(status);
+        setTaskDescription(mTaskDescription);
+        Log.d(TAG, "setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
+    }
+
+    /**
+     * Used to get captionbar status
+     * default return 0 is unset
+     */
+    @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
+    public int getWindowDecorationStatus(){
+        return mWindowDecoraitonStatus;
     }
 
     /**

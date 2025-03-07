@@ -1905,8 +1905,11 @@ class Task extends TaskFragment {
                 t.updateTaskDescription();
             }
         }
-
-        dispatchTaskInfoChangedIfNeeded(false /* force */);
+        if(taskDescription.getWindowDecorationStatus() == 0){
+            dispatchTaskInfoChangedIfNeeded(false /* force */);
+        }else{
+            dispatchTaskInfoChangedIfNeeded(true /* force */);
+        }
     }
 
     private static boolean setTaskDescriptionFromActivityAboveRoot(
@@ -1943,6 +1946,9 @@ class Task extends TaskFragment {
             }
             if (td.getBackgroundColorFloating() == 0) {
                 td.setBackgroundColorFloating(atd.getBackgroundColorFloating());
+            }
+            if(td.getWindowDecorationStatus() == 0){
+                td.setWindowDecorationStatus(atd.getWindowDecorationStatus());
             }
         }
 

@@ -1610,6 +1610,7 @@ public class ActivityManager {
         private int mResizeMode;
         private int mMinWidth;
         private int mMinHeight;
+        private int mWindowDecorationStatus;
 
         /**
          * Provides a convenient way to set the fields of a {@link TaskDescription} when creating a
@@ -1851,6 +1852,7 @@ public class ActivityManager {
             mMinWidth = other.mMinWidth;
             mMinHeight = other.mMinHeight;
             mColorBackgroundFloating = other.mColorBackgroundFloating;
+            mWindowDecorationStatus = other.mWindowDecorationStatus;
         }
 
         /**
@@ -1893,6 +1895,9 @@ public class ActivityManager {
             if (other.mColorBackgroundFloating != 0) {
                 mColorBackgroundFloating = other.mColorBackgroundFloating;
             }
+            if (other.mWindowDecorationStatus != 0){
+                mWindowDecorationStatus = other.mWindowDecorationStatus;
+            }
         }
 
         private TaskDescription(Parcel source) {
@@ -1906,6 +1911,15 @@ public class ActivityManager {
         public void setLabel(String label) {
             mLabel = label;
         }
+
+        /**
+         * Sets the WindowDecorationStatus for this task description.
+         * @hide
+         */
+        public void setWindowDecorationStatus(int windowDecorationStatus) {
+            mWindowDecorationStatus = windowDecorationStatus;
+        }
+
 
         /**
          * Sets the primary color for this task description.
@@ -2011,6 +2025,14 @@ public class ActivityManager {
          */
         public String getLabel() {
             return mLabel;
+        }
+
+        /**
+         * @return The WindowDecorationStatus and description of the current state of this task.
+         * @hide
+         */
+        public int getWindowDecorationStatus() {
+            return mWindowDecorationStatus;
         }
 
         /**
@@ -2304,6 +2326,7 @@ public class ActivityManager {
                 dest.writeString(mIconFilename);
             }
             dest.writeInt(mColorBackgroundFloating);
+            dest.writeInt(mWindowDecorationStatus);
         }
 
         public void readFromParcel(Parcel source) {
@@ -2323,6 +2346,7 @@ public class ActivityManager {
             mMinHeight = source.readInt();
             mIconFilename = source.readInt() > 0 ? source.readString() : null;
             mColorBackgroundFloating = source.readInt();
+            mWindowDecorationStatus = source.readInt();
         }
 
         public static final @android.annotation.NonNull Creator<TaskDescription> CREATOR
@@ -2347,7 +2371,8 @@ public class ActivityManager {
                             ? " (contrast when transparent)" : "")
                     + " resizeMode: " + ActivityInfo.resizeModeToString(mResizeMode)
                     + " minWidth: " + mMinWidth + " minHeight: " + mMinHeight
-                    + " colorBackgrounFloating: " + mColorBackgroundFloating;
+                    + " colorBackgrounFloating: " + mColorBackgroundFloating
+                    + " mWindowDecorationStatus: " + mWindowDecorationStatus;
         }
 
         @Override
@@ -2373,6 +2398,7 @@ public class ActivityManager {
             result = result * 31 + mResizeMode;
             result = result * 31 + mMinWidth;
             result = result * 31 + mMinHeight;
+            result = result * 31 + mWindowDecorationStatus;
             return result;
         }
 
@@ -2398,7 +2424,8 @@ public class ActivityManager {
                     && mResizeMode == other.mResizeMode
                     && mMinWidth == other.mMinWidth
                     && mMinHeight == other.mMinHeight
-                    && mColorBackgroundFloating == other.mColorBackgroundFloating;
+                    && mColorBackgroundFloating == other.mColorBackgroundFloating
+                    && mWindowDecorationStatus == other.mWindowDecorationStatus;
         }
 
         /** @hide */

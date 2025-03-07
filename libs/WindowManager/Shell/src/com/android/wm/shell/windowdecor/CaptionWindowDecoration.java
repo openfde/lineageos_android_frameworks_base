@@ -48,6 +48,7 @@ import android.util.Log;
  * maximize button and close button.
  */
 public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearLayout> {
+    private static final String TAG = "CaptionWindowDecoration";
     private final Handler mHandler;
     private final Choreographer mChoreographer;
     private final SyncTransactionQueue mSyncQueue;
@@ -337,6 +338,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
             if(mTaskInfo.taskDescription.getLabel() != null){
                 applicationLable.setText(mTaskInfo.taskDescription.getLabel());
             }
+            Log.d(TAG, "WindowDecorationStatus: " + mTaskInfo.taskDescription.getWindowDecorationStatus() + ", taskId: " + mTaskInfo.taskId);
         }
     }
 

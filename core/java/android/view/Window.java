@@ -285,6 +285,12 @@ public abstract class Window {
      */
     public static final int DECOR_CAPTION_SHADE_DARK = 2;
 
+    @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
+    public static final int WINDOW_DECORATION_FORCE_HIDE = 1;
+
+    @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
+    public static final int WINDOW_DECORATION_FOLLOW_STATUS_BAR = 2;
+
     @UnsupportedAppUsage
     @UiContext
     private final Context mContext;

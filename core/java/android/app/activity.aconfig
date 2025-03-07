@@ -1,0 +1,11 @@
+package: "android.app"
+
+flag {
+     namespace: "systemui"
+     name: "enable_force_hide_window_decoration"
+     description: "Enables force hide application window decoration."
+     bug: ""
+     metadata {
+         purpose: PURPOSE_BUGFIX
+     }
+}

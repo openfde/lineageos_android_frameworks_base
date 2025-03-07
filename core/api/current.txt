@@ -4458,6 +4458,7 @@ package android.app {
     method public android.app.VoiceInteractor getVoiceInteractor();
     method public final int getVolumeControlStream();
     method public android.view.Window getWindow();
+    method @FlaggedApi("android.app.enable_force_hide_window_decoration") public int getWindowDecorationStatus();
     method public android.view.WindowManager getWindowManager();
     method public boolean hasWindowFocus();
     method public void invalidateOptionsMenu();
@@ -4636,6 +4637,7 @@ package android.app {
     method public void setVisible(boolean);
     method public final void setVolumeControlStream(int);
     method public void setVrModeEnabled(boolean, @NonNull android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @FlaggedApi("android.app.enable_force_hide_window_decoration") public void setWindowDecorationStatus(int);
     method public boolean shouldDockBigOverlays();
     method public boolean shouldShowRequestPermissionRationale(@NonNull String);
     method @FlaggedApi("android.permission.flags.device_aware_permission_apis_enabled") public boolean shouldShowRequestPermissionRationale(@NonNull String, int);
@@ -54228,6 +54230,8 @@ package android.view {
     field @Deprecated public static final int PROGRESS_VISIBILITY_OFF = -2; // 0xfffffffe
     field @Deprecated public static final int PROGRESS_VISIBILITY_ON = -1; // 0xffffffff
     field public static final String STATUS_BAR_BACKGROUND_TRANSITION_NAME = "android:status:background";
+    field @FlaggedApi("android.app.enable_force_hide_window_decoration") public static final int WINDOW_DECORATION_FOLLOW_STATUS_BAR = 2; // 0x2
+    field @FlaggedApi("android.app.enable_force_hide_window_decoration") public static final int WINDOW_DECORATION_FORCE_HIDE = 1; // 0x1
   }
 
   public static interface Window.Callback {
