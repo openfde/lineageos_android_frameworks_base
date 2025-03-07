@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.view.Window;
 
 import androidx.annotation.Nullable;
 
@@ -53,6 +54,7 @@ public class InstallSuccess extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         setFinishOnTouchOutside(true);
 

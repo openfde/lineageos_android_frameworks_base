@@ -57,6 +57,7 @@ import com.android.packageinstaller.television.UninstallAppProgress;
 import com.android.packageinstaller.common.EventResultPersister;
 import com.android.packageinstaller.common.UninstallEventReceiver;
 import com.android.packageinstaller.v2.ui.UninstallLaunch;
+import android.view.Window;
 
 import java.util.List;
 
@@ -86,6 +87,7 @@ public class UninstallerActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         // Never restore any state, esp. never create any fragments. The data in the fragment might
         // be stale, if e.g. the app was uninstalled while the activity was destroyed.

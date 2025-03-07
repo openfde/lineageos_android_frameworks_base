@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.android.packageinstaller.v2.ui.InstallLaunch;
 import java.util.Arrays;
+import android.view.Window;
 
 /**
  * Select which activity is the first visible activity of the installation and forward the intent to
@@ -61,6 +62,7 @@ public class InstallStart extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         if (usePiaV2()) {
             Log.i(TAG, "Using Pia V2");

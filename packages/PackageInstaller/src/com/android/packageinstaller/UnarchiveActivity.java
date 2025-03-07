@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 
@@ -54,6 +55,7 @@ public class UnarchiveActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(null);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         int callingUid = getLaunchedFromUid();
         if (callingUid == Process.INVALID_UID) {

@@ -39,6 +39,7 @@ import android.os.Process;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,6 +71,7 @@ public class InstallStaging extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         mInstaller = getPackageManager().getPackageInstaller();
 

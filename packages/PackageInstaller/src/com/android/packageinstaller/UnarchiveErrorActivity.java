@@ -24,6 +24,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageInstaller;
 import android.os.Bundle;
+import android.view.Window;
 
 import java.util.Objects;
 
@@ -39,6 +40,7 @@ public class UnarchiveErrorActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(null);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         Bundle extras = getIntent().getExtras();
         int unarchivalStatus = extras.getInt(PackageInstaller.EXTRA_UNARCHIVE_STATUS);

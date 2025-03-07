@@ -21,6 +21,7 @@ import static com.android.packageinstaller.PackageInstallerActivity.EXTRA_STAGED
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
 
 import androidx.annotation.Nullable;
 
@@ -31,6 +32,7 @@ public class DeleteStagedFileOnResult extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         if (savedInstanceState == null) {
             Intent installIntent = new Intent(getIntent());

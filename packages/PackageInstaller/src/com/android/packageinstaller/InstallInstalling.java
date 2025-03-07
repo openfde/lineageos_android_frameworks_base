@@ -38,6 +38,7 @@ import com.android.packageinstaller.common.EventResultPersister;
 import com.android.packageinstaller.common.InstallEventReceiver;
 import java.io.File;
 import java.io.IOException;
+import android.view.Window;
 
 /**
  * Send package to the package manager and handle results from package manager. Once the
@@ -74,6 +75,7 @@ public class InstallInstalling extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         ApplicationInfo appInfo = getIntent()
                 .getParcelableExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO);

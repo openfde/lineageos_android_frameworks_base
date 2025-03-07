@@ -37,6 +37,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import com.android.packageinstaller.common.EventResultPersister;
 import com.android.packageinstaller.common.UninstallEventReceiver;
+import android.view.Window;
 
 /**
  * Start an uninstallation, show a dialog while uninstalling and return result to the caller.
@@ -62,6 +63,7 @@ public class UninstallUninstalling extends Activity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         setFinishOnTouchOutside(false);
 

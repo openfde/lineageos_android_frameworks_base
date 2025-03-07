@@ -48,6 +48,8 @@
             android:exported="false"/>
 
         <activity android:name=".InstallStart"
+                android:launchMode="singleTask"
+                android:documentLaunchMode="always"
                 android:exported="true"
                 android:excludeFromRecents="true">
             <intent-filter android:priority="1">
@@ -100,6 +102,8 @@
                 android:exported="false" />
 
         <activity android:name=".UninstallerActivity"
+                android:launchMode="singleTask"
+                android:documentLaunchMode="always"
                 android:configChanges="orientation|keyboardHidden|screenSize"
                 android:excludeFromRecents="true"
                 android:noHistory="true"
