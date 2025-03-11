@@ -49,7 +49,7 @@ import android.window.ClientWindowFrames;
  */
 public class WindowLayout {
     private static final String TAG = WindowLayout.class.getSimpleName();
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public static final int UNSPECIFIED_LENGTH = -1;
 
@@ -306,6 +306,7 @@ public class WindowLayout {
                 + " displayCutoutSafe=" + displayCutoutSafe
                 + " attrs=" + attrs
                 + " state=" + state
+		+ " insets=" + insets
                 + " requestedInvisibleTypes=" + WindowInsets.Type.toString(~requestedVisibleTypes));
     }
 

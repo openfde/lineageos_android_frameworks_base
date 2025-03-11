@@ -31,8 +31,8 @@ import com.android.systemui.statusbar.disableflags.DisableFlagsLogger
  * bitwise logic here so no one else has to worry about it.)
  */
 data class DisableFlagsModel(
-    private val disable1: Int = DISABLE_NONE,
-    private val disable2: Int = DISABLE2_NONE,
+    private val disable1: Int = DISABLE2_NOTIFICATION_SHADE or DISABLE2_QUICK_SETTINGS,
+    private val disable2: Int = DISABLE2_NOTIFICATION_SHADE or DISABLE2_QUICK_SETTINGS,
 ) {
     /** Returns true if notification alerts are allowed based on the flags. */
     fun areNotificationAlertsEnabled(): Boolean {

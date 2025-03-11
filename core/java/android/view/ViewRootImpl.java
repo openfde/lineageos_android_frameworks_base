@@ -11905,6 +11905,10 @@ public final class ViewRootImpl implements ViewParent,
         return mBlurRegionAggregator.createBackgroundBlurDrawable(mContext);
     }
 
+    public BackgroundBlurDrawable createBackgroundBlurDrawable(int radius) {
+        return mBlurRegionAggregator.createBackgroundBlurDrawable(mContext, radius);
+    }
+
     @Override
     public void onDescendantUnbufferedRequested() {
         mUnbufferedInputSource = mView.mUnbufferedInputSource;

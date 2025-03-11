@@ -421,8 +421,6 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         } else {
             lp.inputFeatures &= ~WindowManager.LayoutParams.INPUT_FEATURE_SPY;
         }
-        lp.x = 0;
-        lp.y = 28;
         if (mViewHost == null) {
             mViewHost = mSurfaceControlViewHostFactory.create(mDecorWindowContext, mDisplay,
                     mCaptionWindowManager);

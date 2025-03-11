@@ -1461,9 +1461,6 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
             if (!mWmService.mResizingWindows.contains(this)) {
                 ProtoLog.v(WM_DEBUG_RESIZE, "Resizing window %s", this);
                 mWmService.mResizingWindows.add(this);
-                Slog.v(TAG_WM, "Resizing " + this + ": didFrameInsetsChange=" + didFrameInsetsChange
-                        + " insetsChanged=" + insetsChanged + " shouldSendRedrawForSync=" + shouldSendRedrawForSync()
-                        + " attachedFrameChanged=" + attachedFrameChanged);
             }
         } else if (getOrientationChanging()) {
             if (isDrawn()) {

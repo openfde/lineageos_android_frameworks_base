@@ -314,26 +314,29 @@ public class PhoneStatusBarView extends FrameLayout implements Callbacks {
         if(!isAttachedToWindow()){
             return;
         }
-            final int waterfallTopInset =
-            mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
+        final int waterfallTopInset =
+                mDisplayCutout == null ? 0 : mDisplayCutout.getWaterfallInsets().top;
 
-    	ViewGroup.LayoutParams layoutParams = getLayoutParams();
-    	if (layoutParams == null) {
-        	return;
-    	}
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        if (layoutParams == null) {
+            return;
+        }
 
-    	mStatusBarHeight = SystemBarUtils.getStatusBarHeight(mContext);
-    	layoutParams.height = mStatusBarHeight - waterfallTopInset;
+        mStatusBarHeight = SystemBarUtils.getStatusBarHeight(mContext);
+        layoutParams.height = mStatusBarHeight - waterfallTopInset;
 
-    	updateSystemIconsContainerHeight();
-    	updatePaddings();
-     	setLayoutParams(layoutParams);
+        updateSystemIconsContainerHeight();
+        updatePaddings();
+        setLayoutParams(layoutParams);
     }
 
     private void updateSystemIconsContainerHeight() {
         View systemIconsContainer = findViewById(R.id.system_icons);
+	if(systemIconsContainer == null){
+		return;
+	}
         ViewGroup.LayoutParams layoutParams = systemIconsContainer.getLayoutParams();
-        int newSystemIconsHeight =
+	int newSystemIconsHeight =
                 getResources().getDimensionPixelSize(R.dimen.status_bar_system_icons_height);
         if (layoutParams.height != newSystemIconsHeight) {
             layoutParams.height = newSystemIconsHeight;
@@ -345,21 +348,30 @@ public class PhoneStatusBarView extends FrameLayout implements Callbacks {
         int statusBarPaddingStart = getResources().getDimensionPixelSize(
                 R.dimen.status_bar_padding_start);
 
-        findViewById(R.id.status_bar_contents).setPaddingRelative(
-                statusBarPaddingStart,
-                getResources().getDimensionPixelSize(R.dimen.status_bar_padding_top),
-                getResources().getDimensionPixelSize(R.dimen.status_bar_padding_end),
-                0);
+	if(findViewById(R.id.status_bar_contents) != null){
+		findViewById(R.id.status_bar_contents).setPaddingRelative(
+                	statusBarPaddingStart,
+                	getResources().getDimensionPixelSize(R.dimen.status_bar_padding_top),
+                	getResources().getDimensionPixelSize(R.dimen.status_bar_padding_end),
+                	0);
 
-        findViewById(R.id.notification_lights_out)
-                .setPaddingRelative(0, statusBarPaddingStart, 0, 0);
+	}
 
-        findViewById(R.id.system_icons).setPaddingRelative(
-                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_start),
-                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_top),
-                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_end),
-                getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_bottom)
-        );
+
+	if(findViewById(R.id.notification_lights_out) != null){
+        	findViewById(R.id.notification_lights_out)
+                	.setPaddingRelative(0, statusBarPaddingStart, 0, 0);
+	}
+
+
+	if(findViewById(R.id.system_icons) != null){
+        	findViewById(R.id.system_icons).setPaddingRelative(
+                	getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_start),
+                	getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_top),
+               		getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_end),
+                	getResources().getDimensionPixelSize(R.dimen.status_bar_icons_padding_bottom)
+        	);
+	}
     }
 
     private void updateLayoutForCutout() {

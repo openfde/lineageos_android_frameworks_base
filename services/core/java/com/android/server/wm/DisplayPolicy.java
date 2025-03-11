@@ -2492,7 +2492,9 @@ public class DisplayPolicy {
         mTopIsFullscreen = topAppHidesStatusBar
                 && (mNotificationShade == null || !mNotificationShade.isVisible());
 
-        int appearance = APPEARANCE_OPAQUE_NAVIGATION_BARS | APPEARANCE_OPAQUE_STATUS_BARS;
+        // fde start never set navigation bar dark
+        int appearance = 0;//APPEARANCE_OPAQUE_NAVIGATION_BARS | APPEARANCE_OPAQUE_STATUS_BARS;
+        // fde end
         appearance = configureStatusBarOpacity(appearance);
         appearance = configureNavBarOpacity(appearance, adjacentTasksVisible,
                 freeformRootTaskVisible);

@@ -26,6 +26,7 @@
     android:id="@+id/status_bar"
     android:orientation="vertical"
     android:focusable="false"
+    android:visibility="invisible"
     android:descendantFocusability="afterDescendants"
     android:accessibilityPaneTitle="@string/status_bar"
     >

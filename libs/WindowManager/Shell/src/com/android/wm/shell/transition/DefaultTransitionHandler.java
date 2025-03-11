@@ -544,6 +544,7 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
             }
         }
 
+        backgroundColorForTransition = 0;
         if (backgroundColorForTransition != 0) {
             addBackgroundColor(info, backgroundColorForTransition, startTransaction,
                     finishTransaction);
