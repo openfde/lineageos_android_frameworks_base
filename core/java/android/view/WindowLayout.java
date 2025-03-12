@@ -86,13 +86,28 @@ public class WindowLayout {
         outDisplayFrame.set(windowBounds.left + left, windowBounds.top + top,
                 windowBounds.right - right, windowBounds.bottom - bottom);
 
-        if (type == TYPE_BASE_APPLICATION && outDisplayFrame.top == 0) {
+        if (type == TYPE_BASE_APPLICATION) {
             final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
-            outDisplayFrame.top = statusBarInsets.top;
-            outParentFrame.top = statusBarInsets.top;
-            outFrame.top = statusBarInsets.top;
+            final Insets captionBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.captionBar(), false);
+            if(outDisplayFrame.top == 0){
+                if(statusBarInsets.top != 0){
+                    if(captionBarInsets.top != 0){
+                        outDisplayFrame.top = captionBarInsets.top;
+                        outParentFrame.top = captionBarInsets.top;
+                        outFrame.top = captionBarInsets.top;
+                    }else{
+                        outDisplayFrame.top = 42;
+                        outParentFrame.top = 42;
+                        outFrame.top = 42;
+                    }
+                }
+            }else{
+                outDisplayFrame.top += (captionBarInsets.top - 28);
+                outParentFrame.top += (captionBarInsets.top - 28);
+                outFrame.top += (captionBarInsets.top - 28);
+            }
             Log.e(TAG + attrs.getTitle() , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
-                    + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets);
+                        + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets + " captionBarInsets:" + captionBarInsets);
         }
         if (attachedWindowFrame == null) {
             outParentFrame.set(outDisplayFrame);
