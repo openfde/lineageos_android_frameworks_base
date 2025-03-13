@@ -102,9 +102,12 @@ public class WindowLayout {
                     }
                 }
             }else{
-                outDisplayFrame.top += (captionBarInsets.top - 28);
-                outParentFrame.top += (captionBarInsets.top - 28);
-                outFrame.top += (captionBarInsets.top - 28);
+                if(captionBarInsets.top != 0){
+                    int offsetTop = captionBarInsets.top - 28;
+                    outDisplayFrame.top += offsetTop;
+                    outParentFrame.top += offsetTop;
+                    outFrame.top += offsetTop;
+                }
             }
             Log.e(TAG + attrs.getTitle() , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
                         + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets + " captionBarInsets:" + captionBarInsets);
