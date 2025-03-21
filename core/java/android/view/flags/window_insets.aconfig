@@ -7,3 +7,10 @@ flag {
     bug: "316387515"
     is_fixed_read_only: true
 }
+
+flag {
+    name: "enable_compatible_flags"
+    namespace: "platform"
+    description: "Flag to compatible window display"
+    bug: ""
+}

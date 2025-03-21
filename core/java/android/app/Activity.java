@@ -1833,6 +1833,14 @@ public class Activity extends ContextThemeWrapper
             mDefaultBackCallback = this::onBackInvoked;
             getOnBackInvokedDispatcher().registerSystemOnBackInvokedCallback(mDefaultBackCallback);
         }
+
+        String localClassName = getLocalClassName();
+        Slog.e(TAG,"getLocalClassName: " + localClassName);
+        if("plugin.brandservice.ui.flutter.BizFlutterTLFlutterViewActivity".equals(localClassName)
+            || "com.vega.gallery.activity.MediaSelectActivity".equals(localClassName)
+            || "com.vega.edit.editpage.activity.EditActivity".equals(localClassName)){
+            getWindow().addCompatibleFlags(WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION);
+        }
     }
 
     /**

@@ -1240,6 +1240,11 @@ public abstract class Window {
         setFlags(flags, flags);
     }
 
+    @FlaggedApi(android.view.flags.Flags.FLAG_ENABLE_COMPATIBLE_FLAGS)
+    public void addCompatibleFlags(int flags) {
+        setCompatibleFlags(flags, flags);
+    }
+
     /**
      * Add private flag bits.
      *
@@ -1304,6 +1309,12 @@ public abstract class Window {
         final WindowManager.LayoutParams attrs = getAttributes();
         attrs.flags = (attrs.flags&~mask) | (flags&mask);
         mForcedWindowFlags |= mask;
+        dispatchWindowAttributesChanged(attrs);
+    }
+    @FlaggedApi(android.view.flags.Flags.FLAG_ENABLE_COMPATIBLE_FLAGS)
+    private void setCompatibleFlags(int flags, int mask) {
+        final WindowManager.LayoutParams attrs = getAttributes();
+        attrs.compatibleFlags = (attrs.compatibleFlags & ~mask) | (flags & mask);
         dispatchWindowAttributesChanged(attrs);
     }
 

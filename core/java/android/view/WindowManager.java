@@ -3186,6 +3186,32 @@ public interface WindowManager extends ViewManager {
         public int flags;
 
         /**
+         * Flag for window to shift content below captionbar
+         */
+        @FlaggedApi(android.view.flags.Flags.FLAG_ENABLE_COMPATIBLE_FLAGS)
+        public static final int COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION = 0x00000001;
+        /**
+         * @hide
+         */
+        @IntDef(flag = true, prefix = "COMPATIBLE_FLAG_", value = {
+                COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION,
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface CompatibleFlags {}
+        /**
+         * Various behavioral options/compatibleFlags.  Default is none.
+         * @see #COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION
+         */
+        @ViewDebug.ExportedProperty(flagMapping = {
+            @ViewDebug.FlagToString(mask = COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION, equals = COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION,
+                    name = "SHIFT_CONTENT_BELOW_CAPTION")
+        }, formatToHexString = true)
+
+        @FlaggedApi(android.view.flags.Flags.FLAG_ENABLE_COMPATIBLE_FLAGS)
+        @CompatibleFlags
+        public int compatibleFlags;
+
+        /**
          * In the system process, we globally do not use hardware acceleration
          * because there are many threads doing UI there and they conflict.
          * If certain parts of the UI that really do want to use hardware
@@ -5039,6 +5065,7 @@ public interface WindowManager extends ViewManager {
             out.writeInt(y);
             out.writeInt(type);
             out.writeInt(flags);
+            out.writeInt(compatibleFlags);
             out.writeInt(privateFlags);
             out.writeInt(softInputMode);
             out.writeInt(layoutInDisplayCutoutMode);
@@ -5116,6 +5143,7 @@ public interface WindowManager extends ViewManager {
             y = in.readInt();
             type = in.readInt();
             flags = in.readInt();
+            compatibleFlags = in.readInt();
             privateFlags = in.readInt();
             softInputMode = in.readInt();
             layoutInDisplayCutoutMode = in.readInt();
@@ -5276,6 +5304,9 @@ public interface WindowManager extends ViewManager {
                 }
                 flags = o.flags;
                 changes |= FLAGS_CHANGED;
+            }
+            if (compatibleFlags != o.compatibleFlags){
+                compatibleFlags = o.compatibleFlags;
             }
             if (privateFlags != o.privateFlags) {
                 privateFlags = o.privateFlags;
@@ -5689,6 +5720,11 @@ public interface WindowManager extends ViewManager {
             sb.append(System.lineSeparator());
             sb.append(prefix).append("  fl=").append(
                     ViewDebug.flagsToString(LayoutParams.class, "flags", flags));
+            if (compatibleFlags != 0) {
+                sb.append(System.lineSeparator());
+                sb.append(prefix).append("  pfl=").append(ViewDebug.flagsToString(
+                        LayoutParams.class, "compatibleFlags", compatibleFlags));
+            }
             if (privateFlags != 0) {
                 sb.append(System.lineSeparator());
                 sb.append(prefix).append("  pfl=").append(ViewDebug.flagsToString(

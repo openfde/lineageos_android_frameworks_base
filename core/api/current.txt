@@ -54051,6 +54051,7 @@ package android.view {
 
   public abstract class Window {
     ctor public Window(@UiContext android.content.Context);
+    method @FlaggedApi("android.view.flags.enable_compatible_flags") public void addCompatibleFlags(int);
     method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
     method public void addFlags(int);
     method public final void addOnFrameMetricsAvailableListener(@NonNull android.view.Window.OnFrameMetricsAvailableListener, android.os.Handler);
@@ -54549,6 +54550,7 @@ package android.view {
     field public static final float BRIGHTNESS_OVERRIDE_FULL = 1.0f;
     field public static final float BRIGHTNESS_OVERRIDE_NONE = -1.0f;
     field public static final float BRIGHTNESS_OVERRIDE_OFF = 0.0f;
+    field @FlaggedApi("android.view.flags.enable_compatible_flags") public static final int COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION = 1; // 0x1
     field @NonNull public static final android.os.Parcelable.Creator<android.view.WindowManager.LayoutParams> CREATOR;
     field public static final int DIM_AMOUNT_CHANGED = 32; // 0x20
     field public static final int DISPLAY_FLAG_DISABLE_HDR_CONVERSION = 1; // 0x1
@@ -54650,6 +54652,7 @@ package android.view {
     field public static final int TYPE_WALLPAPER = 2013; // 0x7dd
     field public float alpha;
     field public float buttonBrightness;
+    field @FlaggedApi("android.view.flags.enable_compatible_flags") public int compatibleFlags;
     field public float dimAmount;
     field public int flags;
     field public int format;

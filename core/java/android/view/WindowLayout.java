@@ -69,6 +69,7 @@ public class WindowLayout {
         final int type = attrs.type;
         final int fl = attrs.flags;
         final int pfl = attrs.privateFlags;
+        final int cfl = attrs.compatibleFlags;
         final boolean layoutInScreen = (fl & FLAG_LAYOUT_IN_SCREEN) == FLAG_LAYOUT_IN_SCREEN;
         final Rect attachedWindowFrame = frames.attachedFrame;
         final Rect outDisplayFrame = frames.displayFrame;
@@ -87,26 +88,33 @@ public class WindowLayout {
                 windowBounds.right - right, windowBounds.bottom - bottom);
 
         if (type == TYPE_BASE_APPLICATION) {
+            boolean shiftContent = (cfl & WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0;
+            Log.e(TAG + attrs.getTitle() , "shiftContent: " + shiftContent);
             final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
             final Insets captionBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.captionBar(), false);
-            if(outDisplayFrame.top == 0){
-                if(statusBarInsets.top != 0){
-                    if(captionBarInsets.top != 0){
-                        outDisplayFrame.top = captionBarInsets.top;
-                        outParentFrame.top = captionBarInsets.top;
-                        outFrame.top = captionBarInsets.top;
-                    }else{
-                        outDisplayFrame.top = 42;
-                        outParentFrame.top = 42;
-                        outFrame.top = 42;
-                    }
+            if(!shiftContent){
+                if(outDisplayFrame.top == 0){
+                    outDisplayFrame.top = statusBarInsets.top;
+                    outParentFrame.top = statusBarInsets.top;
+                    outFrame.top = statusBarInsets.top;
                 }
             }else{
-                if(captionBarInsets.top != 0){
-                    int offsetTop = captionBarInsets.top - 28;
-                    outDisplayFrame.top += offsetTop;
-                    outParentFrame.top += offsetTop;
-                    outFrame.top += offsetTop;
+                if(outDisplayFrame.top == 0){
+                    if(statusBarInsets.top != 0){
+                        if(captionBarInsets.top != 0){
+                            outDisplayFrame.top = captionBarInsets.top + 28;
+                            outParentFrame.top = captionBarInsets.top + 28;
+                            outFrame.top = captionBarInsets.top + 28;
+                        }else{
+                            outDisplayFrame.top = 70;
+                            outParentFrame.top = 70;
+                            outFrame.top = 70;
+                        }
+                    }
+                }else{
+                    outDisplayFrame.top += 42;
+                    outParentFrame.top += 42;
+                    outFrame.top += 42;
                 }
             }
             Log.e(TAG + attrs.getTitle() , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
