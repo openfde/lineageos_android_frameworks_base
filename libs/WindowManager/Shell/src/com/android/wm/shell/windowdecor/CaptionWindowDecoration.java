@@ -280,15 +280,20 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         final GradientDrawable captionDrawable = (GradientDrawable) caption.getBackground();
         captionDrawable.setColor(captionColor);
 
-        final int buttonTintColorRes =
+        int buttonTintColorRes =
                 Color.valueOf(captionColor).luminance() < 0.5
                         ? R.color.decor_button_light_color
                         : R.color.decor_button_dark_color;
 
-        if(Color.valueOf(captionColor).luminance() < 0.5){
-            captionDrawable.setColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_dark));
+        int backgroundColor = mTaskInfo.taskDescription.getBackgroundColor();
+        if(buttonTintColorRes == R.color.decor_button_light_color){
+            if(isBiasedTowardsWhiteOrTransparent(backgroundColor) && isBiasedTowardsWhiteOrTransparent(captionColor)){
+                buttonTintColorRes = R.color.decor_button_dark_color;
+            }
         }else{
-            captionDrawable.setColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_light));
+            if(!isBiasedTowardsWhiteOrTransparent(backgroundColor) && !isBiasedTowardsWhiteOrTransparent(captionColor)){
+                buttonTintColorRes = R.color.decor_button_light_color;
+            }
         }
 
         final ColorStateList buttonTintColor =
@@ -315,6 +320,18 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         final View close = caption.findViewById(R.id.close_window);
         final VectorDrawable closeBackground = (VectorDrawable) close.getBackground();
         closeBackground.setTintList(buttonTintColor);
+    }
+
+    boolean isBiasedTowardsWhiteOrTransparent(int color){
+        int WHITE_THRESHOLD = 240;
+        int alpha = (color >> 24) & 0xff;
+        int red = (color >> 16)& 0xff;
+        int green = (color >> 8)& 0xff;;
+        int blue  = color& 0xff;
+        if(alpha == 0){
+            return true;
+        }
+        return red >= WHITE_THRESHOLD && green >= WHITE_THRESHOLD && blue >= WHITE_THRESHOLD;
     }
 
     void setCaptionLable(){
