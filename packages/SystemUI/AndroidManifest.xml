@@ -390,7 +390,6 @@
         android:defaultToDeviceProtectedStorage="true"
         android:directBootAware="true"
         android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config"
         tools:replace="android:appComponentFactory"
         android:appComponentFactory=".PhoneSystemUIAppComponentFactory">
         <!-- Keep theme in sync with SystemUIApplication.onCreate().
