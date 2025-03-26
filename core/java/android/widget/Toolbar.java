@@ -58,6 +58,7 @@ import com.android.internal.widget.ToolbarWidgetWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 /**
  * A standard toolbar for use within application content.
@@ -1588,7 +1589,7 @@ public class Toolbar extends ViewGroup {
         // since that's what it expects.
 
         final int action = ev.getActionMasked();
-        if (action == MotionEvent.ACTION_DOWN) {
+        /*if (action == MotionEvent.ACTION_DOWN) {
             mEatingTouch = false;
         }
 
@@ -1601,8 +1602,22 @@ public class Toolbar extends ViewGroup {
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             mEatingTouch = false;
-        }
+        }*/
 
+         switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                this.startMovingTask(ev.getRawX(), ev.getRawY());
+                break;
+
+            case MotionEvent.ACTION_UP:
+                this.finishMovingTask();
+                return false;
+            case MotionEvent.ACTION_CANCEL:
+                return false;
+           }
         return true;
     }
 
