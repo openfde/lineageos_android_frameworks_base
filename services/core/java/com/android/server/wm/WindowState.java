@@ -1891,7 +1891,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
     }
 
     boolean isSecureLocked() {
-        if ((mAttrs.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0) {
+        if ((mAttrs.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0 && !isCompatibilityFeaturesAllowScreenshotAndRecord(mContext, mAttrs.packageName)) {
             return true;
         }
 
@@ -1902,6 +1902,17 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         }
 
         return !DevicePolicyCache.getInstance().isScreenCaptureAllowed(mShowUserId);
+    }
+
+    boolean isCompatibilityFeaturesAllowScreenshotAndRecord(@NonNull Context context, String packageName){
+        boolean allowScreenshotAndRecord = true;
+        /*String resultStr = null;
+        resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isAllowScreenshotRecord");
+        if(resultStr != null && resultStr.contains("true")){
+            allowScreenshotAndRecord = true;
+        }
+        Slog.d(TAG,"fde query " + packageName + ", resultStr: " + resultStr + ", isAllowScreenshotAndRecord: " + allowScreenshotAndRecord);*/
+        return allowScreenshotAndRecord;
     }
 
     /**
