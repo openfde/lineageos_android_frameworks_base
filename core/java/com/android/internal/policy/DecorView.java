@@ -443,7 +443,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public void updateWindowStatus(){
-        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())){
             try{
                 mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
             }catch(Exception e){
@@ -515,7 +515,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     mIgnoreKeyCodeF11 = true;
                     mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
                     mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
-                    if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+                    if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())){
                         try{
                             mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
                         }catch(Exception e){
@@ -554,7 +554,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             }
             if (keyCode == KeyEvent.KEYCODE_ESCAPE && isDown && (event.getRepeatCount() == 0)) {
                 Log.d(TAG, "dispatchKeyEvent KEYCODE_ESCAPE");
-                if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())){
+                if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())){
                     try{
                         mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
                     }catch(Exception e){
