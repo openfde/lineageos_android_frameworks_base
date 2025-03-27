@@ -681,6 +681,12 @@ class Task extends TaskFragment {
         mDeferTaskAppear = _deferTaskAppear;
         mRemoveWithTaskOrganizer = _removeWithTaskOrganizer;
         EventLogTags.writeWmTaskCreated(mTaskId);
+        if(_intent != null){
+            String title = _intent.getStringExtra("X11_titile");
+            if(title != null){
+                mTaskDescription.setLabel(title);
+            }
+        }
     }
 
     static Task fromWindowContainerToken(WindowContainerToken token) {
@@ -1886,9 +1892,10 @@ class Task extends TaskFragment {
         if (root == null) return;
 
         final TaskDescription taskDescription = new TaskDescription();
+        String title = getBaseIntent().getStringExtra("X11_titile");
         final PooledPredicate f = PooledLambda.obtainPredicate(
                 Task::setTaskDescriptionFromActivityAboveRoot,
-                PooledLambda.__(ActivityRecord.class), root, taskDescription);
+                PooledLambda.__(ActivityRecord.class), root, taskDescription, title);
         forAllActivities(f);
         f.recycle();
         taskDescription.setResizeMode(mResizeMode);
@@ -1913,10 +1920,12 @@ class Task extends TaskFragment {
     }
 
     private static boolean setTaskDescriptionFromActivityAboveRoot(
-            ActivityRecord r, ActivityRecord root, TaskDescription td) {
+            ActivityRecord r, ActivityRecord root, TaskDescription td, String title) {
         if (!r.isTaskOverlay() && r.taskDescription != null) {
             final TaskDescription atd = r.taskDescription;
-            if (td.getLabel() == null) {
+            if(title != null){
+                td.setLabel(title);
+            } else if (td.getLabel() == null) {
                 td.setLabel(atd.getLabel());
             }
             if (td.getRawIcon() == null) {
