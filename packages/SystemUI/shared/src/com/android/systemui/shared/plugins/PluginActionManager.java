@@ -251,9 +251,9 @@ public class PluginActionManager<T extends Plugin> {
         // This isn't actually a service and shouldn't ever be started, but is
         // a convenient PM based way to manage our plugins.
         Intent intent = new Intent(mAction);
-        if (pkgName != null) {
-            intent.setPackage(pkgName);
-        }
+//        if (pkgName != null) {
+//            intent.setPackage(pkgName);
+//        }
         List<ResolveInfo> result = mPm.queryIntentServices(intent, 0);
         if (DEBUG) {
             Log.d(TAG, "Found " + result.size() + " plugins");
