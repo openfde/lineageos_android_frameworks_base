@@ -135,7 +135,7 @@
     <item
         isdel="false"
         keycode="isTurnOffSimulatedTouch"
-        updatedate="2024-04-23">
+        updatedate="2025-04-23">
         <package>
             <packagename>com.iiordanov.bVNC</packagename>
             <defaultvalue>true</defaultvalue>
@@ -148,6 +148,11 @@
 
         <package>
             <packagename>com.oray.sunlogin</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.fde.x11</packagename>
             <defaultvalue>true</defaultvalue>
         </package>
 
