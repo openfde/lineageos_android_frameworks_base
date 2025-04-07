@@ -2277,6 +2277,9 @@ public final class InputMethodManager {
     private boolean showSoftInput(View view, @NonNull ImeTracker.Token statsToken,
             @ShowFlags int flags, @Nullable ResultReceiver resultReceiver,
             @SoftInputShowHideReason int reason) {
+        if (true) {
+            return false;
+        }
         ImeTracker.forLatency().onRequestShow(statsToken,
                 ImeTracker.ORIGIN_CLIENT, reason, ActivityThread::currentApplication);
         ImeTracing.getInstance().triggerClientDump("InputMethodManager#showSoftInput", this,
