@@ -1589,36 +1589,38 @@ public class Toolbar extends ViewGroup {
         // since that's what it expects.
 
         final int action = ev.getActionMasked();
-        /*if (action == MotionEvent.ACTION_DOWN) {
-            mEatingTouch = false;
-        }
-
-        if (!mEatingTouch) {
-            final boolean handled = super.onTouchEvent(ev);
-            if (action == MotionEvent.ACTION_DOWN && !handled) {
-                mEatingTouch = true;
-            }
-        }
-
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            mEatingTouch = false;
-        }*/
-
-         switch (action) {
-            case MotionEvent.ACTION_DOWN:
+        if(getTag() !=null && "drag".equals(getTag())){
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
                 break;
 
-            case MotionEvent.ACTION_MOVE:
+                case MotionEvent.ACTION_MOVE:
                 this.startMovingTask(ev.getRawX(), ev.getRawY());
                 break;
 
-            case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_UP:
                 this.finishMovingTask();
                 return false;
-            case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_CANCEL:
                 return false;
-           }
-        return true;
+            }   
+         }else{
+            if (action == MotionEvent.ACTION_DOWN) {
+                 mEatingTouch = false;
+            }
+            if (!mEatingTouch) {
+                 final boolean handled = super.onTouchEvent(ev);
+            if (action == MotionEvent.ACTION_DOWN && !handled) {
+                 mEatingTouch = true;
+            }
+            }
+
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                 mEatingTouch = false;
+            }    
+         }
+         return true;  
+        
     }
 
     /**
