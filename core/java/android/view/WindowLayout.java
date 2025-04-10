@@ -89,7 +89,7 @@ public class WindowLayout {
 
         if (type == TYPE_BASE_APPLICATION) {
             boolean shiftContent = (cfl & WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0;
-            Log.e(TAG + attrs.getTitle() , "shiftContent: " + shiftContent);
+//            Log.e(TAG + attrs.getTitle() , "shiftContent: " + shiftContent);
             final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
             final Insets captionBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.captionBar(), false);
             if(!shiftContent){
@@ -314,7 +314,7 @@ public class WindowLayout {
                 + " displayCutoutSafe=" + displayCutoutSafe
                 + " attrs=" + attrs
                 + " state=" + state
-		+ " insets=" + insets
+		        + " insets=" + insets
                 + " requestedInvisibleTypes=" + WindowInsets.Type.toString(~requestedVisibleTypes));
     }
 

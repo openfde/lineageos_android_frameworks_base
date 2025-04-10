@@ -191,10 +191,10 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
     abstract Rect calculateValidDragArea();
 
     void relayout(RelayoutParams params, SurfaceControl.Transaction startT,
-            SurfaceControl.Transaction finishT, WindowContainerTransaction wct, T rootView,
-            RelayoutResult<T> outResult) {
+                  SurfaceControl.Transaction finishT, WindowContainerTransaction wct, T rootView,
+                  RelayoutResult<T> outResult) {
         outResult.reset();
-
+        params.mCornerRadius = 10;
         if (params.mRunningTaskInfo != null) {
             mTaskInfo = params.mRunningTaskInfo;
         }
@@ -434,10 +434,14 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             }
             mViewHost.relayout(lp);
         }
+
+//        SurfaceControl.Transaction transaction = new SurfaceControl.Transaction();
+//        ranstaction.setCornerRadius(mTaskSurface, 5f);
+//        transaction.apply();
     }
 
     private Rect calculateBoundingRect(@NonNull OccludingCaptionElement element,
-            int elementWidthPx, @NonNull Rect captionRect) {
+                                       int elementWidthPx, @NonNull Rect captionRect) {
         switch (element.mAlignment) {
             case START -> {
                 return new Rect(0, 0, elementWidthPx, captionRect.height());
@@ -561,7 +565,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
     }
 
     private static SurfaceControl cloneSurfaceControl(SurfaceControl sc,
-            Supplier<SurfaceControl> surfaceControlSupplier) {
+                                                      Supplier<SurfaceControl> surfaceControlSupplier) {
         final SurfaceControl copy = surfaceControlSupplier.get();
         copy.copyFrom(sc, "WindowDecoration");
         return copy;
@@ -580,7 +584,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
      * @return the {@link AdditionalWindow} that was added.
      */
     AdditionalWindow addWindow(int layoutId, String namePrefix, SurfaceControl.Transaction t,
-            SurfaceSyncGroup ssg, int xPos, int yPos, int width, int height) {
+                               SurfaceSyncGroup ssg, int xPos, int yPos, int width, int height) {
         final SurfaceControl.Builder builder = mSurfaceControlBuilderSupplier.get();
         SurfaceControl windowSurfaceControl = builder
                 .setName(namePrefix + " of Task=" + mTaskInfo.taskId)
@@ -703,8 +707,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         Supplier<SurfaceControl.Transaction> mTransactionSupplier;
 
         AdditionalWindow(SurfaceControl surfaceControl,
-                SurfaceControlViewHost surfaceControlViewHost,
-                Supplier<SurfaceControl.Transaction> transactionSupplier) {
+                         SurfaceControlViewHost surfaceControlViewHost,
+                         Supplier<SurfaceControl.Transaction> transactionSupplier) {
             mWindowSurface = surfaceControl;
             mWindowViewHost = surfaceControlViewHost;
             mTransactionSupplier = transactionSupplier;
