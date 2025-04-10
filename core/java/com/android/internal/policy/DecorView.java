@@ -1643,92 +1643,94 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private void updateColorViewInt(final ColorViewState state, int color, int dividerColor,
             int size, boolean verticalBar, boolean seascape, int sideMargin, boolean animate,
             boolean force, @InsetsType int requestedVisibleTypes) {
-        final @InsetsType int type = state.attributes.insetsType;
-        state.present = state.attributes.isPresent(
-                (requestedVisibleTypes & type) != 0 || (mLastForceConsumingTypes & type) != 0,
-                mWindow.getAttributes().flags, force);
-        boolean show = state.attributes.isVisible(state.present, color,
-                mWindow.getAttributes().flags, force);
-        boolean showView = show && !isResizing() && !mHasCaption && size > 0;
-
-        boolean visibilityChanged = false;
-        View view = state.view;
-
-        int resolvedHeight = verticalBar ? LayoutParams.MATCH_PARENT : size;
-        int resolvedWidth = verticalBar ? size : LayoutParams.MATCH_PARENT;
-        int resolvedGravity = verticalBar
-                ? (seascape ? state.attributes.seascapeGravity : state.attributes.horizontalGravity)
-                : state.attributes.verticalGravity;
-
-        if (view == null) {
-            if (showView) {
-                state.view = view = new View(mContext);
-                setColor(view, color, dividerColor, verticalBar, seascape);
-                view.setTransitionName(state.attributes.transitionName);
-                view.setId(state.attributes.id);
-                visibilityChanged = true;
-                view.setVisibility(INVISIBLE);
-                state.targetVisibility = VISIBLE;
-
-                LayoutParams lp = new LayoutParams(resolvedWidth, resolvedHeight,
-                        resolvedGravity);
-                if (seascape) {
-                    lp.leftMargin = sideMargin;
-                } else {
-                    lp.rightMargin = sideMargin;
-                }
-                addView(view, lp);
-                updateColorViewTranslations();
-            }
-        } else {
-            int vis = showView ? VISIBLE : INVISIBLE;
-            visibilityChanged = state.targetVisibility != vis;
-            state.targetVisibility = vis;
-            LayoutParams lp = (LayoutParams) view.getLayoutParams();
-            int rightMargin = seascape ? 0 : sideMargin;
-            int leftMargin = seascape ? sideMargin : 0;
-            if (lp.height != resolvedHeight || lp.width != resolvedWidth
-                    || lp.gravity != resolvedGravity || lp.rightMargin != rightMargin
-                    || lp.leftMargin != leftMargin) {
-                lp.height = resolvedHeight;
-                lp.width = resolvedWidth;
-                lp.gravity = resolvedGravity;
-                lp.rightMargin = rightMargin;
-                lp.leftMargin = leftMargin;
-                view.setLayoutParams(lp);
-            }
-            if (showView) {
-                setColor(view, color, dividerColor, verticalBar, seascape);
-            }
-        }
-        if (visibilityChanged) {
-            view.animate().cancel();
-            if (animate && !isResizing()) {
-                if (showView) {
-                    if (view.getVisibility() != VISIBLE) {
-                        view.setVisibility(VISIBLE);
-                        view.setAlpha(0.0f);
-                    }
-                    view.animate().alpha(1.0f).setInterpolator(mShowInterpolator).
-                            setDuration(mBarEnterExitDuration);
-                } else {
-                    view.animate().alpha(0.0f).setInterpolator(mHideInterpolator)
-                            .setDuration(mBarEnterExitDuration)
-                            .withEndAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    state.view.setAlpha(1.0f);
-                                    state.view.setVisibility(INVISIBLE);
-                                }
-                            });
-                }
-            } else {
-                view.setAlpha(1.0f);
-                view.setVisibility(showView ? VISIBLE : INVISIBLE);
-            }
-        }
-        state.visible = show;
-        state.color = color;
+        // fde start never update navigationbar and status
+//        final @InsetsType int type = state.attributes.insetsType;
+//        state.present = state.attributes.isPresent(
+//                (requestedVisibleTypes & type) != 0 || (mLastForceConsumingTypes & type) != 0,
+//                mWindow.getAttributes().flags, force);
+//        boolean show = state.attributes.isVisible(state.present, color,
+//                mWindow.getAttributes().flags, force);
+//        boolean showView = show && !isResizing() && !mHasCaption && size > 0;
+//
+//        boolean visibilityChanged = false;
+//        View view = state.view;
+//
+//        int resolvedHeight = verticalBar ? LayoutParams.MATCH_PARENT : size;
+//        int resolvedWidth = verticalBar ? size : LayoutParams.MATCH_PARENT;
+//        int resolvedGravity = verticalBar
+//                ? (seascape ? state.attributes.seascapeGravity : state.attributes.horizontalGravity)
+//                : state.attributes.verticalGravity;
+//
+//        if (view == null) {
+//            if (showView) {
+//                state.view = view = new View(mContext);
+//                setColor(view, color, dividerColor, verticalBar, seascape);
+//                view.setTransitionName(state.attributes.transitionName);
+//                view.setId(state.attributes.id);
+//                visibilityChanged = true;
+//                view.setVisibility(INVISIBLE);
+//                state.targetVisibility = VISIBLE;
+//
+//                LayoutParams lp = new LayoutParams(resolvedWidth, resolvedHeight,
+//                        resolvedGravity);
+//                if (seascape) {
+//                    lp.leftMargin = sideMargin;
+//                } else {
+//                    lp.rightMargin = sideMargin;
+//                }
+//                addView(view, lp);
+//                updateColorViewTranslations();
+//            }
+//        } else {
+//            int vis = showView ? VISIBLE : INVISIBLE;
+//            visibilityChanged = state.targetVisibility != vis;
+//            state.targetVisibility = vis;
+//            LayoutParams lp = (LayoutParams) view.getLayoutParams();
+//            int rightMargin = seascape ? 0 : sideMargin;
+//            int leftMargin = seascape ? sideMargin : 0;
+//            if (lp.height != resolvedHeight || lp.width != resolvedWidth
+//                    || lp.gravity != resolvedGravity || lp.rightMargin != rightMargin
+//                    || lp.leftMargin != leftMargin) {
+//                lp.height = resolvedHeight;
+//                lp.width = resolvedWidth;
+//                lp.gravity = resolvedGravity;
+//                lp.rightMargin = rightMargin;
+//                lp.leftMargin = leftMargin;
+//                view.setLayoutParams(lp);
+//            }
+//            if (showView) {
+//                setColor(view, color, dividerColor, verticalBar, seascape);
+//            }
+//        }
+//        if (visibilityChanged) {
+//            view.animate().cancel();
+//            if (animate && !isResizing()) {
+//                if (showView) {
+//                    if (view.getVisibility() != VISIBLE) {
+//                        view.setVisibility(VISIBLE);
+//                        view.setAlpha(0.0f);
+//                    }
+//                    view.animate().alpha(1.0f).setInterpolator(mShowInterpolator).
+//                            setDuration(mBarEnterExitDuration);
+//                } else {
+//                    view.animate().alpha(0.0f).setInterpolator(mHideInterpolator)
+//                            .setDuration(mBarEnterExitDuration)
+//                            .withEndAction(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    state.view.setAlpha(1.0f);
+//                                    state.view.setVisibility(INVISIBLE);
+//                                }
+//                            });
+//                }
+//            } else {
+//                view.setAlpha(1.0f);
+//                view.setVisibility(showView ? VISIBLE : INVISIBLE);
+//            }
+//        }
+//        state.visible = show;
+//        state.color = color;
+        // fde end
     }
 
     private static void setColor(View v, int color, int dividerColor, boolean verticalBar,
