@@ -265,7 +265,9 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         if(mTaskInfo != null && mTaskInfo.topActivityInfo != null
             && mTaskInfo.topActivityInfo.applicationInfo != null){
             CharSequence appName = pm.getApplicationLabel(mTaskInfo.topActivityInfo.applicationInfo);
-            applicationLable.setText(appName);
+            if(appName != null && !"null".equals(appName.toString())){
+                applicationLable.setText(appName);
+            }
         }else{
             applicationLable.setText("");
         }
@@ -346,14 +348,19 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         if(mTaskInfo != null && mTaskInfo.topActivityInfo != null
             && mTaskInfo.topActivityInfo.applicationInfo != null){
             CharSequence appName = pm.getApplicationLabel(mTaskInfo.topActivityInfo.applicationInfo);
-            applicationLable.setText(appName);
+            if(appName != null && !"null".equals(appName.toString())){
+                applicationLable.setText(appName);
+            }
         }else{
             applicationLable.setText("");
         }
 
         if(mTaskInfo != null && mTaskInfo.taskDescription != null){
             if(mTaskInfo.taskDescription.getLabel() != null){
-                applicationLable.setText(mTaskInfo.taskDescription.getLabel());
+                String titleName = mTaskInfo.taskDescription.getLabel();
+                if(titleName != null && !"null".equals(titleName)){
+                    applicationLable.setText(titleName);
+                }
             }
             Log.d(TAG, "WindowDecorationStatus: " + mTaskInfo.taskDescription.getWindowDecorationStatus() + ", taskId: " + mTaskInfo.taskId);
         }
