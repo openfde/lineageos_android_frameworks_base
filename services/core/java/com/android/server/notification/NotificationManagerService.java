@@ -4695,6 +4695,11 @@ public class NotificationManagerService extends SystemService {
         }
 
         @Override
+        public void notify(String packageName, String data) throws RemoteException {
+            Slog.w(TAG, "notify packageName "+packageName  + ", data "+data);
+        }
+
+        @Override
         public void clearData(String packageName, int uid, boolean fromApp) throws RemoteException {
             boolean packagesChanged = false;
             checkCallerIsSystem();
