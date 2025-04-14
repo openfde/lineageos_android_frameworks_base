@@ -202,6 +202,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         mLayoutResId = params.mLayoutResId;
 
         if (!mTaskInfo.isVisible) {
+            if(mDecorationContainerSurface != null){
+                startT.hide(mDecorationContainerSurface);
+            }
             releaseViews();
             finishT.hide(mTaskSurface);
             return;

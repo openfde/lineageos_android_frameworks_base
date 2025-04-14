@@ -338,11 +338,17 @@ public class DesktopModeWindowDecoration extends WindowDecoration<WindowDecorLin
             controlsElement.mAlignment = RelayoutParams.OccludingCaptionElement.Alignment.END;
             relayoutParams.mOccludingCaptionElements.add(controlsElement);
         }
-        if (DesktopModeStatus.useWindowShadow(/* isFocusedWindow= */ taskInfo.isFocused)) {
+
+        if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
+                && taskInfo.topActivity.getPackageName().equals("com.android.packageinstaller")){
+            relayoutParams.mShadowRadiusId = R.dimen.freeform_decor_shadow_focused_0_thickness;
+        }else if (DesktopModeStatus.useWindowShadow(/* isFocusedWindow= */ taskInfo.isFocused)) {
             relayoutParams.mShadowRadiusId = taskInfo.isFocused
                     ? R.dimen.freeform_decor_shadow_focused_thickness
                     : R.dimen.freeform_decor_shadow_unfocused_thickness;
         }
+
+
         relayoutParams.mApplyStartTransactionOnDraw = applyStartTransactionOnDraw;
         relayoutParams.mSetTaskPositionAndCrop = shouldSetTaskPositionAndCrop;
         // The configuration used to lay out the window decoration. The system context's config is

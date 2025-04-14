@@ -177,10 +177,15 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     void relayout(RunningTaskInfo taskInfo,
             SurfaceControl.Transaction startT, SurfaceControl.Transaction finishT,
             boolean applyStartTransactionOnDraw, boolean setTaskCropAndPosition) {
-        final int shadowRadiusID = taskInfo.isFocused
+        int shadowRadiusID = taskInfo.isFocused
                 ? R.dimen.freeform_decor_shadow_focused_thickness
                 : R.dimen.freeform_decor_shadow_unfocused_thickness;
-        final boolean isFreeform =
+        if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
+                && taskInfo.topActivity.getPackageName().equals("com.android.packageinstaller")) {
+            shadowRadiusID = R.dimen.freeform_decor_shadow_focused_0_thickness;
+        }
+
+            final boolean isFreeform =
                 taskInfo.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM;
         final boolean isDragResizeable = isFreeform && taskInfo.isResizeable;
 

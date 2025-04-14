@@ -407,6 +407,9 @@
     <!-- The thickness of shadows of a window that has focus in DIP. -->
     <dimen name="freeform_decor_shadow_focused_thickness">14dp</dimen>
 
+    <!-- The thickness of shadows of a window 0 DIP. -->
+    <dimen name="freeform_decor_shadow_focused_0_thickness">0dp</dimen>
+
     <!-- The thickness of shadows of a window that doesn't have focus in DIP. -->
     <dimen name="freeform_decor_shadow_unfocused_thickness">5dp</dimen>
 
