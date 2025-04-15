@@ -410,6 +410,7 @@ public class NotificationManagerService extends SystemService {
     public static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     public static final boolean ENABLE_CHILD_NOTIFICATIONS
             = SystemProperties.getBoolean("debug.child_notifs", true);
+    private static final String ACTION_UPDATE_DESKTOP_FILE = "com.fde.desktop.file.update";        
 
     // pullStats report request: undecorated remote view stats
     public static final int REPORT_REMOTE_VIEWS = 0x01;
@@ -4697,6 +4698,11 @@ public class NotificationManagerService extends SystemService {
         @Override
         public void notify(String packageName, String data) throws RemoteException {
             Slog.w(TAG, "notify packageName "+packageName  + ", data "+data);
+            Intent intent = new Intent(ACTION_UPDATE_DESKTOP_FILE);       
+            intent.putExtra("mode", data);        
+            intent.putExtra("path", data);       
+            intent.setPackage(packageName);       
+            getContext().sendBroadcast(intent);
         }
 
         @Override

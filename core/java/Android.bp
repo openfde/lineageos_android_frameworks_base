@@ -167,7 +167,15 @@ java_library {
         "com/android/internal/logging/UiEventLoggerImpl.java",
         ":statslog-framework-java-gen",
     ],
-    static_libs: ["modules-utils-uieventlogger-interface"],
+	libs: [
+    "androidx.room_room-runtime",
+    "androidx.room_room-ktx", // 如果使用 Kotlin
+	],
+    static_libs: [
+	      "modules-utils-uieventlogger-interface",
+		  "androidx.room_room-runtime",
+          "androidx.room_room-common",
+		  ],
 }
 
 java_library {
@@ -224,6 +232,7 @@ filegroup {
         "com/android/internal/util/RingBufferIndices.java",
         "com/android/internal/util/StatLogger.java",
         "com/android/internal/util/XmlUtils.java",
+		"com/android/internal/util/*.kt",
     ],
 }
 
