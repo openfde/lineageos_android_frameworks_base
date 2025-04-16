@@ -409,8 +409,7 @@ public class NotificationManagerService extends SystemService {
     public static final String TAG = "NotificationService";
     public static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     public static final boolean ENABLE_CHILD_NOTIFICATIONS
-            = SystemProperties.getBoolean("debug.child_notifs", true);
-    private static final String ACTION_UPDATE_DESKTOP_FILE = "com.fde.desktop.file.update";        
+            = SystemProperties.getBoolean("debug.child_notifs", true);   
 
     // pullStats report request: undecorated remote view stats
     public static final int REPORT_REMOTE_VIEWS = 0x01;
