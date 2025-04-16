@@ -414,6 +414,8 @@ public class NotificationManagerService extends SystemService {
     // pullStats report request: undecorated remote view stats
     public static final int REPORT_REMOTE_VIEWS = 0x01;
 
+    static final String ACTION_UPDATE_DESKTOP_FILE = "com.fde.desktop.file.update";        
+
     static final boolean DEBUG_INTERRUPTIVENESS = SystemProperties.getBoolean(
             "debug.notification.interruptiveness", false);
 
@@ -4696,7 +4698,12 @@ public class NotificationManagerService extends SystemService {
 
         @Override
         public void notify(String packageName, String data) throws RemoteException {
-            Slog.w(TAG, "notify packageName "+packageName  + ", data "+data);
+           Slog.w(TAG, "notify packageName "+packageName  + ", data "+data);
+           Intent intent = new Intent(ACTION_UPDATE_DESKTOP_FILE);      
+           intent.putExtra("mode", packageName);        
+           intent.putExtra("path", data);        
+           intent.setPackage(packageName);       
+           getContext().sendBroadcast(intent);
         }
 
         @Override
