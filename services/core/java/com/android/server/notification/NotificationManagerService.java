@@ -4700,8 +4700,10 @@ public class NotificationManagerService extends SystemService {
         public void notify(String packageName, String data) throws RemoteException {
            Slog.w(TAG, "notify packageName "+packageName  + ", data "+data);
            Intent intent = new Intent(ACTION_UPDATE_DESKTOP_FILE);      
-           intent.putExtra("mode", packageName);        
-           intent.putExtra("path", data);        
+           intent.putExtra("mode", "");        
+           intent.putExtra("path", "");  
+           intent.putExtra("packageName", packageName);
+           intent.putExtra("data", data);
            intent.setPackage(packageName);       
            getContext().sendBroadcast(intent);
         }
