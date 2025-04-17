@@ -2518,7 +2518,7 @@ public final class ProcessList {
                                         "Unable to create process group for "
                                         + app.processName + " (" + startResult.pid + ")");
                             } else {
-                                throw new AssertionError("Unable to create process group for "
+				Slog.e(ActivityManagerService.TAG, "Unable to create process group for "
                                     + app.processName + " (" + startResult.pid + ")");
                             }
                         } else {
