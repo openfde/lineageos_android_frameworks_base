@@ -219,9 +219,6 @@ public class Dialog implements DialogInterface, Window.Callback,
         w.setGravity(Gravity.CENTER);
 
         mListenersHandler = new ListenersHandler(this);
-        if(context instanceof Activity){
-            setOwnerActivity((Activity)context);
-        }
     }
 
     /**
@@ -463,19 +460,6 @@ public class Dialog implements DialogInterface, Window.Callback,
             // Add onBackPressed as default back behavior.
             mDefaultBackCallback = this::onBackPressed;
             getOnBackInvokedDispatcher().registerSystemOnBackInvokedCallback(mDefaultBackCallback);
-        }
-        Window window = getWindow();
-        Log.d(TAG,"onStart window: " + window + ", getOwnerActivity(): " + getOwnerActivity());
-        if (window != null && getOwnerActivity() != null) {
-            DisplayMetrics metrics = getOwnerActivity().getResources().getDisplayMetrics();
-            WindowManager.LayoutParams params = window.getAttributes();
-            Log.d(TAG,"params.width: " + params.width
-                + ", params.height: " + params.height
-                + ", metrics.heightPixels: " + metrics.heightPixels
-                + ", metrics.widthPixels: " + metrics.widthPixels);
-            params.width = Math.min(params.width, metrics.widthPixels - 40);
-            params.height = Math.min(params.height, metrics.heightPixels - 40);
-            window.setAttributes(params);
         }
     }
 

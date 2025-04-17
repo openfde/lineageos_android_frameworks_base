@@ -53,6 +53,8 @@ import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.content.Context;
+import android.text.TextUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -100,6 +102,9 @@ public final class Display {
     private final String mOwnerPackageName;
     private final Resources mResources;
     private DisplayAdjustments mDisplayAdjustments;
+
+    @UnsupportedAppUsage
+    private Context mContext;
 
     @UnsupportedAppUsage
     private DisplayInfo mDisplayInfo; // never null
@@ -697,6 +702,14 @@ public final class Display {
             updateDisplayInfoLocked();
             return mDisplayInfo.layerStack;
         }
+    }
+
+    /**
+     * set the context.
+     * @hide
+     */
+    public void setContext(@Nullable Context context){
+        mContext = context;
     }
 
     /**
@@ -1674,6 +1687,13 @@ public final class Display {
     @Deprecated
     public void getRealSize(Point outSize) {
         synchronized (mLock) {
+            if(mContext != null){
+                //String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, mContext.getPackageName(), "isAllowRealDisplaySize");
+                if("com.taobao.idlefish".equals(mContext.getPackageName())/*TextUtils.equals(resultStr, "true")*/){
+                    getSize(outSize);
+                    return;
+                }
+            }
             updateDisplayInfoLocked();
             if (shouldReportMaxBounds()) {
                 final Rect bounds = mResources.getConfiguration()
@@ -1745,6 +1765,13 @@ public final class Display {
     @Deprecated
     public void getRealMetrics(DisplayMetrics outMetrics) {
         synchronized (mLock) {
+            if(mContext != null){
+                //String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext,  mContext.getPackageName(), "isAllowRealDisplaySize");
+                if("com.taobao.idlefish".equals(mContext.getPackageName())/*TextUtils.equals(resultStr, "true")*/){
+                    getMetrics(outMetrics);
+                    return;
+                }
+            }
             updateDisplayInfoLocked();
             if (shouldReportMaxBounds()) {
                 mDisplayInfo.getMaxBoundsMetrics(outMetrics,

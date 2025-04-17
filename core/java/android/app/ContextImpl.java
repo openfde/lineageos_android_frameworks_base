@@ -3064,10 +3064,14 @@ class ContextImpl extends Context {
     @Override
     public Display getDisplayNoVerify() {
         if (mDisplay == null) {
-            return mResourcesManager.getAdjustedDisplay(Display.DEFAULT_DISPLAY,
+            Display display = mResourcesManager.getAdjustedDisplay(Display.DEFAULT_DISPLAY,
                     mResources);
+            if(display != null){
+                display.setContext(this);
+            }
+            return display;
         }
-
+        mDisplay.setContext(this);
         return mDisplay;
     }
 
