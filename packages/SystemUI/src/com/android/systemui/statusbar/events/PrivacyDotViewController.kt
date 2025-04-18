@@ -333,14 +333,14 @@ open class PrivacyDotViewController @Inject constructor(
         if (!this::tl.isInitialized) {
             return null
         }
-
-        return when (r) {
-            0 -> if (isRtl) tl else tr
-            1 -> if (isRtl) tr else br
-            2 -> if (isRtl) br else bl
-            3 -> if (isRtl) bl else tl
-            else -> throw IllegalStateException("unknown rotation")
-        }
+        return tl
+//        return when (r) {
+//            0 -> if (isRtl) tl else tr
+//            1 -> if (isRtl) tr else br
+//            2 -> if (isRtl) br else bl
+//            3 -> if (isRtl) bl else tl
+//            else -> throw IllegalStateException("unknown rotation")
+//        }
     }
 
     // Track the current designated corner and maybe animate to a new rotation

@@ -54,7 +54,7 @@ class SystemEventChipAnimationController @Inject constructor(
     private var currentAnimatedView: BackgroundAnimatableView? = null
 
     // Left for LTR, Right for RTL
-    private var animationDirection = LEFT
+    private var animationDirection = RIGHT
 
     @VisibleForTesting var chipBounds = Rect()
     private val chipWidth get() = chipBounds.width()
@@ -79,7 +79,7 @@ class SystemEventChipAnimationController @Inject constructor(
         if (!initialized) {
             init()
         }
-        animationDirection = if (animationWindowView.isLayoutRtl) RIGHT else LEFT
+        animationDirection = RIGHT //if (animationWindowView.isLayoutRtl) RIGHT else LEFT
 
         // Initialize the animated view
         val insets = contentInsetsProvider.getStatusBarContentInsetsForCurrentRotation()
@@ -243,7 +243,7 @@ class SystemEventChipAnimationController @Inject constructor(
         // Matches status_bar.xml
         val height = themedContext.resources.getDimensionPixelSize(R.dimen.status_bar_height)
         val lp = FrameLayout.LayoutParams(MATCH_PARENT, height)
-        lp.gravity = Gravity.END or Gravity.TOP
+        lp.gravity = Gravity.START or Gravity.TOP
         statusBarWindowController.addViewToWindow(animationWindowView, lp)
         animationWindowView.clipToPadding = false
         animationWindowView.clipChildren = false
@@ -310,7 +310,7 @@ class SystemEventChipAnimationController @Inject constructor(
 
     private fun layoutParamsDefault(marginEnd: Int): FrameLayout.LayoutParams =
             FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).also {
-                it.gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                it.gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 it.marginEnd = marginEnd
             }
 

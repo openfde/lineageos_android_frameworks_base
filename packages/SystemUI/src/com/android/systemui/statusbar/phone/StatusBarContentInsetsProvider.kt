@@ -173,6 +173,7 @@ constructor(
             rotatedResources.getDimensionPixelSize(R.dimen.ongoing_appops_chip_max_width)
 
         val isRtl = configurationController.isLayoutRtl
+        val r =getPrivacyChipBoundingRectForInsets(insets, dotWidth, chipWidth, isRtl)
         return getPrivacyChipBoundingRectForInsets(insets, dotWidth, chipWidth, isRtl)
     }
 
@@ -281,7 +282,7 @@ constructor(
             minRight = roundedCornerPadding
         } else {
             minLeft = roundedCornerPadding
-            minRight = max(minDotPadding, roundedCornerPadding)
+            minRight = 0 //max(minDotPadding, roundedCornerPadding)
         }
 
         val bottomAlignedMargin = getBottomAlignedMargin(targetRotation, rotatedResources)
@@ -512,7 +513,8 @@ private fun getStatusBarContentBounds(
     // Exclude the bottom rect, as it doesn't intersect with the status bar.
     val cutoutRects = sysUICutout?.cutout?.boundingRectsLeftRightTop
     if (cutoutRects.isNullOrEmpty()) {
-        return Rect(minLeft, insetTop, logicalDisplayWidth - minRight, sbHeight)
+        val r = Rect(minLeft, insetTop, logicalDisplayWidth - minRight, sbHeight)
+        return r
     }
 
     val relativeRotation =
@@ -554,8 +556,8 @@ private fun getStatusBarContentBounds(
         // TODO(b/203626889): Fix the scenario when config_mainBuiltInDisplayCutoutRectApproximation
         //                    is very close to but not directly touch edges.
     }
-
-    return Rect(leftMargin, insetTop, logicalDisplayWidth - rightMargin, sbHeight)
+    val r = Rect(leftMargin, insetTop, logicalDisplayWidth - rightMargin, sbHeight)
+    return r
 }
 
 private fun rectUnion(first: Rect, second: Rect) = Rect(first).apply { union(second) }
