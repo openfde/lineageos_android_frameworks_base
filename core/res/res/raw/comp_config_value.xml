@@ -5,29 +5,8 @@
    2、同一个keycode只允许存在一次，可有多个package
    3、如果keycode不用了则把对应的isdel 设置true
    
+
    <item
-        isdel="false"
-        keycode="isAllowHideDecorCaption"
-        updatedate="2024-04-23">
-        <package>
-            <packagename>com.lemon.lv</packagename>
-            <defaultvalue>true</defaultvalue>
-        </package>
-
-        <package>
-            <packagename>com.fde.x11</packagename>
-            <defaultvalue>true</defaultvalue>
-        </package>
-
-        <package>
-            <packagename>com.tencent.wemeet.app</packagename>
-            <defaultvalue>true</defaultvalue>
-        </package>
-    </item>
--->
-<items>
-
-    <item
         isdel="false"
         key_code="isAllowHideDecorCaption"
         update_date="2025-04-08">
@@ -92,5 +71,10 @@
         </package>
 
     </item>
+   
+-->
+<items>
+
+    
 
 </items>
