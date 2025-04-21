@@ -47,6 +47,7 @@ import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.annotation.UiContext;
+import android.app.Activity.TranslucentConversionListener;
 import android.app.ActivityOptions.SceneTransitionInfo;
 import android.app.VoiceInteractor.Request;
 import android.app.admin.DevicePolicyManager;
@@ -190,6 +191,12 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.android.internal.util.CompatibleConfig;
 
 /**
  * An activity is a single, focused thing that the user can do.  Almost all
@@ -1832,14 +1839,6 @@ public class Activity extends ContextThemeWrapper
             // Add onBackPressed as default back behavior.
             mDefaultBackCallback = this::onBackInvoked;
             getOnBackInvokedDispatcher().registerSystemOnBackInvokedCallback(mDefaultBackCallback);
-        }
-
-        String localClassName = getLocalClassName();
-        Slog.e(TAG,"getLocalClassName: " + localClassName);
-        if("plugin.brandservice.ui.flutter.BizFlutterTLFlutterViewActivity".equals(localClassName)
-            || "com.vega.gallery.activity.MediaSelectActivity".equals(localClassName)
-            || "com.vega.edit.editpage.activity.EditActivity".equals(localClassName)){
-            getWindow().addCompatibleFlags(WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION);
         }
     }
 
