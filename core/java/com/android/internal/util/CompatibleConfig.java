@@ -230,38 +230,40 @@ public class CompatibleConfig {
                 String isdel = keycodeElement.getAttribute("isdel");
                 String keyCode = keycodeElement.getAttribute("key_code");
                 NodeList packageList = keycodeElement.getElementsByTagName("package");
-                for (int j = 0; j < packageList.getLength(); j++) {
-                    Element packageElement = (Element) packageList.item(j);
-                    String packageName = packageElement.getAttribute("name");
-                    NodeList activityList = packageElement.getElementsByTagName("activity");
-                    for (int k = 0; k < activityList.getLength(); k++) {
-                        Element activityElement = (Element) activityList.item(k);
-                        String activityName = activityElement.getAttribute("name");
-                        String defaultValue = activityElement.getTextContent().replaceAll("\\s", "");
-                        Slog.w(TAG,"keyCode: " + keyCode + " ,packageName: " + packageName + " ,activityName: " + activityName + " ,defaultValue: " + defaultValue);
-                        String selection = null;
-                        String[] selectionArgs = null; 
-                        if(activityName == null || "".equals(activityName)){
-                            selection = "PACKAGE_NAME = ? AND KEY_CODE = ?";
-                            selectionArgs = new String[] {packageName,keyCode}; 
-                        }else{
-                            selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-                            selectionArgs = new String[] {packageName,keyCode, activityName}; 
+                if ("true".equals(isdel)) {
+                    db.deleteCompatibleByKeyCode( keyCode);
+                }else{
+                    List<Map<String,Object>> list = db.queryCompatiblesByKeyCode(keyCode);
+                    if(list != null && list.size() > 0 ){
+                        String queryDate = list.get(0).get("FIELDS1").toString();
+                        if (!updateDate.equals(queryDate)) {
+                            db.deleteCompatibleByKeyCode( keyCode);
                         }
-                        Map<String, Object> resMap = db.queryMapValueData(selection, selectionArgs);
-                        if ("true".equals(isdel)) {
-                            db.deleteCompatible(packageName, keyCode);
-                        } else if (resMap == null || resMap.get("PACKAGE_NAME") == null) {
+                    }
+                    for (int j = 0; j < packageList.getLength(); j++) {
+                        Element packageElement = (Element) packageList.item(j);
+                        String packageName = packageElement.getAttribute("name");
+                        NodeList activityList = packageElement.getElementsByTagName("activity");
+                        for (int k = 0; k < activityList.getLength(); k++) {
+                            Element activityElement = (Element) activityList.item(k);
+                            String activityName = activityElement.getAttribute("name");
+                            String defaultValue = activityElement.getTextContent().replaceAll("\\s", "");
+                            Slog.w(TAG,"keyCode: " + keyCode + " ,packageName: " + packageName + " ,activityName: " + activityName + " ,defaultValue: " + defaultValue);
+                            String selection = null;
+                            String[] selectionArgs = null; 
+                            if(activityName == null || "".equals(activityName)){
+                                selection = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+                                selectionArgs = new String[] {packageName,keyCode}; 
+                            }else{
+                                selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                                selectionArgs = new String[] {packageName,keyCode, activityName}; 
+                            }
                             db.insertCompatible(packageName, keyCode,activityName, defaultValue);
-                        } else {
-                            String queryDate = resMap.get("FIELDS1").toString();
-                            if (!updateDate.equals(queryDate)) {
-                            db.updateCompatible(packageName, keyCode, activityName,defaultValue, updateDate);
                         }
                     }
                 }
+                
             }
-        }
            db.readCompatibles();
            Slog.w(TAG,"parseValue end..........");
         } catch (Exception e) {

@@ -144,11 +144,11 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public List<Map<String, Object>> queryCompatiblesByPackageName(String packageName) {
+    public List<Map<String, Object>> queryCompatiblesByKeyCode(String keyCode) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String selection = "PACKAGE_NAME = ?  AND IS_DEL != 1";
-        String[] selectionArgs = {packageName};
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
+        String selection = "KEY_CODE = ?  AND IS_DEL != 1";
+        String[] selectionArgs = {keyCode};
+        Cursor cursor = db.query(TABLE_NAME, null, selection, selectionArgs, null, null, null);
 
         List<Map<String, Object>> list = new ArrayList<>();
         if (cursor.moveToFirst()) {
@@ -163,6 +163,7 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
                 String IS_DEL = cursor.getString(cursor.getColumnIndex("IS_DEL"));
                 String CREATE_DATE = cursor.getString(cursor.getColumnIndex("CREATE_DATE"));
                 String EDIT_DATE = cursor.getString(cursor.getColumnIndex("EDIT_DATE"));
+                String FIELDS1 = cursor.getString(cursor.getColumnIndex("FIELDS1"));
                 Map<String, Object> mp = new HashMap<>();
                 mp.put("_ID", _ID);
                 mp.put("PACKAGE_NAME", PACKAGE_NAME);
@@ -171,6 +172,7 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
                 mp.put("IS_ENABLE", IS_ENABLE);
                 mp.put("VALUE", VALUE);
                 mp.put("IS_DEL", IS_DEL);
+                mp.put("FIELDS1", FIELDS1);
                 mp.put("CREATE_DATE", CREATE_DATE);
                 mp.put("EDIT_DATE", EDIT_DATE);
                 list.add(mp);
@@ -260,7 +262,7 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
         values.put("APP_NAME", "");
         values.put("CREATE_DATE", curTime);
         values.put("EDIT_DATE", curTime);
-        values.put("FIELDS1", curTime);
+        values.put("FIELDS1", getCurDate());
         values.put("FIELDS2", "");
         values.put("ACTIVITY_NAME", activityName);
         db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -276,23 +278,33 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
         values.put("FIELDS1", date);
         values.put("ACTIVITY_NAME", activityName);
         values.put("EDIT_DATE", getCurDateTime());
-        int res = db.update(TABLE_NAME, values, "PACKAGE_NAME = ? AND KEY_CODE = ? ", new String[]{packageName, keycode});
+        int res = db.updateWithOnConflict(TABLE_NAME, values, "PACKAGE_NAME = ? AND KEY_CODE = ? ", new String[]{packageName, keycode},SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
         return res;
     }
 
 
-    public int deleteCompatible(String packageName) {
+    public int deleteCompatibleByPackageName(String packageName) {
+        Slog.w(TAG, "deleteCompatibleByPackageName " + packageName);
         SQLiteDatabase db = this.getWritableDatabase();
         int res = db.delete(TABLE_NAME, "PACKAGE_NAME = ? ", new String[]{packageName});
         db.close();
         return res;
     }
 
-
-    public int deleteCompatible(String packageName, String keycode) {
+    public int deleteCompatibleByKeyCode(String keyCode) {
+        Slog.w(TAG, "deleteCompatibleByKeyCode " + keyCode);
         SQLiteDatabase db = this.getWritableDatabase();
-        int res = db.delete(TABLE_NAME, "PACKAGE_NAME = ? AND KEY_CODE = ? ", new String[]{packageName, keycode});
+        int res = db.delete(TABLE_NAME, "KEY_CODE = ? ", new String[]{keyCode});
+        db.close();
+        return res;
+    }
+
+
+    public int deleteCompatible(String packageName, String keyCode) {
+        Slog.w(TAG, "deleteCompatible packageName " + packageName + ",keyCode: "+keyCode);
+        SQLiteDatabase db = this.getWritableDatabase();
+        int res = db.delete(TABLE_NAME, "PACKAGE_NAME = ? AND KEY_CODE = ? ", new String[]{packageName, keyCode});
         db.close();
         return res;
     }
@@ -303,6 +315,12 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public static String getCurDate() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedTime = currentTime.format(formatter);
+        return formattedTime;
+    }
 
     public static String getCurDateTime() {
         LocalDateTime currentTime = LocalDateTime.now();
