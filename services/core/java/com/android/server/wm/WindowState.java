@@ -265,6 +265,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
 
 /** A window in the window manager. */
 class WindowState extends WindowContainer<WindowState> implements WindowManagerPolicy.WindowState,
@@ -1905,13 +1907,14 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
     }
 
     boolean isCompatibilityFeaturesAllowScreenshotAndRecord(@NonNull Context context, String packageName){
-        boolean allowScreenshotAndRecord = true;
-        /*String resultStr = null;
-        resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isAllowScreenshotRecord");
-        if(resultStr != null && resultStr.contains("true")){
+        boolean allowScreenshotAndRecord = false;
+        String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+        String[] selectionArgs = {packageName,"isAllowScreenshotRecord", ""};
+        String resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+        if(TextUtils.equals(resultStr, "true")){
             allowScreenshotAndRecord = true;
         }
-        Slog.d(TAG,"fde query " + packageName + ", resultStr: " + resultStr + ", isAllowScreenshotAndRecord: " + allowScreenshotAndRecord);*/
+        Slog.d(TAG,"queryStringValueData " + packageName + ", resultStr: " + resultStr + ", isAllowScreenshotAndRecord: " + allowScreenshotAndRecord);
         return allowScreenshotAndRecord;
     }
 
