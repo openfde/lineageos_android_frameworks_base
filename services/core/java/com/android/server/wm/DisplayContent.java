@@ -276,6 +276,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import android.os.SystemProperties;
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
 
 /**
  * Utility class for keeping track of the WindowStates and other pertinent contents of a
@@ -4105,23 +4107,24 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
 
     public void ConfigCompatibilityFeaturesTurnOffSimulatedTouch(@NonNull Context context, String packageName){
         boolean isTurnOffSimulatedTouch = false;
+        String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+        String[] selectionArgs = {packageName,"isTurnOffSimulatedTouch", ""};
         String resultStr = null;
         if(context != null){
-            //resultStr = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "isTurnOffSimulatedTouch");
+            resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
             Slog.d(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query resultStr: " + resultStr);
         }else{
             Slog.e(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query failed, context is null.");
         }
-        if(resultStr != null && resultStr.contains("true")){
+        if(TextUtils.equals(resultStr, "true")){
             isTurnOffSimulatedTouch = true;
         }
         if(isTurnOffSimulatedTouch){
             SystemProperties.set("fde.click_as_touch", "false");
-            Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch false");
         }else{
             SystemProperties.set("fde.click_as_touch", "true");
-            Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch true");
         }
+        Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch: " + !isTurnOffSimulatedTouch);
     }
 
     /** Update the top activity and the uids of non-finishing activity */
