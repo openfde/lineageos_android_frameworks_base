@@ -63,6 +63,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import com.android.internal.util.CompatibleConfig;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 /**
  * Provides information about the size and density of a logical display.
@@ -1688,8 +1691,10 @@ public final class Display {
     public void getRealSize(Point outSize) {
         synchronized (mLock) {
             if(mContext != null){
-                //String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, mContext.getPackageName(), "isAllowRealDisplaySize");
-                if("com.taobao.idlefish".equals(mContext.getPackageName())/*TextUtils.equals(resultStr, "true")*/){
+                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                if(TextUtils.equals(resultStr, "true")){
                     getSize(outSize);
                     return;
                 }
@@ -1766,9 +1771,30 @@ public final class Display {
     public void getRealMetrics(DisplayMetrics outMetrics) {
         synchronized (mLock) {
             if(mContext != null){
-                //String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext,  mContext.getPackageName(), "isAllowRealDisplaySize");
-                if("com.taobao.idlefish".equals(mContext.getPackageName())/*TextUtils.equals(resultStr, "true")*/){
+                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                if(TextUtils.equals(resultStr, "true")){
                     getMetrics(outMetrics);
+                    return;
+                }
+            }
+            if(mContext != null){
+                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                String[] selectionArgs = {mContext.getPackageName(),"enabledVirtualDisplaySize", ""};
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                if(resultStr != null && !"".equals(resultStr)){
+                    getMetrics(outMetrics);
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(resultStr);
+                        int width = jsonObject.getInt("width");
+                        int height = jsonObject.getInt("height");
+                        outMetrics.widthPixels = width;
+                        outMetrics.heightPixels = height;
+                    } catch (JSONException e) {
+                        Log.e(TAG,"getRealMetrics error: " + e);
+                    }
                     return;
                 }
             }
