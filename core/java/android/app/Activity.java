@@ -1841,13 +1841,38 @@ public class Activity extends ContextThemeWrapper
             getOnBackInvokedDispatcher().registerSystemOnBackInvokedCallback(mDefaultBackCallback);
         }
 
-        String localClassName = getLocalClassName();
-        Slog.e(TAG,"getLocalClassName: " + localClassName);
-        if("plugin.brandservice.ui.flutter.BizFlutterTLFlutterViewActivity".equals(localClassName)
-            || "com.vega.gallery.activity.MediaSelectActivity".equals(localClassName)
-            || "com.vega.edit.editpage.activity.EditActivity".equals(localClassName)){
+        String packageName = this.getPackageName();
+        Slog.d(TAG,"getPackageName: " + packageName);
+        String selectionWithoutActivity = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+
+        String[] selectionArgsWithoutActivity = {packageName,"isShiftContentBelowCaption"};
+        String resultStr = CompatibleConfig.queryStringValueData(this, selectionWithoutActivity, selectionArgsWithoutActivity);
+        Slog.d(TAG,"isShiftContentBelowCaption without activity, resultStr: " + resultStr);
+        if(TextUtils.equals(resultStr, "true")){
+            getWindow().addCompatibleFlags(WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION);
+            return;
+        }
+
+        String activityName = extractActivityName(getLocalClassName());
+        Slog.d(TAG,"extractActivityName: " + activityName);
+        String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+        String[] selectionArgs = {packageName,"isShiftContentBelowCaption", activityName};
+        resultStr = CompatibleConfig.queryStringValueData(this, selection, selectionArgs);
+        Slog.d(TAG,"isShiftContentBelowCaption resultStr: " + resultStr);
+        if(TextUtils.equals(resultStr, "true")){
             getWindow().addCompatibleFlags(WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION);
         }
+    }
+
+    private String extractActivityName(String fullClassName) {
+        if (fullClassName == null || fullClassName.isEmpty()) {
+            return "";
+        }
+        int lastDotIndex = fullClassName.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return fullClassName;
+        }
+        return fullClassName.substring(lastDotIndex + 1);
     }
 
     /**
