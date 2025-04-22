@@ -74,7 +74,86 @@
    
 -->
 <items>
+	<item
+        isdel="false"
+        key_code="isAllowScreenshotRecord"
+        update_date="2025-04-21">
+		<package name="com.jingdong.app.mall">
+            <activity name="">true</activity>
+        </package>
+    </item>
 
-    
+	<item
+        isdel="false"
+        key_code="isTurnOffSimulatedTouch"
+        update_date="2025-04-21">
+		<package name="com.iiordanov.bVNC">
+            <activity name="">true</activity>
+        </package>
+        <package name="youqu.android.todesk">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.oray.sunlogin">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.fde.x11">
+            <activity name="">true</activity>
+        </package>
+    </item>
+
+	<item
+        isdel="false"
+        key_code="isAllowRealDisplaySize"
+        update_date="2025-04-21">
+		<package name="com.taobao.idlefish">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.android.qqdownloader">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.mm">
+            <activity name="">true</activity>
+        </package>
+    </item>
+
+	<item
+        isdel="false"
+        key_code="enabledVirtualDisplaySize"
+        update_date="2025-04-21">
+        <package name="com.microsoft.office.word">
+            <activity name="">{ width = 800,height = 600 }</activity>
+        </package>
+        <package name="com.microsoft.office.excel">
+            <activity name="">{ width = 800,height = 600 }</activity>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        key_code="isShiftContentBelowCaption"
+        update_date="2025-04-22">
+        <package name="com.lemon.lv">
+            <activity name="MediaSelectActivity">true</activity>
+            <activity name="EditActivity">true</activity>
+        </package>
+		<package name="com.tencent.mm">
+            <activity name="BizFlutterTLFlutterViewActivity">true</activity>
+        </package>
+        <package name="com.miHoYo.hkrpg">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.tmgp.cod">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.tmgp.supercell.clashroyale">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.tmgp.dwrg">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.tmgp.luobo4">
+            <activity name="">true</activity>
+        </package>
+    </item>
 
 </items>
