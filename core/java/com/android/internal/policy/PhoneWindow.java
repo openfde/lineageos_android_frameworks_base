@@ -2656,13 +2656,13 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         if (a.getBoolean(R.styleable.Window_backgroundDimEnabled,
                 mIsFloating)) {
             /* All dialogs should have the window dimmed */
-            if ((getForcedWindowFlags()&WindowManager.LayoutParams.FLAG_DIM_BEHIND) == 0) {
-                params.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-            }
-            if (!haveDimAmount()) {
-                params.dimAmount = a.getFloat(
-                        android.R.styleable.Window_backgroundDimAmount, 0.5f);
-            }
+//            if ((getForcedWindowFlags()&WindowManager.LayoutParams.FLAG_DIM_BEHIND) == 0) {
+//                params.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+//            }
+//            if (!haveDimAmount()) {
+//                params.dimAmount = a.getFloat(
+//                        android.R.styleable.Window_backgroundDimAmount, 0.5f);
+//            }
         }
 
         if (a.getBoolean(R.styleable.Window_windowBlurBehindEnabled, false)) {
