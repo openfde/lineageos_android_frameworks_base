@@ -111,9 +111,6 @@
 		<package name="com.tencent.android.qqdownloader">
             <activity name="">true</activity>
         </package>
-		<package name="com.tencent.mm">
-            <activity name="">true</activity>
-        </package>
     </item>
 
 	<item
@@ -152,6 +149,9 @@
             <activity name="">true</activity>
         </package>
 		<package name="com.tencent.tmgp.luobo4">
+            <activity name="">true</activity>
+        </package>
+		<package name="com.tencent.tmgp.sgame">
             <activity name="">true</activity>
         </package>
     </item>
