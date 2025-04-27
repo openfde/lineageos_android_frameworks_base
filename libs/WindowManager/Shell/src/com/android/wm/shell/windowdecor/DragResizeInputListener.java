@@ -55,6 +55,7 @@ import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayLayout;
 
 import java.util.function.Supplier;
+import android.util.Log;
 
 /**
  * An input event listener registered to InputDispatcher to receive input events on task edges and
@@ -438,6 +439,10 @@ class DragResizeInputListener implements AutoCloseable {
                     }
                     mInputManager.pilferPointers(mInputChannel.getToken());
                     int dragPointerIndex = e.findPointerIndex(mDragPointerId);
+                    if (dragPointerIndex < 0) {
+                        Log.d(TAG," Handling action move, but ignore event due to invalid pointer index");
+                        break;
+                    }
                     float rawX = e.getRawX(dragPointerIndex);
                     float rawY = e.getRawY(dragPointerIndex);
                     final Rect taskBounds = mCallback.onDragPositioningMove(rawX, rawY);
@@ -450,6 +455,10 @@ class DragResizeInputListener implements AutoCloseable {
                     mInputManager.pilferPointers(mInputChannel.getToken());
                     if (mShouldHandleEvents) {
                         int dragPointerIndex = e.findPointerIndex(mDragPointerId);
+                        if (dragPointerIndex < 0) {
+                            Log.d(TAG,"Handling action %d, but ignore event due to invalid pointer index");
+                            break;
+                        }
                         final Rect taskBounds = mCallback.onDragPositioningEnd(
                                 e.getRawX(dragPointerIndex), e.getRawY(dragPointerIndex));
                         // If taskBounds has changed, setGeometry will be called and update the

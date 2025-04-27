@@ -18,6 +18,7 @@ package com.android.wm.shell.windowdecor;
 
 import static android.view.WindowManager.TRANSIT_CHANGE;
 
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.IBinder;
@@ -35,6 +36,7 @@ import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.transition.Transitions;
 
 import java.util.function.Supplier;
+import android.util.Log;
 
 /**
  * A task positioner that resizes/relocates task contents as it is dragged.
@@ -50,6 +52,7 @@ import java.util.function.Supplier;
  */
 class FluidResizeTaskPositioner implements DragPositioningCallback,
         TaskDragResizer, Transitions.TransitionHandler {
+    private static final String TAG = "FluidResizeTaskPositioner";
     private final ShellTaskOrganizer mTaskOrganizer;
     private final Transitions mTransitions;
     private final WindowDecoration mWindowDecoration;
@@ -189,10 +192,14 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
         for (TransitionInfo.Change change: info.getChanges()) {
             final SurfaceControl sc = change.getLeash();
             final Rect endBounds = change.getEndAbsBounds();
+            final Point endPosition = change.getEndRelOffset();
             startTransaction.setWindowCrop(sc, endBounds.width(), endBounds.height())
-                    .setPosition(sc, endBounds.left, endBounds.top);
+                    .setPosition(sc,  endPosition.x, endPosition.y);
             finishTransaction.setWindowCrop(sc, endBounds.width(), endBounds.height())
-                    .setPosition(sc, endBounds.left, endBounds.top);
+                    .setPosition(sc,  endPosition.x, endPosition.y);
+
+            // Log.w(TAG,"startAnimation endPosition.x "+endPosition.x + ",endPosition.y: "+endPosition.y);   
+            // Log.w(TAG,"startAnimation endBounds.left "+endBounds.left + ",endBounds.top: "+endBounds.top);       
         }
 
         startTransaction.apply();
