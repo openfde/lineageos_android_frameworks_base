@@ -92,6 +92,8 @@ public class WindowLayout {
 //            Log.e(TAG + attrs.getTitle() , "shiftContent: " + shiftContent);
             final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
             final Insets captionBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.captionBar(), false);
+            final Insets navigationBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.navigationBars(), false);
+
             if(!shiftContent){
                 if(outDisplayFrame.top == 0){
                     outDisplayFrame.top = statusBarInsets.top;
@@ -117,8 +119,11 @@ public class WindowLayout {
                     outFrame.top += 42;
                 }
             }
-            Log.e(TAG + attrs.getTitle() , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
+            if(DEBUG){
+                Log.e(TAG , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
                         + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets + " captionBarInsets:" + captionBarInsets);
+            }
+            outDisplayFrame.inset(navigationBarInsets);
         }
         if (attachedWindowFrame == null) {
             outParentFrame.set(outDisplayFrame);

@@ -2521,10 +2521,10 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             setFlags(FLAG_TRANSLUCENT_NAVIGATION, FLAG_TRANSLUCENT_NAVIGATION
                     & (~getForcedWindowFlags()));
         }
-
-        if (a.getBoolean(R.styleable.Window_windowShowWallpaper, false)) {
+        //fde   show wallpaper in navagitonbar area  in fullscreen window mode
+//        if (a.getBoolean(R.styleable.Window_windowShowWallpaper, false)) {
             setFlags(FLAG_SHOW_WALLPAPER, FLAG_SHOW_WALLPAPER&(~getForcedWindowFlags()));
-        }
+//        }
 
         if (a.getBoolean(R.styleable.Window_windowEnableSplitTouch,
                 getContext().getApplicationInfo().targetSdkVersion
@@ -2655,6 +2655,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
         if (a.getBoolean(R.styleable.Window_backgroundDimEnabled,
                 mIsFloating)) {
+            // fde never dim behind for freeform desktop
             /* All dialogs should have the window dimmed */
 //            if ((getForcedWindowFlags()&WindowManager.LayoutParams.FLAG_DIM_BEHIND) == 0) {
 //                params.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
