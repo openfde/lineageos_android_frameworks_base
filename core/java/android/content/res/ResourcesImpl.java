@@ -71,7 +71,11 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Locale;
-
+import android.content.Context;
+import com.android.internal.util.CompatibleConfig;
+import org.json.JSONObject;
+import org.json.JSONException;
+import android.text.TextUtils;
 /**
  * The implementation of Resource access. This class contains the AssetManager and all caches
  * associated with it.
@@ -148,6 +152,8 @@ public class ResourcesImpl {
     private final String[] mCachedXmlBlockFiles = new String[XML_BLOCK_CACHE_SIZE];
     private final XmlBlock[] mCachedXmlBlocks = new XmlBlock[XML_BLOCK_CACHE_SIZE];
 
+    private int mCachedFakeResourceWidth = -1;
+    private int mCachedFakeResourceHeight = -1;
 
     @UnsupportedAppUsage
     final AssetManager mAssets;
@@ -216,7 +222,58 @@ public class ResourcesImpl {
     DisplayMetrics getDisplayMetrics() {
         if (DEBUG_CONFIG) Slog.v(TAG, "Returning DisplayMetrics: " + mMetrics.widthPixels
                 + "x" + mMetrics.heightPixels + " " + mMetrics.density);
+
+        if(mCachedFakeResourceWidth > 0 && mCachedFakeResourceHeight > 0) {
+            mMetrics.widthPixels = mCachedFakeResourceWidth;
+            mMetrics.heightPixels = mCachedFakeResourceHeight;
+        } else if(mCachedFakeResourceWidth < 0 || mCachedFakeResourceHeight < 0 ){
+            Context context = getContext();
+            if(context != null){
+                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                String[] selectionArgs = {context.getPackageName(),"enabledResourceFixedLayout", ""};
+                String resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+
+                Slog.d(TAG, "getDisplayMetrics: query " + context.getPackageName() + " resultStr: " + resultStr);
+                if(!TextUtils.isEmpty(resultStr)){
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(resultStr);
+                        int width = jsonObject.getInt("width");
+                        int height = jsonObject.getInt("height");
+                        if(width > 0 && height > 0){
+                            mCachedFakeResourceWidth = width;
+                            mCachedFakeResourceHeight = height;
+                            mMetrics.widthPixels = mCachedFakeResourceWidth;
+                            mMetrics.heightPixels = mCachedFakeResourceHeight;
+                        }
+                        Slog.d(TAG,"getDisplayMetrics mMetrics.widthPixels: " + mMetrics.widthPixels);
+                        Slog.d(TAG,"getDisplayMetrics mMetrics.widthPixels: " + mMetrics.widthPixels);
+                    } catch (JSONException e) {
+                        Slog.e(TAG,"getDisplayMetrics error: " + e);
+                    }
+                } else {
+                    mCachedFakeResourceWidth = 0;
+                    mCachedFakeResourceHeight = 0;
+                }
+            }
+        }
+
         return mMetrics;
+    }
+
+    /**
+     * @hide
+     */
+    public Context getContext() {
+        try {
+            Context context = (Context) Class.forName("android.app.ActivityThread")
+                    .getMethod("currentApplication").invoke(null, (Object[]) null);
+
+            return context;
+        } catch (Exception e) {
+            Slog.e(TAG,"getContext error: " + e);
+            return null;
+        }
     }
 
     Configuration getConfiguration() {
