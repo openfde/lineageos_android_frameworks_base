@@ -4158,6 +4158,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     public static final int STATUS_BAR_DISABLE_EXPAND = 0x00010000;
 
     /**
+     * hard code this view to set view visible frame rect.bottom as height, which in freeform mode bottom is not
+     */
+    private static final String SET_PACKAGE_BOTTOM_ASHEIGHT = "com.tencent.mm";
+    private static final String SET_VIEW_BOTTOM_ASHEIGHT = "LayoutListenerView";
+
+    /**
      * @hide
      *
      * NOTE: This flag may only be used in subtreeSystemUiVisibility. It is masked
@@ -16817,6 +16823,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     public void getWindowVisibleDisplayFrame(Rect outRect) {
         if (mAttachInfo != null) {
             mAttachInfo.mViewRootImpl.getWindowVisibleDisplayFrame(outRect);
+            if( getClass().getName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT)
+                    && getClass().getSimpleName().contains(SET_VIEW_BOTTOM_ASHEIGHT)){
+                outRect.bottom = outRect.bottom - outRect.top;
+            }
             return;
         }
         // TODO (b/327559224): Refine the behavior to better reflect the window environment with API
@@ -16828,6 +16838,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         outRect.set(metrics.getBounds());
         outRect.inset(insets);
         outRect.offsetTo(0, 0);
+
     }
 
     /**

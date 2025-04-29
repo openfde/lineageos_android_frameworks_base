@@ -96,6 +96,12 @@ public final class WindowManagerImpl implements WindowManager {
     private final Window mParentWindow;
 
     /**
+     * this window do not show on phone, so ban it to simply edittext location method work in View.java
+     */
+    private static final String BAN_WINDOW_TITILE = "KeyboardWindow@";
+    private static final String SET_PACKAGE_BOTTOM_ASHEIGHT = "com.tencent.mm";
+
+    /**
      * If {@link LayoutParams#token} is {@code null} and no parent window is specified, the value
      * of {@link LayoutParams#token} will be overridden to {@code mDefaultToken}.
      */
@@ -154,6 +160,14 @@ public final class WindowManagerImpl implements WindowManager {
 
     @Override
     public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+
+        if(params instanceof WindowManager.LayoutParams
+                && mContext.getPackageName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT)){
+            WindowManager.LayoutParams p = (WindowManager.LayoutParams)params;
+            if((p.getTitle() != null && p.getTitle().toString().contains(BAN_WINDOW_TITILE))){
+                return;
+            }
+        }
         applyTokens(params);
         mGlobal.addView(view, params, mContext.getDisplayNoVerify(), mParentWindow,
                 mContext.getUserId());
