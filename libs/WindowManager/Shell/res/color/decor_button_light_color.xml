@@ -16,6 +16,6 @@
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item app:state_task_focused="true" android:color="#FFFFFFFF" />
-    <item android:color="#33FFFFFF" />
+    <item app:state_task_focused="true" android:color="#ffCCCCCC" />
+    <item android:color="#33CCCCCC" />
 </selector>

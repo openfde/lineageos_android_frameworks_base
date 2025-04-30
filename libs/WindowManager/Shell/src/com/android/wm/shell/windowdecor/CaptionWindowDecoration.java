@@ -41,6 +41,12 @@ import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayLayout;
 import com.android.wm.shell.common.SyncTransactionQueue;
 import android.util.Log;
+import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.view.ViewParent;
+import android.view.ViewRootImpl;
+import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
 
 /**
  * Defines visuals and behaviors of a window decoration of a caption bar and shadows. It works with
@@ -284,24 +290,22 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         }
 
         final View caption = mResult.mRootView.findViewById(R.id.caption);
-        final GradientDrawable captionDrawable = (GradientDrawable) caption.getBackground();
-        captionDrawable.setColor(captionColor);
+        /*final GradientDrawable captionDrawable = (GradientDrawable) caption.getBackground();
+        captionDrawable.setColor(captionColor);*/
 
         int buttonTintColorRes =
-                Color.valueOf(captionColor).luminance() < 0.5
+                isDarkTheme(mContext)
                         ? R.color.decor_button_light_color
                         : R.color.decor_button_dark_color;
 
-        int backgroundColor = mTaskInfo.taskDescription.getBackgroundColor();
-        if(buttonTintColorRes == R.color.decor_button_light_color){
-            if(isBiasedTowardsWhiteOrTransparent(backgroundColor) && isBiasedTowardsWhiteOrTransparent(captionColor)){
-                buttonTintColorRes = R.color.decor_button_dark_color;
-            }
+        final View captionSub = caption.findViewById(R.id.caption_sub);
+        if(isDarkTheme(mContext)){
+            captionSub.setBackgroundColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_dark));
         }else{
-            if(!isBiasedTowardsWhiteOrTransparent(backgroundColor) && !isBiasedTowardsWhiteOrTransparent(captionColor)){
-                buttonTintColorRes = R.color.decor_button_light_color;
-            }
+            captionSub.setBackgroundColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_light));
         }
+
+        setBackgroundBlurRadius(caption, 40, 10f);
 
         final ColorStateList buttonTintColor =
                 caption.getResources().getColorStateList(buttonTintColorRes, null /* theme */);
@@ -329,16 +333,36 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         closeBackground.setTintList(buttonTintColor);
     }
 
-    boolean isBiasedTowardsWhiteOrTransparent(int color){
-        int WHITE_THRESHOLD = 240;
-        int alpha = (color >> 24) & 0xff;
-        int red = (color >> 16)& 0xff;
-        int green = (color >> 8)& 0xff;;
-        int blue  = color& 0xff;
-        if(alpha == 0){
-            return true;
+    public void setBackgroundBlurRadius(View view, int radius, float cornerRadius) {
+        if (view == null) {
+            return;
         }
-        return red >= WHITE_THRESHOLD && green >= WHITE_THRESHOLD && blue >= WHITE_THRESHOLD;
+
+        ViewParent target = view.getParent();
+        while (target != null) {
+            if (target instanceof ViewRootImpl) {
+                break;
+            }
+            target = target.getParent();
+        }
+
+        if (target instanceof ViewRootImpl) {
+            ViewRootImpl viewRootImpl = (ViewRootImpl) target;
+            Drawable blurDrawable = viewRootImpl.createBackgroundBlurDrawable(radius);
+            ((BackgroundBlurDrawable)blurDrawable).setCornerRadius(cornerRadius, cornerRadius, 0f, 0f);
+            Drawable realDrawable = view.getBackground();
+            LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{realDrawable, blurDrawable});
+            view.setBackground(layerDrawable);
+
+        }
+    }
+
+    private boolean isDarkTheme(Context context) {
+        if(context != null){
+            int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+        }
+        return false;
     }
 
     void setCaptionLable(){

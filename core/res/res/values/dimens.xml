@@ -38,6 +38,7 @@
     <dimen name="toast_text_size">14sp</dimen>
     <!-- Elevation of toast view -->
     <dimen name="toast_elevation">2dp</dimen>
+    <dimen name="freeform_decor_caption_height">48dp</dimen>
 
     <!-- The default height of the status bar used in {@link SystemBarUtils#getStatusBarHeight} to
          calculate the status bar height. -->

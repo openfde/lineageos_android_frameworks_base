@@ -21,6 +21,13 @@
     android:layout_height="wrap_content"
     android:gravity="end"
     android:background="@drawable/caption_decor_title">
+	<LinearLayout
+		android:id="@+id/caption_sub"
+		android:layout_width="match_parent"
+		android:layout_height="44dp"
+		android:gravity="end"
+		android:duplicateParentState="true"
+		>
     <Button
         style="@style/CaptionButtonStyle"
         android:id="@+id/back_button"
@@ -69,4 +76,5 @@
         android:contentDescription="@string/close_button_text"
         android:background="@drawable/decor_close_button_dark"
         android:duplicateParentState="true"/>
+    </LinearLayout>
 </com.android.wm.shell.windowdecor.WindowDecorLinearLayout>
