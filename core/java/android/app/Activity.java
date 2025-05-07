@@ -1843,9 +1843,9 @@ public class Activity extends ContextThemeWrapper
 
         String packageName = this.getPackageName();
         Slog.d(TAG,"getPackageName: " + packageName);
-        String selectionWithoutActivity = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+        String selectionWithoutActivity = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
 
-        String[] selectionArgsWithoutActivity = {packageName,"isShiftContentBelowCaption"};
+        String[] selectionArgsWithoutActivity = {packageName,"isShiftContentBelowCaption", ""};
         String resultStr = CompatibleConfig.queryStringValueData(this, selectionWithoutActivity, selectionArgsWithoutActivity);
         Slog.d(TAG,"isShiftContentBelowCaption without activity, resultStr: " + resultStr);
         if(TextUtils.equals(resultStr, "true")){
