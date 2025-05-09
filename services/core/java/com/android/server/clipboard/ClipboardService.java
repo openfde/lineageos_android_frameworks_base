@@ -104,6 +104,7 @@ import com.android.server.wm.WindowManagerInternal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
+import android.openfde.Clipboard;
 
 /**
  * Implementation of the clipboard for copy and paste.
@@ -153,6 +154,7 @@ public class ClipboardService extends SystemService {
     private final IBinder mPermissionOwner;
     private final Consumer<ClipData> mEmulatorClipboardMonitor;
     private final Handler mWorkerHandler;
+    private android.openfde.Clipboard mWaydroidClipboard = null;
 
     @GuardedBy("mLock")
     // Maps (userId, deviceId) to Clipboard.
@@ -212,6 +214,8 @@ public class ClipboardService extends SystemService {
         HandlerThread workerThread = new HandlerThread(TAG);
         workerThread.start();
         mWorkerHandler = workerThread.getThreadHandler();
+        mWaydroidClipboard = android.openfde.Clipboard.getInstance(context);
+
     }
 
     @Override
@@ -597,6 +601,19 @@ public class ClipboardService extends SystemService {
             synchronized (mLock) {
                 scheduleAutoClear(userId, intendingUid, intendingDeviceId);
                 setPrimaryClipInternalLocked(clip, intendingUid, intendingDeviceId, sourcePackage);
+                if (mWaydroidClipboard != null) {
+                    ClipData.Item firstItem = clip.getItemAt(0);
+                    if (firstItem.getText() != null ){
+                        String text = firstItem.getText().toString();
+                        mWaydroidClipboard.sendClipboardData(text);
+                    }else {
+                        if (firstItem.getUri() != null ){
+                            String text = firstItem.getUri().toString();
+                            mWaydroidClipboard.sendClipboardData(text);
+                        }
+                    }
+                }
+
             }
         }
 
@@ -687,6 +704,17 @@ public class ClipboardService extends SystemService {
                 if (clipboard.primaryClip != null) {
                     scheduleAutoClear(userId, intendingUid, intendingDeviceId);
                 }
+                if (mWaydroidClipboard != null && mWaydroidClipboard.getService() != null) {
+                    String waydroidPaste = mWaydroidClipboard.getClipboardData();
+                    if ( !waydroidPaste.isEmpty() ){
+                        if ((!waydroidPaste.startsWith("content://")) || ( clipboard.primaryClip == null) ){
+                            ClipData clip = new ClipData("host clipboard",
+                                        new String[]{"text/plain"},
+                                        new ClipData.Item(waydroidPaste));
+                            return clip;
+                        }
+                    }
+                }
                 return clipboard.primaryClip;
             }
         }
@@ -731,6 +759,10 @@ public class ClipboardService extends SystemService {
                             false)
                     || isDeviceLocked(intendingUserId, deviceId)) {
                 return false;
+            }
+            if (mWaydroidClipboard != null && mWaydroidClipboard.getService() != null) {
+                String waydroidPaste = mWaydroidClipboard.getClipboardData();
+                return !waydroidPaste.isEmpty();
             }
             synchronized (mLock) {
                 Clipboard clipboard = getClipboardLocked(intendingUserId, intendingDeviceId);
