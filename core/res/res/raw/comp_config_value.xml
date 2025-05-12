@@ -165,11 +165,6 @@
         <package name="com.tencent.mm">
             <activity name="">{ width = 720,height = 1080 }</activity>
         </package>
-
-
-        <package name="com.tencent.mm">
-            <activity name="">{ width = 720,height = 1080 }</activity>
-        </package>
     </item>
 
 </items>
