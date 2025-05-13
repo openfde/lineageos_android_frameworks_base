@@ -187,7 +187,8 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 ? R.dimen.freeform_decor_shadow_focused_thickness
                 : R.dimen.freeform_decor_shadow_unfocused_thickness;
         if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
-                && taskInfo.topActivity.getPackageName().equals("com.android.packageinstaller")) {
+                &&  (taskInfo.topActivity.getPackageName().equals("com.android.packageinstaller")
+                || taskInfo.topActivity.getClassName().equals("com.android.internal.app.ResolverActivity"))) {
             shadowRadiusID = R.dimen.freeform_decor_shadow_focused_0_thickness;
         }
 
