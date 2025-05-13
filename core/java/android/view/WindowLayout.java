@@ -87,9 +87,8 @@ public class WindowLayout {
         outDisplayFrame.set(windowBounds.left + left, windowBounds.top + top,
                 windowBounds.right - right, windowBounds.bottom - bottom);
 
-        if (type == TYPE_BASE_APPLICATION) {
+        if (type == TYPE_BASE_APPLICATION ) {
             boolean shiftContent = (cfl & WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0;
-//            Log.e(TAG + attrs.getTitle() , "shiftContent: " + shiftContent);
             final Insets statusBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.statusBars(), false);
             final Insets captionBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.captionBar(), false);
             final Insets navigationBarInsets = state.calculateInsets(windowBounds, WindowInsets.Type.navigationBars(), false);
@@ -123,8 +122,10 @@ public class WindowLayout {
                 Log.e(TAG , "before computeFrames outDisplayFrame:" + outDisplayFrame + " outParentFrame:"+ outParentFrame
                         + " outFrame:" + outFrame + " statusBarInsets:" + statusBarInsets + " captionBarInsets:" + captionBarInsets);
             }
-            outDisplayFrame.inset(navigationBarInsets);
-        }
+	    if(!attrs.getTitle().toString().contains("com.android.launcher3.uioverrides.QuickstepLauncher")){
+            	outDisplayFrame.inset(navigationBarInsets);
+	    }
+	}
         if (attachedWindowFrame == null) {
             outParentFrame.set(outDisplayFrame);
             if ((pfl & PRIVATE_FLAG_INSET_PARENT_FRAME_BY_IME) != 0) {
