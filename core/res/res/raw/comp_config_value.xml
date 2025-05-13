@@ -130,8 +130,7 @@
         key_code="isShiftContentBelowCaption"
         update_date="2025-04-22">
         <package name="com.lemon.lv">
-            <activity name="MediaSelectActivity">true</activity>
-            <activity name="EditActivity">true</activity>
+            <activity name="">true</activity>
         </package>
 		<package name="com.tencent.mm">
             <activity name="BizFlutterTLFlutterViewActivity">true</activity>
@@ -163,11 +162,6 @@
         isdel="false"
         key_code="enabledResourceFixedLayout"
         update_date="2025-04-29">
-        <package name="com.tencent.mm">
-            <activity name="">{ width = 720,height = 1080 }</activity>
-        </package>
-
-
         <package name="com.tencent.mm">
             <activity name="">{ width = 720,height = 1080 }</activity>
         </package>
