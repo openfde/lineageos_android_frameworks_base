@@ -28,6 +28,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Handler;
+import android.os.SystemProperties;
 import android.view.Choreographer;
 import android.view.SurfaceControl;
 import android.view.View;
@@ -315,8 +316,9 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         }else{
             captionSub.setBackgroundColor(mContext.getResources().getColor(R.color.desktop_mode_caption_handle_bar_light));
         }
-
-        setBackgroundBlurRadius(caption, 40, 10f);
+        if(!SystemProperties.getBoolean("fde.systemui.blurlevel", false)){
+            setBackgroundBlurRadius(caption, 40, 10f);
+        }
 
         final ColorStateList buttonTintColor =
                 caption.getResources().getColorStateList(buttonTintColorRes, null /* theme */);
