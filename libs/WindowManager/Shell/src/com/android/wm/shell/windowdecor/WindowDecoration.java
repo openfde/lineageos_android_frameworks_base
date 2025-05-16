@@ -202,11 +202,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         mLayoutResId = params.mLayoutResId;
 
         if (!mTaskInfo.isVisible) {
-            if(mDecorationContainerSurface != null){
-                startT.hide(mDecorationContainerSurface);
-            }
             releaseViews();
             finishT.hide(mTaskSurface);
+            finishT.apply();
             return;
         }
 
@@ -428,12 +426,14 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             mViewHost = mSurfaceControlViewHostFactory.create(mDecorWindowContext, mDisplay,
                     mCaptionWindowManager);
             if (params.mApplyStartTransactionOnDraw) {
-                mViewHost.getRootSurfaceControl().applyTransactionOnDraw(startT);
+//                mViewHost.getRootSurfaceControl().applyTransactionOnDraw(startT);
+                startT.apply();
             }
             mViewHost.setView(outResult.mRootView, lp);
         } else {
             if (params.mApplyStartTransactionOnDraw) {
-                mViewHost.getRootSurfaceControl().applyTransactionOnDraw(startT);
+//                mViewHost.getRootSurfaceControl().applyTransactionOnDraw(startT);
+                startT.apply();
             }
             mViewHost.relayout(lp);
         }
