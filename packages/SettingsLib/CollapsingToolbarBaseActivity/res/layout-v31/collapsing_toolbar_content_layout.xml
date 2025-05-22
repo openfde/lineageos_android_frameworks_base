@@ -25,7 +25,6 @@
         android:fitsSystemWindows="true"
         android:outlineAmbientShadowColor="@android:color/transparent"
         android:outlineSpotShadowColor="@android:color/transparent"
-        android:background="@android:color/transparent"
         android:theme="@style/Theme.CollapsingToolbar.Settings">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -51,10 +50,14 @@
             <Toolbar
                 android:id="@+id/action_bar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:tag="drag"
+                android:background="#c7F7F7F7"
+                android:layout_height="44dp"
                 android:theme="?android:attr/actionBarTheme"
                 android:transitionName="shared_element_view"
-                app:layout_collapseMode="pin"/>
+                app:layout_collapseMode="pin"  >
+                       <include layout="@layout/layout_settings_title_bar"/>
+            </Toolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
