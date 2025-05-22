@@ -174,7 +174,7 @@ public class BannerMessagePreference extends Preference {
 
             holder.setDividerAllowedAbove(false);
             holder.setDividerAllowedBelow(false);
-            holder.itemView.getBackground().setTint(backgroundColor);
+            // holder.itemView.getBackground().setTint(backgroundColor);
 
             mPositiveButtonInfo.mColor = accentColor;
             mNegativeButtonInfo.mColor = accentColor;
