@@ -50,7 +50,7 @@
                 android:id="@+id/action_bar"
                 android:layout_width="match_parent"
                 android:tag="drag"
-                android:background="#c7F7F7F7"
+                android:background="@drawable/bg_top_menu"
                 android:layout_height="44dp"
                 android:theme="?android:attr/actionBarTheme"
                 android:transitionName="shared_element_view"
