@@ -23,7 +23,10 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
-    android:background="@android:color/transparent"
+    android:background="@drawable/card_round_white"
+    android:layout_marginHorizontal="16dp"
+    android:paddingHorizontal="16dp"
+    android:id="@+id/rootView"
     android:clipToPadding="false">
 
     <LinearLayout
@@ -66,6 +69,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
+                android:textStyle="bold"
+                android:textColor="#ff1A1A1A"
+                android:textSize="14sp"
                 android:textAppearance="?android:attr/textAppearanceListItem"
                 android:ellipsize="marquee" />
 

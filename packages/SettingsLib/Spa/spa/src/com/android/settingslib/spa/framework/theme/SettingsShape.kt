@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 object SettingsShape {
     val CornerExtraSmall = RoundedCornerShape(4.dp)
 
-    val CornerMedium = RoundedCornerShape(12.dp)
+    val CornerMedium = RoundedCornerShape(8.dp)
 
-    val CornerExtraLarge = RoundedCornerShape(28.dp)
+    val CornerExtraLarge = RoundedCornerShape(8.dp)
 }

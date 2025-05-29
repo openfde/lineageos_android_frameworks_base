@@ -204,7 +204,7 @@ public class UsageProgressBarPreference extends Preference {
         final Matcher matcher = mNumberPattern.matcher(summary);
         if (matcher.find()) {
             final SpannableString spannableSummary =  new SpannableString(summary);
-            spannableSummary.setSpan(new AbsoluteSizeSpan(64, true /* dip */), matcher.start(),
+            spannableSummary.setSpan(new AbsoluteSizeSpan(32, true /* dip */), matcher.start(),
                     matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             return spannableSummary;
         }

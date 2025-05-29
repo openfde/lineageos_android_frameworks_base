@@ -53,26 +53,34 @@ public class TwoTargetPreference extends Preference {
     public TwoTargetPreference(Context context, AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context);
+        init(context,attrs);
     }
 
     public TwoTargetPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init(context,attrs);
     }
 
     public TwoTargetPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init(context,attrs);
     }
 
     public TwoTargetPreference(Context context) {
         super(context);
-        init(context);
+        init(context,null);
     }
 
-    private void init(Context context) {
+    private void init(Context context,AttributeSet attrs) {
         setLayoutResource(R.layout.preference_two_target);
+        if(attrs !=null ){
+            String value = attrs.getAttributeValue("http://schemas.android.com/apk/res/android","key");
+            if("dark_ui_mode".equals(value)){
+                setLayoutResource(R.layout.preference_top_two_target);
+            }else if("screen_timeout".equals(value) || "screen_timeout".equals(value)){
+                setLayoutResource(R.layout.preference_bottom_two_target);
+            }
+        }
         mSmallIconSize = context.getResources().getDimensionPixelSize(
                 R.dimen.two_target_pref_small_icon_size);
         mMediumIconSize = context.getResources().getDimensionPixelSize(

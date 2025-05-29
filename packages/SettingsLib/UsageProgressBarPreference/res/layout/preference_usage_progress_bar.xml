@@ -22,9 +22,9 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:layout_marginStart="?android:attr/listPreferredItemPaddingStart"
-    android:layout_marginEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:paddingBottom="16dp">
+    android:background="@drawable/card_round_white"
+    android:layout_margin="16dp"
+    android:padding="16dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -64,6 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="100"
+        android:layout_marginTop="8dp"
         android:scaleY="1"/>
 
     <TextView

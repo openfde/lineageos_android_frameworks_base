@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (C) 2021 The Android Open Source Project
+  Copyright (C) 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
-    android:background="@drawable/card_round_white"
+    android:background="@drawable/card_round_top_white"
     android:layout_marginHorizontal="16dp"
-    android:paddingHorizontal="16dp"
+    android:paddingHorizontal="16dp"  
     android:clipToPadding="false">
 
     <include layout="@layout/settingslib_icon_frame"/>
@@ -41,6 +41,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="2"
+            android:hyphenationFrequency="normalFast"
+            android:lineBreakWordStyle="phrase"
+            android:textColor="#ff1A1A1A"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textAppearance="?android:attr/textAppearanceListItem"
             android:ellipsize="marquee"/>
@@ -52,7 +56,10 @@
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
             android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-            android:textColor="?android:attr/textColorSecondary"
+            android:hyphenationFrequency="normalFast"
+            android:lineBreakWordStyle="phrase"
+            android:textColor="#991A1A1A"
+            android:textSize="12sp"
             android:maxLines="10"/>
 
     </RelativeLayout>
