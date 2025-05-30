@@ -30,6 +30,7 @@ import com.android.settingslib.widget.preference.twotarget.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 
 /**
  * The Base preference with two target areas divided by a vertical divider
@@ -49,6 +50,11 @@ public class TwoTargetPreference extends Preference {
     private int mIconSize;
     private int mSmallIconSize;
     private int mMediumIconSize;
+
+    private final String[] arrayTop = {"dark_ui_mode", "toggle_keyboard_sticky_keys", "toggle_audio_description"};
+    private final String[] arrayBottom = {"screen_timeout", "toggle_keyboard_bounce_keys"};
+    private final String[] arraySquare = {"reduce_bright_colors_preference"};
+
 
     public TwoTargetPreference(Context context, AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
@@ -75,11 +81,13 @@ public class TwoTargetPreference extends Preference {
         setLayoutResource(R.layout.preference_two_target);
         if(attrs !=null ){
             String value = attrs.getAttributeValue("http://schemas.android.com/apk/res/android","key");
-            if("dark_ui_mode".equals(value)){
+            if(Arrays.stream(arrayTop).anyMatch(value::equals)){
                 setLayoutResource(R.layout.preference_top_two_target);
-            }else if("screen_timeout".equals(value) || "screen_timeout".equals(value)){
+            }else if(Arrays.stream(arrayBottom).anyMatch(value::equals)){
                 setLayoutResource(R.layout.preference_bottom_two_target);
-            }
+            }else if(Arrays.stream(arraySquare).anyMatch(value::equals)) {
+                setLayoutResource(R.layout.preference_square_two_target);
+            }     
         }
         mSmallIconSize = context.getResources().getDimensionPixelSize(
                 R.dimen.two_target_pref_small_icon_size);
