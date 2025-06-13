@@ -244,7 +244,7 @@ class LaunchParamsPersister {
                     /* flush */ false);
         }
         // fde start MAGIC WINDOW
-        if(magic != null && changed){
+        if(magic != null && changed && magic.getTopNonFinishingActivity() != null){
             final ComponentName magicName = magic.getTopNonFinishingActivity().mActivityComponent;
             if (magicName == null) {
                 return;
