@@ -45,7 +45,6 @@
             android:lineBreakWordStyle="phrase"
             android:textColor="#ff1A1A1A"
             android:textSize="14sp"
-            android:textStyle="bold"
             android:textAppearance="?android:attr/textAppearanceListItem"
             android:ellipsize="marquee"/>
 

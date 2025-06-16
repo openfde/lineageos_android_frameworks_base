@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
-    android:background="@drawable/card_round_white"
+    android:background="#fff"
     android:layout_marginHorizontal="16dp"
     android:paddingHorizontal="16dp"  
     android:clipToPadding="false">
@@ -45,7 +45,6 @@
             android:lineBreakWordStyle="phrase"
             android:textColor="#ff1A1A1A"
             android:textSize="14sp"
-            android:textStyle="bold"
             android:textAppearance="?android:attr/textAppearanceListItem"
             android:ellipsize="marquee"/>
 

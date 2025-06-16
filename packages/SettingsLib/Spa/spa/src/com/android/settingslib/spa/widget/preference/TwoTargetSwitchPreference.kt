@@ -19,6 +19,7 @@ package com.android.settingslib.spa.widget.preference
 import androidx.compose.runtime.Composable
 import com.android.settingslib.spa.framework.util.EntryHighlight
 import com.android.settingslib.spa.widget.ui.SettingsSwitch
+import android.util.Log;
 
 @Composable
 fun TwoTargetSwitchPreference(
@@ -26,6 +27,7 @@ fun TwoTargetSwitchPreference(
     icon: @Composable (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
+    Log.w("BaseLayout"," TwoTargetPreference title "+model.title + ",summary() "+model.summary);
     EntryHighlight {
         TwoTargetPreference(
             title = model.title,

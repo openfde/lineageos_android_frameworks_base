@@ -26,6 +26,7 @@ import com.android.settingslib.spa.framework.compose.navigator
 import com.android.settingslib.spa.framework.util.EntryHighlight
 import com.android.settingslib.spa.framework.util.wrapOnClickWithLog
 import com.android.settingslib.spa.widget.ui.createSettingsIcon
+import android.util.Log;
 
 data class SimplePreferenceMacro(
     val title: String,
@@ -37,6 +38,7 @@ data class SimplePreferenceMacro(
 ) : EntryMacro {
     @Composable
     override fun UiLayout() {
+        Log.w("BaseLayout"," UiLayout title "+title + ",paddingVsummaryertical "+summary);
         Preference(model = object : PreferenceModel {
             override val title: String = this@SimplePreferenceMacro.title
             override val summary = { this@SimplePreferenceMacro.summary ?: "" }
@@ -104,6 +106,7 @@ fun Preference(
     model: PreferenceModel,
     singleLineSummary: Boolean = false,
 ) {
+    Log.w("BaseLayout"," Preference title "+model.title + ",summary "+model.summary);
     val onClickWithLog = wrapOnClickWithLog(model.onClick)
     val enabled = model.enabled()
     val modifier = if (onClickWithLog != null) {

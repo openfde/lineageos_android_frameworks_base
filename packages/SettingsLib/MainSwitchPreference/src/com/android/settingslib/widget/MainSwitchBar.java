@@ -78,12 +78,12 @@ public class MainSwitchBar extends LinearLayout implements OnCheckedChangeListen
             if (Build.VERSION.SDK_INT >= VERSION_CODES.M) {
                 a = context.obtainStyledAttributes(
                         new int[]{android.R.attr.colorAccent});
-                mBackgroundActivatedColor = a.getColor(0, 0);
-                mBackgroundColor = context.getColor(androidx.appcompat.R.color.material_grey_600);
+                // mBackgroundActivatedColor = a.getColor(0, 0);
+                // mBackgroundColor = context.getColor(androidx.appcompat.R.color.material_grey_600);
             } else {
                 a = context.obtainStyledAttributes(new int[]{android.R.attr.colorPrimary});
-                mBackgroundActivatedColor = a.getColor(0, 0);
-                mBackgroundColor = a.getColor(0, 0);
+                // mBackgroundActivatedColor = a.getColor(0, 0);
+                // mBackgroundColor = a.getColor(0, 0);
             }
             a.recycle();
         }
@@ -231,7 +231,7 @@ public class MainSwitchBar extends LinearLayout implements OnCheckedChangeListen
 
     private void setBackground(boolean isChecked) {
         if (Build.VERSION.SDK_INT < VERSION_CODES.S) {
-            setBackgroundColor(isChecked ? mBackgroundActivatedColor : mBackgroundColor);
+            // setBackgroundColor(isChecked ? mBackgroundActivatedColor : mBackgroundColor);
         } else {
             mFrameView.setActivated(isChecked);
         }

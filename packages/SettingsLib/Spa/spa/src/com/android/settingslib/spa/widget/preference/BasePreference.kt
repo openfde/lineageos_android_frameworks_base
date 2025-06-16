@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Dp
 import com.android.settingslib.spa.framework.theme.SettingsDimension
 import com.android.settingslib.spa.framework.theme.SettingsTheme
 import com.android.settingslib.spa.widget.ui.SettingsBody
+import android.util.Log;
 
 @Composable
 internal fun BasePreference(
@@ -40,6 +41,7 @@ internal fun BasePreference(
     paddingVertical: Dp = SettingsDimension.itemPaddingVertical,
     widget: @Composable () -> Unit = {},
 ) {
+    Log.w("BaseLayout"," Preference title "+title + ",summary() "+summary());
     BaseLayout(
         title = title,
         subTitle = {

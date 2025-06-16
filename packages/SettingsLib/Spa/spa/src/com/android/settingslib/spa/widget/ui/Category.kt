@@ -32,6 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.android.settingslib.spa.framework.theme.SettingsDimension
 import com.android.settingslib.spa.framework.theme.SettingsTheme
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 
 /**
  * A category title that is placed before a group of similar items.
@@ -46,8 +48,9 @@ fun CategoryTitle(title: String) {
             end = SettingsDimension.itemPaddingEnd,
             bottom = 8.dp,
         ),
-        color = SettingsTheme.colorScheme.categoryTitle,
+        color = Color(0xFF262626),//SettingsTheme.colorScheme.categoryTitle,
         style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.Bold
     )
 }
 

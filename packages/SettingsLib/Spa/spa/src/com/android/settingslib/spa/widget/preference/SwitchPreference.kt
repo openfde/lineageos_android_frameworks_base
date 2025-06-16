@@ -36,6 +36,7 @@ import com.android.settingslib.spa.framework.util.EntryHighlight
 import com.android.settingslib.spa.framework.util.wrapOnSwitchWithLog
 import com.android.settingslib.spa.widget.ui.SettingsIcon
 import com.android.settingslib.spa.widget.ui.SettingsSwitch
+import android.util.Log;
 
 /**
  * The widget model for [SwitchPreference] widget.
@@ -90,6 +91,7 @@ interface SwitchPreferenceModel {
  */
 @Composable
 fun SwitchPreference(model: SwitchPreferenceModel) {
+    Log.w("BaseLayout"," SwitchPreference title "+model.title + ",summary() "+model.summary);
     EntryHighlight {
         InternalSwitchPreference(
             title = model.title,

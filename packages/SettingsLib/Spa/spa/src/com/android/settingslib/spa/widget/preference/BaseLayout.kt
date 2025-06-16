@@ -31,11 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.android.settingslib.spa.framework.theme.SettingsDimension
 import com.android.settingslib.spa.framework.theme.SettingsOpacity.alphaForEnabled
 import com.android.settingslib.spa.framework.theme.SettingsTheme
 import com.android.settingslib.spa.widget.ui.SettingsTitle
-
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
+import android.util.Log;
 @Composable
 internal fun BaseLayout(
     title: String,
@@ -48,12 +54,27 @@ internal fun BaseLayout(
     paddingVertical: Dp = SettingsDimension.itemPaddingVertical,
     widget: @Composable () -> Unit = {},
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(end = paddingEnd),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    Log.w("BaseLayout"," title "+title + ",paddingVertical "+paddingVertical + ",paddingStart "+paddingStart + ",paddingEnd: "+paddingEnd);
+    var horizontalPad = paddingEnd;
+    //if(title.equals("开发者选项") || title.equals("重置蓝牙和WLAN")){
+    if(title.contains("开发者") || title.contains("重置蓝牙")){
+        horizontalPad = 0.dp;
+    }
+    
+    Log.w("BaseLayout"," title "+title + ",horizontalPad "+horizontalPad + ",paddingStart "+paddingStart + ",paddingEnd: "+paddingEnd);
+    Card (
+            modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp, horizontal = horizontalPad),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(0.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        )  
+        {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(end = horizontalPad),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
         val alphaModifier = Modifier.alphaForEnabled(enabled())
         BaseIcon(icon, alphaModifier, paddingStart)
         Titles(
@@ -61,10 +82,10 @@ internal fun BaseLayout(
             subTitle = subTitle,
             modifier = alphaModifier
                 .weight(1f)
-                .padding(vertical = paddingVertical),
+                .padding(vertical = 6.dp),
         )
         widget()
-    }
+    }}
 }
 
 @Composable
@@ -81,7 +102,7 @@ internal fun BaseIcon(
             icon()
         }
     } else {
-        Spacer(modifier = Modifier.width(width = paddingStart))
+        Spacer(modifier = Modifier.width(width = 16.dp))
     }
 }
 

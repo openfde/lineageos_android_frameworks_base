@@ -47,4 +47,3 @@
         android:clickable="false"
         android:theme="@style/SwitchBar.Switch.Settingslib"/>
 </LinearLayout>
-

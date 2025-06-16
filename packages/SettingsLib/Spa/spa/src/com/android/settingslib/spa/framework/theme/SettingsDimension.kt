@@ -24,7 +24,7 @@ object SettingsDimension {
     val paddingSmall = 4.dp
 
     val itemIconSize = 24.dp
-    val itemIconContainerSize = 72.dp
+    val itemIconContainerSize = 64.dp
     val itemPaddingStart = 24.dp
     val itemPaddingEnd = 16.dp
     val itemPaddingVertical = 16.dp

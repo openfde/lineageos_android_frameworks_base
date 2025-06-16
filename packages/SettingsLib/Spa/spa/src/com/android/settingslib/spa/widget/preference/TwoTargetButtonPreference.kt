@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.android.settingslib.spa.framework.util.EntryHighlight
+import android.util.Log;
 
 @Composable
 fun TwoTargetButtonPreference(
@@ -32,6 +33,7 @@ fun TwoTargetButtonPreference(
     buttonIconDescription: String,
     onButtonClick: () -> Unit
 ) {
+    Log.w("BaseLayout"," TwoTargetButtonPreference title "+title + ",summary() "+summary);
     EntryHighlight {
         TwoTargetPreference(
             title = title,

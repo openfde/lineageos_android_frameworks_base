@@ -33,6 +33,7 @@ import com.android.settingslib.spaprivileged.model.enterprise.Restrictions
 import com.android.settingslib.spaprivileged.model.enterprise.RestrictionsProviderFactory
 import com.android.settingslib.spaprivileged.model.enterprise.RestrictionsProviderImpl
 import com.android.settingslib.spaprivileged.model.enterprise.rememberRestrictedMode
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
 fun RestrictedPreference(

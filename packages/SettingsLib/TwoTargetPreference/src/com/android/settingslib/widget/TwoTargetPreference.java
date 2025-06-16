@@ -31,7 +31,7 @@ import com.android.settingslib.widget.preference.twotarget.R;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
-
+import android.util.Log;
 /**
  * The Base preference with two target areas divided by a vertical divider
  */
@@ -46,14 +46,18 @@ public class TwoTargetPreference extends Preference {
     public static final int ICON_SIZE_MEDIUM = 1;
     public static final int ICON_SIZE_SMALL = 2;
 
+    private final String TAG = "TwoTargetPreference";
+
     @IconSize
     private int mIconSize;
     private int mSmallIconSize;
     private int mMediumIconSize;
 
+    private int dividerLine = -1;
+
     private final String[] arrayTop = {"dark_ui_mode", "toggle_keyboard_sticky_keys", "toggle_audio_description"};
     private final String[] arrayBottom = {"screen_timeout", "toggle_keyboard_bounce_keys"};
-    private final String[] arraySquare = {"reduce_bright_colors_preference"};
+    private final String[] arraySquare = {"brightness","night_display","toggle_asm"};//preference_two_target_card
 
 
     public TwoTargetPreference(Context context, AttributeSet attrs,
@@ -79,15 +83,17 @@ public class TwoTargetPreference extends Preference {
 
     private void init(Context context,AttributeSet attrs) {
         setLayoutResource(R.layout.preference_two_target);
+        Log.w(TAG,"init init----  "+getDividerLine());
         if(attrs !=null ){
             String value = attrs.getAttributeValue("http://schemas.android.com/apk/res/android","key");
+            Log.w(TAG,"init value: "+value);
             if(Arrays.stream(arrayTop).anyMatch(value::equals)){
                 setLayoutResource(R.layout.preference_top_two_target);
             }else if(Arrays.stream(arrayBottom).anyMatch(value::equals)){
                 setLayoutResource(R.layout.preference_bottom_two_target);
             }else if(Arrays.stream(arraySquare).anyMatch(value::equals)) {
-                setLayoutResource(R.layout.preference_square_two_target);
-            }     
+                setLayoutResource(R.layout.preference_two_target_card);
+            }  
         }
         mSmallIconSize = context.getResources().getDimensionPixelSize(
                 R.dimen.two_target_pref_small_icon_size);
@@ -101,6 +107,14 @@ public class TwoTargetPreference extends Preference {
 
     public void setIconSize(@IconSize int iconSize) {
         mIconSize = iconSize;
+    }
+
+    public int getDividerLine(){
+        return dividerLine ;
+    }
+
+    public void setDividerLine(int dividerLine){
+        this.dividerLine = dividerLine;
     }
 
     @Override

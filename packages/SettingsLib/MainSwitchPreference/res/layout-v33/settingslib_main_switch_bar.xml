@@ -21,7 +21,6 @@
     android:layout_width="match_parent"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingTop="@dimen/settingslib_switchbar_margin"
     android:paddingBottom="@dimen/settingslib_switchbar_margin"
     android:orientation="vertical">
@@ -60,5 +59,3 @@
     </LinearLayout>
 
 </LinearLayout>
-
-

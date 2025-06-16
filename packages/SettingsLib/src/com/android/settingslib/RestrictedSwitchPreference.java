@@ -41,6 +41,7 @@ import androidx.preference.PreferenceViewHolder;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.android.settingslib.utils.BuildCompatUtils;
+import android.util.Log;
 
 /**
  * Version of SwitchPreferenceCompat that can be disabled by a device admin
@@ -58,6 +59,8 @@ public class RestrictedSwitchPreference extends SwitchPreferenceCompat {
         super(context, attrs, defStyleAttr, defStyleRes);
         mHelper = new RestrictedPreferenceHelper(context, this, attrs);
         if (attrs != null) {
+            Log.w("RestrictedSwitchPreference","key: "+attrs.getAttributeValue("http://schemas.android.com/apk/res/android", "key"));
+            Log.w("RestrictedSwitchPreference","title: "+attrs.getAttributeValue("http://schemas.android.com/apk/res/android", "title"));
             final TypedArray attributes = context.obtainStyledAttributes(attrs,
                     R.styleable.RestrictedSwitchPreference);
             final TypedValue useAdditionalSummary = attributes.peekValue(
@@ -81,9 +84,13 @@ public class RestrictedSwitchPreference extends SwitchPreferenceCompat {
                 }
             }
         }
+        Log.w("RestrictedSwitchPreference","mUseAdditionalSummary: "+mUseAdditionalSummary);
+        setLayoutResource(R.layout.restricted_switch_preference);
+
         if (mUseAdditionalSummary) {
-            setLayoutResource(R.layout.restricted_switch_preference);
             useAdminDisabledSummary(false);
+        }else{
+
         }
     }
 

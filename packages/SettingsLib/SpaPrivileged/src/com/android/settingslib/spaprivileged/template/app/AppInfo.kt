@@ -43,6 +43,12 @@ import com.android.settingslib.spa.widget.ui.SettingsBody
 import com.android.settingslib.spa.widget.ui.SettingsTitle
 import com.android.settingslib.spaprivileged.R
 import com.android.settingslib.spaprivileged.model.app.rememberAppRepository
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+
 
 class AppInfoProvider(private val packageInfo: PackageInfo) {
     @Composable
@@ -97,9 +103,13 @@ class AppInfoProvider(private val packageInfo: PackageInfo) {
             list.joinToString(separator = System.lineSeparator())
         }
         if (footer.isBlank()) return
-        HorizontalDivider()
-        Column(modifier = Modifier.padding(SettingsDimension.itemPadding)) {
-            CopyableBody(footer)
+        // HorizontalDivider()
+        Column(
+          modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp).fillMaxWidth().background(Color(0xFFFFFFFF))) {
+             Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)){
+                CopyableBody(footer)
+             }
+           
         }
     }
 

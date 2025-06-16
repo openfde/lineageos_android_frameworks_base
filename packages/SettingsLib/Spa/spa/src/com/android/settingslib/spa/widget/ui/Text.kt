@@ -30,18 +30,29 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.android.settingslib.spa.framework.theme.SettingsDimension
 import com.android.settingslib.spa.framework.theme.SettingsOpacity.alphaForEnabled
 import com.android.settingslib.spa.framework.theme.SettingsTheme
 import com.android.settingslib.spa.framework.theme.toMediumWeight
+import android.util.Log;
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun SettingsTitle(title: String, useMediumWeight: Boolean = false) {
+    Log.w("BaseLayout"," title "+title + ", useMediumWeight: "+useMediumWeight);
     Text(
         text = title,
-        modifier = Modifier.padding(vertical = SettingsDimension.paddingTiny),
-        color = MaterialTheme.colorScheme.onSurface,
-        style = MaterialTheme.typography.titleMedium.withWeight(useMediumWeight),
+        modifier = Modifier.padding(vertical = 10.dp,horizontal  = 0.dp).height(56.dp),
+        // style = MaterialTheme.typography.titleMedium.withWeight(useMediumWeight),
+        fontSize =  13.sp,//if (useMediumWeight) 12.sp else 14.sp ,
+        fontWeight = FontWeight(500),
+        textAlign = TextAlign.Center,
+        color = Color(0xFF1A1A1A)
+        // fontWeight = if (useMediumWeight) FontWeight.Normal else FontWeight.Bold
     )
 }
 

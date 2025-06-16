@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.android.settingslib.spa.framework.theme.SettingsDimension
 import com.android.settingslib.spa.framework.theme.divider
+import android.util.Log;
 
 @Composable
 internal fun TwoTargetPreference(
@@ -38,6 +39,7 @@ internal fun TwoTargetPreference(
     icon: @Composable (() -> Unit)? = null,
     widget: @Composable () -> Unit,
 ) {
+    Log.w("BaseLayout"," TwoTargetPreference title "+title + ",summary() "+summary);
     Row(
         modifier = Modifier
             .fillMaxWidth()

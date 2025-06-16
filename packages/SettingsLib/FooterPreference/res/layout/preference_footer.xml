@@ -35,25 +35,28 @@
         android:paddingEnd="12dp"
         android:paddingTop="16dp"
         android:paddingBottom="4dp">
+
         <ImageView
             android:id="@android:id/icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
         <TextView
             android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
             android:paddingBottom="8dp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:ellipsize="marquee" />
+            android:textColor="#66000000"
+            android:textSize="14sp"
+            android:ellipsize="marquee" />    
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    
         <com.android.settingslib.widget.LinkTextView
             android:id="@+id/settingslib_learn_more"
             android:text="@string/settingslib_learn_more_text"
@@ -62,6 +65,8 @@
             android:paddingBottom="8dp"
             android:clickable="true"
             android:visibility="gone"
+            android:textColor="#d9000000"
+            android:textSize="14sp"
             style="@style/TextAppearance.Footer.Title.SettingsLib"/>
     </LinearLayout>
 

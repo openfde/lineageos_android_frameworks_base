@@ -33,5 +33,5 @@
     <dimen name="settingslib_min_switch_bar_height">72dp</dimen>
 
     <!-- Radius of switch bar -->
-    <dimen name="settingslib_switch_bar_radius">28dp</dimen>
+    <dimen name="settingslib_switch_bar_radius">8dp</dimen>
 </resources>

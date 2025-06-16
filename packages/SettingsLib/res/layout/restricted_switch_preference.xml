@@ -20,7 +20,8 @@
     android:gravity="center_vertical"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="#fff"
+    android:layout_marginHorizontal="16dp"
     android:clipToPadding="false">
 
     <LinearLayout
@@ -52,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="2"
-            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:textAppearance="@style/item_child_title"
             android:ellipsize="marquee" />
 
         <TextView android:id="@android:id/summary"
@@ -60,8 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
-            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textAppearance="@style/item_child_summary"
             android:maxLines="10" />
 
         <TextView android:id="@+id/additional_summary"
@@ -69,8 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@android:id/summary"
             android:layout_alignStart="@android:id/summary"
-            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textAppearance="@style/item_child_summary"
             android:maxLines="10"
             android:visibility="gone" />
     </RelativeLayout>
