@@ -4164,6 +4164,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     private static final String SET_PACKAGE_BOTTOM_ASHEIGHT = "com.tencent.mm";
     private static final String SET_VIEW_BOTTOM_ASHEIGHT = "LayoutListenerView";
 
+    //like view above
+    private static final String SET_PACKAGE_BOTTOM_300DP = "com.peplibrary";
+    private static final String SET_VIEW_BOTTOM_300DP = "FrameLayout";
+
+
     /**
      * The parent this view is attached to.
      * {@hide}
@@ -14841,6 +14846,12 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             try {
                 mAttachInfo.mSession.getDisplayFrame(mAttachInfo.mWindow, outRect);
             } catch (RemoteException e) {
+                return;
+            }
+            //fix forclass
+            if(getContext().getPackageName().contains(SET_PACKAGE_BOTTOM_300DP)
+                    && getClass().getSimpleName().equals(SET_VIEW_BOTTOM_300DP)){
+                outRect.bottom = outRect.bottom - outRect.top - 300;
                 return;
             }
             // XXX This is really broken, and probably all needs to be done
