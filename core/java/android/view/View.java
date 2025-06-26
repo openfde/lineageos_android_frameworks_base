@@ -4165,8 +4165,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     private static final String SET_VIEW_BOTTOM_ASHEIGHT = "LayoutListenerView";
 
     //like view above
-    private static final String SET_PACKAGE_BOTTOM_300DP = "com.peplibrary";
-    private static final String SET_VIEW_BOTTOM_300DP = "FrameLayout";
+    private static final String SET_PACKAGE_BOTTOM_600DP = "com.peplibrary";
+    private static final String SET_VIEW_BOTTOM_600DP = "FrameLayout";
 
 
     /**
@@ -14848,22 +14848,21 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             } catch (RemoteException e) {
                 return;
             }
-            //fix forclass
-            if(getContext().getPackageName().contains(SET_PACKAGE_BOTTOM_300DP)
-                    && getClass().getSimpleName().equals(SET_VIEW_BOTTOM_300DP)){
-                outRect.bottom = outRect.bottom - outRect.top - 300;
-                return;
-            }
-            // XXX This is really broken, and probably all needs to be done
-            // in the window manager, and we need to know more about whether
-            // we want the area behind or in front of the IME.
             final Rect insets = mAttachInfo.mVisibleInsets;
             outRect.left += insets.left;
             outRect.top += insets.top;
             outRect.right -= insets.right;
             outRect.bottom -= insets.bottom;
-            if( getClass().getName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT) 
-                && getClass().getSimpleName().contains(SET_VIEW_BOTTOM_ASHEIGHT)){
+            //fix forclass
+           if(getContext().getPackageName().contains(SET_PACKAGE_BOTTOM_600DP)){
+                outRect.bottom = 600;
+                return;
+            }
+            // XXX This is really broken, and probably all needs to be done
+            // in the window manager, and we need to know more about whether
+            // we want the area behind or in front of the IME.
+            if( getClass().getName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT)
+                    && getClass().getSimpleName().contains(SET_VIEW_BOTTOM_ASHEIGHT)){
                 outRect.bottom = outRect.bottom - outRect.top;
             }
             return;
@@ -14873,7 +14872,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         Display d = DisplayManagerGlobal.getInstance().getRealDisplay(Display.DEFAULT_DISPLAY);
         d.getRectSize(outRect);
     }
-
     /**
      * Like {@link #getWindowVisibleDisplayFrame}, but returns the "full" display frame this window
      * is currently in without any insets.
