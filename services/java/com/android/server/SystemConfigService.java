@@ -25,6 +25,10 @@ import android.os.ISystemConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import android.util.Log;
+
+
+import com.android.internal.util.CompatibleConfig;
 
 /**
  * Service class that runs inside the system_server process to handle queries to
@@ -33,6 +37,8 @@ import java.util.Map;
  */
 public class SystemConfigService extends SystemService {
     private final Context mContext;
+
+    private static final String TAG = "SystemConfigService";
 
     private final ISystemConfig.Stub mInterface = new ISystemConfig.Stub() {
         @Override
@@ -63,6 +69,20 @@ public class SystemConfigService extends SystemService {
                             + " READ_CARRIER_APP_INFO");
             return SystemConfig.getInstance()
                     .getDisabledUntilUsedPreinstalledCarrierAssociatedApps();
+        }
+
+        @Override
+        public String getCompatibleConfig(String packageName, String keyCode) {
+            Log.w(TAG,"getCompatibleConfig packageName: "+packageName+" ,keyCode:  "+keyCode);
+            String res = CompatibleConfig.queryValueDataBySharedMemory(mContext,packageName,keyCode);
+            Log.w(TAG,"getCompatibleConfig res: "+res);
+            return res;
+        }
+
+        @Override
+        public void setCompatibleConfig(String packageName, String keyCode,String value) {
+            Log.w(TAG,"setCompatibleConfig packageName: "+packageName+" ,keyCode:  "+keyCode +", value: "+value);
+            CompatibleConfig.insertUpdateValueData(mContext,packageName,keyCode,value);
         }
     };
 

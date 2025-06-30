@@ -35,4 +35,8 @@ interface ISystemConfig {
      * @see SystemConfigManager#getDisabledUntilUsedPreinstalledCarrierAssociatedAppEntries
      */
     Map getDisabledUntilUsedPreinstalledCarrierAssociatedAppEntries();
+
+    String getCompatibleConfig(String packageName, String keyCode);
+
+    void setCompatibleConfig(String packageName, String keyCode,String value);
 }
