@@ -414,6 +414,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
         final int x = (int) e.getX();
         final int y = (int) e.getY();
+        
         final boolean fromMouse = e.getToolType(e.getActionIndex()) == MotionEvent.TOOL_TYPE_MOUSE;
         final boolean primaryButton = (e.getButtonState() & MotionEvent.BUTTON_PRIMARY) != 0;
         final int actionMasked = e.getActionMasked();
@@ -571,6 +572,25 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         // endregion
     }
 
+    public boolean isResizeWindow(){
+        if(mContext instanceof Activity ){
+            Activity currentActivity = (Activity) mContext;
+            try{
+                String packageName = currentActivity.getPackageName();
+                String result = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "forcedPortraitMode");
+                Slog.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
+                if(result != null && result.equals("true")){
+                   return false ; 
+                }
+              }catch(Exception e){
+                 e.printStackTrace();
+              }
+
+        }
+        return true ;
+
+    }
+
     /**
      * Updates the visibility of the caption.
      **/
@@ -578,6 +598,12 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 		//modify by xudq  2024.1.29
 		if(mContext instanceof Activity ){
 			Activity currentActivity = (Activity) mContext;
+            try{
+                Slog.w(TAG,"fde currentActivity "+ currentActivity.getPackageName()+" : " +currentActivity.getLocalClassName());
+               }
+            catch(Exception e){
+                 e.printStackTrace();
+            }
 			if(currentActivity.getParent() != null &&  currentActivity.getParent() instanceof ActivityGroup){
 				mCaption.setVisibility(View.GONE);
 			}else{
@@ -801,6 +827,10 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         } else if (mClickTarget == mPip) {
             pipWindow();
         } else if (mClickTarget == mMaximize) {
+            if(!isResizeWindow()){
+                return true ;
+            }
+        
             if(mSharedPreferences != null){
                 isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
             }
@@ -817,6 +847,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             mOwner.dispatchOnWindowDismissed(
                    true /*finishTask*/, false /*suppressWindowTransition*/);
         }else if (mClickTarget == mFullScreen) {
+            if(!isResizeWindow()){
+                return true ;
+            }
             if(mSharedPreferences != null){
                 isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
             }
@@ -853,6 +886,9 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 
     long[] mHits = new long[2];
     public void doubleClick() {
+        if(!isResizeWindow()){
+                return  ;
+        }
         System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
         mHits[mHits.length - 1] = SystemClock.uptimeMillis();
         if (mHits[0] >= (SystemClock.uptimeMillis() - 500)) {

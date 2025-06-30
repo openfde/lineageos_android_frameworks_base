@@ -160,6 +160,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import android.util.DisplayMetrics;
+import com.android.internal.util.CompatibleConfig;
 
 
 /**
@@ -1641,6 +1643,40 @@ public class Activity extends ContextThemeWrapper
         }
         mRestoredFromBundle = savedInstanceState != null;
         mCalled = true;
+
+        try{
+            String packageName = getPackageName();
+            String result = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "forcedPortraitMode");
+            Slog.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
+            if(result != null && result.equals("true")){
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+
+                 /*
+                int width = 412;
+                int height = 713;
+                getWindow().setLayout(width, height); 
+                
+                WindowManager.LayoutParams params = getWindow().getAttributes();
+                params.width = 412;
+                params.height = 713;
+                getWindow().setAttributes(params);
+                
+                DisplayMetrics metrics = getResources().getDisplayMetrics();
+                metrics.widthPixels = 412;    
+                metrics.heightPixels = 713;  
+                metrics.density = metrics.widthPixels / 360f; 
+                metrics.densityDpi = (int)(metrics.density * 160); 
+                getResources().updateConfiguration(null, metrics);
+
+
+                Slog.w(TAG, "onCreate metrics.heightPixels()  " + metrics.heightPixels  + " ,heightPixels " + getResources().getDisplayMetrics().heightPixels);
+                */
+            }
+           
+          }catch(Exception e){
+             e.printStackTrace();
+          } 
 
     }
 
@@ -6696,6 +6732,8 @@ public class Activity extends ContextThemeWrapper
      * {@link ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
      */
     public void setRequestedOrientation(@ActivityInfo.ScreenOrientation int requestedOrientation) {
+     Log.w(TAG, "setRequestedOrientation --  requestedOrientation: "+requestedOrientation);
+     requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ;
         if (mParent == null) {
             try {
                 ActivityTaskManager.getService().setRequestedOrientation(

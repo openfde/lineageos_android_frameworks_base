@@ -484,6 +484,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private final ComeBackRunnable mComeBackRunnable = new ComeBackRunnable();
 
     public void toggleFreeformWindowingMode(){
+        if(mDecorCaptionView!= null && !mDecorCaptionView.isResizeWindow()){
+            return  ;
+        }
         Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
         final int windowingMode =
                 getResources().getConfiguration().windowConfiguration.getWindowingMode();
@@ -506,6 +509,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public void startFullScreenWindow(){
+        if(mDecorCaptionView!= null && !mDecorCaptionView.isResizeWindow()){
+            return  ;
+        }
         if(mHandler.hasCallbacks(showSystemUIRunnable)){
             mHandler.removeCallbacks(showSystemUIRunnable);
         }
@@ -900,6 +906,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         int action = event.getAction();
+        
         if (mHasCaption && isShowingCaption()) {
             // Don't dispatch ACTION_DOWN to the captionr if the window is resizable and the event
             // was (starting) outside the window. Window resizing events should be handled by
@@ -2634,7 +2641,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             if (callback != null) {
                 isMaximized = !callback.isInFreeformWindowingMode();
             }
-            Log.w(TAG,"isWindowMaximized: " + isMaximized);
             return isMaximized;
         } catch (RemoteException ex) {
             Log.e(TAG, "Catch exception ", ex);
