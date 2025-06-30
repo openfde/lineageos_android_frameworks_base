@@ -1646,7 +1646,7 @@ public class Activity extends ContextThemeWrapper
 
         try{
             String packageName = getPackageName();
-            String result = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "forcedPortraitMode");
+            String result = CompatibleConfig.queryValueDataBySharedMemory(this, packageName, "forcedPortraitMode");
             Slog.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
             if(result != null && result.equals("true")){
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,

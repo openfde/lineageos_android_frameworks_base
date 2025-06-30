@@ -577,7 +577,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             Activity currentActivity = (Activity) mContext;
             try{
                 String packageName = currentActivity.getPackageName();
-                String result = CompatibleConfig.queryValueDataBySharedMemory(context, packageName, "forcedPortraitMode");
+                String result = CompatibleConfig.queryValueDataBySharedMemory(mContext, packageName, "forcedPortraitMode");
                 Slog.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
                 if(result != null && result.equals("true")){
                    return false ; 
