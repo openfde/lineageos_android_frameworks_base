@@ -1487,6 +1487,16 @@ public final class MultiClientInputMethodManagerService {
             reportNotSupported();
         }
 
+        @Override
+        public void commitText(String text) {
+            Slog.w(TAG, "commitText-1: "+text);
+        }
+
+        @Override
+        public void sendKeyEvent(int action, int code) {
+            Slog.w(TAG, "sendKeyEvent-1: action:  "+action + ",code: "+code);
+        }
+
         @BinderThread
         @Override
         public boolean showSoftInput(
