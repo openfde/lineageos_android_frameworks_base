@@ -1651,27 +1651,6 @@ public class Activity extends ContextThemeWrapper
             if(result != null && result.equals("true")){
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-
-                 /*
-                int width = 412;
-                int height = 713;
-                getWindow().setLayout(width, height); 
-                
-                WindowManager.LayoutParams params = getWindow().getAttributes();
-                params.width = 412;
-                params.height = 713;
-                getWindow().setAttributes(params);
-                
-                DisplayMetrics metrics = getResources().getDisplayMetrics();
-                metrics.widthPixels = 412;    
-                metrics.heightPixels = 713;  
-                metrics.density = metrics.widthPixels / 360f; 
-                metrics.densityDpi = (int)(metrics.density * 160); 
-                getResources().updateConfiguration(null, metrics);
-
-
-                Slog.w(TAG, "onCreate metrics.heightPixels()  " + metrics.heightPixels  + " ,heightPixels " + getResources().getDisplayMetrics().heightPixels);
-                */
             }
            
           }catch(Exception e){
