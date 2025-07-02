@@ -480,6 +480,8 @@ public final class InputMethodManager {
     static final int MSG_REPORT_PRE_RENDERED = 15;
     static final int MSG_APPLY_IME_VISIBILITY = 20;
     static final int MSG_UPDATE_ACTIVITY_VIEW_TO_SCREEN_MATRIX = 30;
+    static final int MSG_INPUT_BY_LINUX = 80;
+    static final int MSG_KEYEVENT_BY_LINUX = 90;
 
     private static boolean isAutofillUIShowing(View servedView) {
         AutofillManager afm = servedView.getContext().getSystemService(AutofillManager.class);
@@ -906,6 +908,39 @@ public final class InputMethodManager {
                     }
                     return;
                 }
+                case MSG_INPUT_BY_LINUX:{
+                    InputConnection ic = null;
+                    String text = String.valueOf(msg.obj);
+                    Log.w(TAG, "commitText MSG_INPUT_BY_LINUX: "+text);
+                    synchronized (mH) {
+                        if (mServedInputConnectionWrapper != null) {
+                            ic = mServedInputConnectionWrapper.getInputConnection();
+                        }
+                    }
+                    if (ic != null) {
+                        ic.commitText(text,1);
+                    }
+
+                  return ;      
+                }
+
+                case MSG_KEYEVENT_BY_LINUX:{
+                  InputConnection ic = null;
+                  int action = msg.arg1;
+                  int code =   msg.arg2;
+                  Log.w(TAG, "sendKeyEvent MSG_KEYEVENT_BY_LINUX: action "+action + ",code: "+code);
+                  synchronized (mH) {
+                      if (mServedInputConnectionWrapper != null) {
+                        ic = mServedInputConnectionWrapper.getInputConnection();
+                      }
+                   }
+          
+                   if (ic != null) {
+                      ic.sendKeyEvent(new KeyEvent(action,code));
+                   }
+                  
+                  return ;   
+                }
                 case MSG_REPORT_PRE_RENDERED: {
                     synchronized (mH) {
                         if (mImeInsetsConsumer != null) {
@@ -1084,6 +1119,20 @@ public final class InputMethodManager {
         public void updateActivityViewToScreenMatrix(int bindSequence, float[] matrixValues) {
             mH.obtainMessage(MSG_UPDATE_ACTIVITY_VIEW_TO_SCREEN_MATRIX, bindSequence, 0,
                     matrixValues).sendToTarget();
+        }
+
+        @Override
+        public void commitText(String text) {
+            Log.w(TAG, "commitText text: "+text);
+            mH.obtainMessage(MSG_INPUT_BY_LINUX, text)
+                    .sendToTarget();
+        }
+
+        @Override
+        public void sendKeyEvent(int action, int code) {
+            Log.w(TAG, "sendKeyEvent action: "+action +", code: "+code);
+            mH.obtainMessage(MSG_KEYEVENT_BY_LINUX, action , code)
+                    .sendToTarget();
         }
     };
 

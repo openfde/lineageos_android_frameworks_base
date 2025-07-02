@@ -45,6 +45,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.android.internal.util.CompatibleDatabaseHelper;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+
+
 /**
  * compatible tool api add by xudq
  */
@@ -124,6 +130,102 @@ public class CompatibleConfig {
         return result;
     }
     */
+
+    public static void insertUpdateValueData(Context context,  String packageName, String keycode,
+                String value) {
+            String appName = packageName;     
+            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            Map<String, Object> result = queryMapValueDataHasDel(context, packageName, keycode);
+            if (result == null) {
+                insertValueData(context, appName, packageName, keycode, value);
+            } else {
+                updateValueData(context, appName, packageName, keycode, value);
+            }
+            return 1;
+            }, executorService);
+            executorService.shutdown();
+     }
+
+     public static Map<String, Object> queryMapValueDataHasDel(Context context, String packageName, String keycode) {
+             Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+             Cursor cursor = null;
+             Map<String, Object> result = null;
+             String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? ";
+             String[] selectionArgs = { packageName, keycode };
+             try {
+                 ContentResolver contentResolver = context.getContentResolver();
+                 cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+                 if (cursor != null && cursor.moveToFirst()) {
+                     int _ID = cursor.getInt(cursor.getColumnIndex("_ID"));
+                     String PACKAGE_NAME = cursor.getString(cursor.getColumnIndex("PACKAGE_NAME"));
+                     String KEY_CODE = cursor.getString(cursor.getColumnIndex("KEY_CODE"));
+                     String VALUE = cursor.getString(cursor.getColumnIndex("VALUE"));
+                     String EDIT_DATE = cursor.getString(cursor.getColumnIndex("EDIT_DATE"));
+                     result = new HashMap<>();
+                     result.put("_ID", _ID);
+                     result.put("PACKAGE_NAME", PACKAGE_NAME);
+                     result.put("KEY_CODE", KEY_CODE);
+                     result.put("VALUE", VALUE);
+                     result.put("EDIT_DATE", EDIT_DATE);
+                 }
+     
+             } catch (Exception e) {
+                 e.printStackTrace();
+             } finally {
+                 if (cursor != null) {
+                     cursor.close();
+                 }
+             }
+             return result;
+         }
+
+
+     public static void insertValueData(Context context, String appName, String packageName, String keycode,
+                 String value) {
+             try {  
+                 SystemProperties.set(packageName+"_"+keycode, value);
+                 Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+                 ContentValues values = new ContentValues();
+                 String curTime = getCurDateTime();
+                 values.put("PACKAGE_NAME", packageName);
+                 values.put("KEY_CODE", keycode);
+                 values.put("VALUE", value);
+                 values.put("IS_DEL", "0");
+                 values.put("CREATE_DATE",curTime);
+                 values.put("EDIT_DATE", curTime);
+                 values.put("FIELDS1", curTime);
+                 values.put("APP_NAME", appName);
+                 Uri resUri = context.getContentResolver()
+                         .insert(uri, values);
+             } catch (Exception e) {
+                 e.printStackTrace();
+             }
+     }
+
+    
+     public static int updateValueData(Context context, String appName, String packageName, String keycode,
+                String newValue) {
+            try {
+                SystemProperties.set(packageName+"_"+keycode, newValue);
+                Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+                ContentValues values = new ContentValues();
+                values.put("VALUE", newValue);
+                values.put("APP_NAME", appName);
+                values.put("IS_DEL", "0");
+                values.put("EDIT_DATE", getCurDateTime());
+                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+                String[] selectionArgs = { packageName, keycode };
+                int res = context.getContentResolver()
+                        .update(uri, values, selection,
+                                selectionArgs);
+                return res;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return -1;
+      }
+
 
     public static String queryValueDataBySharedMemory(Context context, String packageName, String keyCode) {
         String result = null;

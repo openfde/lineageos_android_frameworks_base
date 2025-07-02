@@ -77,4 +77,6 @@ interface IInputMethodManager {
     void removeImeSurface();
     /** Remove the IME surface. Requires passing the currently focused window. */
     void removeImeSurfaceFromWindow(in IBinder windowToken);
+    void commitText(String text);
+    void sendKeyEvent(int action, int code);
 }

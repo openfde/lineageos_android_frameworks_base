@@ -168,6 +168,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import java.util.Arrays;
 import com.android.internal.util.CompatibleConfig;
+import android.openfde.Platform;
+
 
 // TODO: This class has become a dumping ground. Let's
 // - Move things relating to the hierarchy to RootWindowContainer
@@ -273,6 +275,8 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
     /** Helper class to abstract out logic for fetching the set of currently running tasks */
     private RunningTasks mRunningTasks;
+
+    private Platform mPlatform ;
 
     private final ActivityStackSupervisorHandler mHandler;
     final Looper mLooper;
@@ -938,6 +942,13 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
             r.launchCount++;
             r.lastLaunchTime = SystemClock.uptimeMillis();
             proc.setLastActivityLaunchTime(r.lastLaunchTime);
+
+            if(mPlatform == null){
+                mPlatform = Platform.getInstance(mService.mContext);
+            } 
+            String pkg = r.info.packageName ;
+            Slog.w(TAG, "WayDroidService--startApp: " + pkg);
+            mPlatform.startApp(pkg,applicationInfoUid);
 
             if (DEBUG_ALL) Slog.v(TAG, "Launching: " + r);
 
@@ -1771,7 +1782,11 @@ public class ActivityStackSupervisor implements RecentTasks.Callbacks {
 
         // Determine if the process(es) for this task should be killed.
         final String pkg = component.getPackageName();
-        Slog.w(TAG,"fde cleanUpRemovedTaskLocked pkg: " + pkg + ", reason: " + reason);
+        Slog.w(TAG,"fde WayDroidService cleanUpRemovedTaskLocked pkg: " + pkg + ", reason: " + reason);
+        if(mPlatform == null){
+            mPlatform = Platform.getInstance(mService.mContext);
+        } 
+        mPlatform.finishApp(pkg,task.mUserId);
         boolean doNotAllowRunningInTheBackground = false;
         String resultStr = null;
         if(mService.mContext != null){

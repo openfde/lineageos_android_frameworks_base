@@ -160,6 +160,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import android.util.DisplayMetrics;
+import com.android.internal.util.CompatibleConfig;
 
 
 /**
@@ -1641,6 +1643,19 @@ public class Activity extends ContextThemeWrapper
         }
         mRestoredFromBundle = savedInstanceState != null;
         mCalled = true;
+
+        try{
+            String packageName = getPackageName();
+            String result = CompatibleConfig.queryValueDataBySharedMemory(this, packageName, "forcedPortraitMode");
+            Slog.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
+            if(result != null && result.equals("true")){
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+            }
+           
+          }catch(Exception e){
+             e.printStackTrace();
+          } 
 
     }
 
@@ -6696,6 +6711,8 @@ public class Activity extends ContextThemeWrapper
      * {@link ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
      */
     public void setRequestedOrientation(@ActivityInfo.ScreenOrientation int requestedOrientation) {
+     Log.w(TAG, "setRequestedOrientation --  requestedOrientation: "+requestedOrientation);
+     requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ;
         if (mParent == null) {
             try {
                 ActivityTaskManager.getService().setRequestedOrientation(
