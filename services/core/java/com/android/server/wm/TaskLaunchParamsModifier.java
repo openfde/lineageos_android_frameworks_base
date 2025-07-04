@@ -115,6 +115,8 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         initLogBuilder(task, activity);
         final int result = calculate(task, layout, activity, source, options, phase, currentParams,
                 outParams);
+//        Slog.d(TAG, "onCalculate():  task :" + task + ", layout :" + layout + ", activity :" + activity + ", source :" + source + ", options :" + options + ", phase :" + phase + ", currentParams :" + currentParams + ", outParams :" + outParams + "");
+
         outputLog();
         return result;
     }
@@ -137,6 +139,8 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
                 source = mainTask.topRunningActivity();
             }
         }
+
+
         if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && source != null
                 && source.getTask() != null
                 && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)

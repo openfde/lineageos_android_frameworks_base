@@ -235,5 +235,14 @@
             <defaultvalue>{ width = 720,height = 1080 }</defaultvalue>
         </package>
     </item>
+    <item
+        isdel="false"
+        keycode="activityLunchSize"
+        updatedate="2025-07-04">
+        <package>
+            <packagename>com.peplibrary</packagename>
+            <defaultvalue>{ width = 650,height = 850 }</defaultvalue>
+        </package>
+    </item>
 
 </library>

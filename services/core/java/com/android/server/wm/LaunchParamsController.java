@@ -29,11 +29,16 @@ import android.annotation.Nullable;
 import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo.WindowLayout;
 import android.graphics.Rect;
-
+import android.content.Context;
+import com.android.internal.util.CompatibleConfig;
+import org.json.JSONObject;
+import org.json.JSONException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Slog;
+import android.text.TextUtils;
 
 /**
  * {@link LaunchParamsController} calculates the {@link LaunchParams} by coordinating between
@@ -100,6 +105,29 @@ class LaunchParamsController {
                     result.set(mTmpResult);
                     return;
                 case RESULT_CONTINUE:
+                    if(source != null && task != null && source.getContext() != null && task.mWindowLayoutAffinity != null) {
+                        Context context =  source.getContext();
+                        String resultStr = CompatibleConfig.queryValueDataBySharedMemory(context,
+                                task.mWindowLayoutAffinity, "activityLunchSize");
+                        if (!TextUtils.isEmpty(resultStr)) {
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(resultStr);
+                                int width = jsonObject.getInt("width");
+                                int height = jsonObject.getInt("height");
+                                if (width > 0 && height > 0) {
+                                    int left =  mTmpResult.mBounds.left;
+                                    int right = mTmpResult.mBounds.left + width;
+                                    int top = mTmpResult.mBounds.top;
+                                    int bottom  = mTmpResult.mBounds.top + height;
+                                    mTmpResult.mBounds.set(new Rect(left, top, right, bottom));
+                                }
+
+                            } catch (JSONException e) {
+                                Slog.e("TAG", "onCalculate error: " + e);
+                            }
+                        }
+                    }
                     // Set result and continue
                     result.set(mTmpResult);
                     break;
