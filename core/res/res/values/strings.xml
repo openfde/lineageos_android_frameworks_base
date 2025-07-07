@@ -4776,6 +4776,7 @@
 
     <!-- Cling help message description when hiding the navigation bar entering immersive mode [CHAR LIMIT=none] -->
     <string name="immersive_cling_description">To exit, swipe down from the top.</string>
+    <string name="immersive_cling_description_new">To exit, press the F11 key.</string>
 
     <!-- Cling help message confirmation button when hiding the navigation bar entering immersive mode [CHAR LIMIT=30] -->
     <string name="immersive_cling_positive">Got it</string>

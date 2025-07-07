@@ -139,7 +139,7 @@
     <item
         isdel="false"
         keycode="isTurnOffSimulatedTouch"
-        updatedate="2024-04-23">
+        updatedate="2025-04-23">
         <package>
             <packagename>com.iiordanov.bVNC</packagename>
             <defaultvalue>true</defaultvalue>
@@ -152,6 +152,11 @@
 
         <package>
             <packagename>com.oray.sunlogin</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+
+        <package>
+            <packagename>com.fde.x11</packagename>
             <defaultvalue>true</defaultvalue>
         </package>
 
@@ -234,13 +239,22 @@
             <defaultvalue>{ width = 720,height = 1080 }</defaultvalue>
         </package>
     </item>
-	 <item
+	<item
         isdel="false"
         keycode="forcedPortraitMode"
         updatedate="2025-07-07">
         <package>
             <packagename>com.ets100.secondary</packagename>
             <defaultvalue>true</defaultvalue>
+	    </package>
+    </item>		
+	<item
+        isdel="false"
+        keycode="activityLunchSize"
+        updatedate="2025-07-04">
+        <package>
+            <packagename>com.peplibrary</packagename>
+            <defaultvalue>{ width = 650,height = 850 }</defaultvalue>
         </package>
     </item>
 
