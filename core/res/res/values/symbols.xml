@@ -4100,4 +4100,5 @@
   <java-symbol type="dimen" name="decor_corner_radius" />
   <!-- endregion -->
   <java-symbol type="string" name="exit_full_screen_display_prompt" />
+  <java-symbol type="string" name="forbid_exit_full_screen_tips" />
 </resources>
