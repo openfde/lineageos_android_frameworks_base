@@ -828,6 +828,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
             pipWindow();
         } else if (mClickTarget == mMaximize) {
             if(!isResizeWindow()){
+                Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                 return true ;
             }
         
@@ -848,6 +849,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
                    true /*finishTask*/, false /*suppressWindowTransition*/);
         }else if (mClickTarget == mFullScreen) {
             if(!isResizeWindow()){
+                Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                 return true ;
             }
             if(mSharedPreferences != null){
@@ -887,6 +889,7 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     long[] mHits = new long[2];
     public void doubleClick() {
         if(!isResizeWindow()){
+                Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                 return  ;
         }
         System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);

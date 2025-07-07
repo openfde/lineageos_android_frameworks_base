@@ -85,7 +85,7 @@
     <item
         isdel="false"
         keycode="size"
-        updatedate="2024-11-26">
+        updatedate="2025-07-07">
         <package>
             <packagename>com.microsoft.office.word</packagename>
             <defaultvalue>{ width = 800,height = 600 }</defaultvalue>
@@ -93,6 +93,10 @@
         <package>
             <packagename>com.microsoft.office.excel</packagename>
             <defaultvalue>{ width = 800,height = 600 }</defaultvalue>
+        </package>
+        <package>
+            <packagename>com.ets100.secondary</packagename>
+            <defaultvalue>{ width = 412,height = 713 }</defaultvalue>
         </package>
     </item>
 
@@ -235,7 +239,16 @@
             <defaultvalue>{ width = 720,height = 1080 }</defaultvalue>
         </package>
     </item>
-    <item
+	<item
+        isdel="false"
+        keycode="forcedPortraitMode"
+        updatedate="2025-07-07">
+        <package>
+            <packagename>com.ets100.secondary</packagename>
+            <defaultvalue>true</defaultvalue>
+	    </package>
+    </item>		
+	<item
         isdel="false"
         keycode="activityLunchSize"
         updatedate="2025-07-04">
