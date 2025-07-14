@@ -353,6 +353,7 @@ import com.android.server.Watchdog;
 import com.android.server.compat.PlatformCompat;
 import com.android.server.net.NetworkPolicyManagerInternal;
 import com.android.server.pm.Installer.InstallerException;
+import com.android.server.pm.PackageManagerService.PostInstallData;
 import com.android.server.pm.Settings.DatabaseVersion;
 import com.android.server.pm.Settings.VersionInfo;
 import com.android.server.pm.dex.ArtManagerService;
@@ -436,6 +437,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import android.openfde.Platform;
 
 /**
  * Keep track of all those APKs everywhere.
@@ -488,6 +490,8 @@ public class PackageManagerService extends IPackageManager.Stub
     public static final boolean DEBUG_PERMISSIONS = false;
     private static final boolean DEBUG_SHARED_LIBRARIES = false;
     public static final boolean DEBUG_COMPRESSION = Build.IS_DEBUGGABLE;
+
+    private Platform mPlatform ;
 
     // Debug output for dexopting. This is shared between PackageManagerService, OtaDexoptService
     // and PackageDexOptimizer. All these classes have their own flag to allow switching a single
@@ -2830,6 +2834,9 @@ public class PackageManagerService extends IPackageManager.Stub
 
         mResolveComponentName = testParams.resolveComponentName;
         mPackages.putAll(testParams.packages);
+        if(mPlatform == null){
+            mPlatform = Platform.getInstance(mContext);
+        } 
     }
 
     private static Signature[] createSignatures(String[] hexBytes) {
@@ -3311,6 +3318,7 @@ public class PackageManagerService extends IPackageManager.Stub
                             final File codePath = new File(pkg.getCodePath());
                             scanPackageTracedLI(codePath, 0, scanFlags, 0, null);
                         } catch (PackageManagerException e) {
+                            sendInstallErrorMsg(packageName,e);
                             Slog.e(TAG, "Failed to parse updated, ex-system package: "
                                     + e.getMessage());
                         }
@@ -3366,6 +3374,7 @@ public class PackageManagerService extends IPackageManager.Stub
                         try {
                             scanPackageTracedLI(scanFile, reparseFlags, rescanFlags, 0, null);
                         } catch (PackageManagerException e) {
+                            sendInstallErrorMsg(packageName,e);
                             Slog.e(TAG, "Failed to parse original system package: "
                                     + e.getMessage());
                         }
@@ -3768,6 +3777,7 @@ public class PackageManagerService extends IPackageManager.Stub
                         UserHandle.USER_SYSTEM, "android");
                 systemStubPackageNames.remove(i);
             } catch (PackageManagerException e) {
+                sendInstallErrorMsg(packageName,e);
                 Slog.e(TAG, "Failed to parse uncompressed system package: " + e.getMessage());
             }
 
@@ -3782,6 +3792,13 @@ public class PackageManagerService extends IPackageManager.Stub
                     UserHandle.USER_SYSTEM, "android");
             logCriticalInfo(Log.ERROR, "Stub disabled; pkg: " + pkgName);
         }
+    }
+
+    private void sendInstallErrorMsg(String packageName,PackageManagerException e){
+        if(mPlatform == null){
+            mPlatform = Platform.getInstance(mContext);
+        } 
+        mPlatform.installAppCallBack(packageName,e.error,e.getMessage());
     }
 
     /**
@@ -3805,6 +3822,7 @@ public class PackageManagerService extends IPackageManager.Stub
                         updateSharedLibrariesLocked(pkg, stubPkgSetting, null, null,
                                 Collections.unmodifiableMap(mPackages));
                     } catch (PackageManagerException e) {
+                        sendInstallErrorMsg(pkg.getPackageName(),e);
                         Slog.e(TAG, "updateAllSharedLibrariesLPw failed: ", e);
                     }
                     mPermissionManager.updatePermissions(pkg.getPackageName(), pkg);
@@ -3824,6 +3842,7 @@ public class PackageManagerService extends IPackageManager.Stub
                             null /*origPermissionsState*/, true /*writeSettings*/);
                 } catch (PackageManagerException pme) {
                     // Serious WTF; we have to be able to install the stub
+                    sendInstallErrorMsg(stubPkg.getPackageName(),pme);
                     Slog.wtf(TAG, "Failed to restore system package:" + stubPkg.getPackageName(),
                             pme);
                 } finally {
@@ -3867,6 +3886,7 @@ public class PackageManagerService extends IPackageManager.Stub
         try {
             return scanPackageTracedLI(scanFile, parseFlags, scanFlags, 0, null);
         } catch (PackageManagerException e) {
+            sendInstallErrorMsg(stubPkg.getPackageName(),e);
             Slog.w(TAG, "Failed to install compressed system package:" + stubPkg.getPackageName(),
                     e);
             // Remove the failed install
@@ -6463,7 +6483,8 @@ public class PackageManagerService extends IPackageManager.Stub
 
     @Override
     public int getUidForSharedUser(String sharedUserName) {
-        if (getInstantAppPackageName(Binder.getCallingUid()) != null) {
+        String pkg = getInstantAppPackageName(Binder.getCallingUid());
+        if (pkg != null) {
             return -1;
         }
         if (sharedUserName == null) {
@@ -6478,6 +6499,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     return suid.userId;
                 }
             } catch (PackageManagerException ignore) {
+                sendInstallErrorMsg(pkg,ignore);
                 // can't happen, but, still need to catch it
             }
             return -1;
@@ -9279,6 +9301,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     addForInitLI(parseResult.parsedPackage, parseFlags, scanFlags,
                             currentTime, null);
                 } catch (PackageManagerException e) {
+                   // sendInstallErrorMsg(pkg,ignore);
                     errorCode = e.error;
                     Slog.w(TAG, "Failed to scan " + parseResult.scanFile + ": " + e.getMessage());
                 }
@@ -9695,8 +9718,9 @@ public class PackageManagerService extends IPackageManager.Stub
         if (scanResult.success) {
             synchronized (mLock) {
                 boolean appIdCreated = false;
+                String pkgName ="" ;
                 try {
-                    final String pkgName = scanResult.pkgSetting.name;
+                    pkgName = scanResult.pkgSetting.name;
                     final Map<String, ReconciledPackage> reconcileResult = reconcilePackagesLocked(
                             new ReconcileRequest(
                                     Collections.singletonMap(pkgName, scanResult),
@@ -9711,6 +9735,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     commitReconciledScanResultLocked(
                             reconcileResult.get(pkgName), mUserManager.getUserIds());
                 } catch (PackageManagerException e) {
+                    sendInstallErrorMsg(pkgName,e);
                     if (appIdCreated) {
                         cleanUpAppIdCreation(scanResult);
                     }
@@ -10931,6 +10956,7 @@ public class PackageManagerService extends IPackageManager.Stub
                                 true, null);
                     }
                     Slog.e(TAG, "updateAllSharedLibrariesLPw failed: " + e.getMessage());
+                    sendInstallErrorMsg(pkg.getPackageName(),e);
                 }
             }
         } while (needsUpdating != null && needsUpdating.size() > 0);
@@ -11142,6 +11168,7 @@ public class PackageManagerService extends IPackageManager.Stub
                 sharedUserSetting = mSettings.getSharedUserLPw(pkg.getSharedUserId(), 0,
                         0, false);
             } catch (PackageManagerException ignore) {
+                  sendInstallErrorMsg(pkg.getPackageName(),ignore);
             }
             if (sharedUserSetting != null && sharedUserSetting.isPrivileged()) {
                 // Exempt SharedUsers signed with the platform key.
@@ -12295,6 +12322,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     sharedUserSetting = mSettings.getSharedUserLPw(pkg.getSharedUserId(),
                             0, 0, false);
                 } catch (PackageManagerException ignore) {
+                      sendInstallErrorMsg(pkg.getPackageName(),ignore);
                 }
                 if (sharedUserSetting != null && sharedUserSetting.isPrivileged()) {
                     // Exempt SharedUsers signed with the platform key.
@@ -12554,6 +12582,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     updateSharedLibrariesLocked(pkg, pkgSetting, null, null,
                             combinedSigningDetails);
                 } catch (PackageManagerException e) {
+                      sendInstallErrorMsg(pkg.getPackageName(),e);
                     Slog.e(TAG, "updateSharedLibrariesLPr failed: ", e);
                 }
                 // Update all applications that use this library. Skip when booting
@@ -15178,6 +15207,7 @@ public class PackageManagerService extends IPackageManager.Stub
                             checkDowngrade(dataOwnerPkg, pkgLite);
                         } catch (PackageManagerException e) {
                             Slog.w(TAG, "Downgrade detected: " + e.getMessage());
+                            sendInstallErrorMsg(dataOwnerPkg.getPackageName(),e);    
                             return PackageHelper.RECOMMEND_FAILED_VERSION_DOWNGRADE;
                         }
                     } else if (dataOwnerPs.isSystem()) {
@@ -15199,6 +15229,7 @@ public class PackageManagerService extends IPackageManager.Stub
                                         + " older than its preloaded version on the system image. "
                                         + e.getMessage();
                                 Slog.w(TAG, errorMsg);
+                                sendInstallErrorMsg(dataOwnerPkg.getPackageName(),e); 
                                 return PackageHelper.RECOMMEND_FAILED_VERSION_DOWNGRADE;
                             }
                         }
@@ -17099,6 +17130,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     }
                 } catch (PackageManagerException e) {
                     request.installResult.setError("Scanning Failed.", e);
+                    sendInstallErrorMsg(packageName,e);
                     return;
                 }
             }
@@ -17610,6 +17642,7 @@ public class PackageManagerService extends IPackageManager.Stub
                             }
                         }
                     } catch (PackageManagerException e) {
+                       // sendInstallErrorMsg(dataOwnerPkg.getPackageName(),e);
                         throw new PrepareFailure(e.error, e.getMessage());
                     }
                 }
@@ -19202,6 +19235,7 @@ public class PackageManagerService extends IPackageManager.Stub
                     outInfo == null ? null : outInfo.origUsers, deletedPs.getPermissionsState(),
                     writeSettings);
         } catch (PackageManagerException e) {
+            sendInstallErrorMsg(deletedPkg.getPackageName(),e);
             Slog.w(TAG, "Failed to restore system package:" + deletedPkg.getPackageName() + ": "
                     + e.getMessage());
             // TODO(patb): can we avoid this; throw would come from scan...
@@ -24048,12 +24082,15 @@ public class PackageManagerService extends IPackageManager.Stub
      * Check and throw if the given before/after packages would be considered a
      * downgrade.
      */
-    private static void checkDowngrade(AndroidPackage before, PackageInfoLite after)
+    private  void checkDowngrade(AndroidPackage before, PackageInfoLite after)
             throws PackageManagerException {
+        int code ;
+        String message ;        
         if (after.getLongVersionCode() < before.getLongVersionCode()) {
-            throw new PackageManagerException(INSTALL_FAILED_VERSION_DOWNGRADE,
-                    "Update version code " + after.versionCode + " is older than current "
-                    + before.getLongVersionCode());
+            code = INSTALL_FAILED_VERSION_DOWNGRADE;
+            message =  "Update version code " + after.versionCode + " is older than current "
+                    + before.getLongVersionCode();
+            throw new PackageManagerException(code,message);     
         } else if (after.getLongVersionCode() == before.getLongVersionCode()) {
             if (after.baseRevisionCode < before.getBaseRevisionCode()) {
                 throw new PackageManagerException(INSTALL_FAILED_VERSION_DOWNGRADE,
