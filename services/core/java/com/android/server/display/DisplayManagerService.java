@@ -123,6 +123,11 @@ import android.os.AsyncTask;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+
 
 /**
  * Manages attached displays.
@@ -660,16 +665,33 @@ public final class DisplayManagerService extends SystemService {
                         String uidName = manager.getNameForUid(callingUid);
                         if(uidName != null && !uidName.startsWith("android.uid.system")){
                             resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, packageName, "size");
-                            Slog.d(TAG, "getDisplayInfoInternalWithPid: query " + packageName + " resultStr: " + resultStr);
+                            Slog.d(TAG, "getDisplayInfoInternalWithPid: query " + packageName + " resultStr: " + resultStr + ",logicalWidth: "+info.logicalWidth + ",logicalHeight: "+info.logicalHeight);
+                            
+                            DecimalFormat df = new DecimalFormat("#.000");
+                            String type = "fixed";
+                   
                             if(resultStr != null && !"".equals(resultStr)){
                                 JSONObject jsonObject = null;
                                 try {
                                     jsonObject = new JSONObject(resultStr);
                                     int width = jsonObject.getInt("width");
                                     int height = jsonObject.getInt("height");
+                                    type = jsonObject.getString("type");
+                                  
+                                    BigDecimal bdResult = new BigDecimal(info.logicalWidth)
+                                        .divide(new BigDecimal(1920), 3, RoundingMode.HALF_UP); 
+                                    double ratio = 1;
+                                    if(!"fixed".equals(type)){
+                                        ratio = bdResult.doubleValue();;
+                                    }
+                                    double dw = Double.parseDouble(df.format(width * ratio)); 
+                                    int w = (int) dw;
+                                    double dh = Double.parseDouble(df.format(height * ratio)); 
+                                    int h = (int) dh;  
+                                    Slog.d(TAG, "getDisplayInfoInternalWithPid: ratio "+ratio + ",width: "+ w+",height: "+h +",type "+type); 
                                     info = display.getCompatibilityDisplayInfoLocked();
-                                    info.logicalWidth = width;
-                                    info.logicalHeight = height;
+                                    info.logicalWidth = w;
+                                    info.logicalHeight = h;
                                 } catch (JSONException e) {
                                     Slog.e(TAG,"getDisplayInfoInternalWithPid error: " + e);
                                 }
