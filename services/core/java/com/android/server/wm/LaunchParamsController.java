@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import android.util.Slog;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+
 
 /**
  * {@link LaunchParamsController} calculates the {@link LaunchParams} by coordinating between
@@ -107,19 +109,29 @@ class LaunchParamsController {
                 case RESULT_CONTINUE:
                     if(source != null && task != null && source.getContext() != null && task.mWindowLayoutAffinity != null) {
                         Context context =  source.getContext();
+          
+                        DisplayContent displayContent = mService.mRootWindowContainer.getDefaultDisplay();
+                        DisplayMetrics metrics = new DisplayMetrics();
+                        displayContent.getDisplay().getMetrics(metrics);
+                        
                         String resultStr = CompatibleConfig.queryValueDataBySharedMemory(context,
                                 task.mWindowLayoutAffinity, "activityLunchSize");
                         if (!TextUtils.isEmpty(resultStr)) {
                             JSONObject jsonObject = null;
+                            String type = "fixed";
                             try {
                                 jsonObject = new JSONObject(resultStr);
                                 int width = jsonObject.getInt("width");
                                 int height = jsonObject.getInt("height");
+                                //type = jsonObject.getString("type");
+                                int w = CompatibleConfig.getResolutionRatio(metrics.widthPixels,width,type);
+                                int h = CompatibleConfig.getResolutionRatio(metrics.widthPixels,height,type);
+                                Slog.w("TAG", "onCalculate widthPixels: " + metrics.widthPixels + ",w: "+w + ",h: "+h + ",width: "+width + ",height:  "+height);
                                 if (width > 0 && height > 0) {
                                     int left =  mTmpResult.mBounds.left;
-                                    int right = mTmpResult.mBounds.left + width;
+                                    int right = mTmpResult.mBounds.left + w;
                                     int top = mTmpResult.mBounds.top;
-                                    int bottom  = mTmpResult.mBounds.top + height;
+                                    int bottom  = mTmpResult.mBounds.top + h;
                                     mTmpResult.mBounds.set(new Rect(left, top, right, bottom));
                                 }
 

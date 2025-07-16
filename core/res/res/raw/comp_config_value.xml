@@ -85,18 +85,18 @@
     <item
         isdel="false"
         keycode="size"
-        updatedate="2025-07-07">
+        updatedate="2025-07-16">
         <package>
             <packagename>com.microsoft.office.word</packagename>
-            <defaultvalue>{ width = 800,height = 600 }</defaultvalue>
+            <defaultvalue>{ width = 800,height = 600, type=fixed }</defaultvalue>
         </package>
         <package>
             <packagename>com.microsoft.office.excel</packagename>
-            <defaultvalue>{ width = 800,height = 600 }</defaultvalue>
+            <defaultvalue>{ width = 800,height = 600, type=fixed }</defaultvalue>
         </package>
         <package>
             <packagename>com.ets100.secondary</packagename>
-            <defaultvalue>{ width = 412,height = 713 }</defaultvalue>
+            <defaultvalue>{ width = 412,height = 713, type=relative }</defaultvalue>
         </package>
     </item>
 
