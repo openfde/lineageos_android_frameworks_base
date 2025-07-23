@@ -43,6 +43,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import android.text.TextUtils;
+import android.os.SystemProperties;
 
 /**
  * Default implementation for the WebView preparation Utility interface.
@@ -273,7 +275,7 @@ public class SystemImpl implements SystemInterface {
     @Override
     public boolean isMultiProcessDefaultEnabled() {
         // Multiprocess is enabled by default for all devices.
-        return true;
+        return TextUtils.equals(SystemProperties.get("ro.hardware.egl", "defalut"), "LEOPARD") ? false : true;
     }
 
     // flags declaring we want extra info from the package manager for webview providers
