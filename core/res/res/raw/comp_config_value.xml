@@ -165,9 +165,17 @@
     <item
         isdel="false"
         keycode="isAllowRealDisplaySize"
-        updatedate="2024-09-29">
+        updatedate="2025-07-24">
         <package>
             <packagename>com.taobao.idlefish</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+		<package>
+            <packagename>com.ets100.secondary</packagename>
+            <defaultvalue>true</defaultvalue>
+        </package>
+		<package>
+            <packagename>com.tencent.android.qqdownloader</packagename>
             <defaultvalue>true</defaultvalue>
         </package>
     </item>

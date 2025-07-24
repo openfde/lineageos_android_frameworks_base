@@ -808,13 +808,25 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         }
         if (mClickTarget == mBack) {
             Log.w(TAG, "onSingleTapUp mBack clicked");
+            if(mContext instanceof Activity ){
+                Activity currentActivity = (Activity) mContext;
+                try{
+                     if("com.mistong.ewt360".equals(currentActivity.getPackageName())){
+                        Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
+                        if (callback != null) {
+                            callback.onBackPressed();
+                            Slog.w(TAG,"fde currentActivity "+ currentActivity.getPackageName()+" : " +currentActivity.getLocalClassName());
+                            return true;
+                        }
+                     }
+                  }
+                catch(Exception ee){
+                     ee.printStackTrace();
+                }
+                           
+            }
             sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 0);
             sendEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK, 0);
-            /*Window.WindowControllerCallback callback = mOwner.getWindowControllerCallback();
-            if (callback != null) {
-                Log.w(TAG, "onSingleTapUp callback.onBackPressed");
-                callback.onBackPressed();
-            }*/
             return true;
         }
         Window.WindowControllerCallback cb = mOwner.getWindowControllerCallback();
