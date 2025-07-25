@@ -5771,5 +5771,5 @@ ul.</string>
     <!-- pdp data reject dialog string for cause 55 (MULTI_CONN_TO_SAME_PDN_NOT_ALLOWED) [CHAR LIMIT=100] -->
     <string name="config_pdp_reject_multi_conn_to_same_pdn_not_allowed"></string>
     <string name="exit_full_screen_display_prompt" >Press F11 key to exit full screen display.</string>
-    <string name="forbid_exit_full_screen_tips" >Vertical mode has disabled the maximization, full screen mode, and zoom functions.</string>
+    <string name="forbid_exit_full_screen_tips" >The App has disabled the maximization, full screen mode, and zoom functions.</string>
 </resources>
