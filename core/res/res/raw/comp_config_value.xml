@@ -250,19 +250,27 @@
 	<item
         isdel="false"
         keycode="forcedPortraitMode"
-        updatedate="2025-07-07">
+        updatedate="2025-07-25">
         <package>
             <packagename>com.ets100.secondary</packagename>
+            <defaultvalue>true</defaultvalue>
+	    </package>
+		<package>
+            <packagename>org.geogebra.android.calculator.suite</packagename>
             <defaultvalue>true</defaultvalue>
 	    </package>
     </item>		
 	<item
         isdel="false"
         keycode="activityLunchSize"
-        updatedate="2025-07-04">
+        updatedate="2025-07-25">
         <package>
             <packagename>com.peplibrary</packagename>
             <defaultvalue>{ width = 650,height = 850 }</defaultvalue>
+        </package>
+		<package>
+            <packagename>org.geogebra.android.calculator.suite</packagename>
+            <defaultvalue>{ width = 1728,height = 972 }</defaultvalue>
         </package>
     </item>
 
