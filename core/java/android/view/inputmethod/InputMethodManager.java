@@ -557,6 +557,28 @@ public final class InputMethodManager {
         }
     }
 
+    /**
+     * @hide
+     */
+    public void commitText(String text) {
+        try {
+            mService.commitText(text);
+        } catch (RemoteException e) {
+            Log.e(TAG,"commitText error: " + e);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    public void sendKeyEvent(int action, int code){
+        try {
+            mService.sendKeyEvent(action, code);
+        } catch (RemoteException e) {
+            Log.e(TAG,"sendKeyEvent error: " + e);
+        }
+    }
+
     private final class DelegateImpl implements
             ImeFocusController.InputMethodManagerDelegate {
         /**
