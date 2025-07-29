@@ -162,7 +162,8 @@ import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import android.util.DisplayMetrics;
 import com.android.internal.util.CompatibleConfig;
-
+import android.widget.RelativeLayout;
+import android.view.ViewTreeObserver;
 
 /**
  * An activity is a single, focused thing that the user can do.  Almost all
@@ -1988,7 +1989,42 @@ public class Activity extends ContextThemeWrapper
         notifyContentCaptureManagerIfNeeded(CONTENT_CAPTURE_RESUME);
 
         mCalled = true;
+        setTargetViewSize();
     }
+
+    private void setTargetViewSize(){
+        if(getLocalClassName().contains("CompositionCameraActivity")){
+            View decorView = getWindow().getDecorView();
+            ViewGroup contentView = decorView.findViewById(android.R.id.content);
+//            printAllViews(contentView, "content");
+            if( contentView == null ){
+                return;
+            }
+            ViewGroup relativelayout = (ViewGroup)contentView.getChildAt(0);
+            if( relativelayout == null ){
+                return;
+            }
+            ViewGroup layout_take_photo = (ViewGroup)relativelayout.getChildAt(0);
+            if( layout_take_photo == null ){
+                return;
+            }
+            View viewById = layout_take_photo.getChildAt(0);
+            if( viewById == null ){
+                return;
+            }
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) viewById.getLayoutParams();
+            getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+//                Log.e(TAG, "setTargetViewSize: ");
+                int measuredHeight = getWindow().getDecorView().getMeasuredHeight();
+                int measuredWidth = getWindow().getDecorView().getMeasuredWidth();
+                params.width = measuredWidth;
+                params.height = measuredWidth * 9 / 16;
+                params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+                viewById.setLayoutParams(params);
+            });
+        }
+    }
+
 
     /**
      * Called when activity resume is complete (after {@link #onResume} has
