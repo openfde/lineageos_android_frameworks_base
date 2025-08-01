@@ -672,6 +672,12 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             }
 
             if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
+                try {
+                    if (mWaydroidWindow != null && mWaydroidWindow.minimize(getContext().getPackageName())){
+                        return true;
+                    }
+                } catch (RemoteException ignored) {
+                }
                 Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
                 if (callback != null) {
                     callback.moveTaskToBack(true);
@@ -772,6 +778,12 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             }
 
             if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
+                try {
+                    if (mWaydroidWindow != null && mWaydroidWindow.minimize(getContext().getPackageName())){
+                        return true;
+                    }
+                } catch (RemoteException ignored) {
+                }
                 Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
                 if (callback != null) {
                     callback.moveTaskToBack(true);
