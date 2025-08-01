@@ -562,6 +562,7 @@ public final class InputMethodManager {
      */
     public void commitText(String text) {
         try {
+            Log.w(TAG,"mService.commitText: " + text);
             mService.commitText(text);
         } catch (RemoteException e) {
             Log.e(TAG,"commitText error: " + e);
