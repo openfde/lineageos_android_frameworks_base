@@ -406,6 +406,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mHasFeatureWatch;
     private boolean mHasFeatureLeanback;
     private boolean mHasFeatureHdmiCec;
+    private boolean mIsMultiWindows;
 
     // Assigned on main thread, accessed on UI thread
     volatile VrManagerInternal mVrManagerInternal;
@@ -2043,6 +2044,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Resources res = mContext.getResources();
         mWakeOnDpadKeyPress =
                 res.getBoolean(com.android.internal.R.bool.config_wakeOnDpadKeyPress);
+        mIsMultiWindows = SystemProperties.getBoolean("persist.waydroid.multi_windows", false);
 
         // Init display burn-in protection
         boolean burnInProtectionEnabled = context.getResources().getBoolean(
@@ -3133,7 +3135,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // can never break it, although if keyguard is on, we do let
         // it handle it, because that gives us the correct 5 second
         // timeout.
-        if (keyCode == KeyEvent.KEYCODE_HOME || keyCode == KeyEvent.KEYCODE_F10) {
+        if ((keyCode == KeyEvent.KEYCODE_HOME || keyCode == KeyEvent.KEYCODE_F10) && !mIsMultiWindows) {
             DisplayHomeButtonHandler handler = mDisplayHomeButtonHandlers.get(displayId);
             if (handler == null) {
                 handler = new DisplayHomeButtonHandler(displayId);
