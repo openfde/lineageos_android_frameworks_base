@@ -475,7 +475,12 @@ public final class ThreadedRenderer extends HardwareRenderer {
         }
 
         mRootNode.setLeftTopRightBottom(-mInsetLeft, -mInsetTop, mSurfaceWidth, mSurfaceHeight);
-
+      
+        if(attachInfo.mPoint.x == 0 || attachInfo.mPoint.y == 0){
+            attachInfo.mPoint.x = width ;
+            attachInfo.mPoint.y = height ;
+        }
+        
         setLightCenter(attachInfo);
     }
 
@@ -487,6 +492,7 @@ public final class ThreadedRenderer extends HardwareRenderer {
     void setLightCenter(AttachInfo attachInfo) {
         // Adjust light position for window offsets.
         final Point displaySize = attachInfo.mPoint;
+     
         attachInfo.mDisplay.getRealSize(displaySize);
         final float lightX = displaySize.x / 2f - attachInfo.mWindowLeft;
         final float lightY = mLightY - attachInfo.mWindowTop;
@@ -704,6 +710,7 @@ public final class ThreadedRenderer extends HardwareRenderer {
                 final int windowLeft, final int windowTop) {
             // Adjust light position for window offsets.
             final Point displaySize = new Point();
+            Log.w("ThreadedRenderer","FDE Logical display setLightCenter2  displaySize x "+displaySize.x + ",y "+displaySize.y);
             display.getRealSize(displaySize);
             final float lightX = displaySize.x / 2f - windowLeft;
             final float lightY = mLightY - windowTop;

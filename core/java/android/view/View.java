@@ -172,6 +172,9 @@ import java.util.Queue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import android.app.Activity;
+import com.android.internal.util.CompatibleConfig;
+
 
 /**
  * <p>
@@ -22857,6 +22860,16 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         int oldB = mBottom;
         int oldR = mRight;
 
+        /*
+        int id = this.getId();
+        if((id ==2131364291 || id == 2131363586) ){
+            l = mLeft = oldL = 0;
+            r = mRight = oldR = 368;
+        }else if(id == 2131362071){
+           l =  mLeft = oldL = 0;
+           r = mRight = oldR = 183;
+        }*/
+
         boolean changed = isLayoutModeOptical(mParent) ?
                 setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
 
@@ -25584,6 +25597,20 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             measuredWidth  += optical ? opticalWidth  : -opticalWidth;
             measuredHeight += optical ? opticalHeight : -opticalHeight;
         }
+
+
+         if(this.getContext().getPackageName().equals("com.ets100.secondary") ){  
+            int id = getId();
+           // Log.w("View","FDE Logical display setMeasuredDimensionRaw : "  + ",mMeasuredWidth "+mMeasuredWidth + ",getSimpleName: "+getClass().getSimpleName() + ",id: "+id +",windowWidth: "+windowWidth +",windowHeight: "+windowHeight);
+            
+            if(measuredWidth > 412)  {
+              if(getClass().getSimpleName().equals("TextView")){
+                  measuredWidth = 181;
+              }else{
+                  measuredWidth = 368;
+              }
+            }
+        }
         setMeasuredDimensionRaw(measuredWidth, measuredHeight);
     }
 
@@ -25602,7 +25629,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     private void setMeasuredDimensionRaw(int measuredWidth, int measuredHeight) {
         mMeasuredWidth = measuredWidth;
         mMeasuredHeight = measuredHeight;
-
         mPrivateFlags |= PFLAG_MEASURED_DIMENSION_SET;
     }
 

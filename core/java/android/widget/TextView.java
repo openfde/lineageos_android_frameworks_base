@@ -186,6 +186,7 @@ import android.view.textclassifier.TextLinks;
 import android.view.textservice.SpellCheckerSubtype;
 import android.view.textservice.TextServicesManager;
 import android.widget.RemoteViews.RemoteView;
+import android.widget.TextView.SavedState;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.logging.MetricsLogger;
@@ -193,6 +194,7 @@ import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.util.FastMath;
 import com.android.internal.util.Preconditions;
 import com.android.internal.widget.EditableInputConnection;
+import android.graphics.Color;
 
 import libcore.util.EmptyArray;
 
@@ -210,7 +212,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
+import com.android.internal.util.CompatibleConfig;
+import org.json.JSONObject;
+import org.json.JSONException;
 /**
  * A user interface element that displays text to the user.
  * To provide user-editable text, see {@link EditText}.
@@ -9300,6 +9304,17 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+
+        if(this.getContext().getPackageName().equals("com.ets100.secondary") ){  
+            if(widthSize > 960)  {
+                widthSize = 368;
+            }else if(widthSize > 480){
+                widthSize = 183;
+            }else if(widthSize > 412){
+                widthSize = 368;
+            }
+        }
 
         int width;
         int height;
