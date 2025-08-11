@@ -329,6 +329,8 @@ public class NotificationManagerService extends SystemService {
     static final boolean DEBUG_INTERRUPTIVENESS = SystemProperties.getBoolean(
             "debug.notification.interruptiveness", false);
 
+    static final String ACTION_UPDATE_DESKTOP_FILE = "com.fde.desktop.file.update"; 
+
     static final int MAX_PACKAGE_NOTIFICATIONS = 50;
     static final float DEFAULT_MAX_NOTIFICATION_ENQUEUE_RATE = 5f;
 
@@ -3781,6 +3783,18 @@ public class NotificationManagerService extends SystemService {
         @Override
         public boolean areChannelsBypassingDnd() {
             return mPreferencesHelper.areChannelsBypassingDnd();
+        }
+
+         @Override
+        public void notify(String packageName, String data) throws RemoteException {
+           Slog.w(TAG, "notify packageName "+packageName  + ", data "+data);
+           Intent intent = new Intent(ACTION_UPDATE_DESKTOP_FILE);      
+           intent.putExtra("mode", "");        
+           intent.putExtra("path", "");  
+           intent.putExtra("packageName", packageName);
+           intent.putExtra("data", data);
+           intent.setPackage(packageName);       
+           getContext().sendBroadcast(intent);
         }
 
         @Override
