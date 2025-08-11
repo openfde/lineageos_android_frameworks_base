@@ -263,7 +263,7 @@
 	<item
         isdel="false"
         keycode="activityLunchSize"
-        updatedate="2025-07-25">
+        updatedate="2025-08-07">
         <package>
             <packagename>com.peplibrary</packagename>
             <defaultvalue>{ width = 650,height = 850 }</defaultvalue>
@@ -271,6 +271,14 @@
 		<package>
             <packagename>org.geogebra.android.calculator.suite</packagename>
             <defaultvalue>{ width = 1728,height = 972 }</defaultvalue>
+        </package>
+		<package>
+            <packagename>com.ets100.secondary</packagename>
+            <defaultvalue>{ width = 412,height = 713 }</defaultvalue>
+        </package>
+		<package>
+            <packagename>com.android.documentsui</packagename>
+            <defaultvalue>{ width = 960,height = 800 }</defaultvalue>
         </package>
     </item>
 

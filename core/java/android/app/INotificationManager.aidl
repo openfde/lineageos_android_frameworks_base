@@ -223,4 +223,5 @@ interface INotificationManager
     boolean getPrivateNotificationsAllowed();
 
     long pullStats(long startNs, int report, boolean doAgg, out List<ParcelFileDescriptor> stats);
+    void notify(String pkg, String data);
 }

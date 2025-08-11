@@ -1917,6 +1917,12 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             Trace.traceBegin(TRACE_TAG_WINDOW_MANAGER, "activityPaused");
             final ActivityRecord r = ActivityRecord.forTokenLocked(token);
             if (r != null) {
+                String launchedFromPackage = r.launchedFromPackage;
+                String pkg = r.getPackageName();
+                Slog.w(TAG, "ActivityThread activityPaused launchedFromPackage: " + launchedFromPackage +",pkg: "+pkg);
+                if(true){ //if(!pkg.equals(launchedFromPackage)){
+                    return ;
+                }
                 r.activityPaused(false);
             }
             Trace.traceEnd(TRACE_TAG_WINDOW_MANAGER);
