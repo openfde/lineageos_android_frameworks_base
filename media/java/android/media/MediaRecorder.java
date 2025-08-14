@@ -710,7 +710,11 @@ public class MediaRecorder implements AudioRouting,
             degrees != 270) {
             throw new IllegalArgumentException("Unsupported angle: " + degrees);
         }
-        setParameter("video-param-rotation-angle-degrees=" + degrees);
+	if(mOnErrorListener != null && mOnErrorListener.toString().contains("com.iflytek.newclass.hwCommon.plugin.take_video.views.MovieRecorderView")){
+            setParameter("video-param-rotation-angle-degrees=" + 0);
+        } else {
+            setParameter("video-param-rotation-angle-degrees=" + degrees);
+        }
     }
 
     /**

@@ -137,6 +137,7 @@ import android.view.contentcapture.ContentCaptureManager.ContentCaptureClient;
 import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.Toolbar;
+import android.view.Gravity;
 
 import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
@@ -163,6 +164,8 @@ import java.util.function.Consumer;
 import android.util.DisplayMetrics;
 import com.android.internal.util.CompatibleConfig;
 import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.view.ViewTreeObserver;
 
 /**
@@ -794,6 +797,7 @@ public class Activity extends ContextThemeWrapper
     private static final int LOG_AM_ON_ACTIVITY_RESULT_CALLED = 30062;
     private static final int LOG_AM_ON_TOP_RESUMED_GAINED_CALLED = 30064;
     private static final int LOG_AM_ON_TOP_RESUMED_LOST_CALLED = 30065;
+
 
     private static class ManagedDialog {
         Dialog mDialog;
@@ -1990,6 +1994,59 @@ public class Activity extends ContextThemeWrapper
 
         mCalled = true;
         setTargetViewSize();
+    //	setTargetTaskSize();
+        setTargetViewSizeVideoPreviewActivity();
+	setTargetViewSizeTakeVideoActivity();
+        setTargetViewSizeTakePhotoActivity();
+    }
+
+    private void setTargetTaskSize(){
+        final String className = getLocalClassName();
+        if(!getPackageName().contains("com.iflytek.elpmobile.student")){
+            return;
+        }
+
+     //if(className.contains("TakePhotoActivity") || className.contains("VideoPreviewActivity") || className.contains("TakeVideoActivity")){
+     //	    View decorView = getWindow().getDecorView();
+     //     ViewGroup contentView = decorView.findViewById(android.R.id.content);
+     //     printAllViews(contentView, "content");
+     //	}
+
+        final int taskid = getTaskId();
+	int fdeWidth = SystemProperties.getInt("fde.window.width", 0);
+	
+        View decorView = getWindow().getDecorView();
+        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+		decorView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+		int fdeWidth = SystemProperties.getInt("fde.window.width", 0);
+		int[] location = new int[2];
+                decorView.getLocationOnScreen(location);
+                Rect rect = null;
+     //           Log.e(TAG, className + " " + location[0] + " " + location[1] + " " + decorView.getMeasuredWidth() + " " + decorView.getMeasuredHeight() );
+                if(className.contains("TakePhotoActivity")){
+                    rect = new Rect(location[0], location[1], location[0] + decorView.getMeasuredHeight() * 1280 / 720, location[1] + decorView.getMeasuredHeight());
+                    SystemProperties.set("fde.window.resize", "true");
+		} else {
+		   if(SystemProperties.getBoolean("fde.window.resize", false)){
+		        rect = new Rect(location[0], location[1], location[0] + fdeWidth, location[1] + decorView.getMeasuredHeight());
+		   	SystemProperties.set("fde.window.resize", "false");
+		   } else {
+		        fdeWidth = decorView.getMeasuredWidth();
+                   	SystemProperties.set("fde.window.width", String.valueOf(fdeWidth));   
+		   }
+                }
+   //             Log.e(TAG, "resizeTask: " + rect);
+                if(rect != null){
+                    try {
+                        ActivityTaskManager.getService().resizeTask(taskid, rect, 0);
+                    } catch (RemoteException e) {
+                        throw e.rethrowFromSystemServer();
+                    }
+                }
+            }
+        });
     }
 
     private void setTargetViewSize(){
@@ -2014,13 +2071,147 @@ public class Activity extends ContextThemeWrapper
             }
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) viewById.getLayoutParams();
             getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-//                Log.e(TAG, "setTargetViewSize: ");
                 int measuredHeight = getWindow().getDecorView().getMeasuredHeight();
                 int measuredWidth = getWindow().getDecorView().getMeasuredWidth();
                 params.width = measuredWidth;
                 params.height = measuredWidth * 9 / 16;
                 params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
                 viewById.setLayoutParams(params);
+            });
+        }
+    }
+
+    private void printAllViews(ViewGroup viewGroup, String indent) {
+        int childCount = viewGroup.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = viewGroup.getChildAt(i);
+
+            Log.d("ViewTree", indent + "Child " + i + ": " + child.getClass().getSimpleName() +
+                    " (ID: " + getIdName(child) + ")");
+
+            if (child instanceof ViewGroup) {
+                printAllViews((ViewGroup) child, indent + "  ");
+            }
+        }
+    }
+
+
+    private String getIdName(View view) {
+        try {
+            return view.getResources().getResourceEntryName(view.getId());
+        } catch (Exception e) {
+            return "no_id";
+        }
+    }
+
+    private void setTargetViewSizeTakePhotoActivity(){
+    	if(!getPackageName().contains("com.iflytek.elpmobile.student")){
+            return;
+        }
+	
+	if(getLocalClassName().contains("TakePhotoActivity")){
+	    View decorView = getWindow().getDecorView();
+            ViewGroup contentView = decorView.findViewById(android.R.id.content);
+            //printAllViews(contentView, "content");
+	    if( contentView == null ){
+                return;
+            }
+            ViewGroup framelayout = (ViewGroup)contentView.getChildAt(0);
+            if( framelayout == null ){
+                return;
+            }
+            ViewGroup viewById = (ViewGroup)framelayout.getChildAt(0);
+            if( viewById == null ){
+                return;
+            }
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) viewById.getLayoutParams();
+            getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                int measuredHeight = getWindow().getDecorView().getMeasuredHeight();
+                int measuredWidth = getWindow().getDecorView().getMeasuredWidth();
+                params.width = measuredWidth;
+                params.height = measuredWidth * 720 / 1280;
+                params.gravity = Gravity.CENTER;
+		        viewById.setLayoutParams(params);
+            });
+        }
+    }
+
+    private void setTargetViewSizeTakeVideoActivity(){
+        if(!getPackageName().contains("com.iflytek.elpmobile.student")){
+            return;
+        }
+	if(getLocalClassName().contains("TakeVideoActivity")){
+            View decorView = getWindow().getDecorView();
+            ViewGroup contentView = decorView.findViewById(android.R.id.content);
+            if( contentView == null ){
+                return;
+            }
+            ViewGroup relativelayout = (ViewGroup)contentView.getChildAt(0);
+            if( relativelayout == null ){
+                return;
+            }
+            ViewGroup camera_preview = (ViewGroup)relativelayout.getChildAt(0);
+            if( camera_preview == null ){
+                return;
+            }
+            ViewGroup linearlayout = (ViewGroup)camera_preview.getChildAt(0);
+            if( linearlayout == null ){
+                return;
+            }
+            View viewById = (View)linearlayout.getChildAt(0);
+            if( viewById == null ){
+                return;
+            }
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) viewById.getLayoutParams();
+            getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                int measuredHeight = getWindow().getDecorView().getMeasuredHeight();
+                int measuredWidth = getWindow().getDecorView().getMeasuredWidth();
+                params.width = measuredWidth;
+                params.height = measuredWidth * 720 / 1280;
+                params.gravity = Gravity.CENTER;
+		params.topMargin = measuredHeight / 2 - measuredWidth * 720 / 1280 / 2;
+		viewById.setLayoutParams(params);
+            });
+        }
+    }
+
+
+    private void setTargetViewSizeVideoPreviewActivity(){
+        if(!getPackageName().contains("com.iflytek.elpmobile.student")){
+            return;
+        }
+	if(getLocalClassName().contains("VideoPreviewActivity")){
+            View decorView = getWindow().getDecorView();
+            ViewGroup contentView = decorView.findViewById(android.R.id.content);
+            if( contentView == null ){
+                return;
+            }
+            ViewGroup relativelayout = (ViewGroup)contentView.getChildAt(0);
+            if( relativelayout == null ){
+                return;
+            }
+            ViewGroup parentView = (ViewGroup)relativelayout.getChildAt(0);
+            if( parentView == null ){
+                return;
+            }
+            View viewById = (View)parentView.getChildAt(0);
+            View videoCover = (View)parentView.getChildAt(1);
+            if( viewById == null || videoCover == null){
+                return;
+            }
+            RelativeLayout.LayoutParams paramsVideo = (RelativeLayout.LayoutParams) viewById.getLayoutParams();
+            RelativeLayout.LayoutParams paramsCover = (RelativeLayout.LayoutParams) videoCover.getLayoutParams();
+            getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                int measuredHeight = getWindow().getDecorView().getMeasuredHeight();
+                int measuredWidth = getWindow().getDecorView().getMeasuredWidth();
+                paramsVideo.width = measuredWidth;
+                paramsVideo.height = measuredWidth * 720 / 1280;
+                paramsVideo.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+                viewById.setLayoutParams(paramsVideo);
+                paramsCover.width = measuredWidth;
+                paramsCover.height = measuredWidth * 720 / 1280;
+                paramsCover.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+                videoCover.setLayoutParams(paramsCover);
             });
         }
     }

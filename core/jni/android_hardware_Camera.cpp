@@ -18,6 +18,9 @@
 //#define LOG_NDEBUG 0
 #define LOG_TAG "Camera-JNI"
 #include <utils/Log.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "jni.h"
 #include <nativehelper/JNIHelp.h>
@@ -33,6 +36,8 @@
 #include <gui/Surface.h>
 #include <camera/Camera.h>
 #include <binder/IMemory.h>
+
+#define TARGET_PACKAGE "com.iflytek.elpmobile.student"
 
 using namespace android;
 
@@ -1020,14 +1025,66 @@ static void android_hardware_Camera_stopSmoothZoom(JNIEnv *env, jobject thiz)
     }
 }
 
+char* get_package_name() {
+    char path[64];
+    char line[256];
+    char* package_name = NULL;
+
+    pid_t pid = getpid();
+    snprintf(path, sizeof(path), "/proc/%d/cmdline", pid);
+
+    FILE* cmdline = fopen(path, "r");
+    if (!cmdline) {
+        ALOGV("Failed to open %s", path);
+        return NULL;
+    }
+
+    if (fgets(line, sizeof(line), cmdline)) {
+        package_name = strdup(line);
+    }
+
+    fclose(cmdline);
+    return package_name;
+}
+
+bool is_target_package() {
+    char* pkg = get_package_name();
+    ALOGV("PKG %s", pkg);
+    if (!pkg) {
+        ALOGV("Failed to get package name");
+        return false;
+    }
+
+    bool result = (strcmp(pkg, TARGET_PACKAGE) == 0);
+
+    if (!result) {
+        char* colon = strchr(pkg, ':');
+        if (colon) {
+            *colon = '\0';
+            result = (strcmp(pkg, TARGET_PACKAGE) == 0);
+        }
+    }
+
+    free(pkg);
+    return result;
+}
+
+
 static void android_hardware_Camera_setDisplayOrientation(JNIEnv *env, jobject thiz,
         jint value)
 {
-    ALOGV("setDisplayOrientation");
+    ALOGV("setDisplayOrientation %d", value);
     sp<Camera> camera = get_native_camera(env, thiz, NULL);
     if (camera == 0) return;
+    int32_t orientation = value;
+    if (is_target_package()) {
+        orientation = 0;
+    	ALOGV("IS TARGET");
+    } else {
+    	ALOGV("IS NOT TARGET");
+    }
 
-    if (camera->sendCommand(CAMERA_CMD_SET_DISPLAY_ORIENTATION, value, 0) != NO_ERROR) {
+    if (camera->sendCommand(CAMERA_CMD_SET_DISPLAY_ORIENTATION, orientation, 0) != NO_ERROR) {
         jniThrowRuntimeException(env, "set display orientation failed");
     }
 }
