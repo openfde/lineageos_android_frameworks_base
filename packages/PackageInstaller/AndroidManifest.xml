@@ -137,7 +137,7 @@
 
         <activity android:name=".UninstallerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/Theme.AlertDialogActivity.NoActionBar"
+            android:theme="@style/Theme.AlertDialogActivity.Uninstall"
             android:excludeFromRecents="true"
             android:noHistory="true">
             <intent-filter android:priority="1">
