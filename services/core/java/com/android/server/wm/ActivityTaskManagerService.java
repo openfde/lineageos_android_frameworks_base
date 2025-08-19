@@ -350,6 +350,10 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
     Context mContext;
 
+    public static long lastTime = 0 ;
+    public static final String SETTINGS = "com.android.settings" ;
+    public static final String SYSTEMUI = "com.android.systemui" ;
+
     /**
      * This Context is themable and meant for UI display (AlertDialogs, etc.). The theme can
      * change at runtime. Use mContext for non-UI purposes.
@@ -1919,10 +1923,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             if (r != null) {
                 String launchedFromPackage = r.launchedFromPackage;
                 String pkg = r.getPackageName();
-                Slog.w(TAG, "ActivityThread activityPaused launchedFromPackage: " + launchedFromPackage +",pkg: "+pkg);
-                if(true){ //if(!pkg.equals(launchedFromPackage)){
+                long curTime =  System.currentTimeMillis();
+                Slog.w(TAG, "ActivityThread activityPaused launchedFromPackage: " + launchedFromPackage +",pkg: "+pkg +",curTime: "+curTime + ",lastTime: "+lastTime  + " ,time : "+(curTime-lastTime));
+                if(pkg.equals(SETTINGS) || pkg.equals(SYSTEMUI)||launchedFromPackage.equals(SETTINGS) || launchedFromPackage.equals(SYSTEMUI)){
+                    lastTime = System.currentTimeMillis();
                     return ;
                 }
+                lastTime = System.currentTimeMillis();
                 r.activityPaused(false);
             }
             Trace.traceEnd(TRACE_TAG_WINDOW_MANAGER);
