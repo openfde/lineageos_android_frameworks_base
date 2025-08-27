@@ -30,6 +30,7 @@ class ActivityRecordInputSink {
     private final ActivityRecord mActivityRecord;
     private final String mName;
 
+    private boolean ENABLE_TOUCH_OPAQUE_ACTIVITIES = true;// as android 14
     private InputWindowHandle mInputWindowHandle;
     private SurfaceControl mSurfaceControl;
 
@@ -79,7 +80,8 @@ class ActivityRecordInputSink {
                         || activityBelowInTask.isUid(mActivityRecord.getUid()));
         boolean notTouchable = (mInputWindowHandle.layoutParamsFlags
                 & WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) != 0;
-        if (allowPassthrough || mActivityRecord.isAppTransitioning()) {
+	//isAppTransitioning seems no need to be true in freeform desktop which causes some input bring launcher to front
+        if (allowPassthrough || (ENABLE_TOUCH_OPAQUE_ACTIVITIES && !mActivityRecord.isAppTransitioning())) {
             mInputWindowHandle.layoutParamsFlags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
             changed |= !notTouchable;
         } else {
