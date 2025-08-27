@@ -288,7 +288,7 @@ import com.android.server.protolog.ProtoLogImpl;
 import com.android.server.protolog.common.ProtoLog;
 import com.android.server.utils.DeviceConfigInterface;
 import com.android.server.utils.PriorityDump;
-
+import android.content.ComponentName;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
@@ -8042,7 +8042,36 @@ public class WindowManagerService extends IWindowManager.Stub
             displayContent.positionDisplayAt(WindowContainer.POSITION_TOP,
                     true /* includingParents */);
         }
-        handleTaskFocusChange(touchedWindow.getTask());
+        if(!isLauncherTask(touchedWindow.getTask())){
+            handleTaskFocusChange(touchedWindow.getTask());
+        }
+    }
+
+    private boolean isLauncherTask(Task task) {
+        if (task == null) {
+            return false;
+        }
+
+        final ActivityRecord topActivity = task.getTopNonFinishingActivity();
+        if (topActivity == null) {
+            return false;
+        }
+
+        final Intent intent = topActivity.intent;
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (Intent.ACTION_MAIN.equals(action) && intent.hasCategory(Intent.CATEGORY_HOME)) {
+                return true;
+            }
+        }
+        final ComponentName component = topActivity.mActivityComponent;
+        if (component != null) {
+            final String packageName = component.getPackageName();
+            final String className = component.getClassName();
+            return  packageName.equals("com.android.launcher3");
+        }
+
+        return false;
     }
 
     @VisibleForTesting
