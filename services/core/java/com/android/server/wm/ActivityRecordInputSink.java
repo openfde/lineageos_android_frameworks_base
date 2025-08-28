@@ -81,7 +81,7 @@ class ActivityRecordInputSink {
         boolean notTouchable = (mInputWindowHandle.layoutParamsFlags
                 & WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) != 0;
 	//isAppTransitioning seems no need to be true in freeform desktop which causes some input bring launcher to front
-        if (allowPassthrough || (ENABLE_TOUCH_OPAQUE_ACTIVITIES && !mActivityRecord.isAppTransitioning())) {
+        if (allowPassthrough || (!ENABLE_TOUCH_OPAQUE_ACTIVITIES && mActivityRecord.isAppTransitioning())) {
             mInputWindowHandle.layoutParamsFlags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
             changed |= !notTouchable;
         } else {
