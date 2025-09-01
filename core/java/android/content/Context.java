@@ -2916,6 +2916,20 @@ public abstract class Context {
             @Nullable String initialData, @Nullable  Bundle initialExtras);
 
     /**
+     * Similar to above but takes an appOp as well, to enforce restrictions, and an options Bundle.
+     * @see #sendOrderedBroadcastAsUser(Intent, UserHandle, String,
+     *       BroadcastReceiver, Handler, int, String, Bundle)
+     * @hide
+     */
+    @SuppressWarnings("HiddenAbstractMethod")
+    @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
+    @UnsupportedAppUsage
+    public abstract void sendOrderedBroadcastAsUserMultiplePermissions(Intent intent, UserHandle user,
+            @Nullable String[] receiverPermission, int appOp, @Nullable Bundle options,
+            BroadcastReceiver resultReceiver, @Nullable Handler scheduler, int initialCode,
+            @Nullable String initialData, @Nullable  Bundle initialExtras);
+
+    /**
      * Version of
      * {@link #sendOrderedBroadcast(Intent, String, BroadcastReceiver, Handler, int, String,
      * Bundle)} that allows you to specify the App Op to enforce restrictions on which receivers

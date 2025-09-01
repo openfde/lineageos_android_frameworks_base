@@ -1558,6 +1558,14 @@ class ContextImpl extends Context {
     }
 
     @Override
+    public void sendOrderedBroadcastAsUserMultiplePermissions(Intent intent, UserHandle user,
+            String[] receiverPermissions, int appOp, Bundle options,
+            BroadcastReceiver resultReceiver, Handler scheduler, int initialCode,
+            String initialData, Bundle initialExtras) {
+        sendOrderedBroadcastAsUser(intent, user, receiverPermissions[0], appOp, options, resultReceiver, scheduler, initialCode, initialData, initialExtras);
+    }
+
+    @Override
     public void sendOrderedBroadcast(Intent intent, String receiverPermission,
             String receiverAppOp, BroadcastReceiver resultReceiver, Handler scheduler,
             int initialCode, String initialData, @Nullable Bundle initialExtras) {

@@ -78,6 +78,7 @@ public:
      * to use CLASSPATH.
      */
     virtual void onVmCreated(JNIEnv* env);
+    virtual void onJavaVmCreated(JavaVM* vm);
 
     /**
      * This gets called after the JavaVM has initialized.  Override it

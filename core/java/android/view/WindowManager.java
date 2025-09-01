@@ -771,6 +771,8 @@ public interface WindowManager extends ViewManager {
      */
     public void removeViewImmediate(View view);
 
+    public KeyboardShortcutGroup getApplicationLaunchKeyboardShortcuts(int deviceId);
+
     /**
      * Returns the {@link WindowMetrics} according to the current system state.
      * <p>

@@ -381,6 +381,12 @@ cc_library_shared_for_libandroid_runtime {
             cflags: [
                 "-Wno-unused-const-variable",
                 "-Wno-unused-function",
+                "-DLOG_ALWAYS_FATAL_IF(cond, ...)=if(cond) LOG_ALWAYS_FATAL(...)",
+                "-DLOG_ALWAYS_FATAL(...)=__android_log_call_aborter(\"Fatal Error\")",
+                // Use all declarations in native_window.h in Layoutlib
+                "-D__INTRODUCED_IN(n)=",
+                "-D__ANDROID_API__=10000",
+                "-D__HOST_JVM__",
             ],
             srcs: [
                 "LayoutlibLoader.cpp",
@@ -420,6 +426,7 @@ cc_library_shared_for_libandroid_runtime {
         },
         host_linux: {
             srcs: [
+                "AndroidRuntime.cpp",
                 "android_content_res_ApkAssets.cpp",
                 "android_database_CursorWindow.cpp",
                 "android_database_SQLiteCommon.cpp",
@@ -429,7 +436,7 @@ cc_library_shared_for_libandroid_runtime {
                 "android_hardware_input_InputApplicationHandle.cpp",
                 "android_os_MessageQueue.cpp",
                 "android_os_Parcel.cpp",
-
+                "android_view_Surface.cpp",
                 "android_view_KeyCharacterMap.cpp",
                 "android_view_KeyEvent.cpp",
                 "android_view_InputChannel.cpp",
@@ -440,23 +447,38 @@ cc_library_shared_for_libandroid_runtime {
                 "android_view_VelocityTracker.cpp",
                 "android_view_VerifiedKeyEvent.cpp",
                 "android_view_VerifiedMotionEvent.cpp",
-
+                "android_view_LayoutlibRenderer.cpp",
                 "android_util_AssetManager.cpp",
                 "android_util_Binder.cpp",
-
                 "android_util_FileObserver.cpp",
+                "android_text_Hyphenator.cpp",
             ],
             static_libs: [
                 "libinput",
                 "libbinderthreadstateutils",
                 "libsqlite",
                 "libgui_window_info_static",
+                "libhwui",
+                "libhostgraphics",
             ],
             shared_libs: [
                 // libbinder needs to be shared since it has global state
                 // (e.g. gDefaultServiceManager)
                 "libbinder",
                 "libhidlbase", // libhwbinder is in here
+            ],
+            header_libs: [
+                "libbinder_headers",
+                "jni_headers",
+                "libnativehelper_header_only",
+                "libnativehelper_include_only",
+                "libbase_headers",
+                "libnativebase_headers",
+                "libnativedisplay_headers",
+                "libnativewindow_headers",
+                "libhostgraphics_headers",
+                "libmath_headers",
+                "android_graphics_apex_headers",
             ],
         },
     },

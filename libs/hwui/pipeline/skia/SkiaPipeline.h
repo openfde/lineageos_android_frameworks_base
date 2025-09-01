@@ -74,23 +74,27 @@ public:
         mPictureCapturedCallback = callback;
         mCaptureMode = callback ? CaptureMode::CallbackAPI : CaptureMode::None;
     }
-
+#ifdef __ANDROID__  // Layoutlib does not support
     virtual void setHardwareBuffer(AHardwareBuffer* buffer) override;
+#endif
     bool hasHardwareBuffer() override { return mHardwareBuffer != nullptr; }
 
     void setTargetSdrHdrRatio(float ratio) override;
 
 protected:
+#ifdef __ANDROID__  // Layoutlib does not support
     sk_sp<SkSurface> getBufferSkSurface(
             const renderthread::HardwareBufferRenderParams& bufferParams);
+#endif
     void dumpResourceCacheUsage() const;
 
     renderthread::RenderThread& mRenderThread;
 
     AHardwareBuffer* mHardwareBuffer = nullptr;
+#ifdef __ANDROID__  // Layoutlib does not support
     sk_sp<SkSurface> mBufferSurface = nullptr;
     sk_sp<SkColorSpace> mBufferColorSpace = nullptr;
-
+#endif
     ColorMode mColorMode = ColorMode::Default;
     SkColorType mSurfaceColorType;
     sk_sp<SkColorSpace> mSurfaceColorSpace;

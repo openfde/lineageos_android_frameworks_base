@@ -174,6 +174,7 @@ int AndroidRuntime::registerNativeMethods(JNIEnv* env,
     return jniRegisterNativeMethods(env, className, gMethods, numMethods);
 }
 
+#if 0
 JNIEnv* AndroidRuntime::getJNIEnv() {
     JNIEnv* env;
     if (javaVM->GetEnv((void**) &env, JNI_VERSION_1_6) != JNI_OK)
@@ -184,6 +185,7 @@ JNIEnv* AndroidRuntime::getJNIEnv() {
 JavaVM* AndroidRuntime::getJavaVM() {
     return javaVM;
 }
+#endif
 
 static vector<string> parseCsv(const string& csvString) {
     vector<string>   result;
@@ -323,7 +325,8 @@ static bool init_icu(const char* dataPath) {
     return true;
 }
 
-// Creates an array of InputDevice from key character map files
+#if 0
+Creates an array of InputDevice from key character map files
 static void init_keyboard(JNIEnv* env, const vector<string>& keyboardPaths) {
     jclass inputDevice = FindClassOrDie(env, "android/view/InputDevice");
     jobjectArray inputDevicesArray =
@@ -357,6 +360,7 @@ static void init_keyboard(JNIEnv* env, const vector<string>& keyboardPaths) {
     env->CallStaticVoidMethod(bridge, setInputManager, inputDevicesArray);
     env->DeleteLocalRef(inputDevicesArray);
 }
+#endif
 
 } // namespace android
 
@@ -472,7 +476,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
 
     // Use English locale for number format to ensure correct parsing of floats when using strtof
     setlocale(LC_NUMERIC, "en_US.UTF-8");
-
+#if 0
     auto keyboardPathsJString =
             (jstring)env->CallStaticObjectMethod(system, getPropertyMethod,
                                                  env->NewStringUTF("keyboard_paths"),
@@ -485,7 +489,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         fprintf(stderr, "Skip initializing keyboard\n");
     }
     env->ReleaseStringUTFChars(keyboardPathsJString, keyboardPathsString);
-
+#endif
     return JNI_VERSION_1_6;
 }
 

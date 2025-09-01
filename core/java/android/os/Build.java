@@ -284,8 +284,8 @@ public class Build {
      *
      * See {@link #SUPPORTED_ABIS} and {@link #SUPPORTED_64_BIT_ABIS}.
      */
-    public static final String[] SUPPORTED_32_BIT_ABIS =
-            getStringList("ro.product.cpu.abilist32", ",");
+    public static final String[] SUPPORTED_32_BIT_ABIS = {"armeabi-v7a","armeabi"};
+            // getStringList("ro.product.cpu.abilist32", ",");
 
     /**
      * An ordered list of <b>64 bit</b> ABIs supported by this device. The most preferred ABI
@@ -293,8 +293,8 @@ public class Build {
      *
      * See {@link #SUPPORTED_ABIS} and {@link #SUPPORTED_32_BIT_ABIS}.
      */
-    public static final String[] SUPPORTED_64_BIT_ABIS =
-            getStringList("ro.product.cpu.abilist64", ",");
+    public static final String[] SUPPORTED_64_BIT_ABIS = {"arm64-v8a"};
+            // getStringList("ro.product.cpu.abilist64", ",");
 
     /** {@hide} */
     @TestApi
@@ -396,8 +396,8 @@ public class Build {
          * <p>
          * Possible values are defined in {@link Build.VERSION_CODES}.
          */
-        public static final int SDK_INT = SystemProperties.getInt(
-                "ro.build.version.sdk", 0);
+        public static final int SDK_INT = 33;//SystemProperties.getInt(
+                // "ro.build.version.sdk", 0);
 
         /**
          * The SDK version of the software that <em>initially</em> shipped on
@@ -486,8 +486,8 @@ public class Build {
          */
         @UnsupportedAppUsage
         @TestApi
-        public static final String[] ACTIVE_CODENAMES = "REL".equals(ALL_CODENAMES[0])
-                ? new String[0] : ALL_CODENAMES;
+        public static final String[] ACTIVE_CODENAMES = new String[0];//"REL".equals(ALL_CODENAMES[0])
+                // ? new String[0] : ALL_CODENAMES;
 
         /**
          * The SDK version to use when accessing resources.
@@ -496,7 +496,7 @@ public class Build {
          * @hide
          */
         @TestApi
-        public static final int RESOURCES_SDK_INT = SDK_INT + ACTIVE_CODENAMES.length;
+        public static final int RESOURCES_SDK_INT = SDK_INT;// + ACTIVE_CODENAMES.length;
 
         /**
          * The current lowest supported value of app target SDK. Applications targeting

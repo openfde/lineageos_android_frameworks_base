@@ -11090,6 +11090,22 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
                                 mShiftDrawingOffsetForStartOverhang,
                                 getResolvedMinimumFontMetrics());
                     }
+                } else {
+                    result = new BoringLayout(
+                                mTransformed,
+                                mTextPaint,
+                                wantWidth,
+                                alignment,
+                                mSpacingMult,
+                                mSpacingAdd,
+                                mIncludePad,
+                                isFallbackLineSpacingForBoringLayout(),
+                                wantWidth,
+                                null,
+                                boring,
+                                mUseBoundsForWidth,
+                                mShiftDrawingOffsetForStartOverhang,
+                                getResolvedMinimumFontMetrics());
                 }
             }
         }

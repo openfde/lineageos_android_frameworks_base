@@ -7,22 +7,37 @@ package {
     default_applicable_licenses: ["frameworks_base_license"],
 }
 
+cc_library_headers {
+    name: "libhostgraphics_headers",
+    export_include_dirs: ["."],
+    host_supported: true,
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
 cc_library_host_static {
     name: "libhostgraphics",
 
     cflags: [
         "-Wno-unused-parameter",
+        "-D__INTRODUCED_IN(n)=",
     ],
 
     static_libs: [
         "libbase",
         "libmath",
         "libutils",
+        "libui-types",
     ],
 
     srcs: [
+        ":framework_native_aidl",
         ":libui_host_common",
         "ADisplay.cpp",
+        "ANativeWindow.cpp",
         "Fence.cpp",
         "HostBufferQueue.cpp",
         "PublicFormat.cpp",
@@ -33,16 +48,13 @@ cc_library_host_static {
         // When frameworks/native/include will be removed from the list of automatic includes.
         // We will have to copy necessary headers with a pre-build step (generated headers).
         ".",
+        "frameworks/native/libs/nativebase/include",
+        "frameworks/native/libs/nativewindow/include",
+        "frameworks/native/libs/nativedisplay/include",
         "frameworks/native/libs/arect/include",
         "frameworks/native/libs/ui/include_private",
+        "frameworks/native/libs/ui/include",
     ],
-
-    header_libs: [
-        "libnativebase_headers",
-        "libnativedisplay_headers",
-        "libnativewindow_headers",
-    ],
-
     export_include_dirs: ["."],
 
     target: {

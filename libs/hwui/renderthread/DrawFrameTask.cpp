@@ -21,7 +21,9 @@
 
 #include <algorithm>
 
+#ifdef __ANDROID__  // Layoutlib not Layers
 #include "../DeferredLayerUpdater.h"
+#endif
 #include "../DisplayList.h"
 #include "../Properties.h"
 #include "../RenderNode.h"
@@ -49,6 +51,7 @@ void DrawFrameTask::setContext(RenderThread* thread, CanvasContext* context,
 }
 
 void DrawFrameTask::pushLayerUpdate(DeferredLayerUpdater* layer) {
+#ifdef __ANDROID__  // Layoutlib not Layers
     LOG_ALWAYS_FATAL_IF(!mContext,
                         "Lifecycle violation, there's no context to pushLayerUpdate with!");
 
@@ -58,15 +61,18 @@ void DrawFrameTask::pushLayerUpdate(DeferredLayerUpdater* layer) {
         }
     }
     mLayers.push_back(layer);
+#endif
 }
 
 void DrawFrameTask::removeLayerUpdate(DeferredLayerUpdater* layer) {
+#ifdef __ANDROID__  // Layoutlib not Layers
     for (size_t i = 0; i < mLayers.size(); i++) {
         if (mLayers[i].get() == layer) {
             mLayers.erase(mLayers.begin() + i);
             return;
         }
     }
+#endif
 }
 
 int DrawFrameTask::drawFrame() {
@@ -80,10 +86,14 @@ int DrawFrameTask::drawFrame() {
 }
 
 void DrawFrameTask::postAndWait() {
+#ifdef __ANDROID__  // Layoutlib is singlethreaded, this produces a deadlock
     ATRACE_CALL();
     AutoMutex _lock(mLock);
+#endif
     mRenderThread->queue().post([this]() { run(); });
+#ifdef __ANDROID__  // Layoutlib is singlethreaded, this produces a deadlock
     mSignal.wait(mLock);
+#endif
 }
 
 void DrawFrameTask::run() {
@@ -140,12 +150,14 @@ void DrawFrameTask::run() {
     if (CC_LIKELY(canDrawThisFrame)) {
         context->draw(solelyTextureViewUpdates);
     } else {
+#ifdef __ANDROID__  // Layoutlib does not support GrContext
         // Do a flush in case syncFrameState performed any texture uploads. Since we skipped
         // the draw() call, those uploads (or deletes) will end up sitting in the queue.
         // Do them now
         if (GrDirectContext* grContext = mRenderThread->getGrContext()) {
             grContext->flushAndSubmit();
         }
+#endif
         // wait on fences so tasks don't overlap next frame
         context->waitOnFences();
     }
@@ -157,11 +169,12 @@ void DrawFrameTask::run() {
     if (!canUnblockUiThread) {
         unblockUiThread();
     }
-
+#ifdef __ANDROID__  // Layoutlib does not support
     if (pipeline->hasHardwareBuffer()) {
         auto fence = pipeline->flush();
         hardwareBufferParams.invokeRenderCallback(std::move(fence), 0);
     }
+#endif
 }
 
 bool DrawFrameTask::syncFrameState(TreeInfo& info) {
@@ -176,6 +189,7 @@ bool DrawFrameTask::syncFrameState(TreeInfo& info) {
     bool canDraw = mContext->makeCurrent();
     mContext->unpinImages();
 
+#ifdef __ANDROID__  // Layoutlib does not support Layers
     for (size_t i = 0; i < mLayers.size(); i++) {
         if (mLayers[i]) {
             mLayers[i]->apply();
@@ -183,6 +197,7 @@ bool DrawFrameTask::syncFrameState(TreeInfo& info) {
     }
 
     mLayers.clear();
+#endif
     mContext->setContentDrawBounds(mContentDrawBounds);
     mContext->prepareTree(info, mFrameInfo, mSyncQueued, mTargetNode);
 
@@ -213,8 +228,10 @@ bool DrawFrameTask::syncFrameState(TreeInfo& info) {
 }
 
 void DrawFrameTask::unblockUiThread() {
+#ifdef __ANDROID__  // Layoutlib is singlethreaded, this produces a deadlock
     AutoMutex _lock(mLock);
     mSignal.signal();
+#endif
 }
 
 } /* namespace renderthread */

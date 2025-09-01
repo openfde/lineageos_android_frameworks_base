@@ -74,8 +74,10 @@ public:
                              const SkRect& screenDirty, FrameInfo* currentFrameInfo,
                              bool* requireSwap) = 0;
     virtual DeferredLayerUpdater* createTextureLayer() = 0;
+#ifdef __ANDROID__  // Layoutlib does not support
     [[nodiscard]] virtual android::base::unique_fd flush() = 0;
     virtual void setHardwareBuffer(AHardwareBuffer* hardwareBuffer) = 0;
+#endif
     virtual bool hasHardwareBuffer() = 0;
     virtual bool setSurface(ANativeWindow* window, SwapBehavior swapBehavior) = 0;
     virtual void onStop() = 0;
@@ -94,13 +96,16 @@ public:
     virtual void setSurfaceColorProperties(ColorMode colorMode) = 0;
     virtual SkColorType getSurfaceColorType() const = 0;
     virtual sk_sp<SkColorSpace> getSurfaceColorSpace() = 0;
+#ifdef __ANDROID__  // Layoutlib does not support
     virtual GrSurfaceOrigin getSurfaceOrigin() = 0;
+#endif
     virtual void setPictureCapturedCallback(
             const std::function<void(sk_sp<SkPicture>&&)>& callback) = 0;
 
     virtual void setTargetSdrHdrRatio(float ratio) = 0;
+#ifdef __ANDROID__  // Layoutlib does not support
     virtual const SkM44& getPixelSnapMatrix() const = 0;
-
+#endif
     virtual ~IRenderPipeline() {}
 };
 

@@ -22,17 +22,22 @@
 
 #include <vector>
 
+#include <ui/ANativeObjectBase.h>
 #include <ui/PixelFormat.h>
 #include <ui/Rect.h>
-
 #include <utils/RefBase.h>
+
+#include <nativebase/nativebase.h>
 
 namespace android {
 
-class GraphicBuffer : virtual public RefBase {
+class GraphicBuffer : public ANativeObjectBase<ANativeWindowBuffer, GraphicBuffer, RefBase> {
 public:
     GraphicBuffer(uint32_t w, uint32_t h):width(w),height(h) {
         data.resize(w*h);
+        reserved[0] = data.data();
+        width = w;
+        height = h;
     }
     uint32_t getWidth() const           { return static_cast<uint32_t>(width); }
     uint32_t getHeight() const          { return static_cast<uint32_t>(height); }
