@@ -664,6 +664,21 @@ class ActivityStack extends Task {
         mWmService.inSurfaceTransaction(() -> setWindowingModeInSurfaceTransaction(
                 preferredWindowingMode, creating));
     }
+    // region @openfde to prevent the x11 window from being closed
+    private boolean mIsMaximizedInFreeform = false;
+    private Rect mOriginalRect = new Rect();
+
+    private void updateBoundsForMaximized() {
+        final DisplayContent dc = getDisplayContent();
+        if (dc != null) {
+            DisplayInfo di = dc.getDisplayInfo();
+            Log.e(TAG, "updateBoundsForMaximized displayInfo: " + di);
+            final Rect fullBounds = new Rect(0,0,di.logicalWidth,di.logicalHeight-47);
+            Log.e(TAG, "updateBoundsForMaximized setBounds fullBounds: " + fullBounds);
+            setBounds(fullBounds);
+        }
+    }
+    // endregion
 
     private void setWindowingModeInSurfaceTransaction(int preferredWindowingMode,
             boolean creating) {
@@ -676,6 +691,21 @@ class ActivityStack extends Task {
         final int currentOverrideMode = getRequestedOverrideWindowingMode();
         final Task topTask = getTopMostTask();
         int windowingMode = preferredWindowingMode;
+        // region @openfde to prevent the x11 window from being closed
+        if(windowingMode == WINDOWING_MODE_FULLSCREEN){
+            if(!mIsMaximizedInFreeform){
+                getRawBounds(mOriginalRect);
+                Log.e(TAG, "setWindowingModeInSurfaceTransaction getRawBounds mOriginalRect: " + mOriginalRect);
+                updateBoundsForMaximized();
+                mIsMaximizedInFreeform = true;
+            }else{
+                mIsMaximizedInFreeform = false;
+                setBounds(mOriginalRect);
+                Log.e(TAG, "setWindowingModeInSurfaceTransaction setBounds mOriginalRect: " + mOriginalRect);
+            }
+            return;
+        }
+        // endregion
 
         // Need to make sure windowing mode is supported. If we in the process of creating the stack
         // no need to resolve the windowing mode again as it is already resolved to the right mode.
