@@ -408,10 +408,7 @@ public class DisplayRotation {
      *         THE SCREEN.
      */
     boolean updateRotationUnchecked(boolean forceUpdate) {
-        //add
-        if (true) {
-            return true;
-        }//end
+       
         final int displayId = mDisplayContent.getDisplayId();
         if (!forceUpdate) {
             if (mDeferredRotationPauseCount > 0) {
@@ -474,6 +471,10 @@ public class DisplayRotation {
         if (oldRotation == rotation) {
             // No change.
             return false;
+        }
+
+        if(oldRotation != oldRotation){
+            return true;
         }
 
         ProtoLog.v(WM_DEBUG_ORIENTATION,

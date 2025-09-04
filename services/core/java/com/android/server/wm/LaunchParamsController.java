@@ -118,15 +118,15 @@ class LaunchParamsController {
                                 task.mWindowLayoutAffinity, "activityLunchSize");
                         if (!TextUtils.isEmpty(resultStr)) {
                             JSONObject jsonObject = null;
-                            String type = "fixed";
+                            String type = "relative";
                             try {
                                 jsonObject = new JSONObject(resultStr);
                                 int width = jsonObject.getInt("width");
                                 int height = jsonObject.getInt("height");
                                 //type = jsonObject.getString("type");
-                                int w = CompatibleConfig.getResolutionRatio(metrics.widthPixels,width,type);
-                                int h = CompatibleConfig.getResolutionRatio(metrics.widthPixels,height,type);
-                                Slog.w("TAG", "onCalculate widthPixels: " + metrics.widthPixels + ",w: "+w + ",h: "+h + ",width: "+width + ",height:  "+height);
+                                int w = CompatibleConfig.getResolutionRatio(metrics.heightPixels,width,type);
+                                int h = CompatibleConfig.getResolutionRatio(metrics.heightPixels,height,type);
+                                Slog.w("TAG", "onCalculate widthPixels: " + metrics.widthPixels +",heightPixels: "+ metrics.heightPixels+ ",w: "+w + ",h: "+h + ",width: "+width + ",height:  "+height);
                                 if (width > 0 && height > 0) {
                                     int left =  mTmpResult.mBounds.left;
                                     int right = mTmpResult.mBounds.left + w;

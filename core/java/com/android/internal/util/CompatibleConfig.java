@@ -466,7 +466,7 @@ public class CompatibleConfig {
 
     public static int getResolutionRatio(int widthPixels,int size, String type){
         DecimalFormat df = new DecimalFormat("#.000");
-        BigDecimal bdResult = new BigDecimal(widthPixels).divide(new BigDecimal(1920), 3, RoundingMode.HALF_UP); 
+        BigDecimal bdResult = new BigDecimal(widthPixels).divide(new BigDecimal(1080), 3, RoundingMode.HALF_UP);  
         double ratio = 1;
         if(!"fixed".equals(type)){
             ratio = bdResult.doubleValue();;
