@@ -193,6 +193,8 @@ class ScreenRecordPermissionDialogDelegate(
         options.isLongClickable = false
 
         loadPrefs();
+        var showHevcView: View = dialog.requireViewById(R.id.show_hevc)
+        showHevcView.visibility = GONE
     }
 
     override fun onItemSelected(adapterView: AdapterView<*>?, view: View, pos: Int, id: Long) {
@@ -270,7 +272,7 @@ class ScreenRecordPermissionDialogDelegate(
         audioSwitch.isChecked = Prefs.getInt(userContext, PREF_AUDIO, 0) == 1
         options.setSelection(Prefs.getInt(userContext, PREF_AUDIO_SOURCE, 0))
         skipTimeSwitch.isChecked = Prefs.getInt(userContext, PREF_SKIP, 0) == 1
-        hevcSwitch.isChecked = Prefs.getInt(userContext, PREF_HEVC, 1) == 1
+        hevcSwitch.isChecked = Prefs.getInt(userContext, PREF_HEVC, 0) == 1
     }
 
     private inner class CaptureTargetResultReceiver() :
