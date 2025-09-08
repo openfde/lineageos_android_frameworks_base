@@ -1020,7 +1020,14 @@ class Task extends TaskFragment {
         }
         mWindowLayoutAffinity =
                 info.windowLayout == null ? null : info.windowLayout.windowLayoutAffinity;
-
+        // region @boringdroid
+        // We only support to use package name as fallback window layout affinity when Activity doesn't
+        // declare window layout affinity explicitly. Is there any app that declares window layout affinity
+        // explicitly?
+        if (mWindowLayoutAffinity == null) {
+            mWindowLayoutAffinity = info.packageName;
+        }
+        // endregion
         final int intentFlags = intent == null ? 0 : intent.getFlags();
         if ((intentFlags & Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED) != 0) {
             // Once we are set to an Intent with this flag, we count this
@@ -2384,7 +2391,9 @@ class Task extends TaskFragment {
         // freeform Task Display Area next time.
         if (getTaskDisplayArea() == null
                 || getTaskDisplayArea().getWindowingMode() != WINDOWING_MODE_FREEFORM) {
-            return;
+            // region @boringdroid
+            // return;
+            // endregion
         }
 
         // Saves the new state so that we can launch the activity at the same location.

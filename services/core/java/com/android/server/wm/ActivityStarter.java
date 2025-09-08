@@ -57,6 +57,7 @@ import static android.view.WindowManager.TRANSIT_NONE;
 import static android.view.WindowManager.TRANSIT_OPEN;
 import static android.view.WindowManager.TRANSIT_TO_FRONT;
 import static android.window.TaskFragmentOperation.OP_TYPE_START_ACTIVITY_IN_TASK_FRAGMENT;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 
 import static com.android.internal.protolog.ProtoLogGroup.WM_DEBUG_CONFIGURATION;
 import static com.android.internal.protolog.ProtoLogGroup.WM_DEBUG_TASKS;
@@ -1711,7 +1712,14 @@ class ActivityStarter {
             NeededUriGrants intentGrants, int realCallingUid) {
         setInitialState(r, options, inTask, inTaskFragment, startFlags, sourceRecord,
                 voiceSession, voiceInteractor, balVerdict.getCode(), realCallingUid);
-
+        // region @boringdroid
+        if (mOptions == null) {
+            mOptions = ActivityOptions.makeBasic();
+        }
+        if (mOptions.getLaunchWindowingMode() == WINDOWING_MODE_UNDEFINED) {
+            mOptions.setLaunchWindowingMode(WINDOWING_MODE_FREEFORM);
+        }
+        // endregion
         computeLaunchingTaskFlags();
         mIntent.setFlags(mLaunchFlags);
 

@@ -302,7 +302,18 @@ class LaunchParamsPersister {
             windowLayoutAffinity = task.mWindowLayoutAffinity;
         } else {
             ActivityInfo.WindowLayout layout = activity.info.windowLayout;
-            windowLayoutAffinity = layout == null ? null : layout.windowLayoutAffinity;
+            // region @boringdroid
+            // windowLayoutAffinity = layout == null ? null : layout.windowLayoutAffinity;
+            // We only support to use package name as fallback window layout affinity when Activity doesn't
+            // declare window layout affinity explicitly. Is there any app that declares window layout affinity
+            // explicitly?
+            if (layout != null && layout.windowLayoutAffinity != null) {
+                windowLayoutAffinity = layout.windowLayoutAffinity;
+            } else if (name != null) {
+                windowLayoutAffinity = name.getPackageName();
+            } else {
+                windowLayoutAffinity = null;
+            }
         }
 
         outParams.reset();
