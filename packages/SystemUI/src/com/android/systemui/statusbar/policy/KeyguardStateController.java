@@ -17,6 +17,7 @@
 package com.android.systemui.statusbar.policy;
 
 import android.app.IActivityTaskManager;
+import android.view.View;
 
 import com.android.systemui.keyguard.KeyguardViewMediator;
 import com.android.systemui.statusbar.StatusBarState;
@@ -219,6 +220,10 @@ public interface KeyguardStateController extends CallbackController<Callback> {
 
     /** Updates the keyguard state to reflect that a dismiss fling gesture has ended. */
     void notifyPanelFlingEnd();
+
+    View getStatusBar();
+
+    void setStatusBar(View view);
 
     /**
      * Callback for authentication events.

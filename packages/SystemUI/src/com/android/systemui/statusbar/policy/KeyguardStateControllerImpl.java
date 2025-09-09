@@ -29,6 +29,7 @@ import android.hardware.biometrics.BiometricSourceType;
 import android.os.Build;
 import android.os.SystemProperties;
 import android.os.Trace;
+import android.view.View;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -88,6 +89,7 @@ public class KeyguardStateControllerImpl implements KeyguardStateController, Dum
     private boolean mTrusted;
     private boolean mDebugUnlocked = false;
     private boolean mFaceEnrolledAndEnabled;
+    private View statusView;
 
     private float mDismissAmount = 0f;
     private boolean mDismissingFromTouch = false;
@@ -112,6 +114,16 @@ public class KeyguardStateControllerImpl implements KeyguardStateController, Dum
     private boolean mSnappingKeyguardBackAfterSwipe = false;
 
     private FeatureFlags mFeatureFlags;
+
+    @Override
+    public View getStatusBar() {
+        return statusView;
+    }
+
+    @Override
+    public void setStatusBar(View view) {
+        this.statusView = view;
+    }
 
     /**
      *

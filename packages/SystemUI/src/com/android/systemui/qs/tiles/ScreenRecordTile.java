@@ -107,6 +107,12 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
         mPanelInteractor = panelInteractor;
         mMediaProjectionMetricsLogger = mediaProjectionMetricsLogger;
         mUserContextProvider = userContextProvider;
+        if(mHandler != null && mKeyguardStateController != null ){
+            View view = mKeyguardStateController.getStatusBar();
+            if(view != null){
+                view.setTag(mHandler);
+            }
+        }
     }
 
     @Override

@@ -17,6 +17,7 @@
 package com.android.systemui.utils.leaks;
 
 import android.testing.LeakCheck;
+import android.view.View;
 
 import com.android.systemui.statusbar.policy.KeyguardStateController;
 
@@ -92,6 +93,15 @@ public class FakeKeyguardStateController implements KeyguardStateController {
     @Override
     public boolean isLaunchTransitionFadingAway() {
         return false;
+    }
+
+    @Override
+    public View getStatusBar() {
+        return null;
+    }
+
+    @Override
+    public void setStatusBar(View view) {
     }
 
     @Override

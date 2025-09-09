@@ -17,6 +17,7 @@
 package com.android.systemui.statusbar.phone;
 
 import com.android.systemui.statusbar.policy.KeyguardStateController;
+import android.view.View;
 
 /**
  * Mock implementation of KeyguardStateController which tracks showing and occluded states
@@ -89,6 +90,15 @@ public class FakeKeyguardStateController implements KeyguardStateController {
     @Override
     public boolean isLaunchTransitionFadingAway() {
         return false;
+    }
+
+    @Override
+    public View getStatusBar() {
+        return null;
+    }
+
+    @Override
+    public void setStatusBar(View view) {
     }
 
     @Override
