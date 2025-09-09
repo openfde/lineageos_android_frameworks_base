@@ -215,6 +215,24 @@ import java.util.function.Supplier;
 import com.android.internal.util.CompatibleConfig;
 import org.json.JSONObject;
 import org.json.JSONException;
+import com.android.internal.util.CompatibleConfig;
+import android.view.Display;
+import android.app.Dialog;
+import android.view.WindowManager;
+import android.view.ContextThemeWrapper;
+import android.content.ContextWrapper;
+import android.app.backup.BackupAgent;
+import android.content.ContextWrapper;
+import android.content.MutableContextWrapper;
+import android.view.ContextThemeWrapper;
+import android.view.Window;
+import android.widget.RemoteViews;
+import com.android.internal.policy.DecorContext;
+import android.app.Application;
+
+
+
+
 /**
  * A user interface element that displays text to the user.
  * To provide user-editable text, see {@link EditText}.
@@ -372,6 +390,8 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
     private static final int ELLIPSIZE_MIDDLE = 2;
     private static final int ELLIPSIZE_END = 3;
     private static final int ELLIPSIZE_MARQUEE = 4;
+
+    private final static String PACKAGE_NAME = "com.ets100.secondary";
 
     // Bitfield for the "numeric" XML parameter.
     // TODO: How can we get this from the XML instead of hardcoding it here?
@@ -9305,17 +9325,33 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-
-        if(this.getContext().getPackageName().equals("com.ets100.secondary") ){  
-            if(widthSize > 960)  {
-                widthSize = 368;
-            }else if(widthSize > 480){
-                widthSize = 183;
-            }else if(widthSize > 412){
-                widthSize = 368;
-            }
-        }
-
+         if(getContext().getPackageName().equals(PACKAGE_NAME) ){ 
+               try{
+                if(mContext instanceof Activity ){
+                    
+                }else if (mContext  instanceof ContextThemeWrapper) {
+                     
+                }else if (mContext instanceof Application) {
+                 WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) getRootView().getLayoutParams();
+                 if(params != null && params.type == 2){
+                       if(widthSize > 960){
+                          widthSize = 368;
+                       }else if(widthSize > 480){
+                          widthSize = 183;
+                       }else if(widthSize > 412){
+                          widthSize = 368;
+                       }
+                     }else if(params != null){
+                      //  Log.w("TextView","FDE Logical fde_width TextView ContextThemeWrapper..... params.type "+params.type+ ",text: "+getText());
+                    }
+                    //Log.w("TextView","FDE Logical fde_width TextView Application....widthPixels "+widthPixels+ ",text: "+getText());
+                }
+               }catch(Exception e){
+                    e.printStackTrace();
+               }
+          }
+        
         int width;
         int height;
 

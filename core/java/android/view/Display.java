@@ -721,6 +721,7 @@ public final class Display {
         synchronized (this) {
             updateDisplayInfoLocked();
             mDisplayInfo.getAppMetrics(mTempMetrics, getDisplayAdjustments());
+           // Log.w(TAG,"getSize .......mTempMetrics.widthPixels "+mTempMetrics.widthPixels +",mDisplayInfo.logicalWidth: "+mDisplayInfo.logicalWidth);
             outSize.x = mTempMetrics.widthPixels;
             outSize.y = mTempMetrics.heightPixels;
         }
@@ -1176,6 +1177,7 @@ public final class Display {
     public void getRealSize(Point outSize) {
         synchronized (this) {
             if(mContext != null){
+                //Log.w(TAG,"getRealMetrics .......width "+outSize.x +",mDisplayInfo.logicalWidth: "+mDisplayInfo.logicalWidth);
                 String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext, mContext.getPackageName(), "isAllowRealDisplaySize");
                 if(TextUtils.equals(resultStr, "true")){
                     getSize(outSize);
@@ -1205,8 +1207,10 @@ public final class Display {
     public void getRealMetrics(DisplayMetrics outMetrics) {
         synchronized (this) {
             if(mContext != null){
+                //Log.w(TAG,"getRealMetrics .......widthPixels "+outMetrics.widthPixels +",mDisplayInfo.logicalWidth: "+mDisplayInfo.logicalWidth);
                 String resultStr = CompatibleConfig.queryValueDataBySharedMemory(mContext,  mContext.getPackageName(), "isAllowRealDisplaySize");
                 if(TextUtils.equals(resultStr, "true")){
+                    mDisplayInfo.logicalWidth = outMetrics.widthPixels;
                     getMetrics(outMetrics);
                     return;
                 }

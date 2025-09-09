@@ -51,6 +51,7 @@ import java.util.concurrent.Executors;
 import java.text.DecimalFormat;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import android.util.DisplayMetrics;
 
 
 
@@ -451,7 +452,7 @@ public class CompatibleConfig {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Slog.e("parseValue", "" + e.toString());
+            Slog.e(TAG, "parseValue: " + e.toString());
             return -1;
         }
         return 0;
@@ -469,11 +470,21 @@ public class CompatibleConfig {
         BigDecimal bdResult = new BigDecimal(widthPixels).divide(new BigDecimal(1080), 3, RoundingMode.HALF_UP);  
         double ratio = 1;
         if(!"fixed".equals(type)){
-            ratio = bdResult.doubleValue();;
+            ratio = bdResult.doubleValue();
         }
         double dw = Double.parseDouble(df.format(size * ratio)); 
         int w = (int) dw;
         return w;
+    }
+
+    public static double getRatio(Context context){
+      //  int w = context.getWindow().getAttributes().width;
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        int heightPixels = metrics.heightPixels;
+        Slog.w(TAG, "getRatio heightPixels: " + heightPixels);
+        DecimalFormat df = new DecimalFormat("#.000");
+        BigDecimal bdResult = new BigDecimal(heightPixels).divide(new BigDecimal(1080), 3, RoundingMode.HALF_UP);  
+        return bdResult.doubleValue();
     }
 
 }
