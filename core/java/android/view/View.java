@@ -174,6 +174,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import android.app.Activity;
 import com.android.internal.util.CompatibleConfig;
+import android.widget.TextView;
+
+import android.view.ContextThemeWrapper;
+import android.content.ContextWrapper;
+import android.app.backup.BackupAgent;
+import android.content.ContextWrapper;
+import android.content.MutableContextWrapper;
+import android.view.ContextThemeWrapper;
+import android.view.Window;
+import android.widget.RemoteViews;
+import com.android.internal.policy.DecorContext;
+import android.app.Application;
+
 
 
 /**
@@ -886,6 +899,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * Always return a size of 0 for MeasureSpec values with a mode of UNSPECIFIED
      */
     static boolean sUseZeroUnspecifiedMeasureSpec = false;
+
+    private final static String PACKAGE_NAME = "com.ets100.secondary";
 
     /**
      * Ignore any optimizations using the measure cache.
@@ -25598,19 +25613,34 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             measuredHeight += optical ? opticalHeight : -opticalHeight;
         }
 
+ 
+         if(getContext().getPackageName().equals(PACKAGE_NAME) ){ 
+           try{
 
-         if(this.getContext().getPackageName().equals("com.ets100.secondary") ){  
-            int id = getId();
-           // Log.w("View","FDE Logical display setMeasuredDimensionRaw : "  + ",mMeasuredWidth "+mMeasuredWidth + ",getSimpleName: "+getClass().getSimpleName() + ",id: "+id +",windowWidth: "+windowWidth +",windowHeight: "+windowHeight);
-            
-            if(measuredWidth > 412)  {
-              if(getClass().getSimpleName().equals("TextView")){
-                  measuredWidth = 181;
-              }else{
-                  measuredWidth = 368;
-              }
-            }
+            if(getContext() instanceof Activity ){
+
+            }else if (getContext()  instanceof ContextThemeWrapper) {
+   
+             }else if (getContext() instanceof Application) {
+                 WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) getRootView().getLayoutParams();
+
+                 if(params != null && params.type == 2){
+                   // Log.w("View","FDE Logical fde_width TextView getName "+ getContext().getClass().getName() +",params.type:" +params.type);
+                     if( measuredWidth > 412)  {
+                          if(getClass().getSimpleName().equals("TextView") ){
+                              measuredWidth = 181;
+                          }else{
+                              measuredWidth = 368;
+                          }
+                     }
+                 }
+                }
+           }catch(Exception e){
+                e.printStackTrace();
+           } 
         }
+
         setMeasuredDimensionRaw(measuredWidth, measuredHeight);
     }
 
