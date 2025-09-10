@@ -3419,7 +3419,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         // Invoke shortcuts using Meta.
-        if (down && repeatCount == 0 && !keyguardOn
+        /*if (down && repeatCount == 0 && !keyguardOn
                 && (metaState & KeyEvent.META_META_ON) != 0) {
             final KeyCharacterMap kcm = event.getKeyCharacterMap();
             if (kcm.isPrintingKey(keyCode)) {
@@ -3439,7 +3439,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     return -1;
                 }
             }
-        }
+        }*/
 
         // Handle application launch keys.
         if (down && repeatCount == 0 && !keyguardOn) {
