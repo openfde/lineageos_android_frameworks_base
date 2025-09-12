@@ -187,6 +187,8 @@ import android.widget.RemoteViews;
 import com.android.internal.policy.DecorContext;
 import android.app.Application;
 
+import org.json.JSONObject;
+import org.json.JSONException;
 
 
 /**
@@ -25614,10 +25616,13 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         }
 
  
-         if(getContext().getPackageName().equals(PACKAGE_NAME) ){ 
+         if(getContext().getPackageName().equals(PACKAGE_NAME) || getContext().getPackageName().equals("com.bella.android_demo_public") ){ 
            try{
 
+            Log.d("View","FDE Logical fde_width TextView getName "+ getContext().getClass().getName()+",getSimpleName:"+getClass().getSimpleName()+",measuredWidth:"+measuredWidth);
+          
             if(getContext() instanceof Activity ){
+               // Log.w("View","FDE Logical fde_width Activity getSimpleName "+ getContext().getClass().getSimpleName());
 
             }else if (getContext()  instanceof ContextThemeWrapper) {
    
@@ -25626,7 +25631,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                  WindowManager.LayoutParams params = (WindowManager.LayoutParams) getRootView().getLayoutParams();
 
                  if(params != null && params.type == 2){
-                   // Log.w("View","FDE Logical fde_width TextView getName "+ getContext().getClass().getName() +",params.type:" +params.type);
+                    Log.w("View","FDE Logical fde_width TextView getSimpleName "+ getContext().getClass().getSimpleName() +",params.type:" +params.type +",width "+params.width+",height "+params.height+",measuredWidth:"+measuredWidth);
                      if( measuredWidth > 412)  {
                           if(getClass().getSimpleName().equals("TextView") ){
                               measuredWidth = 181;
@@ -25635,7 +25640,13 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                           }
                      }
                  }
-                }
+              }
+
+             if( measuredWidth >= 1920 )  {
+                   double ratio = CompatibleConfig.getRatio(getContext());
+                   measuredWidth = (int)(ratio * 339) ;
+                   measuredHeight = (int)(ratio * 220);
+             }
            }catch(Exception e){
                 e.printStackTrace();
            } 
@@ -25730,6 +25741,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @return The size this view should be.
      */
     public static int getDefaultSize(int size, int measureSpec) {
+   
         int result = size;
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
