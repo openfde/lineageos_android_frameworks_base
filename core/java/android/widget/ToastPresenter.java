@@ -61,6 +61,8 @@ public class ToastPresenter {
         View view = LayoutInflater.from(context).inflate(TEXT_TOAST_LAYOUT, null);
         TextView textView = view.findViewById(com.android.internal.R.id.message);
         textView.setText(text);
+        textView.setTextSize(17.f);
+        textView.setPadding(16, 8, 16, 8);
         return view;
     }
 
@@ -156,13 +158,15 @@ public class ToastPresenter {
             params.verticalWeight = 1.0f;
         }
         params.x = xOffset;
-        params.y = yOffset;
+        params.y = yOffset + 60;
         params.horizontalMargin = horizontalMargin;
         params.verticalMargin = verticalMargin;
         params.packageName = mContext.getPackageName();
         params.hideTimeoutMilliseconds =
                 (duration == Toast.LENGTH_LONG) ? LONG_DURATION_TIMEOUT : SHORT_DURATION_TIMEOUT;
         params.token = windowToken;
+
+        //Log.w(TAG,"adjustLayoutParams:  params.x: "+params.x +",params.y "+params.y +",params.packageName  "+params.packageName );
     }
 
     /**
