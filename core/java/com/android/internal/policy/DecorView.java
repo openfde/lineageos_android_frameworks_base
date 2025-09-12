@@ -430,7 +430,13 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public void startFullScreenWindow(){
-        hideStatusBarNavigationBar();
+        startFullScreenWindow(true);
+    }
+
+    public void startFullScreenWindow(boolean hideSystemBar){
+        if(hideSystemBar){
+            hideStatusBarNavigationBar();
+        }
         Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
         intent.putExtra("mode", 1);
         if(mContext != null) mContext.sendBroadcast(intent);
