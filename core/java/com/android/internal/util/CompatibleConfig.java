@@ -479,12 +479,15 @@ public class CompatibleConfig {
 
     public static double getRatio(Context context){
       //  int w = context.getWindow().getAttributes().width;
+        int densityDpi = context.getResources().getConfiguration().densityDpi;
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         int heightPixels = metrics.heightPixels;
-        Slog.w(TAG, "getRatio heightPixels: " + heightPixels);
+       // int densityDpi = metrics.densityDpi;
+        float density = metrics.density;
+        Slog.w(TAG, "getRatio heightPixels: " + heightPixels +",densityDpi: "+densityDpi +",density: "+density);
         DecimalFormat df = new DecimalFormat("#.000");
-        BigDecimal bdResult = new BigDecimal(heightPixels).divide(new BigDecimal(1080), 3, RoundingMode.HALF_UP);  
-        return bdResult.doubleValue();
+        BigDecimal bdResult = new BigDecimal(densityDpi).divide(new BigDecimal(160), 3, RoundingMode.HALF_UP);  
+        return density;//bdResult.doubleValue();
     }
 
 }
