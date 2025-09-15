@@ -123,9 +123,13 @@ class LaunchParamsController {
                                 jsonObject = new JSONObject(resultStr);
                                 int width = jsonObject.getInt("width");
                                 int height = jsonObject.getInt("height");
-                                //type = jsonObject.getString("type");
-                                int w = CompatibleConfig.getResolutionRatio(metrics.heightPixels,width,type);
-                                int h = CompatibleConfig.getResolutionRatio(metrics.heightPixels,height,type);
+
+                                int w = width ;
+                                int h = height ;
+                                if(!"fixed".equals(type)){
+                                    w = (int) (CompatibleConfig.getRatioWidth() * width);
+                                    h = (int) (CompatibleConfig.getRatioHeight() * height);
+                                }
                                 Slog.w("TAG", "onCalculate widthPixels: " + metrics.widthPixels +",heightPixels: "+ metrics.heightPixels+ ",w: "+w + ",h: "+h + ",width: "+width + ",height:  "+height);
                                 if (width > 0 && height > 0) {
                                     int left =  mTmpResult.mBounds.left;

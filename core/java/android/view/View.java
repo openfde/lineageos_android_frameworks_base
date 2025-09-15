@@ -25618,35 +25618,36 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
  
          if(getContext().getPackageName().equals(PACKAGE_NAME) || getContext().getPackageName().equals("com.bella.android_demo_public") ){ 
            try{
-
-            Log.d("View","FDE Logical fde_width TextView getName "+ getContext().getClass().getName()+",getSimpleName:"+getClass().getSimpleName()+",measuredWidth:"+measuredWidth);
-          
+            Log.d("View","FDE Logical fde_width  getName "+ getClass().getName()+",getSimpleName:"+getClass().getSimpleName()+",measuredWidth:"+measuredWidth+",measuredHeight: "+measuredHeight);
+            double ratio = CompatibleConfig.getRatioWidth();
             if(getContext() instanceof Activity ){
                // Log.w("View","FDE Logical fde_width Activity getSimpleName "+ getContext().getClass().getSimpleName());
 
             }else if (getContext()  instanceof ContextThemeWrapper) {
    
-             }else if (getContext() instanceof Application) {
-                 WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) getRootView().getLayoutParams();
+            }else if (getContext() instanceof Application) {
+             WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+             WindowManager.LayoutParams params = (WindowManager.LayoutParams) getRootView().getLayoutParams();
 
-                 if(params != null && params.type == 2){
-                    Log.w("View","FDE Logical fde_width TextView getSimpleName "+ getContext().getClass().getSimpleName() +",params.type:" +params.type +",width "+params.width+",height "+params.height+",measuredWidth:"+measuredWidth);
-                     if( measuredWidth > 412)  {
-                          if(getClass().getSimpleName().equals("TextView") ){
-                              measuredWidth = 181;
-                          }else{
-                              measuredWidth = 368;
-                          }
-                     }
+             if(params != null && params.type == 2){
+                Log.w("View","FDE Logical fde_width TextView getName "+ getClass().getName() +", getSimpleName: "+ getClass().getSimpleName() +",params.type:" +params.type +",width "+params.width+",height "+params.height+",measuredWidth:"+measuredWidth +",measuredHeight: "+measuredHeight);
+                 if( measuredWidth > 412 *ratio)  {
+                      if(getClass().getSimpleName().equals("TextView") ){
+                          measuredWidth = (int)(181 * ratio);
+                      }else{
+                          measuredWidth = (int)(386 * ratio);
+                      }
                  }
-              }
-
-             if( measuredWidth >= 1920 )  {
-                   double ratio = CompatibleConfig.getRatio(getContext());
-                   measuredWidth = (int)(ratio * 339) ;
-                   measuredHeight = (int)(ratio * 220);
              }
+           }
+
+           
+           if(measuredWidth >= CompatibleConfig.getScreenWidth() )  {
+             measuredWidth = (int)(ratio * 412) ;
+             measuredHeight = (int)(CompatibleConfig.getRatioHeight() * 230);
+           }            
+
+            
            }catch(Exception e){
                 e.printStackTrace();
            } 
