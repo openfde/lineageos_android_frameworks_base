@@ -164,6 +164,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import static android.app.ActivityTaskManager.RESIZE_MODE_USER_FORCED;
 
 /**
  * State and management of a single stack of activities.
@@ -670,12 +671,13 @@ class ActivityStack extends Task {
 
     private void updateBoundsForMaximized() {
         final DisplayContent dc = getDisplayContent();
+        final Task topTask = getTopMostTask();
         if (dc != null) {
             DisplayInfo di = dc.getDisplayInfo();
             Log.e(TAG, "updateBoundsForMaximized displayInfo: " + di);
             final Rect fullBounds = new Rect(0,0,di.logicalWidth,di.logicalHeight-47);
             Log.e(TAG, "updateBoundsForMaximized setBounds fullBounds: " + fullBounds);
-            setBounds(fullBounds);
+            topTask.resize(fullBounds, RESIZE_MODE_USER_FORCED, false);
         }
     }
     // endregion
@@ -700,7 +702,7 @@ class ActivityStack extends Task {
                 mIsMaximizedInFreeform = true;
             }else{
                 mIsMaximizedInFreeform = false;
-                setBounds(mOriginalRect);
+                topTask.resize(mOriginalRect, RESIZE_MODE_USER_FORCED, false);
                 Log.e(TAG, "setWindowingModeInSurfaceTransaction setBounds mOriginalRect: " + mOriginalRect);
             }
             return;
