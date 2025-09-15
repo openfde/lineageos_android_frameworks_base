@@ -345,6 +345,14 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         : null;
     }
 
+    public final boolean startDecorMovingTask(float startX, float startY) {
+        return startMovingTask(startX, startY);
+    }
+
+    public final void finisDecorMovingTask(){
+        finishMovingTask();
+    }
+
     void setBackgroundFallback(@Nullable Drawable fallbackDrawable) {
         mBackgroundFallback.setDrawable(fallbackDrawable);
         setWillNotDraw(getBackground() == null && !mBackgroundFallback.hasFallback());
