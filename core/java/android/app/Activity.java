@@ -2065,6 +2065,7 @@ public class Activity extends ContextThemeWrapper
             if( layout_take_photo == null ){
                 return;
             }
+            layout_take_photo.setBackgroundColor(Color.BLACK);
             View viewById = layout_take_photo.getChildAt(0);
             if( viewById == null ){
                 return;
