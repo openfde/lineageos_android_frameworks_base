@@ -2651,13 +2651,14 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
         try {
             if (callback != null) {
-                isMaximized = !callback.isInFreeformWindowingMode();
+                isMaximized = callback.isInFreeformWindowingMaximizedMode();
             }
+            Log.d(TAG,"isWindowMaximized: " + isMaximized);
             return isMaximized;
         } catch (RemoteException ex) {
             Log.e(TAG, "Catch exception ", ex);
         }
-        Log.w(TAG,"isWindowMaximized: " + isMaximized);
+        Log.d(TAG,"isWindowMaximized: " + isMaximized);
         return isMaximized;
     }
 

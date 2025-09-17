@@ -972,6 +972,11 @@ public class Activity extends ContextThemeWrapper
     private final WindowControllerCallback mWindowControllerCallback =
             new WindowControllerCallback() {
         @Override
+        public boolean isInFreeformWindowingMaximizedMode() throws RemoteException {
+            return ActivityTaskManager.getService().isInFreeformWindowingMaximizedMode(mToken);
+        }
+
+        @Override
         public boolean isInFreeformWindowingMode() throws RemoteException {
             return ActivityTaskManager.getService().isInFreeformWindowingMode(mToken);
         }

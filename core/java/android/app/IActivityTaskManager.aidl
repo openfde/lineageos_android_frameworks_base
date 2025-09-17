@@ -467,4 +467,6 @@ interface IActivityTaskManager {
      * client may perform actions prior to finishing.
      */
     void onBackPressedOnTaskRoot(in IBinder activityToken, in IRequestFinishCallback callback);
+
+    boolean isInFreeformWindowingMaximizedMode(in IBinder token);
 }

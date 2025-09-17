@@ -675,10 +675,13 @@ class ActivityStack extends Task {
         if (dc != null) {
             DisplayInfo di = dc.getDisplayInfo();
             Log.e(TAG, "updateBoundsForMaximized displayInfo: " + di);
-            final Rect fullBounds = new Rect(0,0,di.logicalWidth,di.logicalHeight-47);
+            final Rect fullBounds = new Rect(0,0,di.logicalWidth,di.logicalHeight);
             Log.e(TAG, "updateBoundsForMaximized setBounds fullBounds: " + fullBounds);
             topTask.resize(fullBounds, RESIZE_MODE_USER_FORCED, false);
         }
+    }
+    public boolean inFreeformWindowingMaximizedMode(){
+        return mIsMaximizedInFreeform;
     }
     // endregion
 
