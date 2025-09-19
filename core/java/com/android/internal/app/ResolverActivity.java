@@ -103,6 +103,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import android.os.SystemProperties;
+
 
 /**
  * This activity is displayed when the system attempts to start an Intent for
@@ -315,6 +317,10 @@ public class ResolverActivity extends Activity implements
         // Use a specialized prompt when we're handling the 'Home' app startActivity()
         final Intent intent = makeMyIntent();
         final Set<String> categories = intent.getCategories();
+        String prop = SystemProperties.get("persist.waydroid.multi_windows","false");
+        if (Intent.ACTION_MAIN.equals(intent.getAction()) && "true".equals(prop)){
+            finish();
+        }
         if (Intent.ACTION_MAIN.equals(intent.getAction())
                 && categories != null
                 && categories.size() == 1
