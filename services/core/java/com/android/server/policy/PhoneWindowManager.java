@@ -5201,6 +5201,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean canceled = event.isCanceled();
         final int displayId = event.getDisplayId();
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
+        if (!mPowerManager.isScreenOn() && !down) {
+            wakeUpFromWakeKey(event.getEventTime(), KEYCODE_POWER, event.getAction() == KeyEvent.ACTION_DOWN, false);
+            return 0;
+        }
 
         // If screen is off then we treat the case where the keyguard is open but hidden
         // the same as if it were open and in front.
@@ -6005,7 +6009,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     @Override
     public int interceptMotionBeforeQueueingNonInteractive(int displayId, int source, int action,
             long whenNanos, int policyFlags) {
-        if ((policyFlags & FLAG_WAKE) != 0) {
+        if (((policyFlags & FLAG_WAKE) != 0) || !mPowerManager.isScreenOn()) {
             if (mWindowWakeUpPolicy.wakeUpFromMotion(
                         whenNanos / 1000000, source, action == MotionEvent.ACTION_DOWN)) {
                 // Woke up. Pass motion events to user.
