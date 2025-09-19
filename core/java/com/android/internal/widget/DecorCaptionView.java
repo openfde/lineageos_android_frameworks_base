@@ -485,6 +485,13 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(shouldHideDecorCaption){
             mShow = false;
         }
+        if(mContext != null){
+            String packageName = mContext.getPackageName();
+            Log.d(TAG, "onConfigurationChanged packageName: " + packageName);
+            if("com.mistong.ewt360".equals(packageName)){
+                mShow = true;
+            }
+        }
         updateCaptionVisibility();
     }
 

@@ -478,7 +478,6 @@ public class CompatibleConfig {
     }
 
     public static double getRatio(Context context){
-      //  int w = context.getWindow().getAttributes().width;
         int densityDpi = context.getResources().getConfiguration().densityDpi;
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         int heightPixels = metrics.heightPixels;
@@ -488,6 +487,23 @@ public class CompatibleConfig {
         DecimalFormat df = new DecimalFormat("#.000");
         BigDecimal bdResult = new BigDecimal(densityDpi).divide(new BigDecimal(160), 3, RoundingMode.HALF_UP);  
         return density;//bdResult.doubleValue();
+    }
+
+    public static double getRatioWidth(){
+        String w = SystemProperties.get("waydroid.display_width");
+        BigDecimal bdResult = new BigDecimal(w).divide(new BigDecimal(1920), 3, RoundingMode.HALF_UP); 
+        return bdResult.doubleValue();
+    }
+
+    public static double getRatioHeight(){
+        String h = SystemProperties.get("waydroid.display_height");
+        BigDecimal bdResult = new BigDecimal(h).divide(new BigDecimal(1080), 3, RoundingMode.HALF_UP); 
+        return bdResult.doubleValue();
+    }
+
+    public static int getScreenWidth(){
+        String w = SystemProperties.get("waydroid.display_width");
+        return Integer.valueOf(w) ;
     }
 
 }

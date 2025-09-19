@@ -672,9 +672,13 @@ public final class DisplayManagerService extends SystemService {
                                     int width = jsonObject.getInt("width");
                                     int height = jsonObject.getInt("height");
                                     type = jsonObject.getString("type");
-                                  
-                                    int w = CompatibleConfig.getResolutionRatio(info.logicalWidth,width,type);
-                                    int h = CompatibleConfig.getResolutionRatio(info.logicalWidth,height,type);
+                                    int w = width ;
+                                    int h = height ;
+                                    if(!"fixed".equals(type)){
+                                        w = (int) (CompatibleConfig.getRatioWidth() * width);
+                                        h = (int) (CompatibleConfig.getRatioHeight() * height);
+                                    }
+                                    
  
                                     Slog.d(TAG, "getDisplayInfoInternalWithPid: width: "+ w+",height: "+h +",type "+type); 
                                     info = display.getCompatibilityDisplayInfoLocked();

@@ -215,7 +215,6 @@ import java.util.function.Supplier;
 import com.android.internal.util.CompatibleConfig;
 import org.json.JSONObject;
 import org.json.JSONException;
-import com.android.internal.util.CompatibleConfig;
 import android.view.Display;
 import android.app.Dialog;
 import android.view.WindowManager;
@@ -9334,18 +9333,20 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
                 }else if (mContext instanceof Application) {
                  WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
                  WindowManager.LayoutParams params = (WindowManager.LayoutParams) getRootView().getLayoutParams();
+                 double ratio = CompatibleConfig.getRatioWidth();
+                 Log.w("TextView1","FDE Logical fde_width TextView Application....widthSize "+widthSize+ ",text: "+getText() + ",ratio: "+ratio);
                  if(params != null && params.type == 2){
-                       if(widthSize > 960){
-                          widthSize = 368;
-                       }else if(widthSize > 480){
-                          widthSize = 183;
-                       }else if(widthSize > 412){
-                          widthSize = 368;
+                       if(widthSize > 960 * ratio){
+                          widthSize = (int)(368 * ratio);
+                       }else if(widthSize > 480 * ratio ){
+                          widthSize = (int)(183  * ratio);
+                       }else if(widthSize > 412 * ratio){
+                          widthSize = (int)(368  * ratio);
                        }
                      }else if(params != null){
                       //  Log.w("TextView","FDE Logical fde_width TextView ContextThemeWrapper..... params.type "+params.type+ ",text: "+getText());
                     }
-                    //Log.w("TextView","FDE Logical fde_width TextView Application....widthPixels "+widthPixels+ ",text: "+getText());
+                    Log.w("TextView2","FDE Logical fde_width TextView Application....widthSize "+widthSize+ ",text: "+getText());
                 }
                }catch(Exception e){
                     e.printStackTrace();
