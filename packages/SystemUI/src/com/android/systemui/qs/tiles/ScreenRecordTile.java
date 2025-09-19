@@ -75,6 +75,7 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
     private final UserContextProvider mUserContextProvider;
 
     private long mMillisUntilFinished = 0;
+    public static Handler handler;
 
     @Inject
     public ScreenRecordTile(
@@ -100,6 +101,7 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
                 statusBarStateController, activityStarter, qsLogger);
         mController = controller;
         mController.observe(this, mCallback);
+        handler = mHandler;
         mFlags = flags;
         mKeyguardDismissUtil = keyguardDismissUtil;
         mKeyguardStateController = keyguardStateController;
