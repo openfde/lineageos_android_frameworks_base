@@ -3054,6 +3054,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
         }
 
+        if(keyCode == KeyEvent.KEYCODE_F12 && down && repeatCount == 0){
+            boolean isMirror = SystemProperties.getBoolean("persist.fde.mirror", false);
+            SystemProperties.set("persist.fde.mirror", isMirror ? "false" : "true");
+        }
+
         // If we think we might have a volume down & power key chord on the way
         // but we're not sure, then tell the dispatcher to wait a little while and
         // try again later before dispatching.
