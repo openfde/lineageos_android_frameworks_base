@@ -51,7 +51,12 @@ public class StorageManagerVolumeProvider implements StorageVolumeProvider {
 
     @Override
     public long getTotalBytes(StorageStatsManager stats, VolumeInfo volume) throws IOException {
-        return stats.getTotalBytes(volume.getFsUuid());
+         try {
+            return stats.getTotalBytes(volume.getFsUuid());
+        } catch (Exception e) {
+           //Log.e(TAG, "Failed to get total bytes for volume: " + volume.getId(), e);
+            return 0L;
+        }
     }
 
     @Override
