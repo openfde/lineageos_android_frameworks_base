@@ -1712,14 +1712,6 @@ class ActivityStarter {
             NeededUriGrants intentGrants, int realCallingUid) {
         setInitialState(r, options, inTask, inTaskFragment, startFlags, sourceRecord,
                 voiceSession, voiceInteractor, balVerdict.getCode(), realCallingUid);
-        // region @boringdroid
-        if (mOptions == null) {
-            mOptions = ActivityOptions.makeBasic();
-        }
-        if (mOptions.getLaunchWindowingMode() == WINDOWING_MODE_UNDEFINED) {
-            mOptions.setLaunchWindowingMode(WINDOWING_MODE_FREEFORM);
-        }
-        // endregion
         computeLaunchingTaskFlags();
         mIntent.setFlags(mLaunchFlags);
 
