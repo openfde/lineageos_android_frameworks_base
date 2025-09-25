@@ -44,9 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun SettingsTitle(title: String, useMediumWeight: Boolean = false) {
     Log.w("BaseLayout"," title "+title + ", useMediumWeight: "+useMediumWeight);
+    var heightP  =  56.dp;
+    if(title.contains("开发者选项")){
+        heightP = 23.dp;
+    }
     Text(
         text = title,
-        modifier = Modifier.padding(vertical = 10.dp,horizontal  = 0.dp).height(56.dp),
+        modifier = Modifier.padding(vertical = 1.dp,horizontal  = 0.dp).height(heightP),
         // style = MaterialTheme.typography.titleMedium.withWeight(useMediumWeight),
         fontSize =  13.sp,//if (useMediumWeight) 12.sp else 14.sp ,
         fontWeight = FontWeight(500),
