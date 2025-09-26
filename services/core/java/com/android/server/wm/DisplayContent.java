@@ -3524,12 +3524,15 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         // Now, a special case -- if the last target's window is in the process of exiting, but
         // not removed, keep on the last target to avoid IME flicker. The exception is if the
         // current target is home since we want opening apps to become the IME target right away.
-        if (curTarget != null && !curTarget.mRemoved && curTarget.isDisplayedLw()
+
+        //region @fde for fix the issue of focused window is not displayed on top
+        /*if (curTarget != null && !curTarget.mRemoved && curTarget.isDisplayedLw()
                 && curTarget.isClosing() && !curTarget.isActivityTypeHome()) {
             if (DEBUG_INPUT_METHOD) Slog.v(TAG_WM, "Not changing target till current window is"
                     + " closing and not removed");
             return curTarget;
-        }
+        }*/
+        //endregion
 
         if (DEBUG_INPUT_METHOD) Slog.v(TAG_WM, "Desired input method target=" + target
                 + " updateImeTarget=" + updateImeTarget);
