@@ -36,6 +36,7 @@
             app:extraMultilineHeightEnabled="true"
             app:contentScrim="@color/settingslib_colorSurfaceHeader"
             app:maxLines="3"
+            android:visibility="gone"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:scrimAnimationDuration="50"
             app:statusBarScrim="@null"
