@@ -104,6 +104,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import android.os.SystemProperties;
+import android.os.Handler;
 
 
 /**
@@ -431,11 +432,28 @@ public class ResolverActivity extends Activity implements
         }
 
         final Set<String> categories = intent.getCategories();
+      
         MetricsLogger.action(this, mMultiProfilePagerAdapter.getActiveListAdapter().hasFilteredItem()
                 ? MetricsProto.MetricsEvent.ACTION_SHOW_APP_DISAMBIG_APP_FEATURED
                 : MetricsProto.MetricsEvent.ACTION_SHOW_APP_DISAMBIG_NONE_FEATURED,
                 intent.getAction() + ":" + intent.getType() + ":"
                         + (categories != null ? Arrays.toString(categories.toArray()) : ""));
+
+        String prop = SystemProperties.get("persist.waydroid.multi_windows","false");
+        if (Intent.ACTION_MAIN.equals(intent.getAction()) && "true".equals(prop)){
+            final ViewGroup buttonLayout = findViewById(R.id.button_bar);
+            if (buttonLayout != null) {
+                mOnceButton = (Button) buttonLayout.findViewById(R.id.button_once);
+                if(mOnceButton !=null){
+                     new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mOnceButton.performClick();
+                        }
+                    }, 2000);
+                }    
+            }
+        }
     }
 
     private boolean isIntentPicker() {

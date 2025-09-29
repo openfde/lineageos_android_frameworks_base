@@ -482,6 +482,9 @@ public class ResolverListAdapter extends BaseAdapter {
             position++;
         }
         if (mDisplayList.size() > position) {
+            if(position < 0){
+                position = 0;
+            }
             return mDisplayList.get(position);
         } else {
             return null;
