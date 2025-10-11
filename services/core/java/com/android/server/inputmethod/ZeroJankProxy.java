@@ -377,6 +377,16 @@ public class ZeroJankProxy extends IInputMethodManager.Stub {
                 client, userId, delegatePackageName, delegatorPackageName));
     }
 
+    @Override    
+    public void commitText(String text) {
+
+    }
+
+    @Override    
+    public void sendKeyEvent(int action, int code) {
+
+    }
+
     @Override
     public boolean isStylusHandwritingAvailableAsUser(int userId, boolean connectionless)
             throws RemoteException {

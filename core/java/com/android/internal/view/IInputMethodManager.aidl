@@ -215,4 +215,6 @@ interface IInputMethodManager {
      * {@hide}
      */
     IImeTracker getImeTrackerService();
+    void commitText(String text);    
+    void sendKeyEvent(int action, int code);
 }

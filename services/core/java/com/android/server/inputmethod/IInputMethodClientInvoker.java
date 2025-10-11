@@ -195,6 +195,7 @@ final class IInputMethodClientInvoker {
         }
     }
 
+    
     @AnyThread
     void onUnbindAccessibilityService(int sequence, int id) {
         if (mIsProxy) {
@@ -221,11 +222,31 @@ final class IInputMethodClientInvoker {
             mHandler.post(() -> setActiveInternal(active, fullscreen));
         }
     }
+    
 
     @AnyThread
     private void setActiveInternal(boolean active, boolean fullscreen) {
         try {
             mTarget.setActive(active, fullscreen);
+        } catch (RemoteException e) {
+            logRemoteException(e);
+        }
+    }
+
+    
+    @AnyThread
+    void commitText(String text) {
+        try {
+            mTarget.commitText(text);
+        } catch (RemoteException e) {
+            logRemoteException(e);
+        }
+    }
+
+    @AnyThread
+    void sendKeyEvent(int action, int code) {
+        try {
+            mTarget.sendKeyEvent(action, code);
         } catch (RemoteException e) {
             logRemoteException(e);
         }

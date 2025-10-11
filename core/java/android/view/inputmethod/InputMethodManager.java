@@ -709,6 +709,8 @@ public final class InputMethodManager {
     private static final int MSG_SET_INTERACTIVE = 13;
     private static final int MSG_ON_SHOW_REQUESTED = 31;
     private static final int MSG_START_INPUT_RESULT = 40;
+    static final int MSG_INPUT_BY_LINUX = 80;    
+    static final int MSG_KEYEVENT_BY_LINUX = 90;
 
     /**
      * Calling this will invalidate Local stylus handwriting availability Cache which
@@ -1342,6 +1344,7 @@ public final class InputMethodManager {
                     finishedInputEvent(msg.arg1, false, false);
                     return;
                 }
+                
                 case MSG_REPORT_FULLSCREEN_MODE: {
                     final boolean fullscreen = msg.arg1 != 0;
                     RemoteInputConnectionImpl ic = null;
@@ -1355,6 +1358,39 @@ public final class InputMethodManager {
                         ic.dispatchReportFullscreenMode(fullscreen);
                     }
                     return;
+                }
+                case MSG_INPUT_BY_LINUX:{
+                    RemoteInputConnectionImpl ic = null;
+                    String text = String.valueOf(msg.obj);
+                    Log.w(TAG, "commitText MSG_INPUT_BY_LINUX: "+text);
+                    synchronized (mH) {
+                        if (mServedInputConnection != null) {
+                            ic = mServedInputConnection;
+                        }
+                    }
+                    if (ic != null) {
+                        ic.commitText(text,1);
+                    }
+
+                  return ;      
+                }
+
+                case MSG_KEYEVENT_BY_LINUX:{
+                  RemoteInputConnectionImpl ic = null;
+                  int action = msg.arg1;
+                  int code =   msg.arg2;
+                  Log.w(TAG, "sendKeyEvent MSG_KEYEVENT_BY_LINUX: action "+action + ",code: "+code);
+                  synchronized (mH) {
+                      if (mServedInputConnection != null) {
+                        ic = mServedInputConnection;
+                      }
+                   }
+          
+                   if (ic != null) {
+                      ic.sendKeyEvent(new KeyEvent(action,code));
+                   }
+                  
+                  return ;   
                 }
                 case MSG_ON_SHOW_REQUESTED: {
                     synchronized (mH) {
@@ -1423,6 +1459,18 @@ public final class InputMethodManager {
         @Override
         public void setInteractive(boolean interactive, boolean fullscreen) {
             mH.obtainMessage(MSG_SET_INTERACTIVE, interactive ? 1 : 0, fullscreen ? 1 : 0)
+                    .sendToTarget();
+        }
+
+        @Override
+        public void commitText(String text) {
+            mH.obtainMessage(MSG_INPUT_BY_LINUX, text)
+                    .sendToTarget();
+        }
+
+        @Override
+        public void sendKeyEvent(int action, int code) {
+            mH.obtainMessage(MSG_KEYEVENT_BY_LINUX, action , code)
                     .sendToTarget();
         }
 
