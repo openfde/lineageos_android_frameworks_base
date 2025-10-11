@@ -625,6 +625,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             }
             if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
                 Slog.d(TAG, "dispatchKeyEventPreIme KEYCODE_F11");
+                if(mContext != null && !mDecorCaptionView.isResizeWindow()){
+                    Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
+                    return true ;
+                }
                 if(!mIgnoreKeyCodeF11){
                     mIgnoreKeyCodeF11 = true;
                     mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
