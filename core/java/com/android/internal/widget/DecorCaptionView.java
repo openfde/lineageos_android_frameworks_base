@@ -485,13 +485,6 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         if(shouldHideDecorCaption){
             mShow = false;
         }
-        if(mContext != null){
-            String packageName = mContext.getPackageName();
-            Log.d(TAG, "onConfigurationChanged packageName: " + packageName);
-            if("com.mistong.ewt360".equals(packageName)){
-                mShow = true;
-            }
-        }
         updateCaptionVisibility();
     }
 
@@ -620,6 +613,13 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
 			mCaption.setVisibility(mShow ? VISIBLE : GONE);
 		}
 		mCaption.setOnTouchListener(this);
+        if(mContext != null){
+            String packageName = mContext.getPackageName();
+            if("com.mistong.ewt360".equals(packageName) || !isResizeWindow()){
+                Log.d(TAG, "updateCaptionVisibility force show caption for " + packageName);
+                mCaption.setVisibility(VISIBLE);
+            }
+        }
     }
 
     
