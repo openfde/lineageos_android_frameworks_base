@@ -318,8 +318,9 @@ void PointerController::setDisplayViewport(const DisplayViewport& viewport) {
 
     { // acquire lock
         std::scoped_lock lock(getLock());
-
-        bool getAdditionalMouseResources = false;
+        //region @openfde Pre-load AdditionalMouseResources
+        bool getAdditionalMouseResources = true;
+        //end region
         if (mLocked.presentation == PointerController::Presentation::POINTER ||
             mLocked.presentation == PointerController::Presentation::STYLUS_HOVER) {
             getAdditionalMouseResources = true;
