@@ -31,12 +31,18 @@ import android.window.WindowContainerTransaction;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.os.SystemProperties;
+
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.transition.Transitions;
 
 import java.util.function.Supplier;
 import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
+
+import static com.android.wm.shell.transition.Transitions.ENABLE_SHELL_TRANSITIONS;
 
 /**
  * A task positioner that resizes/relocates task contents as it is dragged.
@@ -71,6 +77,22 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
     private int mCtrlType;
     private IBinder mDragResizeEndTransition;
     @Surface.Rotation private int mRotation;
+
+    // [openfde add] notify LayerSnapshotBuilder updateLayerBounds
+    private static final int SET_PROP = 1;
+    private Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case SET_PROP:
+                    SystemProperties.set("com.fde.scaling_window", "false");
+                    Log.w(TAG,"setprop com.fde.scaling_window false");
+                    break;
+            }
+        }
+    };
+    // [openfde end]
 
     FluidResizeTaskPositioner(ShellTaskOrganizer taskOrganizer, Transitions transitions,
             WindowDecoration windowDecoration, DisplayController displayController,
@@ -132,10 +154,13 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                 // This is the first bounds change since drag resize operation started.
                 wct.setDragResizing(mWindowDecoration.mTaskInfo.token, true /* dragResizing */);
             }
+            // [openfde add] notify LayerSnapshotBuilder updateLayerBounds
+            SystemProperties.set("com.fde.scaling_window", "true");
+            // [openfde end]
             wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
             mTaskOrganizer.applyTransaction(wct);
             mHasDragResized = true;
-            mIsResizingOrAnimatingResize = true;
+            mIsResizingOrAnimatingResize = ENABLE_SHELL_TRANSITIONS;
         } else if (mCtrlType == CTRL_TYPE_UNDEFINED) {
             final SurfaceControl.Transaction t = mTransactionSupplier.get();
             DragPositioningCallbackUtility.setPositionOnDrag(mWindowDecoration,
@@ -184,6 +209,10 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
         mRepositionStartPoint.set(0, 0);
         mCtrlType = CTRL_TYPE_UNDEFINED;
         mHasDragResized = false;
+        // [openfde add] notify LayerSnapshotBuilder updateLayerBounds
+        mHandler.removeMessages(SET_PROP);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(SET_PROP), 800);
+        // [openfde end]
         return new Rect(mRepositionTaskBounds);
     }
 
