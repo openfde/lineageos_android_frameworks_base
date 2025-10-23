@@ -103,6 +103,7 @@ fun SettingsBody(
             text = body,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium,
+            fontSize =  12.sp,
             overflow = TextOverflow.Ellipsis,
             maxLines = maxLines,
         )
