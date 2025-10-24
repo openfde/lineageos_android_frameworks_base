@@ -192,11 +192,13 @@ class DragResizeInputListener implements AutoCloseable {
      */
     boolean setGeometry(int taskWidth, int taskHeight, int resizeHandleThickness, int cornerSize,
             int touchSlop) {
-        if (mTaskWidth == taskWidth && mTaskHeight == taskHeight
+        // region @openfde fix task input sink region hold fullscreen state after drag resize.
+        /*if (mTaskWidth == taskWidth && mTaskHeight == taskHeight
                 && mResizeHandleThickness == resizeHandleThickness
                 && mCornerSize == cornerSize) {
             return false;
-        }
+        }*/
+        // end region
 
         mTaskWidth = taskWidth;
         mTaskHeight = taskHeight;
