@@ -5188,7 +5188,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
 
 
-        String version = SystemProperties.get("compatible_version","");
+        String version = SystemProperties.get("persist.compatible_version","");
         String fdeVersion = SystemProperties.get("ro.openfde.version","");
         Slog.w(TAG, "version: " + version + " , fdeVersion: "+fdeVersion);
 
@@ -5196,7 +5196,7 @@ public class ActivityManagerService extends IActivityManager.Stub
             //if verison update parseXML
             int res = CompatibleConfig.parseValueXML(mContext,"");
             if(res != -1){
-                SystemProperties.set("compatible_version", fdeVersion);
+                SystemProperties.set("persist.compatible_version", fdeVersion);
             }
         }
 

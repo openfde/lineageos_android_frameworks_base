@@ -295,7 +295,7 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
     public int deleteCompatibleByKeyCode(String keyCode) {
         Slog.w(TAG, "deleteCompatibleByKeyCode " + keyCode);
         SQLiteDatabase db = this.getWritableDatabase();
-        int res = db.delete(TABLE_NAME, "KEY_CODE = ? ", new String[]{keyCode});
+        int res = db.delete(TABLE_NAME, "KEY_CODE = ? AND FIELDS1 !='' ", new String[]{keyCode});
         db.close();
         return res;
     }

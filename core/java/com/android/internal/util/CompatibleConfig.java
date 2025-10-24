@@ -217,7 +217,7 @@ public class CompatibleConfig {
 
     public static int parseValue(Context context, InputStream inputStream) {
         try {
-            Slog.w(TAG,"parseValue start..........");
+            Slog.d(TAG,"parseValue start..........");
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(inputStream);
@@ -231,12 +231,14 @@ public class CompatibleConfig {
                 String keyCode = keycodeElement.getAttribute("key_code");
                 NodeList packageList = keycodeElement.getElementsByTagName("package");
                 if ("true".equals(isdel)) {
+                    Slog.w(TAG,"deleteCompatibleByKeyCode "+keyCode);
                     db.deleteCompatibleByKeyCode( keyCode);
                 }else{
                     List<Map<String,Object>> list = db.queryCompatiblesByKeyCode(keyCode);
                     if(list != null && list.size() > 0 ){
                         String queryDate = list.get(0).get("FIELDS1").toString();
-                        if (!updateDate.equals(queryDate)) {
+                        if (!"".equals(queryDate) && !updateDate.equals(queryDate)) {
+                            Slog.d(TAG,"deleteCompatibleByKeyCode "+keyCode + ",queryDate: "+queryDate +",updateDate: "+updateDate);
                             db.deleteCompatibleByKeyCode( keyCode);
                         }
                     }
@@ -248,7 +250,7 @@ public class CompatibleConfig {
                             Element activityElement = (Element) activityList.item(k);
                             String activityName = activityElement.getAttribute("name");
                             String defaultValue = activityElement.getTextContent().replaceAll("\\s", "");
-                            Slog.w(TAG,"keyCode: " + keyCode + " ,packageName: " + packageName + " ,activityName: " + activityName + " ,defaultValue: " + defaultValue);
+                            Slog.d(TAG,"keyCode: " + keyCode + " ,packageName: " + packageName + " ,activityName: " + activityName + " ,defaultValue: " + defaultValue);
                             String selection = null;
                             String[] selectionArgs = null; 
                             if(activityName == null || "".equals(activityName)){
@@ -265,7 +267,7 @@ public class CompatibleConfig {
                 
             }
            db.readCompatibles();
-           Slog.w(TAG,"parseValue end..........");
+           Slog.d(TAG,"parseValue end..........");
         } catch (Exception e) {
             e.printStackTrace();
             Slog.e(TAG,"parseValue end.....err "+e.toString());
@@ -314,7 +316,7 @@ public class CompatibleConfig {
                                 db.insertCompatible(packageName, keyCode,activityName, defaultValue);
                             } else {
                                 String queryDate = resMap.get("FIELDS1").toString();
-                                if (!updateDate.equals(queryDate)) {
+                                if (!"".equals(queryDate) && !updateDate.equals(queryDate)) {
                                     db.updateCompatible(packageName, keyCode, activityName,defaultValue, updateDate);
                                 }
                             }
