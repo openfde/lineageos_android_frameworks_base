@@ -51,9 +51,10 @@ using namespace android;
 
 void usage(const char* pname, ftl::Optional<DisplayId> displayIdOpt) {
     fprintf(stderr, R"(
-usage: %s [-hp] [-d display-id] [FILENAME]
+usage: %s [-hpj] [-d display-id] [FILENAME]
    -h: this message
    -p: save the file as a png.
+   -j: save the file as a down scaled jpeg.
    -d: specify the display ID to capture%s
        see "dumpsys SurfaceFlinger --display-id" for valid display IDs.
    --hint-for-seamless If set will use the hintForSeamless path in SF
@@ -157,9 +158,13 @@ int main(int argc, char** argv)
     gui::CaptureArgs captureArgs;
     const char* pname = argv[0];
     bool png = false;
+    bool jpeg = false;
     int c;
-    while ((c = getopt_long(argc, argv, "phd:", LONG_OPTIONS, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "jphd:", LONG_OPTIONS, nullptr)) != -1) {
         switch (c) {
+            case 'j':
+                jpeg = true;
+		break;
             case 'p':
                 png = true;
                 break;
@@ -265,7 +270,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (png) {
+    if (png || jpeg) {
         AndroidBitmapInfo info;
         info.format = flinger2bitmapFormat(buffer->getPixelFormat());
         info.flags = ANDROID_BITMAP_FLAGS_ALPHA_PREMUL;
@@ -273,7 +278,52 @@ int main(int argc, char** argv)
         info.height = buffer->getHeight();
         info.stride = buffer->getStride() * bytesPerPixel(buffer->getPixelFormat());
 
-        int result = AndroidBitmap_compress(&info, static_cast<int32_t>(dataspace), base,
+	int result;
+	if (jpeg) {
+		      // Downscale to 1/4 size (nearest neighbor) into a temporary packed buffer,
+        // then compress that smaller buffer as JPEG.
+        uint32_t srcW = buffer->getWidth();
+        uint32_t srcH = buffer->getHeight();
+        uint32_t srcS = buffer->getStride();
+        uint32_t srcF = buffer->getPixelFormat();
+        size_t srcBpp = bytesPerPixel(srcF);
+
+        uint32_t dstW = srcW / 4;
+        uint32_t dstH = srcH / 4;
+        if (dstW == 0) dstW = 1;
+        if (dstH == 0) dstH = 1;
+        size_t dstBpp = srcBpp;
+
+        // packed rows for destination: stride = dstW * dstBpp
+        std::vector<uint8_t> dstPixels(static_cast<size_t>(dstW) * dstH * dstBpp);
+
+        for (uint32_t y = 0; y < dstH; ++y) {
+            for (uint32_t x = 0; x < dstW; ++x) {
+                uint32_t srcY = y * 4;
+                uint32_t srcX = x * 4;
+                const uint8_t* srcRow = reinterpret_cast<const uint8_t*>(base) + srcY * srcS * srcBpp;
+                const uint8_t* srcPx = srcRow + srcX * srcBpp;
+                uint8_t* dstPx = dstPixels.data() + (static_cast<size_t>(y) * dstW + x) * dstBpp;
+                memcpy(dstPx, srcPx, dstBpp);
+            }
+        }
+
+        AndroidBitmapInfo scaledInfo = info;
+        scaledInfo.width = dstW;
+        scaledInfo.height = dstH;
+        scaledInfo.stride = dstW * dstBpp;
+
+        result = AndroidBitmap_compress(&scaledInfo, static_cast<int32_t>(dataspace),
+                                       dstPixels.data(),
+                                       ANDROID_BITMAP_COMPRESS_FORMAT_JPEG, 80, &fd,
+                                       [](void* fdPtr, const void* data, size_t size) -> bool {
+                                           int bytesWritten = write(*static_cast<int*>(fdPtr),
+                                                                    data, static_cast<int>(size));
+                                           return bytesWritten == static_cast<int>(size);
+                                       });
+
+	}else{
+		result = AndroidBitmap_compress(&info, static_cast<int32_t>(dataspace), base,
                                             ANDROID_BITMAP_COMPRESS_FORMAT_PNG, 100, &fd,
                                             [](void* fdPtr, const void* data, size_t size) -> bool {
                                                 int bytesWritten = write(*static_cast<int*>(fdPtr),
@@ -281,6 +331,7 @@ int main(int argc, char** argv)
                                                 return bytesWritten == size;
                                             });
 
+	}
         if (result != ANDROID_BITMAP_RESULT_SUCCESS) {
             fprintf(stderr, "Failed to compress PNG (error code: %d)\n", result);
         }
