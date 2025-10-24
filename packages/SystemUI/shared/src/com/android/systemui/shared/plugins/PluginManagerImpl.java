@@ -192,7 +192,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
             }
             synchronized (this) {
                 if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
-                        || Intent.ACTION_PACKAGE_CHANGED.equals(intent.getAction())
+                        || Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction())
                         || Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
                     for (PluginActionManager<?> actionManager : mPluginMap.values()) {
                         actionManager.reloadPackage(pkg);
