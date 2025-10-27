@@ -75,6 +75,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.SystemProperties;
 import android.os.Trace;
@@ -814,6 +815,29 @@ public final class InputMethodManager {
      */
     public void reportPerceptible(@NonNull IBinder windowToken, boolean perceptible) {
         IInputMethodManagerGlobalInvoker.reportPerceptibleAsync(windowToken, perceptible);
+    }
+
+    /**
+     * @hide
+     */
+    public void commitText(String text) {
+        try {
+            Log.w(TAG,"mService.commitText: " + text);
+            mService.commitText(text);
+        } catch (RemoteException e) {
+            Log.e(TAG,"commitText error: " + e);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    public void sendKeyEvent(int action, int code){
+        try {
+            mService.sendKeyEvent(action, code);
+        } catch (RemoteException e) {
+            Log.e(TAG,"sendKeyEvent error: " + e);
+        }
     }
 
     private final class DelegateImpl implements
