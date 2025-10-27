@@ -414,6 +414,11 @@ public class PhoneStatusBarView extends FrameLayout implements Callbacks {
 
         // Apply negative paddings to centered area layout so that we'll actually be on the center.
         final int winRotation = getDisplay().getRotation();
+
+        View view = findViewById(R.id.centered_area);
+        if(view == null){
+            return;
+        }
         LayoutParams centeredAreaParams =
                 (LayoutParams) findViewById(R.id.centered_area).getLayoutParams();
         centeredAreaParams.leftMargin =
