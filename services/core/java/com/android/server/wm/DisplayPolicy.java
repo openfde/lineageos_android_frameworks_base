@@ -1437,9 +1437,25 @@ public class DisplayPolicy {
         // If this window has different LayoutParams for rotations, we cannot trust its requested
         // size. Because it might have not sent its requested size for the new rotation.
         final boolean trustedSize = attrs == win.mAttrs;
-        final int requestedWidth = trustedSize ? win.mRequestedWidth : UNSPECIFIED_LENGTH;
+        int requestedWidth = trustedSize ? win.mRequestedWidth : UNSPECIFIED_LENGTH;
         final int requestedHeight = trustedSize ? win.mRequestedHeight : UNSPECIFIED_LENGTH;
-
+        // fde start
+        final int type = attrs.type;
+        if(type == TYPE_NAVIGATION_BAR && win.mAttrs.width > 0){
+            Rect outDisplayFrame = sTmpClientFrames.displayFrame;
+            Rect outParentFrame = sTmpClientFrames.parentFrame;
+            Rect outFrame = sTmpClientFrames.frame;
+            int fullWidth = outFrame.right + outFrame.left;
+            final int sideMargin = (fullWidth - win.mAttrs.width) / 2;
+            outDisplayFrame.left += sideMargin;
+            outDisplayFrame.right -= sideMargin;
+            outParentFrame.left += sideMargin;
+            outParentFrame.right -= sideMargin;
+            outFrame.left += sideMargin;
+            outFrame.right -= sideMargin;
+            requestedWidth = win.mAttrs.width;
+        }
+        // fde end
         mWindowLayout.computeFrames(attrs, win.getInsetsState(), displayFrames.mDisplayCutoutSafe,
                 win.getBounds(), win.getWindowingMode(), requestedWidth, requestedHeight,
                 win.getRequestedVisibleTypes(), win.mGlobalScale, sTmpClientFrames);
