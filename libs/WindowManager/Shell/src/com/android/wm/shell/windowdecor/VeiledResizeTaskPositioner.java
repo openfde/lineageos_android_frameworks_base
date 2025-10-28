@@ -35,12 +35,6 @@ import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.transition.Transitions;
 
 import java.util.function.Supplier;
-import android.util.Log;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemProperties;
-
-import static com.android.wm.shell.transition.Transitions.ENABLE_SHELL_TRANSITIONS;
 
 /**
  * A task positioner that also takes into account resizing a
@@ -51,7 +45,6 @@ import static com.android.wm.shell.transition.Transitions.ENABLE_SHELL_TRANSITIO
 public class VeiledResizeTaskPositioner implements DragPositioningCallback,
         TaskDragResizer, Transitions.TransitionHandler {
 
-    private static final String TAG = "VeiledResizeTaskPositioner";
     private DesktopModeWindowDecoration mDesktopWindowDecoration;
     private ShellTaskOrganizer mTaskOrganizer;
     private DisplayController mDisplayController;
@@ -68,22 +61,6 @@ public class VeiledResizeTaskPositioner implements DragPositioningCallback,
     private int mCtrlType;
     private boolean mIsResizingOrAnimatingResize;
     @Surface.Rotation private int mRotation;
-
-    // [openfde add] notify LayerSnapshotBuilder updateLayerBounds
-    private static final int SET_PROP = 1;
-    private Handler mHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case SET_PROP:
-                    SystemProperties.set("com.fde.scaling_window", "false");
-                    Log.w(TAG,"setprop com.fde.scaling_window false");
-                    break;
-            }
-        }
-    };
-    // [openfde end]
 
     public VeiledResizeTaskPositioner(ShellTaskOrganizer taskOrganizer,
             DesktopModeWindowDecoration windowDecoration,
@@ -141,13 +118,9 @@ public class VeiledResizeTaskPositioner implements DragPositioningCallback,
         if (isResizing() && DragPositioningCallbackUtility.changeBounds(mCtrlType,
                 mRepositionTaskBounds, mTaskBoundsAtDragStart, mStableBounds, delta,
                 mDisplayController, mDesktopWindowDecoration)) {
-            // [openfde add] notify LayerSnapshotBuilder updateLayerBounds
-            SystemProperties.set("com.fde.scaling_window", "true");
-            // [openfde end]
-
             if (!mIsResizingOrAnimatingResize) {
                 mDesktopWindowDecoration.showResizeVeil(mRepositionTaskBounds);
-                mIsResizingOrAnimatingResize = ENABLE_SHELL_TRANSITIONS;
+                mIsResizingOrAnimatingResize = true;
             } else {
                 mDesktopWindowDecoration.updateResizeVeil(mRepositionTaskBounds);
             }
@@ -169,7 +142,6 @@ public class VeiledResizeTaskPositioner implements DragPositioningCallback,
                 DragPositioningCallbackUtility.changeBounds(
                         mCtrlType, mRepositionTaskBounds, mTaskBoundsAtDragStart, mStableBounds,
                         delta, mDisplayController, mDesktopWindowDecoration);
-
                 mDesktopWindowDecoration.updateResizeVeil(mRepositionTaskBounds);
                 final WindowContainerTransaction wct = new WindowContainerTransaction();
                 wct.setBounds(mDesktopWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
@@ -189,10 +161,6 @@ public class VeiledResizeTaskPositioner implements DragPositioningCallback,
             wct.setBounds(mDesktopWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
             mTransitions.startTransition(TRANSIT_CHANGE, wct, this);
         }
-        // [openfde add] notify LayerSnapshotBuilder updateLayerBounds
-        mHandler.removeMessages(SET_PROP);
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(SET_PROP), 800);
-        // [openfde end]
 
         mCtrlType = CTRL_TYPE_UNDEFINED;
         mTaskBoundsAtDragStart.setEmpty();

@@ -16,6 +16,7 @@
 
 package android.view;
 
+import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 import static android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW;
 import static android.content.pm.ActivityInfo.OVERRIDE_SANDBOX_VIEW_BOUNDS_APIS;
 import static android.graphics.HardwareRenderer.SYNC_CONTEXT_IS_STOPPED;
@@ -8973,6 +8974,13 @@ public final class ViewRootImpl implements ViewParent,
                 // When drawing is disabled the window layer won't have a valid buffer.
                 // Set a window crop so input can get delivered to the window.
                 mTransaction.setWindowCrop(mSurfaceControl, mSurfaceSize.x, mSurfaceSize.y).apply();
+            } else if ((winConfig.getWindowingMode() == WINDOWING_MODE_FULLSCREEN ||
+                        winConfig.getWindowingMode() == WINDOWING_MODE_MULTI_WINDOW)
+                    && mSurfaceSize.equals(mWinFrameInScreen.width(), mWinFrameInScreen.height())) {
+                // [openfde add] fix windows not displaying in full screen when maximizing windows
+                mTransaction.setWindowCrop(mSurfaceControl,
+                        mWinFrameInScreen.width(), mWinFrameInScreen.height());
+                // [openfde end]
             }
         }
 
