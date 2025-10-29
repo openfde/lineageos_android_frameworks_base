@@ -447,6 +447,12 @@ public class SystemUIApplication extends Application implements
                         configController.getClass().getSimpleName() + ".onConfigurationChanged()");
             }
             configController.onConfigurationChanged(newConfig);
+
+            final int N = mServices.length;
+            for (int i = 0; i < N; i++) {
+                mServices[i].onConfigurationChange();
+            }
+
             Trace.endSection();
         }
     }

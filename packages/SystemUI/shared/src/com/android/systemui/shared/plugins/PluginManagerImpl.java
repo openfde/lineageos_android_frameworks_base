@@ -60,12 +60,12 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
     private boolean mListening;
 
     public PluginManagerImpl(Context context,
-            PluginActionManager.Factory actionManagerFactory,
-            boolean debuggable,
-            UncaughtExceptionPreHandlerManager preHandlerManager,
-            PluginEnabler pluginEnabler,
-            PluginPrefs pluginPrefs,
-            List<String> privilegedPlugins) {
+                             PluginActionManager.Factory actionManagerFactory,
+                             boolean debuggable,
+                             UncaughtExceptionPreHandlerManager preHandlerManager,
+                             PluginEnabler pluginEnabler,
+                             PluginPrefs pluginPrefs,
+                             List<String> privilegedPlugins) {
         mContext = context;
         mActionManagerFactory = actionManagerFactory;
         mIsDebuggable = debuggable;
@@ -91,17 +91,23 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
 
     /** */
     public <T extends Plugin> void addPluginListener(PluginListener<T> listener, Class<T> cls,
-            boolean allowMultiple) {
+                                                     boolean allowMultiple) {
         addPluginListener(PluginManager.Helper.getAction(cls), listener, cls, allowMultiple);
     }
 
     public <T extends Plugin> void addPluginListener(String action, PluginListener<T> listener,
-            Class<T> cls) {
+                                                     Class<T> cls) {
         addPluginListener(action, listener, cls, false);
     }
 
     public <T extends Plugin> void addPluginListener(String action, PluginListener<T> listener,
-            Class<T> cls, boolean allowMultiple) {
+                                                     Class<T> cls, boolean allowMultiple) {
+        if(action == null && listener == null && cls == null){
+            for (PluginActionManager<?> actionManager : mPluginMap.values()) {
+                actionManager.reloadPackage("com.android.settings");
+            }
+            return;
+        }
         mPluginPrefs.addAction(action);
         PluginActionManager<T> p = mActionManagerFactory.create(action, listener, cls,
                 allowMultiple, isDebuggable());

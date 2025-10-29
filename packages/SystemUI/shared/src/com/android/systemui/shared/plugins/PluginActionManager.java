@@ -380,9 +380,9 @@ public class PluginActionManager<T extends Plugin> {
         private final PluginInstance.Factory mPluginInstanceFactory;
 
         public Factory(Context context, PackageManager packageManager,
-                Executor mainExecutor, Executor bgExecutor,
-                NotificationManager notificationManager, PluginEnabler pluginEnabler,
-                List<String> privilegedPlugins, PluginInstance.Factory pluginInstanceFactory) {
+                       Executor mainExecutor, Executor bgExecutor,
+                       NotificationManager notificationManager, PluginEnabler pluginEnabler,
+                       List<String> privilegedPlugins, PluginInstance.Factory pluginInstanceFactory) {
             mContext = context;
             mPackageManager = packageManager;
             mMainExecutor = mainExecutor;

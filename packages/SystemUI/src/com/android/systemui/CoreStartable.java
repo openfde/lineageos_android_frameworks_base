@@ -59,4 +59,7 @@ public interface CoreStartable extends Dumpable {
      * {@link #onBootCompleted()} will never be called before {@link #start()}. */
     default void onBootCompleted() {
     }
+
+    default void onConfigurationChange(){
+    }
 }

@@ -392,4 +392,12 @@ public class ExtensionControllerImpl implements ExtensionController {
     private interface Item<T> extends Producer<T> {
         int sortOrder();
     }
+
+
+
+    public void onConfigurationChanged() {
+        if (mPluginManager != null){
+            mPluginManager.addPluginListener(null, null, null, false);
+        }
+    }
 }

@@ -68,4 +68,7 @@ public interface ExtensionController {
         String[] keys();
         T create(Map<String, String> settings);
     }
+
+    default void onConfigurationChanged(){
+    }
 }

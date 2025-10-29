@@ -105,6 +105,12 @@ public class GlobalActionsComponent implements CoreStartable, Callbacks, GlobalA
         }
     }
 
+    public void onConfigurationChange() {
+        if (mExtensionController != null){
+            mExtensionController.onConfigurationChanged();
+        }
+    }
+
     @Override
     public void shutdown() {
         try {
