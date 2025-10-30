@@ -36,7 +36,7 @@
             app:extraMultilineHeightEnabled="true"
             app:contentScrim="@color/settingslib_colorSurfaceHeader"
             app:maxLines="3"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:scrimAnimationDuration="50"
             app:statusBarScrim="@null"
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:tag="drag"
                 android:background="@drawable/bg_top_menu"
-                android:layout_height="44dp"
+                android:layout_height="@dimen/settingslib_toolbar_layout_height"
                 android:theme="?android:attr/actionBarTheme"
                 android:transitionName="shared_element_view"
                 app:layout_collapseMode="pin"  >
