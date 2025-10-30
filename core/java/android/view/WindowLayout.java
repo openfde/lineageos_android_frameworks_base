@@ -33,7 +33,6 @@ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_LAYOUT_SIZE_E
 import static android.view.WindowManager.LayoutParams.TYPE_BASE_APPLICATION;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD;
 import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
-import static android.view.WindowManager.LayoutParams.TYPE_NAVIGATION_BAR;
 
 import android.app.WindowConfiguration;
 import android.app.WindowConfiguration.WindowingMode;
@@ -87,19 +86,6 @@ public class WindowLayout {
         final int bottom = (sides & WindowInsets.Side.BOTTOM) != 0 ? insets.bottom : 0;
         outDisplayFrame.set(windowBounds.left + left, windowBounds.top + top,
                 windowBounds.right - right, windowBounds.bottom - bottom);
-        // fde start
-        if (type == TYPE_NAVIGATION_BAR) {
-            int fullWidth = outFrame.right + outFrame.left;
-            final int sideMargin = (fullWidth - requestedWidth) / 2;
-            final Rect originalDisplayFrame = new Rect(outDisplayFrame);
-            final Rect originalParentFrame = new Rect(outParentFrame);
-            final boolean isLandscape = windowBounds.width() > windowBounds.height();
-            outDisplayFrame.left += sideMargin;
-            outDisplayFrame.right -= sideMargin;
-            outParentFrame.left += sideMargin;
-            outParentFrame.right -= sideMargin;
-        }
-        // fde end
 
         if (type == TYPE_BASE_APPLICATION ) {
             boolean shiftContent = (cfl & WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0;
@@ -323,21 +309,6 @@ public class WindowLayout {
             extendFrameByCutout(displayCutoutSafe, outDisplayFrame, outFrame,
                     mTempRect);
         }
-        // fde start
-        if (type == TYPE_NAVIGATION_BAR) {
-            int fullWidth = outFrame.right + outFrame.left;
-            final int sideMargin = (fullWidth - requestedWidth) / 2;
-            final boolean isLandscape = windowBounds.width() > windowBounds.height();
-            if (!isLandscape) {
-                int navBarWidth = windowBounds.width() - 2 * sideMargin;
-                int navBarHeight = outFrame.height();
-                outFrame.left = sideMargin;
-                outFrame.right = windowBounds.width() - sideMargin;
-                outFrame.top = outFrame.top; // 保持原有的top位置
-                outFrame.bottom = outFrame.top + navBarHeight; // 保持原有的高度
-            }
-        }
-        // fde end
 
         if (DEBUG) Log.d(TAG, "computeFrames " + attrs.getTitle()
                 + " frames=" + frames
