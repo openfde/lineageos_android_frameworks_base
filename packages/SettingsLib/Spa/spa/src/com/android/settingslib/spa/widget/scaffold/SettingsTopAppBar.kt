@@ -28,12 +28,12 @@ internal fun SettingsTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     actions: @Composable RowScope.() -> Unit,
 ) {
-    CustomizedLargeTopAppBar(
-        title = title,
-        navigationIcon = { NavigateBack() },
-        actions = actions,
-        scrollBehavior = scrollBehavior,
-    )
+    // CustomizedLargeTopAppBar(
+    //     title = title,
+    //     navigationIcon = { NavigateBack() },
+    //     actions = actions,
+    //     scrollBehavior = scrollBehavior,
+    // )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
