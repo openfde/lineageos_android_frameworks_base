@@ -126,6 +126,12 @@ public class Transitions implements RemoteCallable<Transitions>,
     public static final boolean SHELL_TRANSITIONS_ROTATION = ENABLE_SHELL_TRANSITIONS
             && SystemProperties.getBoolean("persist.wm.debug.shell_transit_rotate", false);
 
+    // [openfde add] fix screen flickering when scaling applications with dual windows
+    /** skip shell transitions default  */
+    public static final boolean SKIP_SHELL_TRANSITIONS =
+            SystemProperties.getBoolean("persist.wm.debug.skip_shell_transit", true);
+    // [openfde end]
+
     /** Transition type for exiting PIP via the Shell, via pressing the expand button. */
     public static final int TRANSIT_EXIT_PIP = TRANSIT_FIRST_CUSTOM + 1;
 
@@ -748,6 +754,15 @@ public class Transitions implements RemoteCallable<Transitions>,
             onAbort(active);
             return true;
         }
+
+        // [openfde add] fix screen flickering when scaling applications with dual windows
+        if (SKIP_SHELL_TRANSITIONS) {
+            ProtoLog.v(ShellProtoLogGroup.WM_SHELL_TRANSITIONS, "Skip transition in %s so"
+                    + " abort", active);
+            onAbort(active);
+            return true;
+        }
+        // [openfde end]
 
         final int changeSize = info.getChanges().size();
         boolean taskChange = false;
