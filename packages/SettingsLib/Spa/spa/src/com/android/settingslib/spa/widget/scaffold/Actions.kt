@@ -46,12 +46,12 @@ internal fun CollapseAction(onClick: () -> Unit) {
 
 @Composable
 private fun BackAction(contentDescription: String, onClick: () -> Unit) {
-    IconButton(onClick) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-            contentDescription = contentDescription,
-        )
-    }
+    // IconButton(onClick) {
+    //     Icon(
+    //         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+    //         contentDescription = contentDescription,
+    //     )
+    // }
 }
 
 /** Action that expends the search bar. */
