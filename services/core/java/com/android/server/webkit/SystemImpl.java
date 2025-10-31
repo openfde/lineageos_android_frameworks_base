@@ -30,9 +30,11 @@ import android.content.pm.UserInfo;
 import android.content.res.XmlResourceParser;
 import android.os.Build;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
 import android.webkit.UserPackage;
@@ -295,7 +297,7 @@ public class SystemImpl implements SystemInterface {
     @Override
     public boolean isMultiProcessDefaultEnabled() {
         // Multiprocess is enabled by default for all devices.
-        return true;
+        return TextUtils.equals(SystemProperties.get("ro.hardware.egl", "defalut"), "LEOPARD") ? false : true;
     }
 
     @Override
