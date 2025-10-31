@@ -310,6 +310,17 @@ public class WindowLayout {
                     mTempRect);
         }
 
+        // fde start set navigation bar frame margin horizental with attr.width
+        if (type == TYPE_NAVIGATION_BAR && requestedWidth > 0) {
+            int fullWidth = outFrame.right + outFrame.left;
+            final int sideMargin = (fullWidth - requestedWidth) / 2;
+            int navBarWidth = windowBounds.width() - 2 * sideMargin;
+            int navBarHeight = outFrame.height();
+            outFrame.left = sideMargin;
+            outFrame.right = windowBounds.width() - sideMargin;
+        }
+        // fde end
+
         if (DEBUG) Log.d(TAG, "computeFrames " + attrs.getTitle()
                 + " frames=" + frames
                 + " windowBounds=" + windowBounds.toShortString()

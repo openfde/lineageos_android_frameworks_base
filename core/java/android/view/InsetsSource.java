@@ -307,6 +307,15 @@ public class InsetsSource implements Parcelable {
             return Insets.of(0, 0, 0, mTmpFrame.height());
         }
 
+        // fde start set navigation bar frame margin horizental with attr.width
+        if (getType() == WindowInsets.Type.navigationBars() &&
+                mTmpFrame.width() < relativeFrame.width() &&
+                mTmpFrame.bottom == relativeFrame.bottom) {
+            Insets result = Insets.of(0, 0, 0, mTmpFrame.height());
+            return result;
+        }
+        // fde end
+
         if (mTmpFrame.equals(relativeFrame)) {
             // Covering all sides
             switch (mSideHint) {
