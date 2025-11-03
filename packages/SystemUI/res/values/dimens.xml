@@ -359,7 +359,7 @@
     <dimen name="notification_guts_conversation_icon_size">56dp</dimen>
     <dimen name="notification_guts_header_top_padding">12dp</dimen>
     <!-- The vertical space between items in the alert selections in the inline settings -->
-    <dimen name="notification_guts_option_vertical_padding">16dp</dimen>
+    <dimen name="notification_guts_option_vertical_padding">36dp</dimen>
 
     <dimen name="notification_importance_toggle_size">48dp</dimen>
     <dimen name="notification_importance_button_separation">8dp</dimen>

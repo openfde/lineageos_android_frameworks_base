@@ -131,7 +131,7 @@ public class BrightnessDialog extends Activity {
                         R.dimen.notification_guts_option_vertical_padding);
 
         lp.topMargin = verticalMargin;
-        lp.bottomMargin = verticalMargin;
+        lp.bottomMargin = 12;//verticalMargin;
 
         frame.setLayoutParams(lp);
         Rect bounds = new Rect();
