@@ -33,6 +33,7 @@ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_LAYOUT_SIZE_E
 import static android.view.WindowManager.LayoutParams.TYPE_BASE_APPLICATION;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD;
 import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+import static android.view.WindowManager.LayoutParams.TYPE_NAVIGATION_BAR;
 
 import android.app.WindowConfiguration;
 import android.app.WindowConfiguration.WindowingMode;
