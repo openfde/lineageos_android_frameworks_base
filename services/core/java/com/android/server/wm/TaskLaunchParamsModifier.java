@@ -178,13 +178,13 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
                         + WindowConfiguration.windowingModeToString(launchMode));
             }
         }
-        
+        /*
         if(task !=null && task.realActivity !=null &&task.realActivity.getPackageName() !=null){
             if( launchMode == WINDOWING_MODE_FULLSCREEN){
                 launchMode = WINDOWING_MODE_FREEFORM;
                 currentParams.mWindowingMode = WINDOWING_MODE_FREEFORM;
             }
-        }
+        }*/
         
         // hasInitialBounds is set if either activity options or layout has specified bounds. If
         // that's set we'll skip some adjustments later to avoid overriding the initial bounds.
