@@ -356,14 +356,15 @@ private fun TwoRowsTopAppBar(
             TopAppBarLayout(
                 modifier = Modifier
                     .windowInsetsPadding(windowInsets)
+                    .padding(top = 10.dp)
                     // clip after padding so we don't show the title over the inset area
                     .clipToBounds(),
-                heightPx = pinnedHeightPx,
+                heightPx = 20f,
                 navigationIconContentColor = colors.navigationIconContentColor,
                 titleContentColor = colors.titleContentColor,
                 actionIconContentColor = colors.actionIconContentColor,
                 title = smallTitle,
-                titleTextStyle = smallTitleTextStyle,
+                titleTextStyle = MaterialTheme.typography.bodyLarge,
                 titleAlpha = topTitleAlpha,
                 titleVerticalArrangement = Arrangement.Center,
                 titleBottomPadding = 0,
@@ -376,9 +377,9 @@ private fun TwoRowsTopAppBar(
                     // only apply the horizontal sides of the window insets padding, since the top
                     // padding will always be applied by the layout above
                     .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Horizontal))
+                    .padding(top = 10.dp)
                     .clipToBounds(),
-                heightPx = maxHeightPx.floatValue - pinnedHeightPx +
-                    (scrollBehavior?.state?.heightOffset ?: 0f),
+                heightPx = 20f,
                 navigationIconContentColor = colors.navigationIconContentColor,
                 titleContentColor = colors.titleContentColor,
                 actionIconContentColor = colors.actionIconContentColor,
@@ -394,7 +395,7 @@ private fun TwoRowsTopAppBar(
                         }
                     }) { title() }
                 },
-                titleTextStyle = titleTextStyle,
+                titleTextStyle = MaterialTheme.typography.bodyLarge,
                 titleAlpha = bottomTitleAlpha,
                 titleVerticalArrangement = Arrangement.Bottom,
                 titleBottomPadding = titleBottomPaddingPx,
