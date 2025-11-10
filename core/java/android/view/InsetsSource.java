@@ -279,9 +279,14 @@ public class InsetsSource implements Parcelable {
                 false /* ignoreVisibility */);
     }
 
-    private Insets calculateInsets(Rect relativeFrame, Rect frame, boolean ignoreVisibility) {
+    private Insets calculateInsets(Rect relativeFrame, Rect myframe, boolean ignoreVisibility) {
         if (!ignoreVisibility && !mVisible) {
             return Insets.NONE;
+        }
+        Rect frame = new Rect(myframe);
+        if(getType() == WindowInsets.Type.navigationBars()){
+            frame.left = 0;
+            frame.right = myframe.left + myframe.right;
         }
         // During drag-move and drag-resizing, the caption insets position may not get updated
         // before the app frame get updated. To layout the app content correctly during drag events,
@@ -308,9 +313,10 @@ public class InsetsSource implements Parcelable {
         }
 
         // fde start set navigation bar frame margin horizental with attr.width
-        if (getType() == WindowInsets.Type.navigationBars() &&
-                mTmpFrame.width() < relativeFrame.width() &&
-                mTmpFrame.bottom == relativeFrame.bottom) {
+        if (getType() == WindowInsets.Type.navigationBars()
+//                && mTmpFrame.width() < relativeFrame.width()
+//                && mTmpFrame.bottom == relativeFrame.bottom
+        ) {
             Insets result = Insets.of(0, 0, 0, mTmpFrame.height());
             return result;
         }
