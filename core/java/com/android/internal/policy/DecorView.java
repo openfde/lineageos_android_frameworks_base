@@ -124,6 +124,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import android.os.SystemProperties;
 import android.content.Intent;
+import android.widget.Toast;
 
 /** @hide */
 public class DecorView extends FrameLayout implements RootViewSurfaceTaker, WindowCallbacks {
@@ -550,7 +551,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                                     }
                                 },100);
                             }else{
-                                //Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
+                                Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
                                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                                 editor.putBoolean("mTurnOnFullScreen", true);
                                 editor.apply();

@@ -5377,4 +5377,5 @@
   <java-symbol type="string" name="config_defaultContextualSearchKey" />
   <java-symbol type="string" name="config_defaultContextualSearchEnabled" />
   <java-symbol type="string" name="config_defaultContextualSearchLegacyEnabled" />
+  <java-symbol type="string" name="exit_full_screen_display_prompt" />
 </resources>
