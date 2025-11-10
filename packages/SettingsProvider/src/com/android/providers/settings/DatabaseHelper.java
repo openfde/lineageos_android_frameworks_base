@@ -2585,6 +2585,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
             }
             loadSetting(stmt, Settings.Global.LID_BEHAVIOR, defaultLidBehavior);
 
+	    loadSetting(stmt, Settings.Global.DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, R.bool.def_force_resizable_activities);
+
             /*
              * IMPORTANT: Do not add any more upgrade steps here as the global,
              * secure, and system settings are no longer stored in a database
