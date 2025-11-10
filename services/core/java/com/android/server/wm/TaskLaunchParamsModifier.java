@@ -91,6 +91,9 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
 
     private StringBuilder mLogBuilder;
 
+    private static final String SETTINGS_PKG = "com.android.settings";
+    private static final String SYSTEMUI_PKG = "com.android.systemui";
+
     TaskLaunchParamsModifier(ActivityTaskSupervisor supervisor) {
         mSupervisor = supervisor;
     }
@@ -178,14 +181,21 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
                         + WindowConfiguration.windowingModeToString(launchMode));
             }
         }
-       /* 
-        if(task !=null && task.realActivity !=null &&task.realActivity.getPackageName() !=null){
-            if( launchMode == WINDOWING_MODE_FULLSCREEN){
-                launchMode = WINDOWING_MODE_FREEFORM;
-                currentParams.mWindowingMode = WINDOWING_MODE_FREEFORM;
+
+        try{
+            if(task !=null && task.realActivity !=null && task.realActivity.getPackageName() != null && SETTINGS_PKG.equals(task.realActivity.getPackageName())){
+                if(activity !=null && ((activity.launchedFromPackage !=null && SYSTEMUI_PKG.equals(activity.launchedFromPackage))|| (activity.launchedFromPackage == null)) ){
+                    if( launchMode == WINDOWING_MODE_FULLSCREEN  ){
+                        launchMode = WINDOWING_MODE_FREEFORM;
+                        currentParams.mWindowingMode = WINDOWING_MODE_FREEFORM;
+                    }
+                }
+                
             }
+        }catch(Exception e){
+              e.printStackTrace();
         }
-	*/
+	
         
         // hasInitialBounds is set if either activity options or layout has specified bounds. If
         // that's set we'll skip some adjustments later to avoid overriding the initial bounds.
