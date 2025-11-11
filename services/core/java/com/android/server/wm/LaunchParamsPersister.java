@@ -72,6 +72,8 @@ class LaunchParamsPersister {
 
     private static final String TAG_LAUNCH_PARAMS = "launch_params";
 
+    private static final String IGNORE_PKG_SETTINGS = "com.android.settings";
+    private static final String IGNORE_CLASS_SETTINGS = "FallbackHome";
     private final PersisterQueue mPersisterQueue;
     private final ActivityTaskSupervisor mSupervisor;
 
@@ -235,6 +237,11 @@ class LaunchParamsPersister {
         if (name == null) {
             return;
         }
+        //fde start this component the fallback solution for the system's default launcher, ignore to save
+        if(name != null && name.getPackageName().equals(IGNORE_PKG_SETTINGS) && name.getClassName().contains(IGNORE_CLASS_SETTINGS)){
+            return;
+        }
+        //fde end
         final int userId = task.mUserId;
         PersistableLaunchParams params;
         ArrayMap<ComponentName, PersistableLaunchParams> map = mLaunchParamsMap.get(userId);
