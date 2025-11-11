@@ -3815,7 +3815,7 @@ public class SettingsProvider extends ContentProvider {
         }
 
         private final class UpgradeController {
-            private static final int SETTINGS_VERSION = 226;
+            private static final int SETTINGS_VERSION = 227;
 
             private final int mUserId;
 
@@ -6034,6 +6034,14 @@ public class SettingsProvider extends ContentProvider {
                         }
                     }
                     currentVersion = 226;
+                }
+                if (currentVersion == 226) {
+                    Log.e(LOG_TAG,"Upgrading settings initGlobalSettingsDefaultValLocked DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES");
+                    initGlobalSettingsDefaultValLocked(
+                            Global.DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES,
+                            getContext().getResources().getBoolean(
+                                    R.bool.def_force_resizable_activities));
+                    currentVersion = 227;
                 }
 
                 // vXXX: Add new settings above this point.
