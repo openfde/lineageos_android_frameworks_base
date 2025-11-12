@@ -56,6 +56,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import android.util.Log;
+import android.os.SystemProperties;
+
 /**
  * Manages a container surface and a windowless window to show window decoration. Responsible to
  * update window decoration window state and layout parameters on task info changes and so that
@@ -73,6 +76,8 @@ import java.util.function.Supplier;
  */
 public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         implements AutoCloseable {
+
+    private static final String TAG = "WindowDecoration";
 
     /**
      * The Z-order of {@link #mCaptionContainerSurface}.
@@ -298,6 +303,25 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         outResult.mCaptionWidth = params.mCaptionWidthId != Resources.ID_NULL
                 ? loadDimensionPixelSize(resources, params.mCaptionWidthId) : taskBounds.width();
         outResult.mCaptionX = (outResult.mWidth - outResult.mCaptionWidth) / 2;
+
+        // [openfde add] fix caption and window are not synchronized when window is scaling
+        int mNewCaptionWidth = 0;
+        if (mTaskInfo.topActivity != null) {
+            String mCaptionContainerSurfaceName = "Caption of Task=" + mTaskInfo.taskId;
+            SystemProperties.set("com.fde.top_package_name", mTaskInfo.topActivity.getPackageName());
+            SystemProperties.set("com.fde.caption_name", mCaptionContainerSurfaceName);
+
+            String mPackageNameWithCaption = SystemProperties.get("com.fde.package_with_caption", "");
+            if (mPackageNameWithCaption != "" &&
+                    mTaskInfo.topActivity.getPackageName().contains(mPackageNameWithCaption)) {
+                mNewCaptionWidth = SystemProperties.getInt("com.fde.caption_width", 0);
+            }
+        }
+        if (mNewCaptionWidth > 0) {
+            outResult.mCaptionWidth = mNewCaptionWidth;
+        }
+        // [openfde end]
+
         startT.setWindowCrop(mCaptionContainerSurface, outResult.mCaptionWidth,
                         outResult.mCaptionHeight)
                 .setPosition(mCaptionContainerSurface, outResult.mCaptionX, offsety /* y */)
