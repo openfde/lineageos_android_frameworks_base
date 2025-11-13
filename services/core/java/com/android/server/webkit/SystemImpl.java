@@ -297,7 +297,7 @@ public class SystemImpl implements SystemInterface {
     @Override
     public boolean isMultiProcessDefaultEnabled() {
         // Multiprocess is enabled by default for all devices.
-        return TextUtils.equals(SystemProperties.get("ro.hardware.egl", "defalut"), "LEOPARD") ? false : true;
+        return TextUtils.equals(SystemProperties.get("ro.hardware.egl", "defalut"), "FTG340") ? false : true;
     }
 
     @Override
