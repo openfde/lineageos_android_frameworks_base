@@ -545,14 +545,15 @@ final class ContentRecorder implements WindowContainerListener {
         DisplayInfo outputDisplayInfo = mDisplayContent.getDisplayInfo();
 
         PointF scale = new PointF();
-        computeScaling(recordedContentBounds.width(), recordedContentBounds.height(),
+        computeScaling(mDisplayContent.getConfiguration().screenWidthDp,
+                mDisplayContent.getConfiguration().screenHeightDp,
                 inputDisplayInfo.physicalXDpi, inputDisplayInfo.physicalYDpi,
                 surfaceSize.x, surfaceSize.y,
                 outputDisplayInfo.physicalXDpi, outputDisplayInfo.physicalYDpi,
                 scale);
 
-        int scaledWidth = Math.round(scale.x * (float) recordedContentBounds.width());
-        int scaledHeight = Math.round(scale.y * (float) recordedContentBounds.height());
+        int scaledWidth = Math.round(scale.x * (float) mDisplayContent.getConfiguration().screenWidthDp);
+        int scaledHeight = Math.round(scale.y * (float) mDisplayContent.getConfiguration().screenHeightDp);
 
         // Calculate the shift to apply to the root mirror SurfaceControl to centre the mirrored
         // contents in the output surface.
@@ -577,8 +578,7 @@ final class ContentRecorder implements WindowContainerListener {
         transaction
                 // Crop the area to capture to exclude the 'extra' wallpaper that is used
                 // for parallax (b/189930234).
-                .setWindowCrop(mRecordedSurface, recordedContentBounds.width(),
-                        recordedContentBounds.height())
+                .setWindowCrop(mRecordedSurface, recordedContentBounds)
                 // Scale the root mirror SurfaceControl, based upon the size difference between the
                 // source (DisplayArea to capture) and output (surface the app reads images from).
                 .setMatrix(mRecordedSurface, scale.x, 0 /* dtdx */, 0 /* dtdy */, scale.y)
