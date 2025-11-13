@@ -48,6 +48,8 @@ import android.graphics.drawable.LayerDrawable;
 import android.view.ViewParent;
 import android.view.ViewRootImpl;
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
 
 /**
  * Defines visuals and behaviors of a window decoration of a caption bar and shadows. It works with
@@ -65,6 +67,8 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private DragPositioningCallback mDragPositioningCallback;
     private DragResizeInputListener mDragResizeListener;
     private DragDetector mDragDetector;
+    private String mTopActivity;
+    private boolean mDragResizeable = true;
 
     private RelayoutParams mRelayoutParams = new RelayoutParams();
     private final RelayoutResult<WindowDecorLinearLayout> mResult =
@@ -195,7 +199,33 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
 
             final boolean isFreeform =
                 taskInfo.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM;
-        final boolean isDragResizeable = isFreeform && taskInfo.isResizeable;
+        boolean isDragResizeable = isFreeform && taskInfo.isResizeable;
+
+        if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null && !TextUtils.equals(mTopActivity, taskInfo.topActivity.getClassName())) {
+            String packageName = taskInfo.topActivity.getPackageName();
+            String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+            String[] selectionArgsWithoutActivity = {packageName,"forcedPortraitMode", ""};
+            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgsWithoutActivity);
+            Log.d(TAG,"forcedPortraitMode resultStrWithoutActivity: " + resultStrWithoutActivity);
+            if(TextUtils.equals(resultStrWithoutActivity, "true")){
+                isDragResizeable = false;
+                Log.d(TAG,"relayout packageName: " + packageName + ", isDragResizeable: " + isDragResizeable);
+            }else{
+                String activityName = extractActivityName(taskInfo.topActivity.getClassName());
+                String[] selectionArgs = {packageName,"forcedPortraitMode", activityName};
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                Log.d(TAG,"forcedPortraitMode resultStr: " + resultStr);
+                if(TextUtils.equals(resultStr, "true")){
+                    isDragResizeable = false;
+                    Log.d(TAG,"relayout className: " + taskInfo.topActivity.getClassName() + ", isDragResizeable: " + isDragResizeable);
+                }
+            }
+            mTopActivity = taskInfo.topActivity.getClassName();
+            mDragResizeable = isDragResizeable;
+        }
+        if(taskInfo.topActivity != null && !TextUtils.equals(mTopActivity, taskInfo.topActivity.getClassName())){
+            mDragResizeable = isDragResizeable;
+        }
 
         final WindowDecorLinearLayout oldRootView = mResult.mRootView;
         final SurfaceControl oldDecorationSurface = mDecorationContainerSurface;
@@ -226,7 +256,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
 
         bindData(mResult.mRootView, taskInfo);
 
-        if (!isDragResizeable) {
+        if (!mDragResizeable) {
             closeDragResizeListener();
             return;
         }
@@ -256,6 +286,17 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 .getDimensionPixelSize(R.dimen.freeform_resize_corner);
         mDragResizeListener.setGeometry(
                 mResult.mWidth, mResult.mHeight, resize_handle, resize_corner, touchSlop);
+    }
+
+    private String extractActivityName(String fullClassName) {
+        if (fullClassName == null || fullClassName.isEmpty()) {
+            return "";
+        }
+        int lastDotIndex = fullClassName.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return fullClassName;
+        }
+        return fullClassName.substring(lastDotIndex + 1);
     }
 
     /**

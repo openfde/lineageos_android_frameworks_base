@@ -167,4 +167,13 @@
         </package>
     </item>
 
+	<item
+        isdel="false"
+        key_code="forcedPortraitMode"
+        update_date="2025-11-13">
+		<package name="net.csdn.csdnplus">
+            <activity name="SplashActivity">true</activity>
+        </package>
+    </item>
+
 </items>
