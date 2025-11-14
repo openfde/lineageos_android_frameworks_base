@@ -212,6 +212,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import android.os.SystemProperties;
 
 /**
  * {@link Task} is a TaskFragment that can contain a group of activities to perform a certain job.
@@ -274,6 +275,10 @@ class Task extends TaskFragment {
     static final int PERSIST_TASK_VERSION = 1;
 
     private static final int DEFAULT_MIN_TASK_SIZE_DP = 220;
+
+    private static final String LOAD_DESKTOP_STATUS = "finish_desktop";
+
+    private static final String FINISH_LOAD_DESKTOP = "1";
 
     /**
      * The modes to control how root task is moved to the front when calling {@link Task#reparent}.
@@ -5194,7 +5199,7 @@ class Task extends TaskFragment {
 
     @GuardedBy("mService")
     private boolean resumeTopActivityInnerLocked(ActivityRecord prev, ActivityOptions options,
-            boolean deferPause) {
+            boolean deferPause) {  
         if (!mAtmService.isBooting() && !mAtmService.isBooted()) {
             // Not ready yet!
             return false;
@@ -5230,8 +5235,7 @@ class Task extends TaskFragment {
      */
     private boolean resumeNextFocusableActivityWhenRootTaskIsEmpty(ActivityRecord prev,
             ActivityOptions options) {
-        final String reason = "noMoreActivities";
-
+        final String reason = "noMoreActivities";  
         if (!isActivityTypeHome()) {
             final Task nextFocusedTask = adjustFocusToNextFocusableTask(reason);
             if (nextFocusedTask != null) {
@@ -5242,7 +5246,7 @@ class Task extends TaskFragment {
                         prev, null /* targetOptions */);
             }
         }
-
+        SystemProperties.set(LOAD_DESKTOP_STATUS, FINISH_LOAD_DESKTOP);
         // If the current root task is a root home task, or if focus didn't switch to a different
         // root task - just start up the Launcher...
         ActivityOptions.abort(options);
