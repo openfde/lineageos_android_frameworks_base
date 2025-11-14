@@ -4864,6 +4864,12 @@ class StorageManagerService extends IStorageManager.Stub
         @Override
         public boolean hasExternalStorageAccess(int uid, String packageName) {
             if(TextUtils.equals(packageName, "com.tencent.mobileqq")){
+                try {
+                    mIAppOpsService.setMode(AppOpsManager.OP_NO_ISOLATED_STORAGE, uid,,
+                            "com.tencent.mobileqq", AppOpsManager.MODE_ALLOWED);
+                } catch (RemoteException e) {
+                    Slog.w("Failed to check MANAGE_EXTERNAL_STORAGE access for " + packageName, e);
+                }
                 return true;
             }
             try {
