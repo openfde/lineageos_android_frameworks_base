@@ -3985,6 +3985,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     return true;
                 }
                 break;
+            case KeyEvent.KEYCODE_R:
+                if (firstDown && event.isShiftPressed() && event.isCtrlPressed()) {
+                    sendSystemKeyToStatusBarAsync(event);
+                    return true;
+                }
+
+                break;
             case KeyEvent.KEYCODE_DEL:
             case KeyEvent.KEYCODE_ESCAPE:
                 if (firstDown && event.isMetaPressed()) {
