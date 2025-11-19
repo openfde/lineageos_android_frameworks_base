@@ -73,6 +73,7 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
     private final PanelInteractor mPanelInteractor;
     private final MediaProjectionMetricsLogger mMediaProjectionMetricsLogger;
     private final UserContextProvider mUserContextProvider;
+    private Dialog mDialog = null;
 
     private long mMillisUntilFinished = 0;
     public static Handler handler;
@@ -195,6 +196,9 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
             mDialogTransitionAnimator.disableAllCurrentDialogsExitAnimations();
             mPanelInteractor.collapsePanels();
         };
+        if(mDialog != null){
+            mDialog.dismiss();
+        }
 
         final Dialog dialog = mController.createScreenRecordDialog(mContext, mFlags,
                 mDialogTransitionAnimator, mActivityStarter, onStartRecordingClicked);
@@ -210,6 +214,7 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
 
             int uid = mUserContextProvider.getUserContext().getUserId();
             mMediaProjectionMetricsLogger.notifyPermissionRequestDisplayed(uid);
+            mDialog = dialog;
 
             return false;
         };

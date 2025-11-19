@@ -122,6 +122,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import android.util.Log;
 
 /**
  * A note on locking:  We rely on the fact that calls onto mBar are oneway or
@@ -1018,6 +1019,10 @@ public class StatusBarManagerService extends IStatusBarService.Stub implements D
 
     @Override
     public void handleSystemKey(KeyEvent key) throws RemoteException {
+        Log.d(TAG,"handleSystemKey: " + key);
+        if(key.getKeyCode() == KeyEvent.KEYCODE_R){
+            clickTile(new ComponentName("com.android.systemui","com.android.systemui.qs.tiles.ScreenRecordTile"));
+        }
         if (!checkCanCollapseStatusBar("handleSystemKey")) {
             return;
         }

@@ -321,7 +321,7 @@ public abstract class QSPanelControllerBase<T extends QSPanel> extends ViewContr
     public void clickTile(ComponentName tile) {
         final String spec = CustomTile.toSpec(tile);
         for (TileRecord record : mRecords) {
-            if (record.tile.getTileSpec().equals(spec)) {
+            if (spec.toLowerCase().contains(record.tile.getTileSpec().toLowerCase())/*record.tile.getTileSpec().equals(spec)*/) {
                 record.tile.click(null /* view */);
                 break;
             }
