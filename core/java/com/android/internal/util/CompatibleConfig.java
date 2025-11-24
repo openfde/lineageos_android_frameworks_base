@@ -44,6 +44,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import android.content.Context;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+
 import com.android.internal.util.CompatibleDatabaseHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -197,6 +202,137 @@ public class CompatibleConfig {
         } else {
             return null;
         }
+    }
+
+    public static String queryValueDataBySharedMemory(Context context, String packageName,String activityName, String keyCode) {
+        String result = null;
+        String fdebootCompleted = SystemProperties.get("fde.boot_completed", "0");
+        Slog.d(TAG,"queryValueDataBySharedMemory fdebootCompleted: " + fdebootCompleted + ",keyCode: " + keyCode + ",packageName: " + packageName);
+
+        if (fdebootCompleted.equals("1")) {
+            if (activityName == null || "".equals(activityName)) {
+                return SystemProperties.get(packageName + "_" + keyCode, "");
+            }else{
+                return SystemProperties.get(packageName + "_" + keyCode+ "_" + activityName, "");
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public static void insertUpdateValueData(Context context,  String packageName,String activityName, String keycode,
+                String value) {
+            String appName = packageName;     
+            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            Map<String, Object> result = queryMapValueDataHasDel(context, packageName,activityName, keycode);
+            if (result == null) {
+                insertValueData(context, appName, packageName,activityName, keycode, value);
+            } else {
+                updateValueData(context, appName, packageName,activityName, keycode, value);
+            }
+            return 1;
+            }, executorService);
+            executorService.shutdown();
+     }
+
+    
+    public static void insertValueData(Context context, String appName, String packageName,String activityName, String keycode,
+                     String value) {
+         try { 
+            if (activityName == null || "".equals(activityName)) {
+                SystemProperties.set(packageName+"_"+keycode, value);
+            } else {
+                SystemProperties.set(packageName+"_"+keycode+ "_" + activityName, value);
+            }
+             Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+             ContentValues values = new ContentValues();
+             String curTime = getCurDateTime();
+             values.put("PACKAGE_NAME", packageName);
+             values.put("KEY_CODE", keycode);
+             values.put("VALUE", value);
+             values.put("IS_DEL", "0");
+             values.put("CREATE_DATE",curTime);
+             values.put("EDIT_DATE", curTime);
+             values.put("FIELDS1", curTime);
+             values.put("APP_NAME", appName);
+             values.put("ACTIVITY_NAME", activityName);
+             Uri resUri = context.getContentResolver()
+                     .insert(uri, values);
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+     }
+    
+        
+     public static int updateValueData(Context context, String appName, String packageName,String activityName, String keycode,
+                    String newValue) {
+            try {
+                SystemProperties.set(packageName+"_"+keycode, newValue);
+                Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+                ContentValues values = new ContentValues();
+                values.put("VALUE", newValue);
+                values.put("APP_NAME", appName);
+                values.put("IS_DEL", "0");
+                values.put("EDIT_DATE", getCurDateTime());
+                String selection;
+                String[] selectionArgs;
+                if (activityName == null || "".equals(activityName)) {
+                    selection = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+                    selectionArgs = new String[]{packageName, keycode};
+                } else {
+                    selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                    selectionArgs = new String[]{packageName, keycode, activityName};
+                }
+                int res = context.getContentResolver()
+                        .update(uri, values, selection,
+                                selectionArgs);
+                return res;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return -1;
+     }
+
+     
+     public static Map<String, Object> queryMapValueDataHasDel(Context context, String packageName,String activityName, String keycode) {
+            Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
+            Cursor cursor = null;
+            Map<String, Object> result = null;
+            String selection;
+            String[] selectionArgs;
+            if (activityName == null || "".equals(activityName)) {
+                selection = "PACKAGE_NAME = ? AND KEY_CODE = ?";
+                selectionArgs = new String[]{packageName, keycode};
+            } else {
+                selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                selectionArgs = new String[]{packageName, keycode, activityName};
+            }
+            try {
+              ContentResolver contentResolver = context.getContentResolver();
+              cursor = contentResolver.query(uri, null, selection, selectionArgs, null);
+              if (cursor != null && cursor.moveToFirst()) {
+                  int _ID = cursor.getInt(cursor.getColumnIndex("_ID"));
+                  String PACKAGE_NAME = cursor.getString(cursor.getColumnIndex("PACKAGE_NAME"));
+                  String KEY_CODE = cursor.getString(cursor.getColumnIndex("KEY_CODE"));
+                  String VALUE = cursor.getString(cursor.getColumnIndex("VALUE"));
+                  String EDIT_DATE = cursor.getString(cursor.getColumnIndex("EDIT_DATE"));
+                  result = new HashMap<>();
+                  result.put("_ID", _ID);
+                  result.put("PACKAGE_NAME", PACKAGE_NAME);
+                  result.put("KEY_CODE", KEY_CODE);
+                  result.put("VALUE", VALUE);
+                  result.put("EDIT_DATE", EDIT_DATE);
+              }
+
+            } catch (Exception e) {
+              e.printStackTrace();
+            } finally {
+              if (cursor != null) {
+                  cursor.close();
+              }
+            }
+                  return result;
     }
 
     public static int parseValueXML(Context context, String packageName) {
