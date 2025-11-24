@@ -544,16 +544,25 @@ final class ContentRecorder implements WindowContainerListener {
         DisplayInfo inputDisplayInfo = mRecordedWindowContainer.mDisplayContent.getDisplayInfo();
         DisplayInfo outputDisplayInfo = mDisplayContent.getDisplayInfo();
 
+        // [openfde add] fix scrcpy window display is too small
+        int screenWidth = mDisplayContent.getConfiguration().screenWidthDp;
+        int screenHeight = mDisplayContent.getConfiguration().screenHeightDp;
+        if (screenWidth > mDisplayContent.getDisplayMetrics().widthPixels
+                || screenHeight > mDisplayContent.getDisplayMetrics().heightPixels) {
+            screenWidth = recordedContentBounds.width();
+            screenHeight = recordedContentBounds.height();
+        }
+        // [openfde end]
+
         PointF scale = new PointF();
-        computeScaling(mDisplayContent.getConfiguration().screenWidthDp,
-                mDisplayContent.getConfiguration().screenHeightDp,
+        computeScaling(screenWidth,screenHeight,
                 inputDisplayInfo.physicalXDpi, inputDisplayInfo.physicalYDpi,
                 surfaceSize.x, surfaceSize.y,
                 outputDisplayInfo.physicalXDpi, outputDisplayInfo.physicalYDpi,
                 scale);
 
-        int scaledWidth = Math.round(scale.x * (float) mDisplayContent.getConfiguration().screenWidthDp);
-        int scaledHeight = Math.round(scale.y * (float) mDisplayContent.getConfiguration().screenHeightDp);
+        int scaledWidth = Math.round(scale.x * (float) screenWidth);
+        int scaledHeight = Math.round(scale.y * (float) screenHeight);
 
         // Calculate the shift to apply to the root mirror SurfaceControl to centre the mirrored
         // contents in the output surface.
