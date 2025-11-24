@@ -7143,6 +7143,10 @@ public final class ViewRootImpl implements ViewParent,
 
         private int processKeyEvent(QueuedInputEvent q) {
             final KeyEvent event = (KeyEvent)q.mEvent;
+            if(mContext.getPackageName().equals("com.happyelements.AndroidAnimal.qq")
+                    && getInsetsController().getHost().getInputMethodManager().isActive()){
+                return FORWARD;
+            }
             if (mView.dispatchKeyEventPreIme(event)) {
                 return FINISH_HANDLED;
             }
