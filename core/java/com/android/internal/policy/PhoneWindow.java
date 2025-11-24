@@ -34,6 +34,7 @@ import static android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_M
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_EDGE_TO_EDGE_ENFORCED;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_FORCE_DRAW_BAR_BACKGROUNDS;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
+import static android.view.WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -2834,8 +2835,18 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         if (mContentParent == null) {
             mContentParent = generateLayout(mDecor);
 
-            // Set up decor part of UI to ignore fitsSystemWindows if appropriate.
-            mDecor.makeFrameworkOptionalFitsSystemWindows();
+            // [openfde add] fix caption window would cover app window content
+            WindowManager.LayoutParams params = getAttributes();
+            int features = getLocalFeatures();
+            if (((params.flags & FLAG_FULLSCREEN) != 0
+                        && (features & (1 << FEATURE_NO_TITLE)) != 0
+                        && (features & (1 << FEATURE_CUSTOM_TITLE)) != 0)
+                    || (params.compatibleFlags & COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0
+                    || getContext().getPackageName().contains("com.android.launcher3")) {
+                // Set up decor part of UI to ignore fitsSystemWindows if appropriate.
+                mDecor.makeFrameworkOptionalFitsSystemWindows();
+            }
+            // [openfde end]
 
             final DecorContentParent decorContentParent = (DecorContentParent) mDecor.findViewById(
                     R.id.decor_content_parent);
