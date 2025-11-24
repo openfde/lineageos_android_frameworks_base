@@ -334,7 +334,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
         }
         Log.d(TAG,"fde decorView init isTurnOnFullScreen current: " + isTurnOnFullScreen);
-        if(isTurnOnFullScreen){
+        if(isTurnOnFullScreen && !"com.android.launcher3".equals(context.getPackageName()) && !"org.lineageos.setupwizard".equals(context.getPackageName())
+            && !"com.android.systemui".equals(context.getPackageName())){
             startFullScreenWindow();
         }else{
             showStatusBarNavigationBar();
@@ -458,7 +459,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public void updateWindowStatus(){
-        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())){
+        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
+            && !"com.android.systemui".equals(mContext.getPackageName())){
             try{
                 mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
             }catch(Exception e){
@@ -530,7 +532,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     mIgnoreKeyCodeF11 = true;
                     mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
                     mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
-                    if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())){
+                    if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
+                        && !"com.android.systemui".equals(mContext.getPackageName())){
+                        Log.d(TAG,"received KEYCODE_F11 packageName: " + mContext.getPackageName());
                         try{
                             mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
                         }catch(Exception e){
