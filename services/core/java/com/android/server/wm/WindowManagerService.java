@@ -8942,6 +8942,9 @@ public class WindowManagerService extends IWindowManager.Stub
                 // Don't disturb transient animation by accident touch.
                 return;
             }
+            if(isLauncherTask(task)){
+                return;
+            }
         }
 
         ProtoLog.i(WM_DEBUG_FOCUS_LIGHT, "onPointerDownOutsideFocusLocked called on %s",
@@ -8953,6 +8956,31 @@ public class WindowManagerService extends IWindowManager.Stub
         mAtmService.mTaskSupervisor.mUserLeaving = true;
         t.handleTapOutsideFocusInsideSelf();
         mAtmService.mTaskSupervisor.mUserLeaving = false;
+    }
+
+    private boolean isLauncherTask(Task task) {
+        if (task == null) {
+            return false;
+        }
+        final ActivityRecord topActivity = task.getTopNonFinishingActivity();
+        if (topActivity == null) {
+            return false;
+        }
+
+        final Intent intent = topActivity.intent;
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (Intent.ACTION_MAIN.equals(action) && intent.hasCategory(Intent.CATEGORY_HOME)) {
+                return true;
+            }
+        }
+        final ComponentName component = topActivity.mActivityComponent;
+        if (component != null) {
+            final String packageName = component.getPackageName();
+            final String className = component.getClassName();
+            return packageName.equals("com.android.launcher3");
+        }
+        return false;
     }
 
     @VisibleForTesting
