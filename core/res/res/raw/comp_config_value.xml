@@ -82,7 +82,23 @@
             <activity name="">true</activity>
         </package>
     </item>
+    <item
+        isdel="false"
+        key_code="minBoundsVisibleWidth"
+        update_date="2025-11-25">
+		<package name="com.autonavi.minimap">
+            <activity name="">960</activity>
+        </package>
+    </item>
 
+    <item
+        isdel="false"
+        key_code="minBoundsVisibleHeight"
+        update_date="2025-11-25">
+		<package name="com.autonavi.minimap">
+            <activity name="">540</activity>
+        </package>
+    </item>
 	<item
         isdel="false"
         key_code="isTurnOffSimulatedTouch"

@@ -213,6 +213,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import android.os.SystemProperties;
+import com.android.internal.util.CompatibleConfig;
 
 /**
  * {@link Task} is a TaskFragment that can contain a group of activities to perform a certain job.
@@ -618,6 +619,9 @@ class Task extends TaskFragment {
     boolean mLastSurfaceShowing;
 
     boolean mAlignActivityLocaleWithTask = false;
+    int mMinBoundsVisibleWidth = -1;
+    int mMinBoundsVisibleHeight = -1;
+    boolean mHasReadMinWidthHeightConfiguration = false;
 
     private Task(ActivityTaskManagerService atmService, int _taskId, Intent _intent,
             Intent _affinityIntent, String _affinity, String _rootAffinity,
@@ -692,6 +696,7 @@ class Task extends TaskFragment {
                 mTaskDescription.setLabel(title);
             }
         }
+
     }
 
     static Task fromWindowContainerToken(WindowContainerToken token) {
@@ -2184,6 +2189,39 @@ class Task extends TaskFragment {
             }
             if (minHeight == INVALID_MIN_SIZE) {
                 minHeight = defaultMinSize;
+            }
+
+            if(!mHasReadMinWidthHeightConfiguration && realActivity != null){
+                mHasReadMinWidthHeightConfiguration = true;
+                String packageName = realActivity.getPackageName();
+                Slog.d(TAG,"adjustForMinimalTaskDimensions packageName: " + packageName);
+                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                String[] selectionArgsMinWidth = {packageName,"minBoundsVisibleWidth", ""};
+                String minWidthResults = CompatibleConfig.queryStringValueData(mAtmService.mContext, selection, selectionArgsMinWidth);
+                String[] selectionArgsMinHeight = {packageName,"minBoundsVisibleHeight", ""};
+                String minHeightResults = CompatibleConfig.queryStringValueData(mAtmService.mContext, selection, selectionArgsMinHeight);
+                if(minWidthResults != null && !"".equals(minWidthResults)){
+                    Slog.d(TAG,"packageName: " + packageName + " minWidthResults: " + minWidthResults);
+                    try{
+                        mMinBoundsVisibleWidth = Integer.parseInt(minWidthResults);
+                    }catch (NumberFormatException e) {
+                        Slog.e(TAG,"parseInt error: " + e);
+                    }
+                }
+                if(minHeightResults != null && !"".equals(minHeightResults)){
+                    Slog.d(TAG,"packageName: " + packageName + " minHeightResults: " + minHeightResults);
+                    try{
+                        mMinBoundsVisibleHeight = Integer.parseInt(minHeightResults);
+                    }catch (NumberFormatException e) {
+                        Slog.e(TAG,"parseInt error: " + e);
+                    }
+                }
+            }
+            if (mMinBoundsVisibleWidth != INVALID_MIN_SIZE) {
+                minWidth = mMinBoundsVisibleWidth;
+            }
+            if (mMinBoundsVisibleHeight != INVALID_MIN_SIZE) {
+                minHeight = mMinBoundsVisibleHeight;
             }
         }
         if (bounds.isEmpty()) {
