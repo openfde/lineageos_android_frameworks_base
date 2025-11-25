@@ -87,6 +87,7 @@ import android.content.res.CompatibilityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.content.SharedPreferences;
 import android.credentials.CredentialManager;
 import android.credentials.CredentialOption;
 import android.credentials.GetCredentialException;
@@ -5677,6 +5678,8 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     @FlaggedApi(FLAG_TOOLKIT_SET_FRAME_RATE_READ_ONLY)
     public static final float REQUESTED_FRAME_RATE_CATEGORY_HIGH = -4;
 
+    private SharedPreferences mSharedPreferences = null;
+
     /**
      * Simple constructor to use when creating a view from code.
      *
@@ -5763,6 +5766,14 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             sForceLayoutWhenInsetsChanged = targetSdkVersion < Build.VERSION_CODES.R;
 
             sCompatibilityDone = true;
+        }
+
+        try {
+            if (mContext != null) {
+                mSharedPreferences = mContext.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+            }
+        } catch(Exception e) {
+            Log.e(VIEW_LOG_TAG, "fde getSharedPreferences error: " + e);
         }
     }
 
@@ -13249,8 +13260,26 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * @return Insets that should be passed along to views under this one
      */
     public WindowInsets computeSystemWindowInsets(WindowInsets in, Rect outLocalInsets) {
+
+        // [openfde add] fix caption window would cover app window content
+        boolean isTurnOnFullScreen = false;
+        if (mSharedPreferences == null) {
+            try {
+                if (mContext != null) {
+                    mSharedPreferences = mContext.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                }
+            } catch(Exception e) {
+                Log.e(VIEW_LOG_TAG, "fde getSharedPreferences error: " + e);
+            }
+        }
+        if (mSharedPreferences != null) {
+            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen", false);
+        }
+        // [openfde end]
+
         boolean isOptionalFitSystemWindows = (mViewFlags & OPTIONAL_FITS_SYSTEM_WINDOWS) != 0
-                || (mPrivateFlags4 & PFLAG4_FRAMEWORK_OPTIONAL_FITS_SYSTEM_WINDOWS) != 0;
+                || (mPrivateFlags4 & PFLAG4_FRAMEWORK_OPTIONAL_FITS_SYSTEM_WINDOWS) != 0
+                || isTurnOnFullScreen;
         if (isOptionalFitSystemWindows && mAttachInfo != null) {
             OnContentApplyWindowInsetsListener listener =
                     mAttachInfo.mContentOnApplyWindowInsetsListener;
