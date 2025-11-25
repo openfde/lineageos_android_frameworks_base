@@ -50,6 +50,9 @@ public class PendingInsetsController implements WindowInsetsController {
 
     @Override
     public void show(int types) {
+        if(true){
+            return;
+        }
         if (mReplayedInsetsController != null) {
             mReplayedInsetsController.show(types);
         } else {
@@ -60,6 +63,29 @@ public class PendingInsetsController implements WindowInsetsController {
 
     @Override
     public void hide(int types) {
+        if(true){
+            return;
+        }
+        if (mReplayedInsetsController != null) {
+            mReplayedInsetsController.hide(types);
+        } else {
+            mRequests.add(new HideRequest(types));
+            mRequestedVisibleTypes &= ~types;
+        }
+    }
+
+    @Override
+    public void privateShow(int types) {
+        if (mReplayedInsetsController != null) {
+            mReplayedInsetsController.show(types);
+        } else {
+            mRequests.add(new ShowRequest(types));
+            mRequestedVisibleTypes |= types;
+        }
+    }
+
+    @Override
+    public void privateHide(int types) {
         if (mReplayedInsetsController != null) {
             mReplayedInsetsController.hide(types);
         } else {

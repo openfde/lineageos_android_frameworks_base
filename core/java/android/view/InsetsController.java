@@ -1069,6 +1069,14 @@ public class InsetsController implements WindowInsetsController, InsetsAnimation
 
     @Override
     public void show(@InsetsType int types) {
+        if(true){
+            return;
+        }
+        show(types, false /* fromIme */, null /* statsToken */);
+    }
+
+    @Override
+    public void privateShow(@InsetsType int types) {
         show(types, false /* fromIme */, null /* statsToken */);
     }
 
@@ -1176,6 +1184,14 @@ public class InsetsController implements WindowInsetsController, InsetsAnimation
 
     @Override
     public void hide(@InsetsType int types) {
+        if(true){
+            return;
+        }
+        hide(types, false /* fromIme */, null /* statsToken */);
+    }
+
+    @Override
+    public void privateHide(@InsetsType int types) {
         hide(types, false /* fromIme */, null /* statsToken */);
     }
 
