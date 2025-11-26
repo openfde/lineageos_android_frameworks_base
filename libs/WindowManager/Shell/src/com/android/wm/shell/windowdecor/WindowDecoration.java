@@ -310,10 +310,16 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             String mCaptionContainerSurfaceName = "Caption of Task=" + mTaskInfo.taskId;
             SystemProperties.set("com.fde.top_package_name", mTaskInfo.topActivity.getPackageName());
             SystemProperties.set("com.fde.caption_name", mCaptionContainerSurfaceName);
+            SystemProperties.set("com.fde.task_name", mTaskSurface.getName());
 
             String mPackageNameWithCaption = SystemProperties.get("com.fde.package_with_caption", "");
+            /**
+             * when app is mutli-window app,  the prop would get app package name.
+             * when app is single-window app, the prop would get app class name.
+             **/
             if (mPackageNameWithCaption != "" &&
-                    mTaskInfo.topActivity.getPackageName().contains(mPackageNameWithCaption)) {
+                    (mTaskInfo.topActivity.getPackageName().contains(mPackageNameWithCaption)
+                        || mPackageNameWithCaption.contains(mTaskInfo.topActivity.getClassName()))) {
                 mNewCaptionWidth = SystemProperties.getInt("com.fde.caption_width", 0);
             }
         }
