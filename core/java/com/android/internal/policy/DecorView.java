@@ -424,8 +424,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     public void showStatusBarNavigationBar(){
         final WindowInsetsController insetsController = getWindowInsetsController();
         if (insetsController != null) {
-            insetsController.show(WindowInsets.Type.statusBars());
-            insetsController.show(WindowInsets.Type.navigationBars());
+            insetsController.privateShow(WindowInsets.Type.statusBars());
+            insetsController.privateShow(WindowInsets.Type.navigationBars());
             insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
         }
     }
@@ -433,8 +433,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     public void hideStatusBarNavigationBar(){
         final WindowInsetsController insetsController = getWindowInsetsController();
         if (insetsController != null) {
-            insetsController.hide(WindowInsets.Type.statusBars());
-            insetsController.hide(WindowInsets.Type.navigationBars());
+            insetsController.privateHide(WindowInsets.Type.statusBars());
+            insetsController.privateHide(WindowInsets.Type.navigationBars());
             insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         }
     }
@@ -1251,6 +1251,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
         mHandler.removeCallbacks(mUpdateWindowStatusRunnable);
         mHandler.postDelayed(mUpdateWindowStatusRunnable, 500);
+
         final WindowManager.LayoutParams attrs = mWindow.getAttributes();
         mFloatingInsets.setEmpty();
         if ((attrs.flags & FLAG_LAYOUT_IN_SCREEN) == 0) {

@@ -189,6 +189,18 @@ public interface WindowInsetsController {
     void hide(@InsetsType int types);
 
     /**
+     *
+     * @hide
+     */
+    void privateShow(@InsetsType int types);
+
+    /**
+     *
+     * @hide
+     */
+    void privateHide(@InsetsType int types);
+
+    /**
      * Lets the application control window inset animations in a frame-by-frame manner by modifying
      * the position of the windows in the system causing insets directly.
      *
