@@ -1425,7 +1425,7 @@ public final class SurfaceControl implements Parcelable {
      * Returns the name of this SurfaceControl, mainly for debugging purposes.
      * @hide
      */
-    @NonNull String getName() {
+    public @NonNull String getName() {
         return mName;
     }
 
