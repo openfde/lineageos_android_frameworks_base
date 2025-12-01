@@ -3992,8 +3992,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
 
                 break;
-            case KeyEvent.KEYCODE_DEL:
             case KeyEvent.KEYCODE_ESCAPE:
+                if (firstDown) {
+                    logKeyboardSystemsEvent(event, KeyboardLogEvent.BACK);
+                    injectBackGesture(event.getDownTime());
+                    return true;
+                }
+            case KeyEvent.KEYCODE_DEL:
                 if (firstDown && event.isMetaPressed()) {
                     logKeyboardSystemsEvent(event, KeyboardLogEvent.BACK);
                     injectBackGesture(event.getDownTime());
