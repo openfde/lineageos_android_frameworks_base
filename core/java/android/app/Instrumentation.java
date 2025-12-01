@@ -62,6 +62,8 @@ import android.view.Window;
 import android.view.WindowManagerGlobal;
 
 import com.android.internal.content.ReferrerIntent;
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -1997,6 +1999,7 @@ public class Instrumentation {
         try {
             intent.migrateExtraStreamToClipData(who);
             intent.prepareToLeaveProcess(who);
+            boolean isMagic = getMagicExtra(intent, who);
             int result = ActivityTaskManager.getService().startActivity(whoThread,
                     who.getOpPackageName(), who.getAttributionTag(), intent,
                     intent.resolveTypeIfNeeded(who.getContentResolver()), token,
@@ -2008,6 +2011,31 @@ public class Instrumentation {
         }
         return null;
     }
+
+    // fde start MAGIC WINDOW
+
+    /**
+     *  if the packageName is magic window package, add extra fde_magic_window
+     * @param intent
+     * @param who
+     * @return
+     */
+    private boolean getMagicExtra(Intent intent, Context who){
+        if(intent != null && intent.getComponent() != null && intent.getComponent().getPackageName() != null){
+            String packageName =  intent.getComponent().getPackageName();
+            String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+            String[] selectionArgsWithoutActivity = {packageName,"enableMagicWindow", ""};
+            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, selection, selectionArgsWithoutActivity);
+            Log.d(TAG,"enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
+            if(TextUtils.equals(resultStrWithoutActivity, "true")){
+                Log.d(TAG,  "put extra fde_magic_window true");
+                intent.setExtraFDE(resultStrWithoutActivity);
+                return true;
+            }
+        }
+        return false;
+    }
+    // fde end
 
     /**
      * Like {@link #execStartActivity(Context, IBinder, IBinder, Activity, Intent, int, Bundle)},
@@ -2089,6 +2117,7 @@ public class Instrumentation {
                 intents[i].migrateExtraStreamToClipData(who);
                 intents[i].prepareToLeaveProcess(who);
                 resolvedTypes[i] = intents[i].resolveTypeIfNeeded(who.getContentResolver());
+                boolean isMagic =  getMagicExtra(intents[i], who);
             }
             int result = ActivityTaskManager.getService().startActivities(whoThread,
                     who.getOpPackageName(), who.getAttributionTag(), intents, resolvedTypes,
