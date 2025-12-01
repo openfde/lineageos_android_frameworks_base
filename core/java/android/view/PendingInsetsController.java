@@ -277,7 +277,7 @@ public class PendingInsetsController implements WindowInsetsController {
 
         @Override
         public void replay(InsetsController controller) {
-            controller.show(mTypes);
+            controller.privateShow(mTypes);
         }
     }
 
@@ -291,7 +291,7 @@ public class PendingInsetsController implements WindowInsetsController {
 
         @Override
         public void replay(InsetsController controller) {
-            controller.hide(mTypes);
+            controller.privateHide(mTypes);
         }
     }
 }
