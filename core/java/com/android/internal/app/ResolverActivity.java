@@ -156,6 +156,7 @@ public class ResolverActivity extends Activity implements
     private boolean mSafeForwardingMode;
     private Button mAlwaysButton;
     private Button mOnceButton;
+    private ImageView imgClose;
     protected View mProfileView;
     private int mLastSelected = AbsListView.INVALID_POSITION;
     private boolean mResolvingHome = false;
@@ -395,6 +396,7 @@ public class ResolverActivity extends Activity implements
         setSafeForwardingMode(true);
 
         onCreate(savedInstanceState, intent, null, 0, null, null, true);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
     }
 
     /**
@@ -1304,6 +1306,9 @@ public class ResolverActivity extends Activity implements
         startSelected(which, id == R.id.button_always, hasIndexBeenFiltered);
     }
 
+    public void onCloseClick(View v) {
+        finish();
+    }
     public void startSelected(int which, boolean always, boolean hasIndexBeenFiltered) {
         if (isFinishing()) {
             return;
@@ -1807,6 +1812,7 @@ public class ResolverActivity extends Activity implements
                     inactiveAdapter.mResolverListController.getUserHandle());
             finish();
         });
+
     }
 
     /**
@@ -2243,6 +2249,7 @@ public class ResolverActivity extends Activity implements
         if (iconView != null) {
             listAdapter.loadFilteredItemIconTaskAsync(iconView);
         }
+
         mHeaderCreatorUser = listAdapter.getUserHandle();
     }
 
@@ -2279,10 +2286,8 @@ public class ResolverActivity extends Activity implements
         }
         buttonLayout.setVisibility(View.VISIBLE);
         setButtonBarIgnoreOffset(/* ignoreOffset */ true);
-
         mOnceButton = (Button) buttonLayout.findViewById(R.id.button_once);
         mAlwaysButton = (Button) buttonLayout.findViewById(R.id.button_always);
-
         resetAlwaysOrOnceButtonBar();
     }
 
