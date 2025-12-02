@@ -317,6 +317,8 @@ public class LocalePicker extends ListFragment {
             final Configuration config = new Configuration();
             config.setLocales(locales);
             config.userSetLocale = true;
+            android.util.Log.e("MYLOG", "config.fontScale: " + config.fontScale);
+            android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
 
             am.updatePersistentConfigurationWithAttribution(config,
                     ActivityThread.currentOpPackageName(), null);

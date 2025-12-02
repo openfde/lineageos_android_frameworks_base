@@ -1043,6 +1043,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
      */
     public Configuration() {
         unset();
+        //fontScale = 1.15f;
     }
 
     /**
@@ -1555,7 +1556,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
      * Set this object to the system defaults.
      */
     public void setToDefaults() {
-        fontScale = 1;
+        fontScale = 1.5f;
         mcc = mnc = 0;
         mLocaleList = LocaleList.getEmptyLocaleList();
         locale = null;

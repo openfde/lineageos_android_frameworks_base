@@ -16553,6 +16553,7 @@ public class ActivityManagerService extends IActivityManager.Stub
         }
 
         int userId = UserHandle.getCallingUserId();
+        android.util.Log.e("MYLOG", "values.fontScale: " + values.fontScale);
 
         mActivityTaskManager.updatePersistentConfiguration(values, userId);
     }

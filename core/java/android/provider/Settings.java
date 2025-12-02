@@ -3981,7 +3981,7 @@ public final class Settings {
         // NOTE: If you add new settings here, be sure to add them to
         // com.android.providers.settings.SettingsProtoDumpUtil#dumpProtoSystemSettingsLocked.
 
-        private static final float DEFAULT_FONT_SCALE = 1.0f;
+        private static final float DEFAULT_FONT_SCALE = 1.15f;
         private static final int DEFAULT_FONT_WEIGHT = 0;
 
         /**
@@ -4549,12 +4549,19 @@ public final class Settings {
          * @return true if the value was set, false on database errors
          */
         public static boolean putFloat(ContentResolver cr, String name, float value) {
+            if (name.equals("font_scale") || name.equals("device_font_scale")) {
+                android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
+            }
             return putFloatForUser(cr, name, value, cr.getUserId());
         }
 
         /** @hide */
         public static boolean putFloatForUser(ContentResolver cr, String name, float value,
                 int userHandle) {
+                if (name.equals("font_scale") || name.equals("device_font_scale")) {
+                android.util.Log.e("MYLOG", "value : " + value);
+                android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
+            }
             return putStringForUser(cr, name, Float.toString(value), userHandle);
         }
 
@@ -4575,8 +4582,10 @@ public final class Settings {
         public static void adjustConfigurationForUser(ContentResolver cr, Configuration outConfig,
                 int userHandle, boolean updateSettingsIfEmpty) {
             final float defaultFontScale = getDefaultFontScale(cr, userHandle);
+            android.util.Log.e("MYLOG", "defaultFontScale: " + defaultFontScale);
             outConfig.fontScale = Settings.System.getFloatForUser(
                     cr, FONT_SCALE, defaultFontScale, userHandle);
+                    android.util.Log.e("MYLOG", "2defaultFontScale: " + outConfig.fontScale);
             if (outConfig.fontScale < 0) {
                 outConfig.fontScale = defaultFontScale;
             }
@@ -7331,12 +7340,19 @@ public final class Settings {
          * @return true if the value was set, false on database errors
          */
         public static boolean putFloat(ContentResolver cr, String name, float value) {
+        if (name.equals("font_scale")) {
+                android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
+            }
             return putFloatForUser(cr, name, value, cr.getUserId());
         }
 
         /** @hide */
         public static boolean putFloatForUser(ContentResolver cr, String name, float value,
                 int userHandle) {
+                if (name.equals("font_scale")) {
+                android.util.Log.e("MYLOG", "value: " + value);
+                android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
+            }
             return putStringForUser(cr, name, Float.toString(value), userHandle);
         }
 
@@ -18214,6 +18230,9 @@ public final class Settings {
          * @return true if the value was set, false on database errors
          */
         public static boolean putFloat(ContentResolver cr, String name, float value) {
+        if (name.equals("font_scale")) {
+                android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
+            }
             return putString(cr, name, Float.toString(value));
         }
 

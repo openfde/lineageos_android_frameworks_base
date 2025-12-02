@@ -4552,6 +4552,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         // Return default configuration before mRootWindowContainer initialized, which happens
         // while initializing process record for system, see {@link
         // ActivityManagerService#setSystemProcess}.
+        android.util.Log.e("MYLOG", "mRootWindowContainer != null : " + (mRootWindowContainer != null));
+        android.util.Log.e("MYLOG", "aavalues.fontScale : " + (mRootWindowContainer != null ? mRootWindowContainer.getConfiguration()
+                : new Configuration()).fontScale);
         return mRootWindowContainer != null ? mRootWindowContainer.getConfiguration()
                 : new Configuration();
     }
@@ -4620,9 +4623,16 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     /** Update default (global) configuration and notify listeners about changes. */
     int updateGlobalConfigurationLocked(@NonNull Configuration values, boolean initLocale,
             boolean persistent, int userId) {
+                android.util.Log.e("MYLOG", "1values.fontScale : " + values.fontScale);
 
         mTempConfig.setTo(getGlobalConfiguration());
+        android.util.Log.e("MYLOG", "2values.fontScale : " + mTempConfig.fontScale);
+        if ((values.fontScale == 1.0) && (mTempConfig.fontScale == 1.5)) {
+            android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
+        }
         final int changes = mTempConfig.updateFrom(values);
+        android.util.Log.e("MYLOG", "3values.fontScale : " + mTempConfig.fontScale);
+        
         if (changes == 0) {
             return 0;
         }
@@ -4694,9 +4704,12 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         // to retrieve resource values after we return will be sure to get the new ones. This is
         // especially important during boot, where the first config change needs to guarantee all
         // resources have that config before following boot code is executed.
+        android.util.Log.e("MYLOG", "4values.fontScale : " + mTempConfig.fontScale);
         mSystemThread.applyConfigurationToResources(mTempConfig);
+        android.util.Log.e("MYLOG", "5values.fontScale : " + mTempConfig.fontScale);
 
         if (persistent && Settings.System.hasInterestingConfigurationChanges(changes)) {
+        android.util.Log.e("MYLOG", android.util.Log.getStackTraceString(new Throwable()));
             final Message msg = PooledLambda.obtainMessage(
                     ActivityTaskManagerService::sendPutConfigurationForUserMsg,
                     this, userId, new Configuration(mTempConfig));
@@ -4923,7 +4936,8 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         }
 
         final float scaleFactor = Settings.System.getFloatForUser(mContext.getContentResolver(),
-                FONT_SCALE, 1.0f, userId);
+                FONT_SCALE, 1.15f, userId);
+        android.util.Log.e("MYLOG", "scaleFactor: " + scaleFactor + ",fontScale: " + getGlobalConfiguration().fontScale);
 
         synchronized (mGlobalLock) {
             if (getGlobalConfiguration().fontScale == scaleFactor) {
