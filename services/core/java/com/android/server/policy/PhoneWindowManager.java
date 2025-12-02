@@ -3996,7 +3996,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (firstDown) {
                     logKeyboardSystemsEvent(event, KeyboardLogEvent.BACK);
                     injectBackGesture(event.getDownTime());
-                    return true;
+                    return false;
                 }
             case KeyEvent.KEYCODE_DEL:
                 if (firstDown && event.isMetaPressed()) {
