@@ -163,6 +163,9 @@
 		<package name="com.tencent.tmgp.dwrg">
             <activity name="">true</activity>
         </package>
+		<package name="com.tencent.tmgp.luobo4">
+            <activity name="">false</activity>
+        </package>
 		<package name="com.tencent.tmgp.sgame">
             <activity name="">true</activity>
         </package>
