@@ -144,7 +144,7 @@
     <item
         isdel="false"
         key_code="isShiftContentBelowCaption"
-        update_date="2025-04-22">
+        update_date="2025-12-02">
         <package name="com.lemon.lv">
             <activity name="">true</activity>
         </package>
@@ -161,9 +161,6 @@
             <activity name="">true</activity>
         </package>
 		<package name="com.tencent.tmgp.dwrg">
-            <activity name="">true</activity>
-        </package>
-		<package name="com.tencent.tmgp.luobo4">
             <activity name="">true</activity>
         </package>
 		<package name="com.tencent.tmgp.sgame">
