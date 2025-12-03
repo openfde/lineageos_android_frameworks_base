@@ -948,11 +948,11 @@ public class WindowManagerService extends IWindowManager.Stub
         }
 
         void updateForceResizableTasks() {
-            ContentResolver resolver = mContext.getContentResolver();
-            final boolean forceResizable = Settings.Global.getInt(resolver,
-                    DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, 0) != 0;
-
-            mAtmService.mForceResizableActivities = forceResizable;
+            //ContentResolver resolver = mContext.getContentResolver();
+            //final boolean forceResizable = Settings.Global.getInt(resolver,
+            //        DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, 0) != 0;
+            //mAtmService.mForceResizableActivities = forceResizable;
+            mAtmService.mForceResizableActivities = SystemProperties.getBoolean("persist.fde.force_resizable_activities", true);
         }
 
         void updateDevEnableNonResizableMultiWindow() {
