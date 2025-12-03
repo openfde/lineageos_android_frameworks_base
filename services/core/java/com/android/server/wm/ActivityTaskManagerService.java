@@ -930,8 +930,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         final boolean supportsMultiDisplay = mContext.getPackageManager()
                 .hasSystemFeature(FEATURE_ACTIVITIES_ON_SECONDARY_DISPLAYS);
         final boolean forceRtl = Settings.Global.getInt(resolver, DEVELOPMENT_FORCE_RTL, 0) != 0;
-        final boolean forceResizable = Settings.Global.getInt(
-                resolver, DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, 0) != 0;
+        //final boolean forceResizable = Settings.Global.getInt(
+        //        resolver, DEVELOPMENT_FORCE_RESIZABLE_ACTIVITIES, 0) != 0;
+        final boolean forceResizable = SystemProperties.getBoolean("persist.fde.force_resizable_activities", true);
         final boolean devEnableNonResizableMultiWindow = Settings.Global.getInt(
                 resolver, DEVELOPMENT_ENABLE_NON_RESIZABLE_MULTI_WINDOW, 0) != 0;
         final int supportsNonResizableMultiWindow = mContext.getResources().getInteger(
