@@ -191,5 +191,12 @@
             <activity name="SplashActivity">true</activity>
         </package>
     </item>
-
+	<item
+        isdel="false"
+        key_code="forcedMaximizeStart"
+        update_date="2025-12-03">
+		<package name="com.tencent.tmgp.luobo4">
+            <activity name="QRActivity">true</activity>
+        </package>
+    </item>
 </items>
