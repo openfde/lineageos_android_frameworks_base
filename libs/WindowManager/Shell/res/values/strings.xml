@@ -280,4 +280,5 @@
     <string name="collapse_menu_text">Close Menu</string>
     <!-- Accessibility text for the handle menu open menu button [CHAR LIMIT=NONE] -->
     <string name="expand_menu_text">Open Menu</string>
+    <string name="forced_maximized" >This window has been forced to maximize.</string>
 </resources>
