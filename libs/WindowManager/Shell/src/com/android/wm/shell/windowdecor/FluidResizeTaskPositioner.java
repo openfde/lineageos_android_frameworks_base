@@ -312,9 +312,9 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
             final Rect endBounds = change.getEndAbsBounds();
             final Point endPosition = change.getEndRelOffset();
             startTransaction.setWindowCrop(sc, endBounds.width(), endBounds.height())
-                    .setPosition(sc, endBounds.left, endBounds.top);
+                    .setPosition(sc,  endPosition.x, endPosition.y);
             finishTransaction.setWindowCrop(sc, endBounds.width(), endBounds.height())
-                    .setPosition(sc, endBounds.left, endBounds.top);
+                    .setPosition(sc,  endPosition.x, endPosition.y);
 
             // Log.w(TAG,"startAnimation endPosition.x "+endPosition.x + ",endPosition.y: "+endPosition.y);   
             // Log.w(TAG,"startAnimation endBounds.left "+endBounds.left + ",endBounds.top: "+endBounds.top);       
