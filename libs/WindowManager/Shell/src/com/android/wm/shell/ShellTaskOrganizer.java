@@ -643,6 +643,21 @@ public class ShellTaskOrganizer extends TaskOrganizer implements
         }
     }
 
+    public RunningTaskInfo getRunningTaskInfo(int taskId, String packageName, int type){
+        if(type == 0){
+            return null;
+        }
+        for (int i = 0; i < mTasks.size(); i++) {
+            RunningTaskInfo taskInfo = mTasks.valueAt(i).getTaskInfo();
+            if (taskInfo.taskId != taskId && taskInfo.topActivity != null
+                    &&  taskInfo.topActivity.getPackageName().equals(packageName)
+                    &&  taskInfo.magicWindowType != type && taskInfo.magicWindowType != 0) {
+                return taskInfo;
+            }
+        }
+        return null;
+    }
+
     private boolean updateTaskListenerIfNeeded(RunningTaskInfo taskInfo, SurfaceControl leash,
             TaskListener oldListener, TaskListener newListener) {
         if (oldListener == newListener) return false;

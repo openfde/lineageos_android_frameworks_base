@@ -337,7 +337,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
         final FluidResizeTaskPositioner taskPositioner =
                 new FluidResizeTaskPositioner(mTaskOrganizer, mTransitions, windowDecoration,
-                        mDisplayController, 0 /* disallowedAreaForEndBoundsHeight */);
+                        mDisplayController, 0 /* disallowedAreaForEndBoundsHeight */, mTaskOperations, mWindowDecorByTaskId);
         final CaptionTouchEventListener touchEventListener =
                 new CaptionTouchEventListener(taskInfo, taskPositioner);
         windowDecoration.setCaptionListeners(touchEventListener, touchEventListener);
@@ -388,6 +388,14 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             final int id = v.getId();
             if (id == R.id.close_window) {
                 mTaskOperations.closeTask(mTaskToken);
+                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                if( taskInfo.topActivity != null && taskInfo.magicWindowType == 1){
+                    RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
+                            taskInfo.topActivity.getPackageName(), taskInfo.magicWindowType);
+                    if(magicTaskInfo != null){
+                        mTaskOperations.closeTask(magicTaskInfo.token);
+                    }
+                }
             } else if (id == R.id.back_button) {
                 Log.d(TAG, "onClick back_button");
                 mTaskOperations.injectBackKey(mDisplayId);
@@ -401,6 +409,14 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 },80);
             }else if (id == R.id.minimize_window) {
                 mTaskOperations.minimizeTask(mTaskToken);
+                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                if( taskInfo.topActivity != null && taskInfo.magicWindowType != 0){
+                    RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
+                            taskInfo.topActivity.getPackageName(), taskInfo.magicWindowType);
+                    if(magicTaskInfo != null){
+                        mTaskOperations.minimizeTask(magicTaskInfo.token);
+                    }
+                }
             } else if (id == R.id.maximize_window) {
                 Log.d(TAG, "onClick maximize_window");
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);

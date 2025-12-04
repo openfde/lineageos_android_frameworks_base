@@ -293,6 +293,9 @@ class TaskOrganizerController extends ITaskOrganizerController.Stub {
             }
             mTmpTaskInfo.configuration.unset();
             task.fillTaskInfo(mTmpTaskInfo);
+            if(mTmpTaskInfo == null){
+                return;
+            }
 
             boolean changed = !mTmpTaskInfo
                     .equalsForTaskOrganizer(lastInfo)

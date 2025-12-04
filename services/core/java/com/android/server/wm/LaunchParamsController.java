@@ -180,6 +180,8 @@ class LaunchParamsController {
         /** The bounds within the parent container. */
         final Rect mBounds = new Rect();
 
+        int mAdditionalMagicWindowWidth;
+
         /** The display area the {@link Task} would prefer to be on. */
         @Nullable
         TaskDisplayArea mPreferredTaskDisplayArea;
@@ -197,6 +199,7 @@ class LaunchParamsController {
         /** Copies the values set on the passed in {@link LaunchParams}. */
         void set(LaunchParams params) {
             mBounds.set(params.mBounds);
+            this.mAdditionalMagicWindowWidth = params.mAdditionalMagicWindowWidth;
             mPreferredTaskDisplayArea = params.mPreferredTaskDisplayArea;
             mWindowingMode = params.mWindowingMode;
         }

@@ -131,7 +131,10 @@ import static com.android.server.wm.RootWindowContainer.MATCH_ATTACHED_TASK_OR_R
 import static com.android.server.wm.Task.REPARENT_KEEP_ROOT_TASK_AT_FRONT;
 import static com.android.server.wm.WindowManagerService.MY_PID;
 import static com.android.server.wm.WindowManagerService.UPDATE_FOCUS_NORMAL;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
+import android.text.TextUtils;
 import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -2145,6 +2148,15 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                     // int taskId = ActivityRecord.getTaskForActivityLocked(token, !nonRoot);
                     final Task task = mRootWindowContainer.anyTaskForId(taskId);
                     if (task != null) {
+                        // fde start MAGIC WINDOW
+                        if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW){
+                            Task companion = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity,
+                                    task.type == MAGIC_MAIN_WINDOW ? MAGIC_ADDITIONAL_WINDOW : MAGIC_MAIN_WINDOW);
+                            if(companion != null){
+                                companion.getRootTask().moveTaskToBack(companion);
+                            }
+                        }
+                        // fde end
                         return task.getRootTask().moveTaskToBack(task);
                     }
                 } finally {
@@ -2315,6 +2327,17 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             ActivityOptions realOptions = options != null
                     ? options.getOptions(mTaskSupervisor)
                     : null;
+            // fde start MAGIC WINDOW
+            if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW){
+                Task companion = mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity,
+                        task.type == MAGIC_MAIN_WINDOW ? MAGIC_ADDITIONAL_WINDOW : MAGIC_MAIN_WINDOW);
+                if(companion != null){
+                    Slog.e(TAG, "findTaskToMoveToFront task:" + task + " flags:" + flags + " companion" + companion);
+                    companion.moveTaskToFront(companion, false /* noAnimation */, null,
+                            companion.getTopNonFinishingActivity() == null ? null : companion.getTopNonFinishingActivity().appTimeTracker, "moveTaskToFront");
+                }
+            }
+            // fde end
             mTaskSupervisor.findTaskToMoveToFront(task, flags, realOptions, "moveTaskToFront",
                     false /* forceNonResizable */);
         } finally {
@@ -2963,6 +2986,32 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 // Reparent the task to the right root task if necessary
                 boolean preserveWindow = (resizeMode & RESIZE_MODE_PRESERVE_WINDOW) != 0;
 
+                // fde start MAGIC WINDOW
+                if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW ){
+                    Task bMostTask = mRootWindowContainer.getBottomMostTask();
+                    Task relative = null;
+                    while(bMostTask != null ){
+                        if( TextUtils.equals(task.affinity, bMostTask.affinity)){
+                            relative = bMostTask;
+                            break;
+                        }
+                        Task above = mRootWindowContainer.getTaskAbove(bMostTask);
+                        // Slog.e(TAG, "resizeTask: bMostTask=" + bMostTask + " above=" + above);
+                        bMostTask = above;
+                    }
+                    if(relative != null && relative != task){
+                        Rect b = new Rect(bounds);
+                        if(relative.type == MAGIC_ADDITIONAL_WINDOW){
+                            b.left = b.left + bounds.right - bounds.left;
+                            b.right = b.right + bounds.right - bounds.left;
+                        } else if(relative.type == MAGIC_MAIN_WINDOW){
+                            b.left = b.left - bounds.right + bounds.left;
+                            b.right = b.right - bounds.right + bounds.left;
+                        }
+                        relative.resize(b, resizeMode, preserveWindow);
+                    }
+                }
+                // fde end
                 if (!getTransitionController().isShellTransitionsEnabled()) {
                     // After reparenting (which only resizes the task to the root task bounds),
                     // resize the task to the actual bounds provided
