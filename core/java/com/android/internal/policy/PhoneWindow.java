@@ -2838,9 +2838,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             // [openfde add] fix caption window would cover app window content
             WindowManager.LayoutParams params = getAttributes();
             int features = getLocalFeatures();
-            if (((params.flags & FLAG_FULLSCREEN) != 0
-                        && (features & (1 << FEATURE_NO_TITLE)) != 0
-                        && (features & (1 << FEATURE_CUSTOM_TITLE)) != 0)
+            if (((params.flags & FLAG_FULLSCREEN) == 0 || (features & (1 << FEATURE_NO_TITLE)) == 0)
                     || (params.compatibleFlags & COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0
                     || getContext().getPackageName().contains("com.android.launcher3")) {
                 // Set up decor part of UI to ignore fitsSystemWindows if appropriate.
