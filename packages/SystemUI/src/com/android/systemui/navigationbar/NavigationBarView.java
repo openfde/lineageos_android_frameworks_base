@@ -58,6 +58,7 @@ import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
+import com.android.systemui.shared.navigationbar.NavigationBarWindowStateListener;
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.settingslib.Utils;
@@ -157,6 +158,7 @@ public class NavigationBarView extends FrameLayout {
     private RotationContextButton mRotationContextButton;
     private FloatingRotationButton mFloatingRotationButton;
     private RotationButtonController mRotationButtonController;
+    private NavigationBarWindowStateListener mNavigationBarWindowStateListener;
     /**
      * Helper that is responsible for showing the right toast when a disallowed activity operation
      * occurred. In pinned mode, we show instructions on how to break out of this mode, whilst in
@@ -590,6 +592,9 @@ public class NavigationBarView extends FrameLayout {
 
     public void setWindowVisible(boolean visible) {
         mRotationButtonController.onNavigationBarWindowVisibilityChange(visible);
+        if(mNavigationBarWindowStateListener != null){
+            mNavigationBarWindowStateListener.onNavigationBarVisible(visible);
+        }
     }
 
 
@@ -1244,6 +1249,10 @@ public class NavigationBarView extends FrameLayout {
             );
         }
         pw.println();
+    }
+
+    public void setNavigationBarWindowStateListener(NavigationBarWindowStateListener listener) {
+        mNavigationBarWindowStateListener = listener;
     }
 
     public interface OnVerticalChangedListener {

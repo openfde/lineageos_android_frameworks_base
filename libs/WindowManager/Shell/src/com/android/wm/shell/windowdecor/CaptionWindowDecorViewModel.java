@@ -30,9 +30,11 @@ import android.view.SurfaceControl;
 import android.view.View;
 import android.window.WindowContainerToken;
 import android.window.WindowContainerTransaction;
-
+import android.view.WindowInsets;
 import androidx.annotation.Nullable;
-
+import android.view.WindowInsetsController;
+import com.android.internal.statusbar.IStatusBarService;
+import android.os.ServiceManager;
 import com.android.wm.shell.R;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
@@ -50,7 +52,11 @@ import android.content.IntentFilter;
 import com.android.internal.util.CompatibleConfig;
 import android.text.TextUtils;
 import android.widget.Toast;
-
+import com.android.internal.policy.ITaskCaptionOperationService;
+import com.android.internal.policy.IAppSystemBarController;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+import android.openfde.WmShellCaller;
 /**
  * View model for the window decoration with a caption and shadows. Works with
  * {@link CaptionWindowDecoration}.
@@ -68,78 +74,44 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private boolean mDragging = false;
     private boolean mLastSavedStateIsMaximized;
     private int mRunningTaskId;
+    private IStatusBarService mBarService;
+    private ITaskCaptionOperationService.Stub mTaskCaptionOperationService;
+    private static final long RELAYOUT_DELAY = 200;
 
+    private final SparseArray<IAppSystemBarController> mAppSystemBarControllers = new SparseArray<>();
     private final SparseArray<CaptionWindowDecoration> mWindowDecorByTaskId = new SparseArray<>();
     private final SparseArray<Boolean> mLastSavedStateIsMaximizedByTaskId = new SparseArray<>();
     private final SparseArray<Boolean> mIsFullscreenEnabledByTaskId = new SparseArray<>();
-    private class UpdateWindowDecorationRunnable implements Runnable {
-        @Override
-        public void run() {
-            Log.d(TAG, "UpdateWindowDecorationRunnable start");
-            updateWindowDecoration();
-        }
-    }
-    private final UpdateWindowDecorationRunnable mUpdateWindowDecorationRunnable = new UpdateWindowDecorationRunnable();
-
-    private final BroadcastReceiver mFullscreenEnabledDisabled  = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if ("com.fde.fullscreen.ENABLE_OR_DISABLE".equals(action)) {
-                final int mode = intent.getIntExtra("mode", 0);
-                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
-                switch (mode){
-                    case 0:
-                        Log.d(TAG,"onReceive 0 disable fullscreen mRunningTaskId: " + mRunningTaskId);
-                        if(taskInfo != null){
-                            mIsFullscreenEnabledByTaskId.put(mRunningTaskId, false);
-                            mLastSavedStateIsMaximized = mLastSavedStateIsMaximizedByTaskId.get(mRunningTaskId, false);
-                            Log.d(TAG, "mLastSavedStateIsMaximized: " + mLastSavedStateIsMaximized);
-                            if(!mLastSavedStateIsMaximized){
-                                mTaskOperations.maximizeTask(taskInfo);
-                            }else{
-                                mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
-                                mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
-                            }
-                        }
-                        break;
-                    case 1:
-                        Log.d(TAG,"onReceive 1 enable fullscreen mRunningTaskId: " + mRunningTaskId);
-                        if(taskInfo != null){
-                            if(!mIsFullscreenEnabledByTaskId.get(mRunningTaskId, false)){
-                                mIsFullscreenEnabledByTaskId.put(mRunningTaskId, true);
-                                mLastSavedStateIsMaximized = mTaskOperations.isTaskMaximized(taskInfo);
-                                mLastSavedStateIsMaximizedByTaskId.put(mRunningTaskId, mLastSavedStateIsMaximized);
-                            }
-                            Log.d(TAG, "mLastSavedStateIsMaximized: " + mLastSavedStateIsMaximized);
-                            if(!mTaskOperations.isTaskMaximized(taskInfo)){
-                                mTaskOperations.maximizeTask(taskInfo);
-                            }
-                            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
-                            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
-                        }
-                        break;
-                    case 2:
-                        Log.d(TAG,"onReceive 2 mRunningTaskId: " + mRunningTaskId);
-                        if(taskInfo != null){
-                            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
-                            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
-                        }
-                        break;
-                }
-            }
-        }
-    };
 
     private void updateWindowDecoration(){
-        Log.d(TAG, "updateWindowDecoration mRunningTaskId: " + mRunningTaskId);
         RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
+        Log.d(TAG, "updateWindowDecoration mRunningTaskId: " + mRunningTaskId + " taskInfo:" + taskInfo);
         if(taskInfo == null) return;
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(mRunningTaskId);
         if (decoration == null) return;
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
         setCaptionLable(decoration);
+    }
+
+    private boolean getSystemBarVisibility(RunningTaskInfo taskInfo){
+        boolean systemBarVisibility = true;
+        mBarService = getStatusBarService();
+        try {
+            if (mBarService != null && mBarService.asBinder().isBinderAlive() == true) {
+                systemBarVisibility = mBarService.getSystemBarVisibility(taskInfo.displayId, 1)
+                        && mBarService.getSystemBarVisibility(taskInfo.displayId, 2);
+            }
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+        }
+        return systemBarVisibility;
+    }
+
+    private void updateWindowDecorationDelay(long delay) {
+        mMainHandler.postDelayed(() -> {
+            updateWindowDecoration();
+        }, delay);
     }
 
     public CaptionWindowDecorViewModel(
@@ -160,9 +132,37 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if (!Transitions.ENABLE_SHELL_TRANSITIONS) {
             mTaskOperations = new TaskOperations(null, mContext, mSyncQueue);
         }
-        IntentFilter statusFilter = new IntentFilter();
-        statusFilter.addAction("com.fde.fullscreen.ENABLE_OR_DISABLE");
-        mContext.registerReceiver(mFullscreenEnabledDisabled, statusFilter, Context.RECEIVER_EXPORTED);
+        mTaskCaptionOperationService = new ITaskCaptionOperationService.Stub(){
+
+            @Override
+            public void executeTaskOperation(int taskId, int operationType){
+                final RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(taskId);
+                if(taskInfo != null) {
+                    if(operationType == WmShellCaller.OPERATION_CLOSE){
+                        closeTaskWithMagicWindow(taskInfo);
+                    } else if(operationType == WmShellCaller.OPERATION_BACK){
+                        mTaskOperations.injectBackKey(taskInfo.displayId);
+                    } else if(operationType == WmShellCaller.OPERATION_MINIMIZE) {
+                        minimizeWithMagicWindow(taskInfo);
+                    } else if(operationType == WmShellCaller.OPERATION_MAXIMIZE){
+                        mTaskOperations.maximizeTask(taskInfo);
+                    } else if(operationType == WmShellCaller.OPERATION_WINDOWDECORATION_RELAYOUT){
+                        updateWindowDecorationDelay(RELAYOUT_DELAY);
+                    }
+                }
+            }
+
+            @Override
+            public void registerSystemBarController(int taskId, IAppSystemBarController controller){
+                mAppSystemBarControllers.put(taskId, controller);
+            }
+
+            @Override
+            public void unregisterSystemBarController(int taskId){
+                mAppSystemBarControllers.remove(taskId);
+            }
+        };
+        ServiceManager.addService("TASK_CAPTION_OPERATION", mTaskCaptionOperationService);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     @Override
     public void setSplitScreenController(SplitScreenController splitScreenController) {}
-    
+
     private String queryStringValueData(String packageName,String keyCode,String activityName){
               String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
               String[] selectionArgs= {packageName,keyCode, activityName};
@@ -209,8 +209,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                     Log.d(TAG, "onTaskOpening forcedMaximizeStart for " + taskInfo.topActivity.getClassName());
                     mTaskOperations.maximizeTask(taskInfo);
                 }
-
             }
+            updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
         if (!shouldShowWindowDecor(taskInfo)) return false;
         createWindowDecoration(taskInfo, taskSurface, startT, finishT);
@@ -230,21 +230,32 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     @Override
     public void onTaskInfoChanged(RunningTaskInfo taskInfo) {
-        Log.d(TAG,"onTaskInfoChanged taskInfo.taskId: " + taskInfo.taskId + ", taskInfo.isFocused: " + taskInfo.isFocused);
-        Log.d(TAG,"onTaskInfoChanged taskInfo: " + taskInfo );
-        if(taskInfo.isFocused){
+        Log.d(TAG, "onTaskInfoChanged taskInfo: " + taskInfo);
+        if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
-            Log.d(TAG,"onTaskInfoChanged mRunningTaskId: " + mRunningTaskId);
-            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
-            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
+            if(!taskInfo.taskSystembarVisiblity){
+                appWindowHideSystemBar(true, mRunningTaskId);
+            }
+            updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
-
         if (decoration == null) return;
-
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
         setCaptionLable(decoration);
+    }
+
+    private void appWindowHideSystemBar(boolean hide, int taskId){
+        IAppSystemBarController controller = mAppSystemBarControllers.get(taskId);
+        if(controller == null){
+            android.util.Log.e(TAG, "AppSystemBarControllers is null ");
+            return;
+        }
+        try {
+            controller.hideSystemBar(taskId, hide);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -253,12 +264,10 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl taskSurface,
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
-        Log.d(TAG,"onTaskChanging taskInfo.taskId: " + taskInfo.taskId + ", taskInfo.isFocused: " + taskInfo.isFocused);
-        if(taskInfo.isFocused){
+        Log.d(TAG, "onTaskChanging taskInfo.taskId: " + taskInfo + ", taskInfo.isFocused: " + taskInfo.isFocused);
+        if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
-            Log.d(TAG,"onTaskChanging mRunningTaskId: " + mRunningTaskId);
-            mMainHandler.removeCallbacks(mUpdateWindowDecorationRunnable);
-            mMainHandler.postDelayed(mUpdateWindowDecorationRunnable, 500);
+            updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
 
@@ -266,6 +275,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             if (decoration != null) {
                 destroyWindowDecoration(taskInfo);
             }
+            Log.d(TAG, "onTaskChanging decoration: " + decoration);
             return;
         }
 
@@ -282,7 +292,6 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             RunningTaskInfo taskInfo,
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
-            Log.d(TAG,"onTaskClosing taskInfo.taskId: " + taskInfo.taskId);
         mLastSavedStateIsMaximizedByTaskId.delete(taskInfo.taskId);
         mIsFullscreenEnabledByTaskId.delete(taskInfo.taskId);
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
@@ -312,9 +321,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     private boolean shouldShowWindowDecor(RunningTaskInfo taskInfo) {
         return taskInfo.getWindowingMode() == WINDOWING_MODE_FREEFORM
-                || (taskInfo.getActivityType() == ACTIVITY_TYPE_STANDARD
-                && taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
-                == WINDOWING_MODE_FREEFORM);
+                ||  (taskInfo.getActivityType() == ACTIVITY_TYPE_STANDARD
+                        && taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
+                        == WINDOWING_MODE_FREEFORM);
     }
 
     private void createWindowDecoration(
@@ -351,6 +360,28 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         windowDecoration.relayout(taskInfo, startT, finishT,
                 false /* applyStartTransactionOnDraw */, false /* setTaskCropAndPosition */);
         setupCaptionColor(taskInfo, windowDecoration);
+    }
+
+    public void closeTaskWithMagicWindow(RunningTaskInfo info){
+        mTaskOperations.closeTask(info.token);
+        if( info.topActivity != null && info.magicWindowType == 1){
+            RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(info.taskId,
+                    info.topActivity.getPackageName(), info.magicWindowType);
+            if(magicTaskInfo != null){
+                mTaskOperations.closeTask(magicTaskInfo.token);
+            }
+        }
+    }
+
+    public void minimizeWithMagicWindow(RunningTaskInfo info){
+        mTaskOperations.minimizeTask(info.token);
+        if( info.topActivity != null && info.magicWindowType != 0){
+            RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(info.taskId,
+                    info.topActivity.getPackageName(), info.magicWindowType);
+            if(magicTaskInfo != null){
+                mTaskOperations.minimizeTask(magicTaskInfo.token);
+            }
+        }
     }
 
 
@@ -391,15 +422,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         public void onClick(View v) {
             final int id = v.getId();
             if (id == R.id.close_window) {
-                mTaskOperations.closeTask(mTaskToken);
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
-                if( taskInfo.topActivity != null && taskInfo.magicWindowType == 1){
-                    RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
-                            taskInfo.topActivity.getPackageName(), taskInfo.magicWindowType);
-                    if(magicTaskInfo != null){
-                        mTaskOperations.closeTask(magicTaskInfo.token);
-                    }
-                }
+                closeTaskWithMagicWindow(taskInfo);
             } else if (id == R.id.back_button) {
                 Log.d(TAG, "onClick back_button");
                 mTaskOperations.injectBackKey(mDisplayId);
@@ -408,27 +432,22 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
-                    if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
-                        Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                }
-                mMainHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTaskOperations.injectKey(mDisplayId, KeyEvent.KEYCODE_F11);
+                    if (TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true")) {
+                        Toast.makeText(mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                },80);
+                }
+                boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
+
+                if(!mTaskOperations.isTaskMaximized(taskInfo)){
+                    mTaskOperations.maximizeTask(taskInfo);
+                }
+                appWindowHideSystemBar(systemBarVisibility, mTaskId);
+                updateWindowDecorationDelay(RELAYOUT_DELAY);
+
             }else if (id == R.id.minimize_window) {
-                mTaskOperations.minimizeTask(mTaskToken);
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
-                if( taskInfo.topActivity != null && taskInfo.magicWindowType != 0){
-                    RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
-                            taskInfo.topActivity.getPackageName(), taskInfo.magicWindowType);
-                    if(magicTaskInfo != null){
-                        mTaskOperations.minimizeTask(magicTaskInfo.token);
-                    }
-                }
+                minimizeWithMagicWindow(taskInfo);
             } else if (id == R.id.maximize_window) {
                 Log.d(TAG, "onClick maximize_window");
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
@@ -539,5 +558,16 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             }
             return true;
         }
+    }
+
+    private synchronized IStatusBarService getStatusBarService() {
+        if (mBarService == null || mBarService.asBinder().isBinderAlive() == false) {
+            mBarService = IStatusBarService.Stub.asInterface(
+                    ServiceManager.getService(Context.STATUS_BAR_SERVICE));
+            if (mBarService == null) {
+                Log.w(TAG, "warning: no STATUS_BAR_SERVICE");
+            }
+        }
+        return mBarService;
     }
 }

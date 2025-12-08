@@ -166,6 +166,33 @@ interface IStatusBarService
      */
     boolean isTracing();
 
+    /** get SystemBar Visibility
+     * @hide
+     */
+    boolean getSystemBarVisibility(int displayId, int window);
+
+    /** get SystemBar Visibility
+     * @hide
+     */
+    void setSystemBarVisibility(int displayId, int window, int status);
+
+    /**
+     * Set the window state of the given window.
+     *
+     * @param displayId the display id.
+     * @param window the window.
+     * @param state the state.
+     * @hide
+     */
+    void setWindowState(int displayId, int window, int state);
+
+    /**
+     * Set whether the top app currently hides the statusbar.
+     *
+     * @param hidesStatusBar whether it is being hidden
+     */
+    void setTopAppHidesStatusBar(boolean hidesStatusBar);
+
     /**
      * If true, suppresses the ambient display from showing. If false, re-enables the ambient
      * display.
