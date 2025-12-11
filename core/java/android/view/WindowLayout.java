@@ -103,20 +103,14 @@ public class WindowLayout {
             }else{
                 if(outDisplayFrame.top == 0){
                     if(statusBarInsets.top != 0){
-                        if(captionBarInsets.top != 0){
-                            outDisplayFrame.top = captionBarInsets.top + 28;
-                            outParentFrame.top = captionBarInsets.top + 28;
-                            outFrame.top = captionBarInsets.top + 28;
-                        }else{
-                            outDisplayFrame.top = 70;
-                            outParentFrame.top = 70;
-                            outFrame.top = 70;
-                        }
+                        outDisplayFrame.top = captionBarInsets.top + statusBarInsets.top;
+                        outParentFrame.top = captionBarInsets.top + statusBarInsets.top;
+                        outFrame.top = captionBarInsets.top + statusBarInsets.top;
                     }
                 }else{
-                    outDisplayFrame.top += 42;
-                    outParentFrame.top += 42;
-                    outFrame.top += 42;
+                    outDisplayFrame.top += captionBarInsets.top;
+                    outParentFrame.top += captionBarInsets.top;
+                    outFrame.top += captionBarInsets.top;
                 }
             }
             if(DEBUG){
