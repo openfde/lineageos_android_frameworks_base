@@ -58,7 +58,6 @@ import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.settingslib.Utils;
@@ -158,7 +157,6 @@ public class NavigationBarView extends FrameLayout {
     private RotationContextButton mRotationContextButton;
     private FloatingRotationButton mFloatingRotationButton;
     private RotationButtonController mRotationButtonController;
-
     /**
      * Helper that is responsible for showing the right toast when a disallowed activity operation
      * occurred. In pinned mode, we show instructions on how to break out of this mode, whilst in
@@ -185,6 +183,11 @@ public class NavigationBarView extends FrameLayout {
     private final ContentObserver mShowCursorKeysObserver;
     private boolean mShowCursorKeys;
     private boolean mImeVisible;
+    private float mDockScaleFactor = 1.0f;
+
+    public void setDockScaleFactor(float dockScaleFactor){
+        mDockScaleFactor = dockScaleFactor;
+    }
 
     private class NavTransitionListener implements TransitionListener {
         private boolean mBackTransitioning;
@@ -195,7 +198,7 @@ public class NavigationBarView extends FrameLayout {
 
         @Override
         public void startTransition(LayoutTransition transition, ViewGroup container,
-                View view, int transitionType) {
+                                    View view, int transitionType) {
             if (view.getId() == R.id.back) {
                 mBackTransitioning = true;
             } else if (view.getId() == R.id.home && transitionType == LayoutTransition.APPEARING) {
@@ -208,7 +211,7 @@ public class NavigationBarView extends FrameLayout {
 
         @Override
         public void endTransition(LayoutTransition transition, ViewGroup container,
-                View view, int transitionType) {
+                                  View view, int transitionType) {
             if (view.getId() == R.id.back) {
                 mBackTransitioning = false;
             } else if (view.getId() == R.id.home && transitionType == LayoutTransition.APPEARING) {
@@ -239,7 +242,7 @@ public class NavigationBarView extends FrameLayout {
 
                 @Override
                 public void onInitializeAccessibilityNodeInfo(View host,
-                        AccessibilityNodeInfo info) {
+                                                              AccessibilityNodeInfo info) {
                     super.onInitializeAccessibilityNodeInfo(host, info);
                     if (mToggleOverviewAction == null) {
                         mToggleOverviewAction = new AccessibilityAction(
@@ -589,6 +592,7 @@ public class NavigationBarView extends FrameLayout {
         mRotationButtonController.onNavigationBarWindowVisibilityChange(visible);
     }
 
+
     public void setBehavior(@Behavior int behavior) {
         mRotationButtonController.onBehaviorChanged(mDisplayTracker.getDefaultDisplayId(),
                 behavior);
@@ -657,8 +661,8 @@ public class NavigationBarView extends FrameLayout {
         // Update IME button visibility, a11y and rotate button always overrides the appearance
         boolean disableImeSwitcher =
                 (mNavigationIconHints & StatusBarManager.NAVIGATION_HINT_IME_SWITCHER_SHOWN) == 0
-                || isImeRenderingNavButtons()
-                || (!QuickStepContract.isSwipeUpMode(mNavBarMode) && !disableCursorKeys);
+                        || isImeRenderingNavButtons()
+                        || (!QuickStepContract.isSwipeUpMode(mNavBarMode) && !disableCursorKeys);
         mContextualButtonGroup.setButtonVisibility(R.id.ime_switcher, !disableImeSwitcher);
 
         mBarTransitions.reapplyDarkIntensity();
@@ -1034,14 +1038,9 @@ public class NavigationBarView extends FrameLayout {
 
         if (isGesturalMode(mNavBarMode)) {
             // Update the nav bar background to match the height of the visible nav bar
-            int height = mIsVertical
-                    ? getResources().getDimensionPixelSize(
-                            com.android.internal.R.dimen.navigation_bar_height_landscape)
-                    : getResources().getDimensionPixelSize(
-                            com.android.internal.R.dimen.navigation_bar_height);
-            int frameHeight = getResources().getDimensionPixelSize(
-                    com.android.internal.R.dimen.navigation_bar_frame_height);
-            mBarTransitions.setBackgroundFrame(new Rect(0, frameHeight - height, w, h));
+            int height = (int) (getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_height)
+                    * mDockScaleFactor + 0.5f);
+            mBarTransitions.setBackgroundFrame(new Rect(0, 0, w, h));
         } else {
             mBarTransitions.setBackgroundFrame(null);
         }
@@ -1050,11 +1049,8 @@ public class NavigationBarView extends FrameLayout {
     }
 
     int getNavBarHeight() {
-        return mIsVertical
-                ? getResources().getDimensionPixelSize(
-                com.android.internal.R.dimen.navigation_bar_height_landscape)
-                : getResources().getDimensionPixelSize(
-                        com.android.internal.R.dimen.navigation_bar_height);
+        return (int) (getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_height)
+                * mDockScaleFactor + 0.5f);
     }
 
     private void notifyVerticalChangedListener(boolean newVertical) {
@@ -1165,7 +1161,7 @@ public class NavigationBarView extends FrameLayout {
 
         pw.println("NavigationBarView:");
         pw.println(String.format("      this: " + CentralSurfaces.viewInfo(this)
-                        + " " + visibilityToString(getVisibility())));
+                + " " + visibilityToString(getVisibility())));
 
         getWindowVisibleDisplayFrame(r);
         final boolean offscreen = r.right > size.x || r.bottom > size.y;
@@ -1175,15 +1171,15 @@ public class NavigationBarView extends FrameLayout {
                 + (offscreen ? " OFFSCREEN!" : ""));
 
         pw.println(String.format("      mCurrentView: id=%s (%dx%d) %s %f",
-                        getResourceName(getCurrentView().getId()),
-                        getCurrentView().getWidth(), getCurrentView().getHeight(),
-                        visibilityToString(getCurrentView().getVisibility()),
-                        getCurrentView().getAlpha()));
+                getResourceName(getCurrentView().getId()),
+                getCurrentView().getWidth(), getCurrentView().getHeight(),
+                visibilityToString(getCurrentView().getVisibility()),
+                getCurrentView().getAlpha()));
 
         pw.println(String.format("      disabled=0x%08x vertical=%s darkIntensity=%.2f",
-                        mDisabledFlags,
-                        mIsVertical ? "true" : "false",
-                        getLightTransitionsController().getCurrentDarkIntensity()));
+                mDisabledFlags,
+                mIsVertical ? "true" : "false",
+                getLightTransitionsController().getCurrentDarkIntensity()));
 
         pw.println("    mScreenOn: " + mScreenOn);
 
@@ -1245,7 +1241,7 @@ public class NavigationBarView extends FrameLayout {
         } else {
             pw.print(visibilityToString(button.getVisibility())
                     + " alpha=" + button.getAlpha()
-                    );
+            );
         }
         pw.println();
     }

@@ -144,6 +144,15 @@ public final class NavBarHelper implements
         }
     };
 
+    private final ContentObserver mDockContentObserver = new ContentObserver(mHandler) {
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            final float scaleFactor = Settings.System.getFloatForUser(mContext.getContentResolver(),
+                    "dock_scale", 1.0f, UserHandle.USER_CURRENT);
+            updateDockScaleFactor(scaleFactor);
+        }
+    };
+
     // Listens for changes to the wallpaper visibility
     private final IWallpaperVisibilityListener mWallpaperVisibilityListener =
             new IWallpaperVisibilityListener.Stub() {
@@ -252,6 +261,14 @@ public final class NavBarHelper implements
         mContentResolver.registerContentObserver(
                 Settings.Secure.getUriFor(Settings.Secure.ASSIST_TOUCH_GESTURE_ENABLED),
                 false, mAssistContentObserver, UserHandle.USER_ALL);
+        mContentResolver.registerContentObserver(
+                Settings.System.getUriFor("dock_scale"),
+                false, mDockContentObserver, UserHandle.USER_ALL);
+
+        final float scaleFactor = Settings.System.getFloatForUser(mContext.getContentResolver(),
+                "dock_scale", 1.0f, UserHandle.USER_CURRENT);
+        updateDockScaleFactor(scaleFactor);
+
 
         // Setup display rotation watcher
         try {
@@ -525,6 +542,12 @@ public final class NavBarHelper implements
         }
     }
 
+    private void updateDockScaleFactor(float scaleFactor){
+        for (NavbarTaskbarStateUpdater listener : mStateListeners) {
+            listener.updateDockScaleFactor(scaleFactor);
+        }
+    }
+
     private void dispatchRotationChanged(int rotation) {
         for (NavbarTaskbarStateUpdater listener : mStateListeners) {
             listener.updateRotationWatcherState(rotation);
@@ -544,6 +567,8 @@ public final class NavBarHelper implements
         void updateAssistantAvailable(boolean available, boolean longPressHomeEnabled);
         default void updateWallpaperVisibility(boolean visible, int displayId) {}
         default void updateRotationWatcherState(int rotation) {}
+        default void updateDockScaleFactor(float scaleFactor) {}
+
     }
 
     /** Data class to help Taskbar/Navbar initiate state correctly when switching between the two.*/
