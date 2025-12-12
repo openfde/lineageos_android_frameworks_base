@@ -268,8 +268,8 @@ class LaunchParamsPersister {
         if(task.type == MAGIC_ADDITIONAL_WINDOW){
             magic = mSupervisor.mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
         }
-        if(magic != null && changed && magic.getTopNonFinishingActivity() != null){
-            final ComponentName magicName = magic.getTopNonFinishingActivity().mActivityComponent;
+        if(magic != null && changed && magic.realActivity != null){
+            final ComponentName magicName = magic.realActivity;
             if (magicName == null) {
                 return;
             }
@@ -402,10 +402,10 @@ class LaunchParamsPersister {
             if(magic == null){
                 return;
             }
-            if(magic.getTopNonFinishingActivity() == null){
+            if(magic.realActivity == null){
                 return;
             }
-            final ComponentName magicName = magic.getTopNonFinishingActivity().mActivityComponent;
+            final ComponentName magicName = magic.realActivity;
             PersistableLaunchParams magicParams = map.get(magicName);
             if(magicParams != null && magicParams.mAdditionalMagicWindowWidth != 0){
                 outParams.mAdditionalMagicWindowWidth = magicParams.mAdditionalMagicWindowWidth;
