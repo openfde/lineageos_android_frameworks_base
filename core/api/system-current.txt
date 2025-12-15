@@ -474,6 +474,7 @@ package android {
   public static final class R.drawable {
     field public static final int ic_info = 17301684; // 0x10800b4
     field public static final int ic_safety_protection = 17301685; // 0x10800b5
+    field public static final int range_button_bg = 17301662; // 0x108009e
   }
 
   public static final class R.raw {

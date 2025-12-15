@@ -1935,6 +1935,8 @@ UnflaggedApi: android.Manifest.permission#REGISTER_NSD_OFFLOAD_ENGINE:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.REGISTER_NSD_OFFLOAD_ENGINE
 UnflaggedApi: android.Manifest.permission#REPORT_USAGE_STATS:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.REPORT_USAGE_STATS
+UnflaggedApi: android.R.drawable#range_button_bg:
+    New API must be flagged with @FlaggedApi: field android.R.drawable.range_button_bg
 UnflaggedApi: android.R.string#config_defaultRetailDemo:
     New API must be flagged with @FlaggedApi: field android.R.string.config_defaultRetailDemo
 UnflaggedApi: android.app.ActivityManager#getExternalHistoricalProcessStartReasons(String, int):
