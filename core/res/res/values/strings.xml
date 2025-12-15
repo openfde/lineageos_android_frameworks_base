@@ -6435,4 +6435,5 @@ ul.</string>
     <!-- Invoke Satellite setting activity of Settings -->
     <string name="satellite_notification_how_it_works">How it works</string>
     <string name="exit_full_screen_display_prompt" >Press F11 key to exit full screen display.</string>
+    <string name="exit_full_screen" >Exit full screen</string>
 </resources>

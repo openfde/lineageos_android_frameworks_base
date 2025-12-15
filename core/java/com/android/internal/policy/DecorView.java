@@ -125,10 +125,21 @@ import java.util.function.Consumer;
 import android.os.SystemProperties;
 import android.content.Intent;
 import android.widget.Toast;
+import android.widget.Button;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.Typeface;
 
 /** @hide */
 public class DecorView extends FrameLayout implements RootViewSurfaceTaker, WindowCallbacks {
     private static final String TAG = "DecorView";
+
+    private Button mExitFullscreenFloatingButton;
+    private boolean mIsHoveringTopArea = false;
+    private boolean mIsTouchingTopArea = false;
+    private boolean mIsTouchingLeftArea = false;
+    private boolean mIsTouchingRightArea = false;
+    private static final int EDGE_TRIGGERING_AREA_LENGTH = 50;
+    private int mScreenWidth;
 
     private static final boolean DEBUG_MEASURE = false;
 
@@ -198,6 +209,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private Drawable mMenuBackground;
     private boolean mWatchingForMenu;
     private int mDownY;
+    private int mDownX;
 
     ActionMode mPrimaryActionMode;
     private ActionMode mFloatingActionMode;
@@ -345,6 +357,223 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 WearGestureInterceptionDetector.isEnabled(context)
                         ? new WearGestureInterceptionDetector(context, this)
                         : null;
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        mScreenWidth = dm.widthPixels;
+    }
+
+    private class ShowExitFullscreenFloatingButtonRunnable implements Runnable {
+        @Override
+        public void run() {
+            Log.d(TAG, "showExitFullscreenFloatingButton start");
+            showExitFullscreenFloatingButton();
+        }
+    }
+
+    private class HideExitFullscreenFloatingButtonRunnable implements Runnable {
+        @Override
+        public void run() {
+            Log.d(TAG, "hideExitFullscreenFloatingButton start");
+            hideExitFullscreenFloatingButton();
+        }
+    }
+
+    private final ShowExitFullscreenFloatingButtonRunnable mShowExitFullscreenFloatingButtonRunnable = new ShowExitFullscreenFloatingButtonRunnable();
+    private final HideExitFullscreenFloatingButtonRunnable mHideExitFullscreenFloatingButtonRunnable = new HideExitFullscreenFloatingButtonRunnable();
+
+    private void shortTimeShowExitFullscreenFloatingButton(){
+        if(mHandler.hasCallbacks(mShowExitFullscreenFloatingButtonRunnable)){
+            mHandler.removeCallbacks(mShowExitFullscreenFloatingButtonRunnable);
+        }
+        if(mHandler.hasCallbacks(mHideExitFullscreenFloatingButtonRunnable)){
+            mHandler.removeCallbacks(mHideExitFullscreenFloatingButtonRunnable);
+        }
+        mHandler.post(mShowExitFullscreenFloatingButtonRunnable);
+        mHandler.postDelayed(mHideExitFullscreenFloatingButtonRunnable,2500);
+    }
+
+    private void shortTimeShowExitFullscreenFloatingButtonDelayed(){
+        if(mHandler.hasCallbacks(mShowExitFullscreenFloatingButtonRunnable)){
+            mHandler.removeCallbacks(mShowExitFullscreenFloatingButtonRunnable);
+        }
+        if(mHandler.hasCallbacks(mHideExitFullscreenFloatingButtonRunnable)){
+            mHandler.removeCallbacks(mHideExitFullscreenFloatingButtonRunnable);
+        }
+        mHandler.postDelayed(mShowExitFullscreenFloatingButtonRunnable,1500);
+        mHandler.postDelayed(mHideExitFullscreenFloatingButtonRunnable,3500);
+    }
+
+    private void initExitFullscreenFloatingButton() {
+        if(mContext != null && "com.android.launcher3".equals(mContext.getPackageName()) && "org.lineageos.setupwizard".equals(mContext.getPackageName())
+                && "com.android.systemui".equals(mContext.getPackageName())){
+            return;
+        }
+        if (mExitFullscreenFloatingButton == null) {
+            mExitFullscreenFloatingButton = new Button(mContext);
+            mExitFullscreenFloatingButton.setText(R.string.exit_full_screen);
+            mExitFullscreenFloatingButton.setTextColor(0xFF333333);
+            mExitFullscreenFloatingButton.setTextSize(16);
+            Drawable icon = getContext().getResources().getDrawable(R.drawable.range_button_bg, getContext().getTheme());
+            if (icon != null) {
+                int iconSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, getResources().getDisplayMetrics());
+                icon.setBounds(0, 0, iconSize, iconSize);
+                mExitFullscreenFloatingButton.setCompoundDrawables(icon, null, null, null);
+                mExitFullscreenFloatingButton.setCompoundDrawablePadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 13f, getResources().getDisplayMetrics()));
+            }
+            int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 13f, getResources().getDisplayMetrics());
+            mExitFullscreenFloatingButton.setPadding(padding, padding, padding, padding);
+            mExitFullscreenFloatingButton.setGravity(android.view.Gravity.CENTER);
+
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setShape(GradientDrawable.RECTANGLE);
+            drawable.setColor(Color.WHITE);
+
+            float radius = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 6f, getResources().getDisplayMetrics()
+            );
+            drawable.setCornerRadius(radius);
+
+            mExitFullscreenFloatingButton.setBackground(drawable);
+            Typeface typeface = mExitFullscreenFloatingButton.getTypeface();
+            Typeface newTypeface = Typeface.create(typeface, 1000, false);
+            mExitFullscreenFloatingButton.setTypeface(newTypeface);
+            LayoutParams params = new LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+            );
+            params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            int topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, getResources().getDisplayMetrics());
+            params.topMargin = topMargin;
+            mExitFullscreenFloatingButton.setLayoutParams(params);
+
+            mExitFullscreenFloatingButton.setVisibility(View.GONE);
+            mExitFullscreenFloatingButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try{
+                        mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                    }catch(Exception e){
+                        Log.e(TAG,"fde getSharedPreferences error: " + e);
+                    }
+                    boolean isTurnOnFullScreen = false;
+                    if(mSharedPreferences != null){
+                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                        if(isTurnOnFullScreen){
+                            SharedPreferences.Editor editor = mSharedPreferences.edit();
+                            editor.putBoolean("mTurnOnFullScreen", false);
+                            editor.apply();
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    exitFullScreenWindow();
+                                }
+                            },100);
+                        }
+                    }
+                }
+            });
+        }
+        if(mExitFullscreenFloatingButton != null){
+            removeView(mExitFullscreenFloatingButton);
+            addView(mExitFullscreenFloatingButton);
+        }
+    }
+
+    @Override
+    public boolean onInterceptHoverEvent(MotionEvent event) {
+        int action = event.getAction();
+        float y = event.getY();
+
+        switch (action) {
+            case MotionEvent.ACTION_HOVER_ENTER:
+            case MotionEvent.ACTION_HOVER_MOVE:
+                if (y >= 0 && y <= EDGE_TRIGGERING_AREA_LENGTH) {
+                    if (!mIsHoveringTopArea) {
+                        mIsHoveringTopArea = true;
+                        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
+                            && !"com.android.systemui".equals(mContext.getPackageName())){
+                            try{
+                                mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
+                            }catch(Exception e){
+                                Log.e(TAG,"fde getSharedPreferences error: " + e);
+                            }
+                            boolean isTurnOnFullScreen = false;
+                            if(mSharedPreferences != null){
+                                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
+                                Log.e(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
+                                if(isTurnOnFullScreen){
+                                    if(mHandler.hasCallbacks(mHideExitFullscreenFloatingButtonRunnable)){
+                                        mHandler.removeCallbacks(mHideExitFullscreenFloatingButtonRunnable);
+                                    }
+                                    showExitFullscreenFloatingButton();
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (mIsHoveringTopArea) {
+                        mIsHoveringTopArea = false;
+                        hideExitFullscreenFloatingButton();
+                    }
+                }
+                break;
+
+            case MotionEvent.ACTION_HOVER_EXIT:
+                if (mIsHoveringTopArea) {
+                    mIsHoveringTopArea = false;
+                    hideExitFullscreenFloatingButton();
+                }
+                break;
+        }
+
+        return super.onInterceptHoverEvent(event);
+    }
+
+    private void showExitFullscreenFloatingButton() {
+        Log.d(TAG,"showExitFullscreenFloatingButton");
+        initExitFullscreenFloatingButton();
+        if (mExitFullscreenFloatingButton != null && mExitFullscreenFloatingButton.getVisibility() != View.VISIBLE) {
+            LayoutParams params = (LayoutParams) mExitFullscreenFloatingButton.getLayoutParams();
+            params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            int topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, getResources().getDisplayMetrics());
+            params.topMargin = topMargin;
+
+            if (getWidth() > 0) {
+                mExitFullscreenFloatingButton.measure(
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                );
+                int buttonWidth = mExitFullscreenFloatingButton.getMeasuredWidth();
+                params.leftMargin = 0;
+                params.rightMargin = 0;
+            }
+
+            mExitFullscreenFloatingButton.setLayoutParams(params);
+
+            mExitFullscreenFloatingButton.setAlpha(0f);
+            mExitFullscreenFloatingButton.setVisibility(View.VISIBLE);
+            mExitFullscreenFloatingButton.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .start();
+        }
+    }
+
+    private void hideExitFullscreenFloatingButton() {
+        Log.d(TAG,"hideExitFullscreenFloatingButton");
+        if (mExitFullscreenFloatingButton != null && mExitFullscreenFloatingButton.getVisibility() == View.VISIBLE) {
+            mExitFullscreenFloatingButton.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(mExitFullscreenFloatingButton != null){
+                            mExitFullscreenFloatingButton.setVisibility(View.GONE);
+                        }
+                    }
+                })
+                .start();
+        }
     }
 
     public final boolean startDecorMovingTask(float startX, float startY) {
@@ -450,6 +679,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
         intent.putExtra("mode", 1);
         if(mContext != null) mContext.sendBroadcast(intent);
+        shortTimeShowExitFullscreenFloatingButtonDelayed();
+
     }
     public void exitFullScreenWindow(){
         showStatusBarNavigationBar();
@@ -480,6 +711,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 if(mContext != null) mContext.sendBroadcast(intent);
             }
         }
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        mScreenWidth = dm.widthPixels;
     }
 
     @Override
@@ -697,6 +930,60 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public boolean superDispatchTouchEvent(MotionEvent event) {
+        if (!isFullScreenMode()) {
+            return super.dispatchTouchEvent(event);
+        }
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.e(TAG,"superDispatchTouchEvent mScreenWidth: " + mScreenWidth +
+                    ", event.getRawX(): " + event.getRawX() + ", event.getX(): " + event.getX());
+                if (event.getY() < EDGE_TRIGGERING_AREA_LENGTH) {
+                    mDownY = (int) event.getY();
+                    mIsTouchingTopArea = true;
+                }
+                if (event.getRawX() < EDGE_TRIGGERING_AREA_LENGTH) {
+                    mDownX = (int) event.getRawX();
+                    mIsTouchingLeftArea = true;
+                }
+                if (event.getX() > mScreenWidth - EDGE_TRIGGERING_AREA_LENGTH) {
+                    mDownX = (int) event.getX();
+                    mIsTouchingRightArea = true;
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (mIsTouchingTopArea) {
+                    int currentY = (int) event.getY();
+                    int dy = currentY - mDownY;
+                    if (dy > 50) {
+                        shortTimeShowExitFullscreenFloatingButton();
+                        mIsTouchingTopArea = false;
+                    }
+                }
+                if (mIsTouchingLeftArea) {
+                    int currentX = (int) event.getRawX();
+                    int dx = currentX - mDownX;
+                    if (dx > 50) {
+                        shortTimeShowExitFullscreenFloatingButton();
+                        mIsTouchingLeftArea = false;
+                    }
+                }
+                if (mIsTouchingRightArea) {
+                    int currentX = (int) event.getX();
+                    int dx = mDownX - currentX;
+                    if (dx > 50) {
+                        shortTimeShowExitFullscreenFloatingButton();
+                        mIsTouchingRightArea = false;
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mIsTouchingTopArea = false;
+                mIsTouchingLeftArea = false;
+                mIsTouchingRightArea = false;
+                break;
+        }
         return super.dispatchTouchEvent(event);
     }
 
@@ -2069,6 +2356,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
+        if (mExitFullscreenFloatingButton != null) {
+            removeView(mExitFullscreenFloatingButton);
+            mExitFullscreenFloatingButton = null;
+        }
+
         final Window.Callback cb = mWindow.getCallback();
         if (cb != null && mFeatureId < 0) {
             cb.onDetachedFromWindow();
@@ -2907,6 +3199,13 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             final boolean present = isPresent(requestedVisible, windowFlags, force);
             return isVisible(present, color, windowFlags, force);
         }
+    }
+
+    private boolean isFullScreenMode() {
+        if (mSharedPreferences == null) {
+            return false;
+        }
+        return mSharedPreferences.getBoolean("mTurnOnFullScreen", false);
     }
 
     /**
