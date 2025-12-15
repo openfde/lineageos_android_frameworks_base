@@ -453,18 +453,21 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
         @Override
         public boolean onTouch(View v, MotionEvent e) {
-            if (v.getId() != R.id.caption && v.getId() != R.id.fullscreen_window) {
-                return false;
-            }
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                final RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
-                if (taskInfo != null && !taskInfo.isFocused) {
-                    final WindowContainerTransaction wct = new WindowContainerTransaction();
-                    wct.reorder(mTaskToken, true /* onTop */);
-                    mSyncQueue.queue(wct);
+            if(v.getId() == R.id.maximize_window || v.getId() == R.id.caption) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    final RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                    if (!taskInfo.isFocused) {
+                        final WindowContainerTransaction wct = new WindowContainerTransaction();
+                        wct.reorder(mTaskToken, true /* onTop */);
+                        mSyncQueue.queue(wct);
+                    }
                 }
             }
 
+            if (v.getId() != R.id.caption
+                    && v.getId() != R.id.fullscreen_window) {
+                return false;
+            }
             if (e.getAction() == MotionEvent.ACTION_UP) {
                 if(!mDragging){
                     doubleClick();

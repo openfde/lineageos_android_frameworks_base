@@ -988,12 +988,12 @@ class ActivityStarter {
         // mSupervisor.loadMagicWindowConfig(); for debug
         if( isMagicPackage
                 &&  magicType == MAGIC_ADDITIONAL_WINDOW) {
-            Task task = mRootWindowContainer.findMagicTask(aInfo.taskAffinity, MAGIC_MAIN_WINDOW);
+            Task task = mRootWindowContainer.findMagicTask(aInfo.packageName, MAGIC_MAIN_WINDOW);
             if(task != null){
                 mMagicLaunch = true;
                 aInfo.documentLaunchMode = DOCUMENT_LAUNCH_ALWAYS;
             }
-            mWindowAffinity = aInfo.taskAffinity;
+            mWindowAffinity = aInfo.packageName;
         } else {
             mMagicLaunch = false;
         }

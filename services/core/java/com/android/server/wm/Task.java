@@ -971,6 +971,7 @@ class Task extends TaskFragment {
         // fde start MAGIC WINDOW
         if(info != null){
             type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
+            mWindowLayoutAffinity = info.packageName;
         } else {
             type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
             // never update type in main window because it will insert a additional window in this task
