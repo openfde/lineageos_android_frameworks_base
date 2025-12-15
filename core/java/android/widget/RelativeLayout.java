@@ -48,6 +48,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import android.app.Activity;
+import android.util.Log;
+import android.util.DisplayMetrics;
 
 /**
  * A Layout where the positions of the children can be described in relation to each other or to the
@@ -1089,11 +1092,43 @@ public class RelativeLayout extends ViewGroup {
         params.mBottom = top + childHeight;
     }
 
+    private final static String PACKAGE_NAME = "ctrip.android.view";
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         //  The layout has actually already been performed and the positions
         //  cached.  Apply the cached values to the children.
         final int count = getChildCount();
+
+        
+       try{
+            if(getContext().getPackageName().equals(PACKAGE_NAME) ){
+                ViewGroup.LayoutParams params = getLayoutParams();
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+                int screenWidth = displayMetrics.widthPixels; 
+                int screenWidthDp = getContext().getResources().getConfiguration().screenWidthDp;
+          
+                if(getContext() instanceof Activity){
+                    Activity curActivity = (Activity) getContext();
+                    if("CtripHomeActivity".equals(curActivity.getClass().getSimpleName())){
+                        if(getParent().getClass().getSimpleName().equals("UbtCollectableRecycleView") && 
+                            getClass().getSimpleName().equals("RelativeLayout")){
+                             params.width = (int)(screenWidthDp * 0.2);
+                             setLayoutParams(params);
+                             requestLayout();
+                        }
+
+                    }
+                }
+
+            }
+
+        }catch(Exception e){
+             e.printStackTrace();
+        }
+
+        
 
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
