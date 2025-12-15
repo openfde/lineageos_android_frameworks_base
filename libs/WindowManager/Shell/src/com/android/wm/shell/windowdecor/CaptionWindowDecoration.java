@@ -317,6 +317,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         minimize.setOnClickListener(mOnCaptionButtonClickListener);
         final View maximize = caption.findViewById(R.id.maximize_window);
         maximize.setOnClickListener(mOnCaptionButtonClickListener);
+        maximize.setOnTouchListener(mOnCaptionTouchListener);
         PackageManager pm = mContext.getApplicationContext().getPackageManager();
         final TextView applicationLable = caption.findViewById(R.id.application_lable);
         if(mTaskInfo != null && mTaskInfo.topActivityInfo != null
