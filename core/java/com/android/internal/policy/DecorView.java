@@ -501,10 +501,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                                 isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
                                 Log.e(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
                                 if(isTurnOnFullScreen){
-                                    if(mHandler.hasCallbacks(mHideExitFullscreenFloatingButtonRunnable)){
-                                        mHandler.removeCallbacks(mHideExitFullscreenFloatingButtonRunnable);
-                                    }
-                                    showExitFullscreenFloatingButton();
+                                    shortTimeShowExitFullscreenFloatingButton();
                                 }
                             }
                         }
@@ -512,7 +509,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 } else {
                     if (mIsHoveringTopArea) {
                         mIsHoveringTopArea = false;
-                        hideExitFullscreenFloatingButton();
                     }
                 }
                 break;
@@ -520,7 +516,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             case MotionEvent.ACTION_HOVER_EXIT:
                 if (mIsHoveringTopArea) {
                     mIsHoveringTopArea = false;
-                    hideExitFullscreenFloatingButton();
                 }
                 break;
         }
@@ -936,8 +931,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Log.e(TAG,"superDispatchTouchEvent mScreenWidth: " + mScreenWidth +
-                    ", event.getRawX(): " + event.getRawX() + ", event.getX(): " + event.getX());
+                Log.d(TAG,"superDispatchTouchEvent mScreenWidth: " + mScreenWidth +
+                    ", event.getRawX: " + event.getRawX() + ", event.getX: " + event.getX() + ", event.getY: " + event.getY());
                 if (event.getY() < EDGE_TRIGGERING_AREA_LENGTH) {
                     mDownY = (int) event.getY();
                     mIsTouchingTopArea = true;
