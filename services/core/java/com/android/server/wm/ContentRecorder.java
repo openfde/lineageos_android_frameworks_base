@@ -590,7 +590,7 @@ final class ContentRecorder implements WindowContainerListener {
                 .setWindowCrop(mRecordedSurface, recordedContentBounds)
                 // Scale the root mirror SurfaceControl, based upon the size difference between the
                 // source (DisplayArea to capture) and output (surface the app reads images from).
-                .setMatrix(mRecordedSurface, scale.x, 0 /* dtdx */, 0 /* dtdy */, scale.y)
+                .setMatrix(mRecordedSurface, 1, 0 /* dtdx */, 0 /* dtdy */, 1)
                 // Position needs to be updated when the mirrored DisplayArea has changed, since
                 // the content will no longer be centered in the output surface.
                 .setPosition(mRecordedSurface, shiftedX /* x */, shiftedY /* y */);
