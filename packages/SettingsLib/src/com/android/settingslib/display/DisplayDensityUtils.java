@@ -54,6 +54,7 @@ public class DisplayDensityUtils {
      * largest.
      */
     private static final int[] SUMMARIES_SMALLER = new int[] {
+            R.string.screen_zoom_summary_large,
             R.string.screen_zoom_summary_small,
             R.string.screen_zoom_summary_smaller,
             R.string.screen_zoom_summary_smallest
@@ -219,6 +220,7 @@ public class DisplayDensityUtils {
                 mDefaultDensityForDefaultDisplay = defaultDensity;
                 mCurrentIndex = displayIndex;
                 mDefaultDisplayDensityEntries = entries;
+                
                 mDefaultDisplayDensityValues = values;
             }
             mValuesPerDisplay.put(info.uniqueId, values);
