@@ -33,6 +33,8 @@ import static com.android.server.wm.WindowManagerDebugConfig.TAG_WM;
 import static com.android.server.wm.WindowManagerService.dipToPixel;
 import static com.android.server.wm.WindowState.MINIMUM_VISIBLE_HEIGHT_IN_DP;
 import static com.android.server.wm.WindowState.MINIMUM_VISIBLE_WIDTH_IN_DP;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -140,7 +142,12 @@ class TaskPositioner implements IBinder.DeathRecipient {
                 }
                 synchronized (mService.mGlobalLock) {
                     mDragEnded = notifyMoveLocked(newX, newY);
-                    mTask.getDimBounds(mTmpRect);
+                    // mTask.getDimBounds(mTmpRect);
+                    if (mTask.inFreeformWindowingMode()) {
+                        mTask.getFreeFormSurfaceBounds(mTmpRect);
+                    } else {
+                        mTask.getDimBounds(mTmpRect);
+                    }
                 }
                 if (!mTmpRect.equals(mWindowDragBounds)) {
                     Trace.traceBegin(TRACE_TAG_WINDOW_MANAGER,
@@ -181,7 +188,13 @@ class TaskPositioner implements IBinder.DeathRecipient {
                 mService.mAtmService.resizeTask(
                         mTask.mTaskId, mWindowDragBounds, RESIZE_MODE_USER_FORCED);
             }
-
+            if (TaskResizingAlgorithm.sEnterFullScreen) {
+                TaskResizingAlgorithm.sEnterFullScreen = false;
+                synchronized (mService.mAtmService.mGlobalLock) {
+                    mTask.setWindowingMode(WINDOWING_MODE_FULLSCREEN);
+                    mTask.setBounds(null);
+                }
+            }
             // Post back to WM to handle clean-ups. We still need the input
             // event handler for the last finishInputEvent()!
             mService.mTaskPositioningController.finishTaskPositioning();
@@ -316,8 +329,12 @@ class TaskPositioner implements IBinder.DeathRecipient {
         // multiple app windows. Don't use any bounds from win itself as it
         // may not be the same size as the task.
         final Rect startBounds = mTmpRect;
-        mTask.getBounds(startBounds);
-
+        // mTask.getBounds(startBounds);
+        if (mTask.getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+            mTask.getFreeFormSurfaceBounds(startBounds);
+        } else {
+            mTask.getBounds(startBounds);
+        }
         mCtrlType = CTRL_NONE;
         mStartDragX = startX;
         mStartDragY = startY;

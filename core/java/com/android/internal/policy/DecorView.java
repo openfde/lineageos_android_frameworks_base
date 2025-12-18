@@ -624,6 +624,19 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         mBackgroundFallback.draw(this, mContentRoot, c, mWindow.mContentParent,
                 mStatusColorViewState.view, mNavigationColorViewState.view);
     }
+
+    public  void setFreeFormSideShow(boolean show) {
+         if (mDecorCaptionView!= null) {
+             mDecorCaptionView.mNeedDrawRect = show;
+             post(new Runnable() {
+                 @Override
+                 public void run() {
+                     mDecorCaptionView.invalidate();
+                 }
+             });
+         }
+     }
+
     Handler mHandler = new Handler();
     private boolean mIgnoreKeyCodeF11 = false;
 

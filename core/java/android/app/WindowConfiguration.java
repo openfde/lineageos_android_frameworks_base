@@ -46,7 +46,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
-
+import android.util.Log;
 /**
  * Class that contains windowing configuration/state for other objects that contain windows directly
  * or indirectly. E.g. Activities, Task, Displays, ...
@@ -200,6 +200,8 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      * @hide */
     public static final int WINDOW_CONFIG_DISPLAY_ROTATION = 1 << 8;
 
+    public static final int WINDOW_CONFIG_FREEFORM_BOUNDS = 1 << 15;
+
     /** @hide */
     @IntDef(flag = true, prefix = { "WINDOW_CONFIG_" }, value = {
             WINDOW_CONFIG_BOUNDS,
@@ -233,6 +235,7 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
         mBounds.writeToParcel(dest, flags);
         dest.writeTypedObject(mAppBounds, flags);
         mMaxBounds.writeToParcel(dest, flags);
+        mFreeformBounds.writeToParcel(dest, flags);
         dest.writeInt(mWindowingMode);
         dest.writeInt(mActivityType);
         dest.writeInt(mAlwaysOnTop);
@@ -244,6 +247,7 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
     /** @hide */
     public void readFromParcel(@NonNull Parcel source) {
         mBounds.readFromParcel(source);
+        mFreeformBounds.readFromParcel(source);
         mAppBounds = source.readTypedObject(Rect.CREATOR);
         mMaxBounds.readFromParcel(source);
         mWindowingMode = source.readInt();
@@ -279,6 +283,9 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      * @param rect the new bounds value.
      */
     public void setBounds(@Nullable Rect rect) {
+        if (mWindowingMode == WINDOWING_MODE_FREEFORM) {
+            android.util.Log.i("lsm333"," setBounds rect = " + rect,new Exception());
+        }
         if (rect == null) {
             mBounds.setEmpty();
             return;
@@ -380,6 +387,26 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
         return mBounds;
     }
 
+    private final Rect mFreeformBounds = new Rect();
+    /**
+      * @hide
+      */
+     public Rect getFreeformBounds() {
+         return mFreeformBounds;
+     }
+ 
+     /**
+      * @hide
+      */
+     public void setFreeformBounds(Rect rect) {
+         if (rect == null) {
+             mFreeformBounds.setEmpty();
+             return;
+         }
+
+         mFreeformBounds.set(rect);
+     }
+
     /** @see #setMaxBounds(Rect) */
     @NonNull
     public Rect getMaxBounds() {
@@ -446,6 +473,7 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
 
     public void setTo(WindowConfiguration other) {
         setBounds(other.mBounds);
+        setFreeformBounds(other.mFreeformBounds);
         setAppBounds(other.mAppBounds);
         setMaxBounds(other.mMaxBounds);
         setDisplayRotation(other.mDisplayRotation);
@@ -561,6 +589,12 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      * @hide
      */
     public void setTo(@NonNull WindowConfiguration delta, @WindowConfig int mask) {
+        //add by freeform
+        if ((mask & WINDOW_CONFIG_FREEFORM_BOUNDS) != 0) {
+            setFreeformBounds(delta.mFreeformBounds);
+            Log.i("lsm33","setTo delta.mFreeformBounds " + delta.mFreeformBounds);
+        }
+        //add end
         if ((mask & WINDOW_CONFIG_BOUNDS) != 0) {
             setBounds(delta.mBounds);
         }

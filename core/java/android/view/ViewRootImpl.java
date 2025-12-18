@@ -11141,6 +11141,14 @@ public final class ViewRootImpl implements ViewParent,
             if (viewAncestor != null) {
                 final View view = viewAncestor.mView;
                 if (view != null) {
+                    //freeFormSideShow freeFormSideHide
+                      if (command != null && command.contains("freeFormSide")) {
+                          boolean show = command.equals("freeFormSideShow");
+                          if (view instanceof  DecorView) {
+                              ((DecorView)view).setFreeFormSideShow(show);
+                          }
+                          return;
+                      }
                     if (checkCallingPermission(Manifest.permission.DUMP) !=
                             PackageManager.PERMISSION_GRANTED) {
                         throw new SecurityException("Insufficient permissions to invoke"

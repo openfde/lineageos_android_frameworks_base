@@ -518,7 +518,12 @@ public class Transitions implements RemoteCallable<Transitions>,
 
             if (mode == TRANSIT_OPEN || mode == TRANSIT_TO_FRONT) {
                 t.show(leash);
-                t.setMatrix(leash, 1, 0, 0, 1);
+                // t.setMatrix(leash, 1, 0, 0, 1);
+                if (info.getChanges().get(i).getTaskInfo() != null && info.getChanges().get(i).getTaskInfo().getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+                    android.util.Log.i("lsm33","do not setMtrix 1  1 when WINDOWING_MODE_FREEFORM");
+                } else {
+                    t.setMatrix(leash, 1, 0, 0, 1);
+                }
                 if (isOpening
                         // If this is a transferred starting window, we want it immediately visible.
                         && (change.getFlags() & FLAG_STARTING_WINDOW_TRANSFER_RECIPIENT) == 0) {
@@ -594,14 +599,23 @@ public class Transitions implements RemoteCallable<Transitions>,
                 continue;
             }
 
+            final int rootIdx = TransitionUtil.rootIndexFor(change, info);
             boolean hasParent = change.getParent() != null;
 
             final TransitionInfo.Root root = TransitionUtil.getRootFor(change, info);
             if (!hasParent) {
                 t.reparent(leash, root.getLeash());
-                t.setPosition(leash,
-                        change.getStartAbsBounds().left - root.getOffset().x,
-                        change.getStartAbsBounds().top - root.getOffset().y);
+                // t.setPosition(leash,
+                //         change.getStartAbsBounds().left - root.getOffset().x,
+                //         change.getStartAbsBounds().top - root.getOffset().y);
+                //add by freeform
+                if (change.getTaskInfo()!= null && change.getTaskInfo().getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+
+                }else {
+                    t.setPosition(leash,
+                            change.getStartAbsBounds().left - info.getRoot(rootIdx).getOffset().x,
+                            change.getStartAbsBounds().top - info.getRoot(rootIdx).getOffset().y);
+                }
             }
             final int layer = calculateAnimLayer(change, i, numChanges, type);
             t.setLayer(leash, layer);

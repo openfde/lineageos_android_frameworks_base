@@ -116,6 +116,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import android.graphics.Matrix;
 
 /**
  * A basic container that can be used to contain activities or other {@link TaskFragment}, which
@@ -2579,7 +2580,39 @@ class TaskFragment extends WindowContainer<WindowContainer> {
         if (mTaskFragmentOrganizer != null) {
             updateOrganizedTaskFragmentSurfaceSize(t, true /* forceUpdate */);
         }
+        initFreeformPosition();
     }
+
+    Rect mFreeFormSurfaceBound =null;
+    public void getFreeFormSurfaceBounds(Rect r) {
+        if (mFreeFormSurfaceBound != null) {
+            r.set(mFreeFormSurfaceBound);
+        }
+    }
+    void initFreeformPosition() {
+     android.util.Log.i("lsm888","initFreeformPosition getBounds = " + getBounds() + " getWindowingMode() == WINDOWING_MODE_FREEFORM " + (getWindowingMode() == WINDOWING_MODE_FREEFORM));
+     if (getBounds().left == 0 && getBounds().width() == getMaxBounds().width()
+     && getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+         SurfaceControl.Transaction t = getSyncTransaction();
+         Matrix matrix = new Matrix();
+         matrix.reset();
+         matrix.postScale(0.5f,0.5f);
+         matrix.postTranslate(getBounds().width() * 0.5f * 0.5f,getBounds().top);
+         if (mFreeFormSurfaceBound == null) {
+             mFreeFormSurfaceBound = new Rect();
+         }
+         mFreeFormSurfaceBound.set(getBounds());
+         mFreeFormSurfaceBound.scale(0.5f);
+         int deta  = 0 ;
+         if (mFreeFormSurfaceBound.top < getBounds().top) {
+             deta = getBounds().top -mFreeFormSurfaceBound.top;
+         }
+         mFreeFormSurfaceBound.offset((int)(getBounds().width() * 0.5f * 0.5f),deta);
+         t.setMatrix(getSurfaceControl(),matrix,new float[9]);
+         t.apply();
+         android.util.Log.i("lsm33","initFreeformPosition mFreeFormSurfaceBound = " + mFreeFormSurfaceBound + " getBounds " + getBounds());
+     }
+     }
 
     /**
      * Gets the relative bounds of this embedded TaskFragment. This should only be called on
@@ -3208,6 +3241,11 @@ class TaskFragment extends WindowContainer<WindowContainer> {
         if (dumpAll) {
             printThisActivity(pw, mLastPausedActivity, dumpPackage, false,
                     prefix + "  mLastPausedActivity: ", null);
+        }
+        if (inFreeformWindowingMode()) {
+            if (mFreeFormSurfaceBound != null) {
+                pw.println(prefix + "  mFreeFormSurfaceBound=" + mFreeFormSurfaceBound);
+            }
         }
     }
 

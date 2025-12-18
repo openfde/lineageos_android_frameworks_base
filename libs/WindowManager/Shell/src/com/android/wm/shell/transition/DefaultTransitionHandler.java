@@ -65,6 +65,7 @@ import static com.android.wm.shell.transition.TransitionAnimationHelper.edgeExte
 import static com.android.wm.shell.transition.TransitionAnimationHelper.getTransitionBackgroundColorIfSet;
 import static com.android.wm.shell.transition.TransitionAnimationHelper.getTransitionTypeFromInfo;
 import static com.android.wm.shell.transition.TransitionAnimationHelper.loadAttributeAnimation;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -533,6 +534,7 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
                     leash.release();
                 }
 
+                if (change.getTaskInfo()!= null && change.getTaskInfo().getWindowingMode() != WINDOWING_MODE_FREEFORM)
                 buildSurfaceAnimation(animations, a, change.getLeash(), onAnimFinish,
                         mTransactionPool, mMainExecutor, animRelOffset, cornerRadius,
                         clipRect);

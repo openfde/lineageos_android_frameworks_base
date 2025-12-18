@@ -407,8 +407,12 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                 finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
                         .setPosition(mTaskSurface, 0, 28);
             } else {
-                finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
-                        .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
+                // finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
+                //         .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
+                if (mTaskInfo.getWindowingMode() != WINDOWING_MODE_FREEFORM) {
+                finishT.setPosition(mTaskSurface, taskPosition.x, taskPosition.y)
+                        .setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight);
+                }
             }
 
         }

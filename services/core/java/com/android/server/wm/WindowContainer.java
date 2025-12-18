@@ -3144,6 +3144,15 @@ class WindowContainer<E extends WindowContainer> extends ConfigurationContainer<
         final Pair<AnimationAdapter, AnimationAdapter> resultAdapters;
         final int appRootTaskClipMode = getDisplayContent().mAppTransition.getAppRootTaskClipMode();
 
+        if (this.asTask()!= null && this.asTask().inFreeformWindowingMode()) {
+            this.asTask().initFreeformPosition();
+            return new Pair<>(null, null);
+        }
+        if (this.asTask()!= null && this.asTask().inFreeformWindowingMode()) {
+            this.asTask().initFreeformPosition();
+            return new Pair<>(null, null);
+        }
+
         // Separate position and size for use in animators.
         final Rect screenBounds = getAnimationBounds(appRootTaskClipMode);
         mTmpRect.set(screenBounds);

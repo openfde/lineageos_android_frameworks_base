@@ -21,12 +21,11 @@ import static com.android.wm.shell.windowdecor.DragPositioningCallback.CTRL_TYPE
 import static com.android.wm.shell.windowdecor.DragPositioningCallback.CTRL_TYPE_RIGHT;
 import static com.android.wm.shell.windowdecor.DragPositioningCallback.CTRL_TYPE_TOP;
 import static com.android.wm.shell.windowdecor.DragPositioningCallback.CTRL_TYPE_UNDEFINED;
-
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.view.SurfaceControl;
-
+import android.util.Log;
 import com.android.wm.shell.common.DisplayController;
 
 /**
@@ -111,6 +110,13 @@ public class DragPositioningCallbackUtility {
             repositionTaskBounds.top = oldTop;
             repositionTaskBounds.bottom = oldBottom;
         }
+
+          //add by freeform
+        Log.i("lsm33","before adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds + " taskBoundsAtDragStart = " +taskBoundsAtDragStart + " delta " +delta);
+        adapterRectByRatio(repositionTaskBounds,taskBoundsAtDragStart);
+        Log.i("lsm33","after adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds);
+        // add end
+
         // If there are no changes to the bounds after checking new bounds against minimum width
         // and height, do not set bounds and return false
         if (oldLeft == repositionTaskBounds.left && oldTop == repositionTaskBounds.top
@@ -119,6 +125,14 @@ public class DragPositioningCallbackUtility {
             return false;
         }
         return true;
+    }
+
+
+    //add by freeform
+    static void adapterRectByRatio(Rect inRect,Rect ratioRect) {
+        float ratioOfHW =ratioRect.height() / ratioRect.width() ;
+        int ratioHeight =(int)(inRect.width() * ratioOfHW) ;
+        inRect.bottom = inRect.top + ratioHeight;
     }
 
     /**
@@ -194,15 +208,22 @@ public class DragPositioningCallbackUtility {
 
     private static float getMinHeight(DisplayController displayController,
             WindowDecoration windowDecoration) {
+        if (true) {
+            return displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId).height() * gWidthRotio;
+        }        
         return windowDecoration.mTaskInfo.minHeight < 0 ? getDefaultMinSize(displayController,
                 windowDecoration)
                 : windowDecoration.mTaskInfo.minHeight;
     }
+    static float gWidthRotio = 0.2f;
 
     private static float getDefaultMinSize(DisplayController displayController,
             WindowDecoration windowDecoration) {
         float density =  displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId)
                 .densityDpi() * DisplayMetrics.DENSITY_DEFAULT_SCALE;
+        if (true) {
+           return displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId).width() * gWidthRotio;
+        }        
         return windowDecoration.mTaskInfo.defaultMinSize * density;
     }
 

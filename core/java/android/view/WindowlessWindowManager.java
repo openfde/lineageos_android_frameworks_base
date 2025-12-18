@@ -387,7 +387,12 @@ public class WindowlessWindowManager implements IWindowSession {
             outFrames.displayFrame.set(frames.displayFrame);
         }
 
-        t.setPosition(leash, frames.frame.left, frames.frame.top);
+        // t.setPosition(leash, frames.frame.left, frames.frame.top);
+        if (mConfiguration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
+            Log.i("lsm33","do not setposition");
+        } else  {
+            t.setPosition(leash, frames.frame.left, frames.frame.top);
+        }
 
         if (viewFlags == View.VISIBLE) {
             // TODO(b/262892794) ViewRootImpl modifies the app's rendering SurfaceControl

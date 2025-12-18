@@ -2941,6 +2941,9 @@ public final class SurfaceControl implements Parcelable {
          */
         @NonNull
         public Transaction setPosition(@NonNull SurfaceControl sc, float x, float y) {
+            if (sc.toString().contains("Task")) {
+                android.util.Log.i("lsm33",sc + " Transaction setPosition x = " +x + " y = " + y,new Exception()) ;
+            }
             checkPreconditions(sc);
             if (SurfaceControlRegistry.sCallStackDebuggingEnabled) {
                 SurfaceControlRegistry.getProcessInstance().checkCallStackDebugging(

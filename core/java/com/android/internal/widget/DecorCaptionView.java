@@ -32,6 +32,9 @@ import com.android.internal.policy.DecorView;
 import com.android.internal.policy.PhoneWindow;
 
 import java.util.ArrayList;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 /**
  * This class represents the special screen elements to control a window on freeform
@@ -89,6 +92,8 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     private boolean mCheckForDragging;
     private int mDragSlop;
 
+    public boolean mNeedDrawRect = false;
+
     // Fields for detecting and intercepting click events on close/maximize.
     private ArrayList<View> mTouchDispatchList = new ArrayList<>(2);
     // We use the gesture detector to detect clicks on close/maximize buttons and to be consistent
@@ -126,6 +131,20 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
         super.onFinishInflate();
         mCaption = getChildAt(0);
     }
+
+    @Override
+     protected void dispatchDraw(Canvas canvas) {
+         super.dispatchDraw(canvas);
+         if (mNeedDrawRect) {
+             Paint paint = new Paint();
+             paint.setColor(Color.RED);
+             paint.setAntiAlias(true);
+             paint.setStrokeWidth(20);
+             paint.setStyle(Paint.Style.STROKE);
+             Rect rect = new Rect(0,0,getWidth(),getHeight());
+             canvas.drawRect(rect,paint);
+         }
+     }
 
     public void setPhoneWindow(PhoneWindow owner, boolean show) {
         mOwner = owner;

@@ -210,7 +210,13 @@ class TaskPositioningController {
                     cleanUpTaskPositioner();
                     return false;
                 }
-
+                if (resize) {
+                    try {
+                        win.mClient.executeCommand("freeFormSideShow",null,null);
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 mTaskPositioner.startDrag(resize, preserveOrientation, startX, startY);
                 return true;
             }

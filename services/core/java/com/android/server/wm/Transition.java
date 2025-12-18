@@ -964,7 +964,12 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
             SurfaceControl targetLeash) {
         final Point tmpPos = new Point();
         target.getRelativePosition(tmpPos);
-        t.setPosition(targetLeash, tmpPos.x, tmpPos.y);
+        // t.setPosition(targetLeash, tmpPos.x, tmpPos.y);
+        if (target.asTask() != null && target.asTask().inFreeformWindowingMode()) {
+            android.util.Log.i("lsm33","do not setPosition  target.asTask() ="+target.asTask());
+        } else {
+            t.setPosition(targetLeash, tmpPos.x, tmpPos.y);
+        }
         // No need to clip the display in case seeing the clipped content when during the
         // display rotation. No need to clip activities because they rely on clipping on
         // task layers.
@@ -975,7 +980,12 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
             final Rect clipRect = target.getResolvedOverrideBounds();
             t.setWindowCrop(targetLeash, clipRect.width(), clipRect.height());
         }
-        t.setMatrix(targetLeash, 1, 0, 0, 1);
+        // t.setMatrix(targetLeash, 1, 0, 0, 1);
+        if (target.asTask() != null && target.asTask().inFreeformWindowingMode()) {
+            android.util.Log.i("lsm33","do not setMatrix target.asTask() ="+target.asTask());
+        } else {
+            t.setMatrix(targetLeash, 1, 0, 0, 1);
+        }
         // The bounds sent to the transition is always a real bounds. This means we lose
         // information about "null" bounds (inheriting from parent). Core will fix-up
         // non-organized window surface bounds; however, since Core can't touch organized

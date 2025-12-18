@@ -214,6 +214,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import android.os.SystemProperties;
 import com.android.internal.util.CompatibleConfig;
+import android.util.Log;
 
 /**
  * {@link Task} is a TaskFragment that can contain a group of activities to perform a certain job.
@@ -786,10 +787,24 @@ class Task extends TaskFragment {
         updateTaskDescription();
     }
 
+     void setBoundsByFreeFormSurfaceBound() {
+       SurfaceControl.Transaction t = getSyncTransaction();
+        float scale = (float)mFreeFormSurfaceBound.width() / (float) getBounds().width();
+        t.setScale(getSurfaceControl(),scale,scale);
+        t.setPosition(getSurfaceControl(),mFreeFormSurfaceBound.left,mFreeFormSurfaceBound.top);
+        t.apply();
+    }
+
     boolean resize(Rect bounds, int resizeMode, boolean preserveWindow) {
         mAtmService.deferWindowLayout();
 
         try {
+            if (inFreeformWindowingMode()) {
+                mFreeFormSurfaceBound.set(bounds);
+                setBoundsByFreeFormSurfaceBound();
+                return true;
+            }
+
             final boolean forced = (resizeMode & RESIZE_MODE_FORCED) != 0;
 
             if (getParent() == null) {
@@ -2157,6 +2172,20 @@ class Task extends TaskFragment {
             // placed properly when always on top state changes.
             taskDisplayArea.positionChildAt(POSITION_TOP, this, false /* includingParents */);
         }
+
+         //add by freeform
+        if (mFreeFormSurfaceBound != null ) {
+            Log.i("lsm33","enter Task onConfigurationChanged getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() = " + getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() + " \n mFreeFormSurfaceBound = "+mFreeFormSurfaceBound);
+
+            if (getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds().isEmpty()) {
+                return;
+            }
+            mFreeFormSurfaceBound.set(getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds());
+            setBoundsByFreeFormSurfaceBound();
+            dispatchTaskInfoChangedIfNeeded(true);
+            Log.i("lsm33","Task onConfigurationChanged newParentConfig.windowConfiguration.getFreeformBounds() = " + newParentConfig.windowConfiguration.getFreeformBounds());
+        }
+        //add end
     }
 
     void resolveLeafTaskOnlyOverrideConfigs(Configuration newParentConfig, Rect previousBounds) {
@@ -3595,6 +3624,16 @@ class Task extends TaskFragment {
                 ? DEFAULT_MIN_TASK_SIZE_DP : mDisplayContent.mMinSizeOfResizeableTaskDp;
         info.positionInParent = getRelativePosition();
 
+        if (inFreeformWindowingMode()) {
+           if (mFreeFormSurfaceBound== null) {
+               initFreeformPosition();
+           }
+           info.positionInParent.x = mFreeFormSurfaceBound.left;
+           info.positionInParent.y = mFreeFormSurfaceBound.top;
+           android.util.Log.i("test22","info.positionInParent.y = " + info.positionInParent.y + " mFreeFormSurfaceBound " + mFreeFormSurfaceBound);
+       }
+       info.configuration.windowConfiguration.setFreeformBounds(mFreeFormSurfaceBound);
+
         info.topActivityInfo = top != null ? top.info : null;
         info.pictureInPictureParams = getPictureInPictureParams(top);
         info.launchIntoPipHostTaskId = (info.pictureInPictureParams != null
@@ -4755,6 +4794,7 @@ class Task extends TaskFragment {
         }
 
         setWindowingMode(windowingMode, false /* creating */);
+        initFreeformPosition();
     }
 
     /**

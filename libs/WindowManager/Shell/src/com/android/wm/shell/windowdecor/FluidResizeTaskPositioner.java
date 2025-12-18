@@ -39,7 +39,7 @@ import com.android.wm.shell.transition.Transitions;
 
 import java.util.function.Supplier;
 import android.util.Log;
-
+import android.app.WindowConfiguration;
 /**
  * A task positioner that resizes/relocates task contents as it is dragged.
  * Utilizes {@link DragPositioningCallbackUtility} to determine new task bounds.
@@ -113,6 +113,14 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
         mTaskBoundsAtDragStart.set(
                 mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getBounds());
 
+        if ( mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
+           mTaskBoundsAtDragStart.set(
+                   mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getFreeformBounds());
+        } else {
+            mTaskBoundsAtDragStart.set(
+                    mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getBounds());
+        }
+
         mRepositionStartPoint.set(x, y);
         mDragStartListener.onDragStart(mWindowDecoration.mTaskInfo.taskId);
 
@@ -168,15 +176,17 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                     mRepositionTaskBounds , targetBounds);
             // The task is being resized, send the |dragResizing| hint to core with the first
             // bounds-change wct.
-            if (!mHasDragResized) {
-                // This is the first bounds change since drag resize operation started.
-                if(magicTaskInfo != null){
-                    wct.setDragResizing(magicTaskInfo.token, true /* dragResizing */);
-                }
-                wct.setDragResizing(mWindowDecoration.mTaskInfo.token, true /* dragResizing */);
-                mHasDragResized = true;
-            }
-
+            // if (!mHasDragResized) {
+            //     // This is the first bounds change since drag resize operation started.
+            //     if(magicTaskInfo != null){
+            //         wct.setDragResizing(magicTaskInfo.token, true /* dragResizing */);
+            //     }
+            //     wct.setDragResizing(mWindowDecoration.mTaskInfo.token, true /* dragResizing */);
+            //     mHasDragResized = true;
+            // }
+            wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            mTaskOrganizer.applyTransaction(wct);
+            mHasDragResized = true;
             wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
             if(magicTaskInfo != null){
                 wct.setBounds(magicTaskInfo.token, targetBounds);

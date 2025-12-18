@@ -1973,6 +1973,8 @@ UnflaggedApi: android.Manifest.permission#START_ACTIVITIES_FROM_SDK_SANDBOX:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.START_ACTIVITIES_FROM_SDK_SANDBOX
 UnflaggedApi: android.Manifest.permission#USE_REMOTE_AUTH:
     New API must be flagged with @FlaggedApi: field android.Manifest.permission.USE_REMOTE_AUTH
+UnflaggedApi: android.app.WindowConfiguration#WINDOW_CONFIG_FREEFORM_BOUNDS:
+    New API must be flagged with @FlaggedApi: field android.app.WindowConfiguration.WINDOW_CONFIG_FREEFORM_BOUNDS
 UnflaggedApi: android.app.admin.DevicePolicyIdentifiers#PERMITTED_INPUT_METHODS_POLICY:
     New API must be flagged with @FlaggedApi: field android.app.admin.DevicePolicyIdentifiers.PERMITTED_INPUT_METHODS_POLICY
 UnflaggedApi: android.app.admin.DevicePolicyIdentifiers#PERSONAL_APPS_SUSPENDED_POLICY:
