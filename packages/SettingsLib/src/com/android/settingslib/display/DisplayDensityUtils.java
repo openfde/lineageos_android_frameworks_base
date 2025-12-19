@@ -54,7 +54,6 @@ public class DisplayDensityUtils {
      * largest.
      */
     private static final int[] SUMMARIES_SMALLER = new int[] {
-            R.string.screen_zoom_summary_large,
             R.string.screen_zoom_summary_small,
             R.string.screen_zoom_summary_smaller,
             R.string.screen_zoom_summary_smallest
@@ -120,6 +119,7 @@ public class DisplayDensityUtils {
         for (Display display : mDisplayManager.getDisplays(
                 DisplayManager.DISPLAY_CATEGORY_ALL_INCLUDING_DISABLED)) {
             DisplayInfo info = new DisplayInfo();
+            Log.w(LOG_TAG, "DisplayDensityUtils " + display.getDisplayId() + ",info.logicalDensityDpi "+info.logicalDensityDpi);
             if (!display.getDisplayInfo(info)) {
                 Log.w(LOG_TAG, "Cannot fetch display info for display " + display.getDisplayId());
                 continue;
@@ -134,6 +134,7 @@ public class DisplayDensityUtils {
 
             final int defaultDensity = DisplayDensityUtils.getDefaultDensityForDisplay(
                     display.getDisplayId());
+            Log.w(LOG_TAG, "DisplayDensityUtils defaultDensity " + defaultDensity);        
             if (defaultDensity <= 0) {
                 Log.w(LOG_TAG, "Cannot fetch default density for display "
                         + display.getDisplayId());
@@ -151,19 +152,28 @@ public class DisplayDensityUtils {
                     DisplayMetrics.DENSITY_MEDIUM * minDimensionPx / MIN_DIMENSION_DP;
             final float maxScaleDimen = context.getResources().getFraction(
                     R.fraction.display_density_max_scale, 1, 1);
-            final float maxScale = Math.min(maxScaleDimen, maxDensity / (float) defaultDensity);
-            final float minScale = context.getResources().getFraction(
-                    R.fraction.display_density_min_scale, 1, 1);
-            final float minScaleInterval = context.getResources().getFraction(
-                    R.fraction.display_density_min_scale_interval, 1, 1);
+            final float maxScale = 1.1f;// Math.min(maxScaleDimen, maxDensity / (float) defaultDensity);
+            final float minScale = 0.9f; //context.getResources().getFraction(R.fraction.display_density_min_scale, 1, 1);
+            final float minScaleInterval = 0.05f;//context.getResources().getFraction(R.fraction.display_density_min_scale_interval, 1, 1);
             final int numLarger = (int) MathUtils.constrain((maxScale - 1) / minScaleInterval,
                     0, SUMMARIES_LARGER.length);
             final int numSmaller = (int) MathUtils.constrain((1 - minScale) / minScaleInterval,
                     0, SUMMARIES_SMALLER.length);
 
+             Log.w(LOG_TAG, "DisplayDensityUtils "
+                    + " maxDensity=" + maxDensity
+                    + " maxScale=" + maxScale
+                    + " minScale=" + minScale
+                    + " minScaleInterval=" + minScaleInterval
+                    + " numLarger=" + numLarger
+                    + " numSmaller=" + numSmaller);        
+
             String[] entries = new String[1 + numSmaller + numLarger];
             int[] values = new int[entries.length];
             int curIndex = 0;
+           // maxDensity=540 maxScale=1.0999756 minScale=0.9 minScaleInterval=0.049999952 numLarger=1 numSmaller=2
+           //maxDensity=800 maxScale=1.0999756 minScale=0.9 minScaleInterval=0.049999952 numLarger=1 numSmaller=2
+
 
             if (numSmaller > 0) {
                 final float interval = (1 - minScale) / numSmaller;
