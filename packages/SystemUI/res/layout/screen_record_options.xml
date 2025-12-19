@@ -116,10 +116,10 @@
             android:layout_height="match_parent"
             android:minHeight="48dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_stopdot_label"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -130,6 +130,7 @@
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
+                android:layout_marginLeft="12dp"
                 android:text="@string/screenrecord_stopdot_summary"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:textColorSecondary"/>
@@ -170,10 +171,10 @@
             android:layout_height="match_parent"
             android:minHeight="48dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_lowquality_label"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -183,6 +184,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
+                android:layout_marginLeft="12dp"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_lowquality_summary"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -224,10 +226,10 @@
             android:layout_height="match_parent"
             android:minHeight="48dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_longer_timeout_switch_label"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -237,6 +239,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
+                android:layout_marginLeft="12dp"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_longer_timeout_switch_summary"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -278,10 +281,10 @@
             android:layout_height="match_parent"
             android:minHeight="48dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_skip_time_label"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -291,6 +294,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
+                android:layout_marginLeft="12dp"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_skip_time_summary"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -332,10 +336,10 @@
             android:layout_height="match_parent"
             android:minHeight="48dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_hevc_switch_label"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -345,6 +349,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
+                android:layout_marginLeft="12dp"
                 android:fontFamily="@*android:string/config_bodyFontFamily"
                 android:text="@string/screenrecord_hevc_switch_summary"
                 android:textAppearance="?android:attr/textAppearanceSmall"

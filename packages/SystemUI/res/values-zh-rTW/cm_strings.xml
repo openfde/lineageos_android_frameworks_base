@@ -77,7 +77,7 @@
     <string name="screenrecord_lowquality_label">降低畫質</string>
     <string name="screenrecord_lowquality_summary">減少檔案大小</string>
     <string name="screenrecord_longer_timeout_switch_label">更大的檔案大小限制</string>
-    <string name="screenrecord_longer_timeout_switch_summary">錄影大小限制 15 GB</string>
+    <string name="screenrecord_longer_timeout_switch_summary">15 GB</string>
     <string name="screenrecord_skip_time_label">關閉倒數</string>
     <string name="screenrecord_skip_time_summary">跳過三秒的倒數時間</string>
     <string name="screenrecord_hevc_switch_label">HEVC 編碼</string>
