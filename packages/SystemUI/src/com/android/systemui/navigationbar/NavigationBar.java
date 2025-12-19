@@ -283,6 +283,7 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
     private final Binder mInsetsSourceOwner = new Binder();
     private final NavBarButtonClickLogger mNavBarButtonClickLogger;
     private final NavbarOrientationTrackingLogger mNavbarOrientationTrackingLogger;
+    private float mDockScaleFactor = 1.0f;
 
     /**
      * When quickswitching between apps of different orientations, we draw a secondary home handle
@@ -366,6 +367,11 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
                             repositionNavigationBar(rotation);
                         }
                     }
+                }
+
+                @Override
+                public void updateDockScaleFactor(float scaleFactor) {
+                    rescaleNavigationBar(scaleFactor);
                 }
             };
 
@@ -819,6 +825,7 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
                 ? mMainAutoHideController : mAutoHideControllerFactory.create(mContext);
         setAutoHideController(autoHideController);
         restoreAppearanceAndTransientState();
+        rescaleNavigationBar(mDockScaleFactor);
     }
 
     @Override
@@ -1253,6 +1260,19 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
                 || (mDisabledFlags1 & StatusBarManager.DISABLE_SEARCH) != 0;
     }
 
+    private void rescaleNavigationBar(float scaleFactor) {
+        this.mDockScaleFactor = scaleFactor;
+        if (mView == null || !mView.isAttachedToWindow()) return;
+
+        prepareNavigationBarView();
+
+        if(getView() != null){
+            getView().setDockScaleFactor(scaleFactor);
+        }
+        mView.setTag(mDockScaleFactor);
+        mWindowManager.updateViewLayout(mFrame, getBarLayoutParams(mCurrentRotation));
+    }
+
     private void repositionNavigationBar(int rotation) {
         if (mView == null || !mView.isAttachedToWindow()) return;
 
@@ -1668,19 +1688,28 @@ public class NavigationBar extends ViewController<NavigationBarView> implements 
                     com.android.internal.R.bool.config_navBarCanMove);
         }
         if (!navBarCanMove) {
-            height = userContext.getResources().getDimensionPixelSize(
-                    com.android.internal.R.dimen.navigation_bar_frame_height);
-            insetsHeight = userContext.getResources().getDimensionPixelSize(
-                    com.android.internal.R.dimen.navigation_bar_height);
+//            height = userContext.getResources().getDimensionPixelSize(
+//                    com.android.internal.R.dimen.navigation_bar_frame_height);
+//            insetsHeight = userContext.getResources().getDimensionPixelSize(
+//                    com.android.internal.R.dimen.navigation_bar_height);
+            height = (int)(userContext.getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_frame_height)
+                    * mDockScaleFactor + 0.5f);
+            insetsHeight = (int)(userContext.getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_height)
+                    * mDockScaleFactor + 0.5f);
         } else {
             switch (rotation) {
                 case ROTATION_UNDEFINED:
                 case Surface.ROTATION_0:
                 case Surface.ROTATION_180:
-                    height = userContext.getResources().getDimensionPixelSize(
-                            com.android.internal.R.dimen.navigation_bar_frame_height);
-                    insetsHeight = userContext.getResources().getDimensionPixelSize(
-                            com.android.internal.R.dimen.navigation_bar_height);
+//                    height = userContext.getResources().getDimensionPixelSize(
+//                            com.android.internal.R.dimen.navigation_bar_frame_height);
+//                    insetsHeight =  (int)(userContext.getResources().density * FDE_NAVIGATIONBAR_HEIGHT + 0.5f);
+//                    insetsHeight = userContext.getResources().getDimensionPixelSize(
+//                            com.android.internal.R.dimen.navigation_bar_height);
+                    height = (int)(userContext.getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_frame_height)
+                            * mDockScaleFactor + 0.5f);
+                    insetsHeight = (int)(userContext.getResources().getDimensionPixelSize(com.android.internal.R.dimen.navigation_bar_height)
+                            * mDockScaleFactor + 0.5f);
                     break;
                 case Surface.ROTATION_90:
                     gravity = Gravity.RIGHT;

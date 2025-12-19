@@ -105,6 +105,12 @@ public class TaskInfo {
     public ComponentName realActivity;
 
     /**
+     * magic windowing type of this task.
+     * @hide
+     */
+    public int magicWindowType = 0;
+
+    /**
      * The number of activities in this task (including running).
      */
     public int numActivities;
@@ -493,6 +499,7 @@ public class TaskInfo {
         displayAreaFeatureId = source.readInt();
         isTopActivityTransparent = source.readBoolean();
         appCompatTaskInfo = source.readTypedObject(AppCompatTaskInfo.CREATOR);
+        magicWindowType = source.readInt();
     }
 
     /**
@@ -540,6 +547,7 @@ public class TaskInfo {
         dest.writeInt(displayAreaFeatureId);
         dest.writeBoolean(isTopActivityTransparent);
         dest.writeTypedObject(appCompatTaskInfo, flags);
+        dest.writeInt(magicWindowType);
     }
 
     @Override
@@ -577,6 +585,7 @@ public class TaskInfo {
                 + " displayAreaFeatureId=" + displayAreaFeatureId
                 + " isTopActivityTransparent=" + isTopActivityTransparent
                 + " appCompatTaskInfo=" + appCompatTaskInfo
+                + " magicWindowType=" + magicWindowType
                 + "}";
     }
 }

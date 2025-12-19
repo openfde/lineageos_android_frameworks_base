@@ -50,7 +50,9 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.Display.INVALID_DISPLAY;
 import static android.view.WindowManager.TRANSIT_TO_BACK;
 import static android.view.WindowManager.TRANSIT_TO_FRONT;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 import static com.android.internal.protolog.ProtoLogGroup.WM_DEBUG_STATES;
 import static com.android.internal.protolog.ProtoLogGroup.WM_DEBUG_TASKS;
 import static com.android.server.wm.ActivityRecord.State.PAUSED;
@@ -156,7 +158,22 @@ import com.android.server.am.UserState;
 import com.android.server.pm.PackageManagerServiceUtils;
 import com.android.server.utils.Slogf;
 import com.android.server.wm.ActivityMetricsLogger.LaunchingState;
-
+import android.os.Environment;
+import android.text.TextUtils;
+import android.util.Xml;
+import com.android.internal.util.FunctionalUtils;
+import org.xmlpull.v1.XmlPullParser;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.IntFunction;
+import libcore.io.IoUtils;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -192,6 +209,20 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
 
     /** How long we wait until giving up on the activity telling us it released the top state. */
     private static final int TOP_RESUMED_STATE_LOSS_TIMEOUT = 500;
+
+    /**
+     * load magic window config
+     */
+    public HashMap<String, String> mMagicWindowConfig = new HashMap<>();
+    private static final String MAGIC_WINDOW_DIRNAME = "magicwindow_config";
+    private static final String MAGIC_WINDOW_FILE_SUFFIX = ".xml";
+    private static final String MAGIC_WINDOW_CONFIG_FILENAME = "magic_config";
+    private static final String MAGIC_WINDOW_TAG = "package";
+    private static final String MAGIC_WINDOW_KEY = "packagename";
+    private static final String MAGIC_WINDOW_VALUE = "main";
+    private static final String MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM = "/system/magicwindow_config/";
+
+
 
     /**
      * The timeout to kill task processes if its activity didn't complete destruction in time
@@ -470,6 +501,91 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
         mLaunchParamsController.registerDefaultModifiers(this);
 
         mBalController = new BackgroundActivityStartController(mService, this);
+        loadMagicWindowConfig();
+    }
+
+    public void loadMagicWindowConfig() {
+//        IntFunction<File> userFolderGetter = Environment::getDataSystemCeDirectory;
+//        File userFolder = userFolderGetter.apply(0);
+        File magicWindowConfigFileDir = new File("/system/", MAGIC_WINDOW_DIRNAME);
+        if (!magicWindowConfigFileDir.isDirectory()) {
+            Slog.i(TAG, "Didn't find magic config folder for user " + 0);
+            magicWindowConfigFileDir = new File(MAGIC_WINDOW_CONFIG_DIRNAME_SYSTEM);
+        } else if(!magicWindowConfigFileDir.isDirectory()){
+            Slog.i(TAG, "Didn't find magic config folder in system for user " + 0);
+            return;
+        }
+        File magicWindowConfigFile = new File(magicWindowConfigFileDir,
+                MAGIC_WINDOW_CONFIG_FILENAME + MAGIC_WINDOW_FILE_SUFFIX);
+        if (!magicWindowConfigFile.exists()) {
+            Slog.i(TAG, "Didn't find magic config file for user " + 0);
+            return;
+        }
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(magicWindowConfigFile));
+            final XmlPullParser parser = Xml.newPullParser();
+            parser.setInput(reader);
+            int event;
+            while ((event = parser.next()) != XmlPullParser.END_DOCUMENT
+            ) {
+                if (event != XmlPullParser.START_TAG) {
+                    continue;
+                }
+
+                final String tagName = parser.getName();
+                if (!MAGIC_WINDOW_TAG.equals(tagName)) {
+                    Slog.w(TAG, "Unexpected tag name: " + tagName);
+                    continue;
+                }
+                String packagename = null, main = null;
+                for (int i = 0; i < parser.getAttributeCount(); ++i) {
+                    final String attrValue = parser.getAttributeValue(i);
+                    switch (parser.getAttributeName(i)) {
+                        case MAGIC_WINDOW_KEY:
+                            packagename = attrValue;
+                            break;
+                        case MAGIC_WINDOW_VALUE:
+                            main = attrValue;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (!TextUtils.isEmpty(packagename) && !TextUtils.isEmpty(main)) {
+                    // Slog.e(TAG, "magic window packagename:" + packagename + " main:" + main);
+                    mMagicWindowConfig.put(packagename, main);
+                }
+            }
+
+        } catch (Exception e) {
+            Slog.w(TAG, "Failed to loadmagic config for " + magicWindowConfigFileDir.getName(), e);
+            magicWindowConfigFile.delete();
+        } finally {
+            IoUtils.closeQuietly(reader);
+        }
+    }
+
+    public void updateMagicFromCompatibleConfig(String packagename, boolean isMagic){
+        if(isMagic || TextUtils.isEmpty(packagename) || !mMagicWindowConfig.containsKey(packagename)){
+            return;
+        }
+        mMagicWindowConfig.remove(packagename);
+    }
+
+
+    public int getMagicWindowType(String packageName, String activity) {
+        // Slog.e(TAG, " package:" + packageName + " activity:" + activity);
+        if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
+            return NOT_MAGIC_WINDOW; //not magic window
+        } else if(!mMagicWindowConfig.containsKey(packageName)) {
+            return NOT_MAGIC_WINDOW; // not magic window
+        } else if(!activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_ADDITIONAL_WINDOW; //  magic additional window
+        } else if(activity.contains(mMagicWindowConfig.get(packageName))){
+            return MAGIC_MAIN_WINDOW; //  magic main window
+        }
+        return NOT_MAGIC_WINDOW;
     }
 
     void onSystemReady() {

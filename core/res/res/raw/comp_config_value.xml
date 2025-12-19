@@ -144,7 +144,7 @@
     <item
         isdel="false"
         key_code="isShiftContentBelowCaption"
-        update_date="2025-04-22">
+        update_date="2025-12-02">
         <package name="com.lemon.lv">
             <activity name="">true</activity>
         </package>
@@ -164,7 +164,7 @@
             <activity name="">true</activity>
         </package>
 		<package name="com.tencent.tmgp.luobo4">
-            <activity name="">true</activity>
+            <activity name="">false</activity>
         </package>
 		<package name="com.tencent.tmgp.sgame">
             <activity name="">true</activity>
@@ -191,5 +191,53 @@
             <activity name="SplashActivity">true</activity>
         </package>
     </item>
+	<item
+        isdel="false"
+        key_code="forcedMaximizeStart"
+        update_date="2025-12-03">
+		<package name="com.tencent.tmgp.luobo4">
+            <activity name="QRActivity">true</activity>
+        </package>
+    </item>
+
+
+
+    <item
+        isdel="false"
+        key_code="enableMagicWindow"
+        update_date="2025-12-3">
+        <package name="com.jingdong.app.mall">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.ss.android.article.news">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.zhihu.android">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.xingin.xhs">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.sina.weibo">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.kuaishou.nebula">
+            <activity name="">true</activity>
+        </package>
+        <package name="ctrip.android.view">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.Qunar">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.tencent.mm">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.lite.ceclanxin">
+            <activity name="">true</activity>
+        </package>
+
+    </item>
+
 
 </items>

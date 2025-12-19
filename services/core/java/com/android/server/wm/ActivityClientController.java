@@ -41,6 +41,7 @@ import static android.view.Display.INVALID_DISPLAY;
 import static android.view.WindowManager.TRANSIT_CHANGE;
 import static android.view.WindowManager.TRANSIT_TO_BACK;
 import static android.view.WindowManager.TRANSIT_TO_FRONT;
+import static com.android.server.wm.Task.ADDITIONAL_WINDOW_ACTIVITY_LIMIT;
 
 import static com.android.internal.protolog.ProtoLogGroup.WM_DEBUG_CONFIGURATION;
 import static com.android.internal.protolog.ProtoLogGroup.WM_DEBUG_IMMERSIVE;
@@ -58,7 +59,10 @@ import static com.android.server.wm.ActivityTaskManagerService.RELAUNCH_REASON_N
 import static com.android.server.wm.ActivityTaskManagerService.TAG_SWITCH;
 import static com.android.server.wm.ActivityTaskManagerService.enforceNotIsolatedCaller;
 import static com.android.window.flags.Flags.allowDisableActivityRecordInputSink;
-
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
+import android.text.TextUtils;
 import android.Manifest;
 import android.annotation.ColorInt;
 import android.annotation.NonNull;
@@ -182,16 +186,54 @@ class ActivityClientController extends IActivityClientController.Stub {
                 if (r == null) {
                     return;
                 }
+                // fde start MAGIC WINDOW
+                // finish activity below, only one activity in additonal task
+                Task task = r.getTask();
+                if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW){
+                    //remove more activities, limit 5 for some popu activity
+                    if(task.getTaskInfo().numActivities > ADDITIONAL_WINDOW_ACTIVITY_LIMIT){
+                        ActivityRecord root = task.getRootActivity();
+                        task.forAllActivities((actR) -> {
+                            if(actR != task.getTopNonFinishingActivity() && actR == root && actR != r){
+                                actR.finishIfPossible(0, null, null, "app-request", true /* oomAdj */);
+                            }
+                        });
+                    } else {
+                        task.forAllActivities((actR) -> {
+                            int type = mTaskSupervisor.getMagicWindowType(actR.intent.getComponent().getPackageName(), actR.intent.getComponent().flattenToShortString());
+                            if(type == MAGIC_MAIN_WINDOW){
+                                task.type = MAGIC_MAIN_WINDOW;
+                            }
+                        });
+                    }
+                }
+                // fde end
                 mTaskSupervisor.activityIdleInternal(r, false /* fromTimeout */,
                         false /* processPausingActivities */, config);
                 if (stopProfiling && r.hasProcess()) {
                     r.app.clearProfilerIfNeeded();
                 }
+                // fde start MAGIC WINDOW
+                // com.tencent.mm LaunchUI need a pause lifecycle to ensure focus update
+                if(task.type == MAGIC_ADDITIONAL_WINDOW && task.affinity.contains("com.tencent.mm")){
+                    Task magicMainTask = mService.mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+                    if(magicMainTask != null && magicMainTask.getTopNonFinishingActivity() != null ){
+                        magicMainTask.getTopNonFinishingActivity().pauseActivityLockedOnly();
+                    }
+                }
+                // fde end
             }
         } finally {
             Trace.traceEnd(TRACE_TAG_WINDOW_MANAGER);
             Binder.restoreCallingIdentity(origId);
         }
+    }
+
+    boolean isSameMagicTask(Task task1, Task task2){
+        if(task1 == null || task2 == null || task1.type != MAGIC_ADDITIONAL_WINDOW || task2.type != MAGIC_ADDITIONAL_WINDOW){
+            return false;
+        }
+        return TextUtils.equals(task1.affinity, task2.affinity);
     }
 
     @Override
@@ -522,6 +564,17 @@ class ActivityClientController extends IActivityClientController.Stub {
                     res = true;
                     // Explicitly dismissing the activity so reset its relaunch flag.
                     r.mRelaunchReason = RELAUNCH_REASON_NONE;
+
+                    // fde start MAGIC WINDOW finish another MAGIC_ADDITIONAL_WINDOW
+                    if(tr.type == MAGIC_MAIN_WINDOW){
+                        Task magic = mService.mRootWindowContainer.findMagicTask(tr.mWindowLayoutAffinity, MAGIC_ADDITIONAL_WINDOW);
+                        if(magic != null){
+                            mTaskSupervisor.removeTask(magic, true /*killProcess*/,
+                                    true, "finish-activity-bymagic");
+                        }
+                    }
+                    // fde end
+
                 } else {
                     r.finishIfPossible(resultCode, resultData, resultGrants, "app-request",
                             true /* oomAdj */);

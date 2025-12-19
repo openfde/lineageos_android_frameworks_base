@@ -60,6 +60,9 @@
 #include <utils/Looper.h>
 #include <utils/Trace.h>
 #include <utils/threads.h>
+#include <cutils/properties.h>
+#include <inputflinger/include/InputReaderBase.h>
+
 
 #include <atomic>
 #include <cinttypes>
@@ -2105,19 +2108,23 @@ static jint nativeInjectInputEvent(JNIEnv* env, jobject nativeImplObj, jobject i
                                                                         uint32_t(policyFlags));
         return static_cast<jint>(result);
     } else if (env->IsInstanceOf(inputEventObj, gMotionEventClassInfo.clazz)) {
-        const MotionEvent* motionEvent = android_view_MotionEvent_getNativePtr(env, inputEventObj);
+        MotionEvent* motionEvent = android_view_MotionEvent_getNativePtr(env, inputEventObj);
         if (!motionEvent) {
             jniThrowRuntimeException(env, "Could not read contents of MotionEvent object.");
             return static_cast<jint>(InputEventInjectionResult::FAILED);
         }
-
-        const InputEventInjectionResult result =
-                im->getInputManager()->getDispatcher().injectInputEvent(motionEvent, targetUid,
-                                                                        mode,
-                                                                        std::chrono::milliseconds(
-                                                                                timeoutMillis),
-                                                                        uint32_t(policyFlags));
-        return static_cast<jint>(result);
+        if (property_get_bool("fde.inject_as_touch", false)) {
+            im->getInputManager()->getReader().injectMotionEvent(motionEvent, syncMode, timeoutMillis, uint32_t(policyFlags));
+            return static_cast<jint>(InputEventInjectionResult::SUCCEEDED);
+        } else {
+            const InputEventInjectionResult result =
+                    im->getInputManager()->getDispatcher().injectInputEvent(motionEvent, targetUid,
+                                                                            mode,
+                                                                            std::chrono::milliseconds(
+                                                                                    timeoutMillis),
+                                                                            uint32_t(policyFlags));
+            return static_cast<jint>(result);
+        }
     } else {
         jniThrowRuntimeException(env, "Invalid input event type.");
         return static_cast<jint>(InputEventInjectionResult::FAILED);

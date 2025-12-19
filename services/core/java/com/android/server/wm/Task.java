@@ -281,6 +281,11 @@ class Task extends TaskFragment {
 
     private static final String FINISH_LOAD_DESKTOP = "1";
 
+    public int type = NOT_MAGIC_WINDOW; // main magic window: 1  additional main window: 2
+    public static final int NOT_MAGIC_WINDOW = 0 , MAGIC_MAIN_WINDOW = 1, MAGIC_ADDITIONAL_WINDOW = 2;
+    public static final int ADDITIONAL_WINDOW_ACTIVITY_LIMIT = 5;
+
+
     /**
      * The modes to control how root task is moved to the front when calling {@link Task#reparent}.
      */
@@ -325,7 +330,7 @@ class Task extends TaskFragment {
 
     int mCurrentUser;
 
-    String affinity;        // The affinity name for this task, or null; may change identity.
+    public String affinity;        // The affinity name for this task, or null; may change identity.
     String rootAffinity;    // Initial base affinity, or null; does not change from initial root.
     String mWindowLayoutAffinity; // Launch param affinity of this task or null. Used when saving
                                 // launch params of this task.
@@ -963,6 +968,22 @@ class Task extends TaskFragment {
      */
     void setIntent(ActivityRecord r, @Nullable Intent intent, @Nullable ActivityInfo info) {
         boolean updateIdentity = false;
+        // fde start MAGIC WINDOW
+        if(info != null){
+            type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
+            mWindowLayoutAffinity = info.packageName;
+        } else {
+            type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
+            // never update type in main window because it will insert a additional window in this task
+            if (type != MAGIC_MAIN_WINDOW) {
+                if (info != null) {
+                    type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
+                } else {
+                    type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().flattenToShortString());
+                }
+            }
+        }
+            // fde end
         if (this.intent == null) {
             updateIdentity = true;
         } else if (!mNeverRelinquishIdentity) {
@@ -3546,6 +3567,7 @@ class Task extends TaskFragment {
                 : stripExtras ? baseIntent.cloneFilter() : new Intent(baseIntent);
         info.baseIntent.setFlags(baseIntentFlags);
 
+        info.magicWindowType = type;
         info.isRunning = top != null;
         info.topActivity = top != null ? top.mActivityComponent : null;
         info.origActivity = origActivity;
@@ -4023,6 +4045,8 @@ class Task extends TaskFragment {
         sb.append(Integer.toHexString(System.identityHashCode(this)));
         sb.append(" #");
         sb.append(mTaskId);
+        sb.append(" type=" + type);
+        sb.append(" mWindowLayoutAffinity=" + mWindowLayoutAffinity);
         sb.append(" type=" + activityTypeToString(getActivityType()));
         if (affinity != null) {
             sb.append(" A=");

@@ -140,6 +140,9 @@ import com.android.server.wm.BackgroundActivityStartController.BalCode;
 import com.android.server.wm.BackgroundActivityStartController.BalVerdict;
 import com.android.server.wm.LaunchParamsController.LaunchParams;
 import com.android.server.wm.TaskFragment.EmbeddingCheckResult;
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
@@ -204,6 +207,8 @@ class ActivityStarter {
     private int mLaunchMode;
     private boolean mLaunchTaskBehind;
     private int mLaunchFlags;
+    private boolean mMagicLaunch = false;
+    private String mWindowAffinity = null;
 
     private LaunchParams mLaunchParams = new LaunchParams();
 
@@ -432,6 +437,8 @@ class ActivityStarter {
          * {@link PendingRemoteAnimationRegistry}
          */
         boolean allowPendingRemoteAnimationRegistryLookup;
+
+        String extraFDE;
 
         /**
          * Ensure constructed request matches reset instance.
@@ -963,6 +970,36 @@ class ActivityStarter {
         final int startFlags = request.startFlags;
         final SafeActivityOptions options = request.activityOptions;
         Task inTask = request.inTask;
+        // fde start: MAGIC WINDOW
+        // int magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
+        Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
+        boolean isMagicPackage = false;
+        String extraFDE = request.extraFDE;
+        if(intent != null && extraFDE != null){
+            isMagicPackage = TextUtils.equals(extraFDE, "true");
+            Slog.d(TAG, "query isMagicPackage:" + isMagicPackage  + "  extraFDE:"
+                    + extraFDE);
+            mSupervisor.updateMagicFromCompatibleConfig(aInfo.packageName, isMagicPackage);
+        }
+        int magicType = 0;
+        if(isMagicPackage) {
+            magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
+        }
+        // mSupervisor.loadMagicWindowConfig(); for debug
+        if( isMagicPackage
+                &&  magicType == MAGIC_ADDITIONAL_WINDOW) {
+            Task task = mRootWindowContainer.findMagicTask(aInfo.packageName, MAGIC_MAIN_WINDOW);
+            if(task != null){
+                mMagicLaunch = true;
+                aInfo.documentLaunchMode = DOCUMENT_LAUNCH_ALWAYS;
+            }
+            mWindowAffinity = aInfo.packageName;
+        } else {
+            mMagicLaunch = false;
+        }
+        Slog.d(TAG, "isMagicPackage:" + isMagicPackage + " magicType:" + magicType);
+        // fde end
+
         TaskFragment inTaskFragment = request.inTaskFragment;
 
         int err = ActivityManager.START_SUCCESS;
@@ -1728,7 +1765,15 @@ class ActivityStarter {
         // Get top task at beginning because the order may be changed when reusing existing task.
         final Task prevTopRootTask = mPreferredTaskDisplayArea.getFocusedRootTask();
         final Task prevTopTask = prevTopRootTask != null ? prevTopRootTask.getTopLeafTask() : null;
-        final Task reusedTask = getReusableTask();
+        Task reusedTask = null;
+        // fde start: MAGIC WINDOW
+        if(mMagicLaunch){
+            reusedTask  = mRootWindowContainer.findMagicTask(mWindowAffinity, MAGIC_ADDITIONAL_WINDOW);
+            mAddingToTask = true;
+            // fde end
+        } else {
+            reusedTask = getReusableTask();
+        }
 
         // If requested, freeze the task list
         if (mOptions != null && mOptions.freezeRecentTasksReordering()
@@ -1968,7 +2013,11 @@ class ActivityStarter {
 
     /** Returns the leaf task where the target activity may be placed. */
     private Task computeTargetTask() {
-        if (mStartActivity.resultTo == null && mInTask == null && !mAddingToTask
+        // fde start: MAGIC WINDOW
+        if(mMagicLaunch) {
+            return null;
+            // fde end
+        } else if (mStartActivity.resultTo == null && mInTask == null && !mAddingToTask
                 && (mLaunchFlags & FLAG_ACTIVITY_NEW_TASK) != 0) {
             // A new task should be created instead of using existing one.
             return null;
@@ -3088,6 +3137,10 @@ class ActivityStarter {
     }
 
     ActivityStarter setIntent(Intent intent) {
+        if(intent != null){
+            String extraFDE = intent.getExtraFDE();
+            mRequest.extraFDE = extraFDE;
+        }
         mRequest.intent = intent;
         return this;
     }

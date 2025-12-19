@@ -7806,6 +7806,7 @@ public class Intent implements Parcelable, Cloneable {
     /** Token to track instant app launches. Local only; do not copy cross-process. */
     private String mLaunchToken;
     private Intent mOriginalIntent; // Used for the experimental "component alias" feature.
+    private String extraFDE;
 
     // ---------------------------------------------------------------------
 
@@ -9897,6 +9898,20 @@ public class Intent implements Parcelable, Cloneable {
     public @Flags int getFlags() {
         return mFlags;
     }
+
+    // fde start MAGIC WINDOW
+    /** @hide */
+    @UnsupportedAppUsage
+    public void setExtraFDE(String extra) {
+        this.extraFDE = extra;
+    }
+
+    /** @hide */
+    @UnsupportedAppUsage
+    public String getExtraFDE() {
+        return extraFDE;
+    }
+    // fde end
 
     /**
      * Retrieve any extended flags associated with this intent.  You will
@@ -12195,6 +12210,7 @@ public class Intent implements Parcelable, Cloneable {
         }
         out.writeInt(mContentUserHint);
         out.writeBundle(mExtras);
+        out.writeString8(extraFDE);
 
         if (mOriginalIntent != null) {
             out.writeInt(1);
@@ -12256,6 +12272,7 @@ public class Intent implements Parcelable, Cloneable {
         }
         mContentUserHint = in.readInt();
         mExtras = in.readBundle();
+        extraFDE = in.readString8();
         if (in.readInt() != 0) {
             mOriginalIntent = new Intent(in);
         }

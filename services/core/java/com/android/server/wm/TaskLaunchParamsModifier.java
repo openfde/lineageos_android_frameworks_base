@@ -40,6 +40,10 @@ import static android.window.DisplayAreaOrganizer.FEATURE_UNDEFINED;
 import static com.android.server.wm.ActivityStarter.Request;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.TAG_ATM;
 import static com.android.server.wm.ActivityTaskManagerDebugConfig.TAG_WITH_CLASS_NAME;
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
+import android.text.TextUtils;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -117,6 +121,33 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         } else {
             root = activity;
         }
+
+        // fde start MAGIC WINDOW
+        // magic window additional task will show in right side of main window task, use width when first lunch.
+        if( task != null && task.type == MAGIC_ADDITIONAL_WINDOW && source == null){
+            Task mainTask = mSupervisor.mRootWindowContainer.findMagicTask(task.mWindowLayoutAffinity, MAGIC_MAIN_WINDOW);
+            if(mainTask != null){
+                source = mainTask.topRunningActivity();
+            }
+        }
+        if(task != null && task.type == MAGIC_ADDITIONAL_WINDOW && source != null
+                && source.getTask() != null
+                && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)
+                && source.getTask().type == MAGIC_MAIN_WINDOW) {
+            Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
+            Rect persistRect = currentParams.mBounds;
+            int additionalWidth = currentParams.mAdditionalMagicWindowWidth;
+            if(rect != null ){
+                if(additionalWidth != 0){
+                    rect.set(rect.right, rect.top, rect.right + additionalWidth, rect.bottom);
+                } else {
+                    rect.offset(rect.right - rect.left, 0);
+                }
+                outParams.mBounds.set(rect);
+                return RESULT_CONTINUE;
+            }
+        }
+        // fde end
 
         if (root == null && phase != PHASE_DISPLAY) {
             // There is a case that can lead us here. The caller is moving the top activity that is

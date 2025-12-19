@@ -496,7 +496,7 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     @Nullable
     final String launchedFromFeatureId; // always the feature in launchedFromPackage
     private final int mLaunchSourceType; // original launch source type
-    final Intent intent;    // the original intent that generated us
+    public final Intent intent;    // the original intent that generated us
     final String shortComponentName; // the short component name of the intent
     final String resolvedType; // as per original caller;
     final String processName; // process where this component wants to run
@@ -10118,6 +10118,36 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
 
         configChangeFlags = 0;
     }
+
+
+    void pauseActivityLockedOnly() {
+        mAtmService.mH.postDelayed(PauseRunnable, 0);
+    }
+
+
+    private final Runnable PauseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(app == null){
+                return;
+            }
+            try {
+            mAtmService.getLifecycleManager().scheduleTransactionItem(app.getThread(),
+                    PauseActivityItem.obtain(token, finishing, false /* userLeaving */,
+                            configChangeFlags, false /* dontReport */, mAutoEnteringPip));
+                // Note: don't need to call pauseIfSleepingLocked() here, because the caller will only
+                // request resume if this activity is currently resumed, which implies we aren't
+                // sleeping.
+                removePauseTimeout();
+                setState(PAUSED, "pauseActivityLockedOnly");
+            } catch (RemoteException e) {
+                if (DEBUG_SWITCH ) Slog.i(TAG_SWITCH, "relaunchActivityLockedOnly failed", e);
+            }
+            mRootWindowContainer.resumeFocusedTasksTopActivities();
+            setState(RESUMED, "pauseActivityLockedOnly");
+        }
+    };
+
 
     /**
      * Request the process of the activity to restart with its saved state (from

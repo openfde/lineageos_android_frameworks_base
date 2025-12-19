@@ -35,6 +35,9 @@ import static com.android.server.wm.ActivityTaskManagerService.TAG_ROOT_TASK;
 import static com.android.server.wm.DisplayContent.alwaysCreateRootTask;
 import static com.android.server.wm.WindowManagerDebugConfig.DEBUG_ROOT_TASK;
 import static com.android.server.wm.WindowManagerDebugConfig.TAG_WM;
+import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
+import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
+import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
 
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
@@ -712,12 +715,40 @@ final class TaskDisplayArea extends DisplayArea<WindowContainer> {
             }
         }
 
+        // fde start MAGIC WINDOW
+        recheckStackOrdering();
+        // fde end
+
         int layer = 0;
         // Place root home tasks to the bottom.
         layer = adjustRootTaskLayer(t, mTmpHomeChildren, layer);
         layer = adjustRootTaskLayer(t, mTmpNormalChildren, layer);
         adjustRootTaskLayer(t, mTmpAlwaysOnTopChildren, layer);
     }
+
+    // fde start MAGIC WINDOW
+    // reorder if magic window on top
+    private void recheckStackOrdering() {
+        int size = mTmpNormalChildren.size();
+        if(size == 0 ){
+            return;
+        }
+        WindowContainer topWindow = mTmpNormalChildren.get(size - 1);
+        Task topTask = topWindow.asTask();
+
+        if( topTask != null && (topTask.type == MAGIC_MAIN_WINDOW
+                || topTask.type == MAGIC_ADDITIONAL_WINDOW)){
+            Task magicTask = mRootWindowContainer.findMagicTask(topTask.mWindowLayoutAffinity,
+                    topTask.type == MAGIC_MAIN_WINDOW ? MAGIC_ADDITIONAL_WINDOW : MAGIC_MAIN_WINDOW);
+            if(mTmpNormalChildren.contains(magicTask)){
+                mTmpNormalChildren.remove(magicTask);
+                mTmpNormalChildren.remove(topTask);
+                mTmpNormalChildren.add(magicTask);
+                mTmpNormalChildren.add(topTask);
+            }
+        }
+    }
+    // fde end
 
     /**
      * Adjusts the layer of the root task which belongs to the same group.
