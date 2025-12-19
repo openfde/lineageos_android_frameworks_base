@@ -110,8 +110,8 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
 
         mCtrlType = ctrlType;
 
-        mTaskBoundsAtDragStart.set(
-                mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getBounds());
+        // mTaskBoundsAtDragStart.set(
+        //         mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getBounds());
 
         if ( mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
            mTaskBoundsAtDragStart.set(
@@ -257,7 +257,13 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
             DragPositioningCallbackUtility.onDragEnd(mRepositionTaskBounds,
                     mTaskBoundsAtDragStart, mRepositionStartPoint, x, y,
                     mWindowDecoration.calculateValidDragArea());
-            wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            // wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            if (mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
+                Log.i("lsm33","onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
+                wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            } else {
+                wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            }
             updateMagicTaskBounds(wct);
             mTransitions.startTransition(TRANSIT_CHANGE, wct, this);
 
@@ -272,8 +278,13 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
 
             final WindowContainerTransaction wct = new WindowContainerTransaction();
 
-            wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
-
+            // wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            if (mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
+                Log.i("lsm33","onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
+                wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            } else {
+                wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+            }
             updateMagicTaskBounds(wct);
             mTransitions.startTransition(TRANSIT_CHANGE, wct, this);
         }
