@@ -2987,30 +2987,30 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 boolean preserveWindow = (resizeMode & RESIZE_MODE_PRESERVE_WINDOW) != 0;
 
                 // fde start MAGIC WINDOW
-                if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW ){
-                    Task bMostTask = mRootWindowContainer.getBottomMostTask();
-                    Task relative = null;
-                    while(bMostTask != null ){
-                        if( TextUtils.equals(task.affinity, bMostTask.affinity)){
-                            relative = bMostTask;
-                            break;
-                        }
-                        Task above = mRootWindowContainer.getTaskAbove(bMostTask);
-                        // Slog.e(TAG, "resizeTask: bMostTask=" + bMostTask + " above=" + above);
-                        bMostTask = above;
-                    }
-                    if(relative != null && relative != task){
-                        Rect b = new Rect(bounds);
-                        if(relative.type == MAGIC_ADDITIONAL_WINDOW){
-                            b.left = b.left + bounds.right - bounds.left;
-                            b.right = b.right + bounds.right - bounds.left;
-                        } else if(relative.type == MAGIC_MAIN_WINDOW){
-                            b.left = b.left - bounds.right + bounds.left;
-                            b.right = b.right - bounds.right + bounds.left;
-                        }
-                        relative.resize(b, resizeMode, preserveWindow);
-                    }
-                }
+//                if(task.type == MAGIC_MAIN_WINDOW || task.type == MAGIC_ADDITIONAL_WINDOW ){
+//                    Task bMostTask = mRootWindowContainer.getBottomMostTask();
+//                    Task relative = null;
+//                    while(bMostTask != null ){
+//                        if( TextUtils.equals(task.affinity, bMostTask.affinity)){
+//                            relative = bMostTask;
+//                            break;
+//                        }
+//                        Task above = mRootWindowContainer.getTaskAbove(bMostTask);
+//                        // Slog.e(TAG, "resizeTask: bMostTask=" + bMostTask + " above=" + above);
+//                        bMostTask = above;
+//                    }
+//                    if(relative != null && relative != task){
+//                        Rect b = new Rect(bounds);
+//                        if(relative.type == MAGIC_ADDITIONAL_WINDOW){
+//                            b.left = b.left + bounds.right - bounds.left;
+//                            b.right = b.right + bounds.right - bounds.left;
+//                        } else if(relative.type == MAGIC_MAIN_WINDOW){
+//                            b.left = b.left - bounds.right + bounds.left;
+//                            b.right = b.right - bounds.right + bounds.left;
+//                        }
+//                        relative.resize(b, resizeMode, preserveWindow);
+//                    }
+//                }
                 // fde end
                 if (!getTransitionController().isShellTransitionsEnabled()) {
                     // After reparenting (which only resizes the task to the root task bounds),

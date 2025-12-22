@@ -113,12 +113,17 @@ class TaskOperations {
     }
 
     void maximizeTask(RunningTaskInfo taskInfo) {
+        final boolean isMagicMainWindow = taskInfo.magicWindowType == 1;
         Log.d(TAG, "maximizeTask RunningTaskInfo taskId: " + taskInfo.taskId);
         WindowContainerTransaction wct = new WindowContainerTransaction();
         int targetWindowingMode = taskInfo.getWindowingMode() != WINDOWING_MODE_FULLSCREEN
                 ? WINDOWING_MODE_FULLSCREEN : WINDOWING_MODE_FREEFORM;
         int displayWindowingMode =
                 taskInfo.configuration.windowConfiguration.getDisplayWindowingMode();
+        if(isMagicMainWindow && targetWindowingMode == WINDOWING_MODE_FULLSCREEN){
+            android.util.Log.w(TAG, "never maximize maigc main Task ");
+            return;
+        }
         wct.setWindowingMode(taskInfo.token,
                 targetWindowingMode == displayWindowingMode
                         ? WINDOWING_MODE_UNDEFINED : targetWindowingMode);

@@ -1064,13 +1064,15 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
-                                            String simpleName = getClass().getSimpleName();
+                        long delay = 0;
+                        if (ScreenRecordTile.handler == null) {
+                            delay = 1000;
+                        }
                         mStatusBarView.setTag(ScreenRecordTile.handler);
-                            mMainExecutor.execute(
-                                            () -> plugin.setup(
-                                                    mStatusBarView,
-                                                    getNavigationBarView(),
-                                                    new Callback(plugin), mDozeParameters));
+                        mMainExecutor.executeDelayed(() -> plugin.setup(
+                                mStatusBarView,
+                                getNavigationBarView(),
+                                new Callback(plugin), mDozeParameters), delay);
                     }
 
                     @Override

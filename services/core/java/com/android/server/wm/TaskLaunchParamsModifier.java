@@ -111,6 +111,143 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         return result;
     }
 
+    private void applySideBySideConstraints(Rect sourceBounds, Rect rect,
+                                            Rect displayBounds,
+                                            int minSourceWidth, int minRectWidth) {
+
+        if (sourceBounds.top < displayBounds.top) {
+            int offsetY = displayBounds.top - sourceBounds.top;
+            sourceBounds.offset(0, offsetY);
+            rect.offset(0, offsetY);
+        }
+        if (sourceBounds.bottom > displayBounds.bottom) {
+            int offsetY = displayBounds.bottom - sourceBounds.bottom;
+            sourceBounds.offset(0, offsetY);
+            rect.offset(0, offsetY);
+        }
+
+        if (sourceBounds.left < displayBounds.left) {
+            int offsetX = displayBounds.left - sourceBounds.left;
+            sourceBounds.offset(offsetX, 0);
+            rect.offset(offsetX, 0);
+        }
+
+        if (rect.right > displayBounds.right) {
+            int overflow = rect.right - displayBounds.right;
+            sourceBounds.offset(-overflow, 0);
+            rect.offset(-overflow, 0);
+        }
+
+        if (sourceBounds.left < displayBounds.left) {
+            adjustWidthsToFit(sourceBounds, rect, displayBounds, minSourceWidth, minRectWidth);
+        } else {
+            ensureMinimumWidths(sourceBounds, rect, displayBounds, minSourceWidth, minRectWidth);
+        }
+        rect.left = sourceBounds.right;
+    }
+
+    /**
+     * 当左边界超出时，调整宽度以适应显示区域
+     */
+    private void adjustWidthsToFit(Rect sourceBounds, Rect rect,
+                                   Rect displayBounds,
+                                   int minSourceWidth, int minRectWidth) {
+        int totalWidth = sourceBounds.width() + rect.width();
+        int availableWidth = displayBounds.width();
+
+        if (totalWidth <= availableWidth) {
+            int offsetX = displayBounds.left - sourceBounds.left;
+            sourceBounds.offset(offsetX, 0);
+            rect.offset(offsetX, 0);
+            return;
+        }
+
+        float scale = (float) availableWidth / totalWidth;
+
+        int newSourceWidth = Math.max(minSourceWidth, (int)(sourceBounds.width() * scale));
+        int newRectWidth = Math.max(minRectWidth, (int)(rect.width() * scale));
+
+        if (newSourceWidth + newRectWidth > availableWidth) {
+            int remainingWidth = availableWidth - minSourceWidth - minRectWidth;
+            if (remainingWidth >= 0) {
+                float sourceRatio = (float) sourceBounds.width() / totalWidth;
+                int extraForSource = (int)(remainingWidth * sourceRatio);
+                int extraForRect = remainingWidth - extraForSource;
+
+                newSourceWidth = minSourceWidth + extraForSource;
+                newRectWidth = minRectWidth + extraForRect;
+            } else {
+                newSourceWidth = minSourceWidth;
+                newRectWidth = Math.max(minRectWidth, availableWidth - minSourceWidth);
+            }
+        }
+
+        sourceBounds.left = displayBounds.left;
+        sourceBounds.right = sourceBounds.left + newSourceWidth;
+        rect.left = sourceBounds.right;
+        rect.right = rect.left + newRectWidth;
+    }
+
+    /**
+     * 确保最小宽度
+     */
+    private void ensureMinimumWidths(Rect sourceBounds, Rect rect,
+                                     Rect displayBounds,
+                                     int minSourceWidth, int minRectWidth) {
+
+        boolean needsAdjustment = false;
+
+        if (sourceBounds.width() < minSourceWidth) {
+            int needed = minSourceWidth - sourceBounds.width();
+
+            if (rect.width() - needed >= minRectWidth) {
+                sourceBounds.right += needed;
+                rect.left += needed;
+            } else {
+                needsAdjustment = true;
+            }
+        }
+
+        if (rect.width() < minRectWidth) {
+            int needed = minRectWidth - rect.width();
+
+            if (sourceBounds.width() - needed >= minSourceWidth) {
+                sourceBounds.right -= needed;
+                rect.left -= needed;
+                rect.right = rect.left + minRectWidth;
+            } else {
+                needsAdjustment = true;
+            }
+        }
+
+        if (needsAdjustment) {
+            int totalWidth = sourceBounds.width() + rect.width();
+            int availableForSource = Math.max(minSourceWidth,
+                    totalWidth * sourceBounds.width() / (sourceBounds.width() + rect.width()));
+            int availableForRect = totalWidth - availableForSource;
+
+            if (availableForSource < minSourceWidth) {
+                availableForSource = minSourceWidth;
+                availableForRect = totalWidth - minSourceWidth;
+            }
+            if (availableForRect < minRectWidth) {
+                availableForRect = minRectWidth;
+                availableForSource = totalWidth - minRectWidth;
+            }
+
+            int left = sourceBounds.left;
+            sourceBounds.right = left + availableForSource;
+            rect.left = sourceBounds.right;
+            rect.right = rect.left + availableForRect;
+        }
+
+        if (rect.right > displayBounds.right) {
+            int overflow = rect.right - displayBounds.right;
+            sourceBounds.offset(-overflow, 0);
+            rect.offset(-overflow, 0);
+        }
+    }
+
     private int calculate(@Nullable Task task, @Nullable ActivityInfo.WindowLayout layout,
             @Nullable ActivityRecord activity, @Nullable ActivityRecord source,
             @Nullable ActivityOptions options, @Nullable Request request, int phase,
@@ -121,6 +258,10 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
         } else {
             root = activity;
         }
+
+        // STEP 1: Determine the suggested display area to launch the activity/task.
+        final TaskDisplayArea suggestedDisplayArea = getPreferredLaunchTaskDisplayArea(task,
+                options, source, currentParams, activity, request);
 
         // fde start MAGIC WINDOW
         // magic window additional task will show in right side of main window task, use width when first lunch.
@@ -134,15 +275,30 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
                 && source.getTask() != null
                 && TextUtils.equals(source.getTask().mWindowLayoutAffinity, task.mWindowLayoutAffinity)
                 && source.getTask().type == MAGIC_MAIN_WINDOW) {
-            Rect rect = new Rect(source.getConfiguration().windowConfiguration.getBounds());
+            Rect sourceBounds = new Rect(source.getConfiguration().windowConfiguration.getBounds());
+            Rect rect = new Rect(sourceBounds);
+            Rect originalBounds = new Rect(sourceBounds);
             Rect persistRect = currentParams.mBounds;
             int additionalWidth = currentParams.mAdditionalMagicWindowWidth;
-            if(rect != null ){
-                if(additionalWidth != 0){
-                    rect.set(rect.right, rect.top, rect.right + additionalWidth, rect.bottom);
+
+            if (rect != null) {
+                Rect displayBounds = suggestedDisplayArea.getBounds();
+                final int MIN_SOURCE_WIDTH = 412; // 最小宽度（像素）
+                final int MIN_RECT_WIDTH = 100; // rect的最小宽度，防止过窄
+
+                rect.offsetTo(sourceBounds.right, sourceBounds.top);
+
+                if (additionalWidth != 0) {
+                    rect.right = rect.left + additionalWidth;
                 } else {
-                    rect.offset(rect.right - rect.left, 0);
+                    rect.right = rect.left + sourceBounds.width();
                 }
+
+                applySideBySideConstraints(sourceBounds, rect, displayBounds, MIN_SOURCE_WIDTH, MIN_RECT_WIDTH);
+                if(!originalBounds.equals(sourceBounds)){
+                    mSupervisor.mService.resizeTask(source.getTask().getRootTaskId(), sourceBounds, 0);
+                }
+
                 outParams.mBounds.set(rect);
                 return RESULT_CONTINUE;
             }
@@ -160,9 +316,7 @@ class TaskLaunchParamsModifier implements LaunchParamsModifier {
             return RESULT_SKIP;
         }
 
-        // STEP 1: Determine the suggested display area to launch the activity/task.
-        final TaskDisplayArea suggestedDisplayArea = getPreferredLaunchTaskDisplayArea(task,
-                options, source, currentParams, activity, request);
+
         outParams.mPreferredTaskDisplayArea = suggestedDisplayArea;
         final DisplayContent display = suggestedDisplayArea.mDisplayContent;
         if (DEBUG) {

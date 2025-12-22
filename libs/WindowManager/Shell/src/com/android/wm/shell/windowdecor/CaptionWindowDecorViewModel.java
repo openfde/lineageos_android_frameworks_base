@@ -228,6 +228,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     @Override
     public void onTaskInfoChanged(RunningTaskInfo taskInfo) {
         Log.d(TAG,"onTaskInfoChanged taskInfo.taskId: " + taskInfo.taskId + ", taskInfo.isFocused: " + taskInfo.isFocused);
+        Log.d(TAG,"onTaskInfoChanged taskInfo: " + taskInfo );
         if(taskInfo.isFocused){
             mRunningTaskId = taskInfo.taskId;
             Log.d(TAG,"onTaskInfoChanged mRunningTaskId: " + mRunningTaskId);
@@ -299,7 +300,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     private void setupCaptionColor(RunningTaskInfo taskInfo, CaptionWindowDecoration decoration) {
         final int statusBarColor = taskInfo.taskDescription.getStatusBarColor();
-        decoration.setCaptionColor(statusBarColor);
+        decoration.setCaptionColor(statusBarColor, taskInfo);
     }
 
     private void setCaptionLable(CaptionWindowDecoration decoration){
