@@ -117,7 +117,7 @@ import com.android.server.utils.quota.Categorizer;
 import com.android.server.utils.quota.Category;
 import com.android.server.utils.quota.CountQuotaTracker;
 import com.android.server.vr.VrManagerInternal;
-
+import android.os.SystemProperties;
 /**
  * Server side implementation for the client activity to interact with system.
  *

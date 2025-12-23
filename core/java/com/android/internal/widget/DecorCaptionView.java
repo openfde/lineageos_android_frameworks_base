@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.SystemProperties;
 
 /**
  * This class represents the special screen elements to control a window on freeform
@@ -135,15 +136,18 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     @Override
      protected void dispatchDraw(Canvas canvas) {
          super.dispatchDraw(canvas);
-         if (mNeedDrawRect) {
-             Paint paint = new Paint();
-             paint.setColor(Color.RED);
-             paint.setAntiAlias(true);
-             paint.setStrokeWidth(20);
-             paint.setStyle(Paint.Style.STROKE);
-             Rect rect = new Rect(0,0,getWidth(),getHeight());
-             canvas.drawRect(rect,paint);
+         if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+              if (mNeedDrawRect) {
+                Paint paint = new Paint();
+                paint.setColor(Color.RED);
+                paint.setAntiAlias(true);
+                paint.setStrokeWidth(20);
+                paint.setStyle(Paint.Style.STROKE);
+                Rect rect = new Rect(0,0,getWidth(),getHeight());
+                canvas.drawRect(rect,paint);
+             }
          }
+       
      }
 
     public void setPhoneWindow(PhoneWindow owner, boolean show) {

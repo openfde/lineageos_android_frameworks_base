@@ -24,7 +24,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
+import android.os.SystemProperties;
 /**
  * Given a move coordinate (x, y), the original taks bounds and relevant details, calculate the new
  * bounds.
@@ -161,51 +161,41 @@ public class TaskResizingAlgorithm {
             }
         }
 
-        // // Generate the final bounds by keeping the opposite drag edge constant.
-        // if ((ctrlType & CTRL_LEFT) != 0) {
-        //     left = right - width;
-        // } else { // Note: The right might have changed - if we pulled at the right or not.
-        //     right = left + width;
-        // }
-        // if ((ctrlType & CTRL_TOP) != 0) {
-        //     top = bottom - height;
-        // } else { // Note: The height might have changed - if we pulled at the bottom or not.
-        //     bottom = top + height;
-        // }
-
-         float GAP_PERCENT_MAX = 0.63f;
-         float GAP_PERCENT_FULLSCREEN = 0.7f;
-         float GAP_PERCENT_MINI = 0.2f;
-         if ((ctrlType & CTRL_BOTTOM) != 0) {
-             if (height < GAP_PERCENT_MINI *maxVisibleSize.y ) {
-                 height = (int)(GAP_PERCENT_MINI *maxVisibleSize.y);
-             }
-             if (height > GAP_PERCENT_FULLSCREEN * maxVisibleSize.y) {
-                 sEnterFullScreen = true;
-             } else {
-                 sEnterFullScreen = false;
-             }
-             if (height > GAP_PERCENT_MAX * maxVisibleSize.y) {
-                 height = (int)(GAP_PERCENT_MAX * maxVisibleSize.y);
-             }
-             bottom = top + height;
-             int oldWidth = originalBounds.width();
-             int newWidth = (int)((float)height * (float)originalBounds.width() / (float)originalBounds.height());
-             left = left - (newWidth - oldWidth) / 2;
-             right = left + newWidth;
-         }
-
-         // Generate the final bounds by keeping the opposite drag edge constant.
-//        if ((ctrlType & CTRL_LEFT) != 0) {
-//            left = right - width;
-//        } else { // Note: The right might have changed - if we pulled at the right or not.
-//            right = left + width;
-//        }
-//        if ((ctrlType & CTRL_TOP) != 0) {
-//            top = bottom - height;
-//        } else { // Note: The height might have changed - if we pulled at the bottom or not.
-//            bottom = top + height;
-//        }
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            float GAP_PERCENT_MAX = 0.63f;
+            float GAP_PERCENT_FULLSCREEN = 0.7f;
+            float GAP_PERCENT_MINI = 0.2f;
+            if ((ctrlType & CTRL_BOTTOM) != 0) {
+                if (height < GAP_PERCENT_MINI *maxVisibleSize.y ) {
+                    height = (int)(GAP_PERCENT_MINI *maxVisibleSize.y);
+                }
+                if (height > GAP_PERCENT_FULLSCREEN * maxVisibleSize.y) {
+                    sEnterFullScreen = true;
+                } else {
+                    sEnterFullScreen = false;
+                }
+                if (height > GAP_PERCENT_MAX * maxVisibleSize.y) {
+                    height = (int)(GAP_PERCENT_MAX * maxVisibleSize.y);
+                }
+                bottom = top + height;
+                int oldWidth = originalBounds.width();
+                int newWidth = (int)((float)height * (float)originalBounds.width() / (float)originalBounds.height());
+                left = left - (newWidth - oldWidth) / 2;
+                right = left + newWidth;
+            }
+        }else{
+             // Generate the final bounds by keeping the opposite drag edge constant.
+            if ((ctrlType & CTRL_LEFT) != 0) {
+                left = right - width;
+            } else { // Note: The right might have changed - if we pulled at the right or not.
+                right = left + width;
+            }
+            if ((ctrlType & CTRL_TOP) != 0) {
+                top = bottom - height;
+            } else { // Note: The height might have changed - if we pulled at the bottom or not.
+                bottom = top + height;
+            }
+        }
         return new Rect(left, top, right, bottom);
     }
 }

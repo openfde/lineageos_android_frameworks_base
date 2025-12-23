@@ -27,7 +27,7 @@ import android.util.DisplayMetrics;
 import android.view.SurfaceControl;
 import android.util.Log;
 import com.android.wm.shell.common.DisplayController;
-
+import android.os.SystemProperties;
 /**
  * Utility class that contains logic common to classes implementing {@link DragPositioningCallback}
  * Specifically, this class contains logic for determining changed bounds from a drag input
@@ -113,7 +113,10 @@ public class DragPositioningCallbackUtility {
 
           //add by freeform
         Log.i("lsm33","before adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds + " taskBoundsAtDragStart = " +taskBoundsAtDragStart + " delta " +delta);
-        adapterRectByRatio(repositionTaskBounds,taskBoundsAtDragStart);
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            adapterRectByRatio(repositionTaskBounds,taskBoundsAtDragStart);
+		}
+        
         Log.i("lsm33","after adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds);
         // add end
 
@@ -208,7 +211,7 @@ public class DragPositioningCallbackUtility {
 
     private static float getMinHeight(DisplayController displayController,
             WindowDecoration windowDecoration) {
-        if (true) {
+        if (SystemProperties.getBoolean("persist.wm.fde.small.window", false)) {
             return displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId).height() * gWidthRotio;
         }        
         return windowDecoration.mTaskInfo.minHeight < 0 ? getDefaultMinSize(displayController,
@@ -221,7 +224,7 @@ public class DragPositioningCallbackUtility {
             WindowDecoration windowDecoration) {
         float density =  displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId)
                 .densityDpi() * DisplayMetrics.DENSITY_DEFAULT_SCALE;
-        if (true) {
+        if (SystemProperties.getBoolean("persist.wm.fde.small.window", false)) {
            return displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId).width() * gWidthRotio;
         }        
         return windowDecoration.mTaskInfo.defaultMinSize * density;

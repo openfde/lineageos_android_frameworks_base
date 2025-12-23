@@ -119,6 +119,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import android.os.SystemProperties;
 
 /** The default handler that handles anything not already handled. */
 public class DefaultTransitionHandler implements Transitions.TransitionHandler {
@@ -534,11 +535,18 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
                     leash.release();
                 }
 
-                if (change.getTaskInfo()!= null && change.getTaskInfo().getWindowingMode() != WINDOWING_MODE_FREEFORM)
-                buildSurfaceAnimation(animations, a, change.getLeash(), onAnimFinish,
+                if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                    if (change.getTaskInfo()!= null && change.getTaskInfo().getWindowingMode() != WINDOWING_MODE_FREEFORM){
+                        buildSurfaceAnimation(animations, a, change.getLeash(), onAnimFinish,
                         mTransactionPool, mMainExecutor, animRelOffset, cornerRadius,
                         clipRect);
-
+                    }
+                }else{
+                    buildSurfaceAnimation(animations, a, change.getLeash(), onAnimFinish,
+                        mTransactionPool, mMainExecutor, animRelOffset, cornerRadius,
+                        clipRect);
+                }
+                
                 if (info.getAnimationOptions() != null) {
                     attachThumbnail(animations, onAnimFinish, change, info.getAnimationOptions(),
                             cornerRadius);

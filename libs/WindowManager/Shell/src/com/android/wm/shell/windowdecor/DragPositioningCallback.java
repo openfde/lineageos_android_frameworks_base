@@ -18,6 +18,7 @@ package com.android.wm.shell.windowdecor;
 
 import android.annotation.IntDef;
 import android.graphics.Rect;
+import android.os.SystemProperties;
 
 /**
  * Callback called when receiving drag-resize or drag-move related input events.

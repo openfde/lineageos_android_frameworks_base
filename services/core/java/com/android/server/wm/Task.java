@@ -788,7 +788,7 @@ class Task extends TaskFragment {
     }
 
      void setBoundsByFreeFormSurfaceBound() {
-       SurfaceControl.Transaction t = getSyncTransaction();
+        SurfaceControl.Transaction t = getSyncTransaction();
         float scale = (float)mFreeFormSurfaceBound.width() / (float) getBounds().width();
         t.setScale(getSurfaceControl(),scale,scale);
         t.setPosition(getSurfaceControl(),mFreeFormSurfaceBound.left,mFreeFormSurfaceBound.top);
@@ -800,9 +800,12 @@ class Task extends TaskFragment {
 
         try {
             if (inFreeformWindowingMode()) {
-                mFreeFormSurfaceBound.set(bounds);
-                setBoundsByFreeFormSurfaceBound();
-                return true;
+                String packageName = realActivity.getPackageName();
+                if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                    mFreeFormSurfaceBound.set(bounds);
+                    setBoundsByFreeFormSurfaceBound();
+                    return true;
+                }   
             }
 
             final boolean forced = (resizeMode & RESIZE_MODE_FORCED) != 0;
@@ -2173,19 +2176,22 @@ class Task extends TaskFragment {
             taskDisplayArea.positionChildAt(POSITION_TOP, this, false /* includingParents */);
         }
 
-         //add by freeform
-        if (mFreeFormSurfaceBound != null ) {
-            Log.i("lsm33","enter Task onConfigurationChanged getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() = " + getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() + " \n mFreeFormSurfaceBound = "+mFreeFormSurfaceBound);
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            //add by freeform
+            if (mFreeFormSurfaceBound != null ) {
+                Log.i("lsm33","enter Task onConfigurationChanged getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() = " + getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() + " \n mFreeFormSurfaceBound = "+mFreeFormSurfaceBound);
 
-            if (getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds().isEmpty()) {
-                return;
+                if (getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds().isEmpty()) {
+                    return;
+                }
+                mFreeFormSurfaceBound.set(getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds());
+                setBoundsByFreeFormSurfaceBound();
+                dispatchTaskInfoChangedIfNeeded(true);
+                Log.i("lsm33","Task onConfigurationChanged newParentConfig.windowConfiguration.getFreeformBounds() = " + newParentConfig.windowConfiguration.getFreeformBounds());
             }
-            mFreeFormSurfaceBound.set(getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds());
-            setBoundsByFreeFormSurfaceBound();
-            dispatchTaskInfoChangedIfNeeded(true);
-            Log.i("lsm33","Task onConfigurationChanged newParentConfig.windowConfiguration.getFreeformBounds() = " + newParentConfig.windowConfiguration.getFreeformBounds());
+            //add end                
         }
-        //add end
+
     }
 
     void resolveLeafTaskOnlyOverrideConfigs(Configuration newParentConfig, Rect previousBounds) {
@@ -3624,15 +3630,23 @@ class Task extends TaskFragment {
                 ? DEFAULT_MIN_TASK_SIZE_DP : mDisplayContent.mMinSizeOfResizeableTaskDp;
         info.positionInParent = getRelativePosition();
 
-        if (inFreeformWindowingMode()) {
-           if (mFreeFormSurfaceBound== null) {
-               initFreeformPosition();
-           }
-           info.positionInParent.x = mFreeFormSurfaceBound.left;
-           info.positionInParent.y = mFreeFormSurfaceBound.top;
-           android.util.Log.i("test22","info.positionInParent.y = " + info.positionInParent.y + " mFreeFormSurfaceBound " + mFreeFormSurfaceBound);
-       }
-       info.configuration.windowConfiguration.setFreeformBounds(mFreeFormSurfaceBound);
+		if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (inFreeformWindowingMode()) {
+                if (mFreeFormSurfaceBound== null) {
+                    initFreeformPosition();
+                }
+                try{
+                    info.positionInParent.x = mFreeFormSurfaceBound.left;
+                    info.positionInParent.y = mFreeFormSurfaceBound.top;
+                    android.util.Log.i("lsm33","info.positionInParent.y = " + info.positionInParent.y + " mFreeFormSurfaceBound " + mFreeFormSurfaceBound);
+                }catch(Exception e){
+                    e.printStackTrace();
+
+                }
+            }
+            info.configuration.windowConfiguration.setFreeformBounds(mFreeFormSurfaceBound);
+        }
+        
 
         info.topActivityInfo = top != null ? top.info : null;
         info.pictureInPictureParams = getPictureInPictureParams(top);
@@ -4794,7 +4808,10 @@ class Task extends TaskFragment {
         }
 
         setWindowingMode(windowingMode, false /* creating */);
-        initFreeformPosition();
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            initFreeformPosition();
+		}
+        
     }
 
     /**

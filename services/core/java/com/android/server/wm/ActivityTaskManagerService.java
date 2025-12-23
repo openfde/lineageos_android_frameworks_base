@@ -1304,7 +1304,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 Binder.getCallingPid(), Binder.getCallingUid(), "startActivityAsUser");
 
         // TODO: Switch to user app stacks here.
-        return getActivityStartController().obtainStarter(intent, "startActivityAsUser")
+        int resu =  getActivityStartController().obtainStarter(intent, "startActivityAsUser")
                 .setCaller(caller)
                 .setCallingPackage(callingPackage)
                 .setCallingFeatureId(callingFeatureId)
@@ -1317,6 +1317,8 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 .setActivityOptions(opts)
                 .setUserId(userId)
                 .execute();
+        Slog.w(TAG,"lsm33_startActivityAsUser "+resu + ",callingPackage: "+callingPackage);
+        return resu;
     }
 
     @Override

@@ -64,7 +64,7 @@ import com.android.internal.policy.TaskResizingAlgorithm.CtrlType;
 import com.android.internal.protolog.common.ProtoLog;
 
 import java.util.concurrent.CompletableFuture;
-
+import android.os.SystemProperties;
 class TaskPositioner implements IBinder.DeathRecipient {
     private static final boolean DEBUG_ORIENTATION_VIOLATIONS = false;
     private static final String TAG_LOCAL = "TaskPositioner";
@@ -142,12 +142,17 @@ class TaskPositioner implements IBinder.DeathRecipient {
                 }
                 synchronized (mService.mGlobalLock) {
                     mDragEnded = notifyMoveLocked(newX, newY);
-                    // mTask.getDimBounds(mTmpRect);
-                    if (mTask.inFreeformWindowingMode()) {
-                        mTask.getFreeFormSurfaceBounds(mTmpRect);
-                    } else {
+                     
+                    if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                        if (mTask.inFreeformWindowingMode()) {
+                            mTask.getFreeFormSurfaceBounds(mTmpRect);
+                        } else {
+                            mTask.getDimBounds(mTmpRect);
+                        }
+                    }else{
                         mTask.getDimBounds(mTmpRect);
                     }
+                    
                 }
                 if (!mTmpRect.equals(mWindowDragBounds)) {
                     Trace.traceBegin(TRACE_TAG_WINDOW_MANAGER,
@@ -188,13 +193,16 @@ class TaskPositioner implements IBinder.DeathRecipient {
                 mService.mAtmService.resizeTask(
                         mTask.mTaskId, mWindowDragBounds, RESIZE_MODE_USER_FORCED);
             }
-            if (TaskResizingAlgorithm.sEnterFullScreen) {
-                TaskResizingAlgorithm.sEnterFullScreen = false;
-                synchronized (mService.mAtmService.mGlobalLock) {
-                    mTask.setWindowingMode(WINDOWING_MODE_FULLSCREEN);
-                    mTask.setBounds(null);
-                }
+            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                if (TaskResizingAlgorithm.sEnterFullScreen) {
+                    TaskResizingAlgorithm.sEnterFullScreen = false;
+                    synchronized (mService.mAtmService.mGlobalLock) {
+                        mTask.setWindowingMode(WINDOWING_MODE_FULLSCREEN);
+                        mTask.setBounds(null);
+                    }
             }
+            }            
+            
             // Post back to WM to handle clean-ups. We still need the input
             // event handler for the last finishInputEvent()!
             mService.mTaskPositioningController.finishTaskPositioning();
@@ -329,12 +337,17 @@ class TaskPositioner implements IBinder.DeathRecipient {
         // multiple app windows. Don't use any bounds from win itself as it
         // may not be the same size as the task.
         final Rect startBounds = mTmpRect;
-        // mTask.getBounds(startBounds);
-        if (mTask.getWindowingMode() == WINDOWING_MODE_FREEFORM) {
-            mTask.getFreeFormSurfaceBounds(startBounds);
-        } else {
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (mTask.getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+                mTask.getFreeFormSurfaceBounds(startBounds);
+            } else {
+                mTask.getBounds(startBounds);
+            }
+		}else{
             mTask.getBounds(startBounds);
         }
+        
+
         mCtrlType = CTRL_NONE;
         mStartDragX = startX;
         mStartDragY = startY;

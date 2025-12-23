@@ -107,8 +107,8 @@ public class Instrumentation {
     private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
 
     // If set, will print the stack trace for activity starts within the process
-    static final boolean DEBUG_START_ACTIVITY = Build.IS_DEBUGGABLE &&
-            SystemProperties.getBoolean("persist.wm.debug.start_activity", false);
+    static final boolean DEBUG_START_ACTIVITY = true;//Build.IS_DEBUGGABLE &&
+            //SystemProperties.getBoolean("persist.wm.debug.start_activity", false);
 
     /**
      * @hide
@@ -2005,6 +2005,7 @@ public class Instrumentation {
                     intent.resolveTypeIfNeeded(who.getContentResolver()), token,
                     target != null ? target.mEmbeddedID : null, requestCode, 0, null, options);
             notifyStartActivityResult(result, options);
+            Log.w(TAG, "lsm33_checkStartActivityResult result66 " +result );
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -2123,6 +2124,7 @@ public class Instrumentation {
                     who.getOpPackageName(), who.getAttributionTag(), intents, resolvedTypes,
                     token, options, userId);
             notifyStartActivityResult(result, options);
+            Log.w(TAG, "lsm33_checkStartActivityResult result55 " +result );
             checkStartActivityResult(result, intents[0]);
             return result;
         } catch (RemoteException e) {
@@ -2204,6 +2206,7 @@ public class Instrumentation {
                     intent.resolveTypeIfNeeded(who.getContentResolver()), token, target,
                     requestCode, 0, null, options);
             notifyStartActivityResult(result, options);
+            Log.w(TAG, "lsm33_checkStartActivityResult result44 " +result );
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -2284,6 +2287,7 @@ public class Instrumentation {
                     intent.resolveTypeIfNeeded(who.getContentResolver()), token, resultWho,
                     requestCode, 0, null, options, user.getIdentifier());
             notifyStartActivityResult(result, options);
+            Log.w(TAG, "lsm33_checkStartActivityResult result33 " +result );
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -2346,6 +2350,7 @@ public class Instrumentation {
                             requestCode, 0, null, options,
                             ignoreTargetSecurity, userId);
             notifyStartActivityResult(result, options);
+            Log.w(TAG, "lsm33_checkStartActivityResult result11 " +result );
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -2402,6 +2407,7 @@ public class Instrumentation {
                     who.getAttributionTag(), intent,
                     intent.resolveTypeIfNeeded(who.getContentResolver()), options);
             notifyStartActivityResult(result, options);
+             Log.w(TAG, "lsm33_checkStartActivityResult00 result " +result );
             checkStartActivityResult(result, intent);
         } catch (RemoteException e) {
             throw new RuntimeException("Failure from system", e);
@@ -2446,6 +2452,7 @@ public class Instrumentation {
         if (!ActivityManager.isStartResultFatalError(res)) {
             return;
         }
+        Log.w(TAG, "lsm33_checkStartActivityResult res " +res );
 
         switch (res) {
             case ActivityManager.START_INTENT_NOT_RESOLVED:

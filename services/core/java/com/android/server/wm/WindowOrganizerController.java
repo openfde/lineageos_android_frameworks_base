@@ -159,7 +159,7 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
             | ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE | ActivityInfo.CONFIG_SCREEN_SIZE
             | ActivityInfo.CONFIG_LAYOUT_DIRECTION | ActivityInfo.CONFIG_DENSITY;
     static final int CONTROLLABLE_WINDOW_CONFIGS = WINDOW_CONFIG_BOUNDS
-            | WindowConfiguration.WINDOW_CONFIG_APP_BOUNDS | WindowConfiguration.WINDOW_CONFIG_FREEFORM_BOUNDS;
+            | WindowConfiguration.WINDOW_CONFIG_APP_BOUNDS ;
 
     private final ActivityTaskManagerService mService;
     private final WindowManagerGlobalLock mGlobalLock;

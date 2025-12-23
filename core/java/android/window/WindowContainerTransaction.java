@@ -49,7 +49,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
+import android.os.SystemProperties;
 /**
  * Represents a collection of operations on some WindowContainers that should be applied all at
  * once.
@@ -127,10 +127,12 @@ public final class WindowContainerTransaction implements Parcelable {
       @NonNull
       public WindowContainerTransaction setFreeformBounds(
               @NonNull WindowContainerToken container,@NonNull Rect freeFormBounds) {
-          Change chg = getOrCreateChange(container.asBinder());
-          chg.mConfiguration.windowConfiguration.setFreeformBounds(freeFormBounds);
-          chg.mConfigSetMask |= ActivityInfo.CONFIG_WINDOW_CONFIGURATION;
-          chg.mWindowSetMask |= WindowConfiguration.WINDOW_CONFIG_FREEFORM_BOUNDS;
+            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                Change chg = getOrCreateChange(container.asBinder());
+                chg.mConfiguration.windowConfiguration.setFreeformBounds(freeFormBounds);
+                chg.mConfigSetMask |= ActivityInfo.CONFIG_WINDOW_CONFIGURATION;
+                chg.mWindowSetMask |= WindowConfiguration.WINDOW_CONFIG_FREEFORM_BOUNDS;
+            }
           return this;
       }
 

@@ -117,7 +117,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import android.graphics.Matrix;
-
+import android.os.SystemProperties;
 /**
  * A basic container that can be used to contain activities or other {@link TaskFragment}, which
  * also able to manage the activity lifecycle and updates the visibilities of the activities in it.
@@ -2580,15 +2580,13 @@ class TaskFragment extends WindowContainer<WindowContainer> {
         if (mTaskFragmentOrganizer != null) {
             updateOrganizedTaskFragmentSurfaceSize(t, true /* forceUpdate */);
         }
-        initFreeformPosition();
+        
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            initFreeformPosition();
+		}
     }
 
-    Rect mFreeFormSurfaceBound =null;
-    public void getFreeFormSurfaceBounds(Rect r) {
-        if (mFreeFormSurfaceBound != null) {
-            r.set(mFreeFormSurfaceBound);
-        }
-    }
+    
     void initFreeformPosition() {
      android.util.Log.i("lsm888","initFreeformPosition getBounds = " + getBounds() + " getWindowingMode() == WINDOWING_MODE_FREEFORM " + (getWindowingMode() == WINDOWING_MODE_FREEFORM));
      if (getBounds().left == 0 && getBounds().width() == getMaxBounds().width()
@@ -3082,6 +3080,13 @@ class TaskFragment extends WindowContainer<WindowContainer> {
         return super.getDimmer();
     }
 
+    Rect mFreeFormSurfaceBound =null;
+    public void getFreeFormSurfaceBounds(Rect r) {
+        if (mFreeFormSurfaceBound != null) {
+            r.set(mFreeFormSurfaceBound);
+        }
+    }
+
     /** Bounds to be used for dimming, as well as touch related tests. */
     void getDimBounds(@NonNull Rect out) {
         if (mIsEmbedded && isDimmingOnParentTask() && getDimmer().getDimBounds() != null) {
@@ -3242,11 +3247,15 @@ class TaskFragment extends WindowContainer<WindowContainer> {
             printThisActivity(pw, mLastPausedActivity, dumpPackage, false,
                     prefix + "  mLastPausedActivity: ", null);
         }
-        if (inFreeformWindowingMode()) {
-            if (mFreeFormSurfaceBound != null) {
-                pw.println(prefix + "  mFreeFormSurfaceBound=" + mFreeFormSurfaceBound);
-            }
+        
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (inFreeformWindowingMode()) {
+                if (mFreeFormSurfaceBound != null) {
+                    pw.println(prefix + "  mFreeFormSurfaceBound=" + mFreeFormSurfaceBound);
+                }
+            }		
         }
+
     }
 
     @Override

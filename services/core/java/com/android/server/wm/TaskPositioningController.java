@@ -29,7 +29,7 @@ import android.view.Display;
 import android.view.IWindow;
 import android.view.InputWindowHandle;
 import android.view.SurfaceControl;
-
+import android.os.SystemProperties;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -210,13 +210,16 @@ class TaskPositioningController {
                     cleanUpTaskPositioner();
                     return false;
                 }
-                if (resize) {
-                    try {
-                        win.mClient.executeCommand("freeFormSideShow",null,null);
-                    }catch (Exception e) {
-                        e.printStackTrace();
+                if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                    if (resize) {
+                        try {
+                            win.mClient.executeCommand("freeFormSideShow",null,null);
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
+		        }
+                
                 mTaskPositioner.startDrag(resize, preserveOrientation, startX, startY);
                 return true;
             }
@@ -232,6 +235,13 @@ class TaskPositioningController {
     void finishTaskPositioning() {
         // TaskPositioner attaches the InputEventReceiver to the animation thread. We need to
         // dispose the receiver on the same thread to avoid race conditions.
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            try {
+                mTaskPositioner.mWindow.mClient.executeCommand("freeFormSideHide",null,null);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+		}
         mService.mAnimationHandler.post(() -> {
             if (DEBUG_TASK_POSITIONING) Slog.d(TAG_WM, "finishPositioning");
 

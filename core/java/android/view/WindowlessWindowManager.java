@@ -38,7 +38,7 @@ import android.window.OnBackInvokedCallbackInfo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
+import android.os.SystemProperties;
 /**
 * A simplistic implementation of IWindowSession. Rather than managing Surfaces
 * as children of the display, it manages Surfaces as children of a given root.
@@ -387,12 +387,16 @@ public class WindowlessWindowManager implements IWindowSession {
             outFrames.displayFrame.set(frames.displayFrame);
         }
 
-        // t.setPosition(leash, frames.frame.left, frames.frame.top);
-        if (mConfiguration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
-            Log.i("lsm33","do not setposition");
-        } else  {
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (mConfiguration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
+                Log.i("lsm33","do not setposition");
+            } else  {
+                t.setPosition(leash, frames.frame.left, frames.frame.top);
+            }
+		}else{
             t.setPosition(leash, frames.frame.left, frames.frame.top);
         }
+  
 
         if (viewFlags == View.VISIBLE) {
             // TODO(b/262892794) ViewRootImpl modifies the app's rendering SurfaceControl

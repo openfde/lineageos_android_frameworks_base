@@ -1109,7 +1109,7 @@ public class RelativeLayout extends ViewGroup {
                 int screenWidth = displayMetrics.widthPixels; 
                 int screenWidthDp = getContext().getResources().getConfiguration().screenWidthDp;
           
-                if(getContext() instanceof Activity){
+               /* if(getContext() instanceof Activity){
                     Activity curActivity = (Activity) getContext();
                     if("CtripHomeActivity".equals(curActivity.getClass().getSimpleName())){
                         if(getParent().getClass().getSimpleName().equals("UbtCollectableRecycleView") && 
@@ -1120,7 +1120,7 @@ public class RelativeLayout extends ViewGroup {
                         }
 
                     }
-                }
+                }*/
 
             }
 

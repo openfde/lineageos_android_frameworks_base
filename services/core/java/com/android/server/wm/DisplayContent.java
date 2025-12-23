@@ -3346,12 +3346,15 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         if (task.isActivityTypeHome() && task.isVisible() && task.isResizeable()) {
             task.getDisplayArea().getBounds(mTmpRect);
         } else {
-            // task.getDimBounds(mTmpRect);
-            if (task.inFreeformWindowingMode()) {
-                task.getFreeFormSurfaceBounds(mTmpRect);
-            } else {
+            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                if (task.inFreeformWindowingMode()) {
+                    task.getFreeFormSurfaceBounds(mTmpRect);
+                } else {
+                    task.getDimBounds(mTmpRect);
+                }
+            }else{
                 task.getDimBounds(mTmpRect);
-            }
+            }  
         }
 
         if (task == focusedTask) {
@@ -5337,12 +5340,17 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
             // bounds because it might be adjusted to fit the content frame. One example is when
             // the task is put to top-left quadrant, the actual visible area would not start at
             // (0,0) after it's adjusted for the status bar.
-            // task.getDimBounds(mTmpRect);
-            if (task.inFreeformWindowingMode()) {
-                 task.getFreeFormSurfaceBounds(mTmpRect);
-             } else {
-                 task.getDimBounds(mTmpRect);
-             }
+            //
+            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                if (task.inFreeformWindowingMode()) {
+                    task.getFreeFormSurfaceBounds(mTmpRect);
+                } else {
+                    task.getDimBounds(mTmpRect);
+                }
+		    }else{
+                task.getDimBounds(mTmpRect);
+            }
+          
             mTmpRect.inset(-delta, -delta);
             if (mTmpRect.contains(x, y)) {
                 mTmpRect.inset(delta, delta);

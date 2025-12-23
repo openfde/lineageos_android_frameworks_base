@@ -130,6 +130,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import android.os.SystemProperties;
 
 /**
  * Defines common functionality for classes that can hold windows directly or through their
@@ -3144,10 +3145,13 @@ class WindowContainer<E extends WindowContainer> extends ConfigurationContainer<
         final Pair<AnimationAdapter, AnimationAdapter> resultAdapters;
         final int appRootTaskClipMode = getDisplayContent().mAppTransition.getAppRootTaskClipMode();
 
-        if (this.asTask()!= null && this.asTask().inFreeformWindowingMode()) {
-            this.asTask().initFreeformPosition();
-            return new Pair<>(null, null);
-        }
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (this.asTask()!= null && this.asTask().inFreeformWindowingMode()) {
+                this.asTask().initFreeformPosition();
+                return new Pair<>(null, null);
+            }
+		}
+        
 
         // Separate position and size for use in animators.
         final Rect screenBounds = getAnimationBounds(appRootTaskClipMode);

@@ -47,6 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 import android.util.Log;
+import android.os.SystemProperties;
 /**
  * Class that contains windowing configuration/state for other objects that contain windows directly
  * or indirectly. E.g. Activities, Task, Displays, ...
@@ -284,7 +285,7 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      */
     public void setBounds(@Nullable Rect rect) {
         if (mWindowingMode == WINDOWING_MODE_FREEFORM) {
-            android.util.Log.i("lsm333"," setBounds rect = " + rect,new Exception());
+            // android.util.Log.i("lsm333"," setBounds rect = " + rect,new Exception());
         }
         if (rect == null) {
             mBounds.setEmpty();
@@ -392,7 +393,11 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
       * @hide
       */
      public Rect getFreeformBounds() {
-         return mFreeformBounds;
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            return mFreeformBounds;
+        }else{
+            return getBounds();
+        }
      }
  
      /**
