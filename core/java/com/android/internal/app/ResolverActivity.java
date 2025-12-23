@@ -198,6 +198,8 @@ public class ResolverActivity extends Activity implements
     protected static final String METRICS_CATEGORY_RESOLVER = "intent_resolver";
     protected static final String METRICS_CATEGORY_CHOOSER = "intent_chooser";
 
+    private static final String LAUNCHER_APP = "com.android.launcher3";
+
     /** Tracks if we should ignore future broadcasts telling us the work profile is enabled */
     private boolean mWorkProfileHasBeenEnabled = false;
 
@@ -396,7 +398,17 @@ public class ResolverActivity extends Activity implements
         setSafeForwardingMode(true);
 
         onCreate(savedInstanceState, intent, null, 0, null, null, true);
-        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
+        Uri referrer = getReferrer();
+        String referrerPackage = "";
+        if (referrer != null) {
+            referrerPackage = referrer.toString();
+            Log.d(TAG,"referrerPackage: "+referrerPackage);
+        }
+        if(referrerPackage !=null && (referrerPackage.contains(LAUNCHER_APP) )){
+            setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
+        }
+        
+        
     }
 
     /**
