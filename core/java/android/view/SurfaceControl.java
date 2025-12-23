@@ -131,6 +131,8 @@ public final class SurfaceControl implements Parcelable {
             long relativeToObject, int zorder);
     private static native void nativeSetPosition(long transactionObj, long nativeObject,
             float x, float y);
+    private static native void nativeSetMirrorPosition(long transactionObj, long nativeObject,
+            float x, float y);
     private static native void nativeSetScale(long transactionObj, long nativeObject,
             float x, float y);
     private static native void nativeSetTransparentRegionHint(long transactionObj,
@@ -2947,6 +2949,16 @@ public final class SurfaceControl implements Parcelable {
                         "setPosition", this, sc, "x=" + x + " y=" + y);
             }
             nativeSetPosition(mNativeObject, sc.mNativeObject, x, y);
+            return this;
+        }
+
+        public Transaction setMirrorPosition(@NonNull SurfaceControl sc, float x, float y) {
+            checkPreconditions(sc);
+            if (SurfaceControlRegistry.sCallStackDebuggingEnabled) {
+                SurfaceControlRegistry.getProcessInstance().checkCallStackDebugging(
+                        "setMirrorPosition", this, sc, "x=" + x + " y=" + y);
+            }
+            nativeSetMirrorPosition(mNativeObject, sc.mNativeObject, x, y);
             return this;
         }
 

@@ -588,6 +588,14 @@ static void nativeSetPosition(JNIEnv* env, jclass clazz, jlong transactionObj,
     transaction->setPosition(ctrl, x, y);
 }
 
+static void nativeSetMirrorPosition(JNIEnv* env, jclass clazz, jlong transactionObj,
+        jlong nativeObject, jfloat x, jfloat y) {
+    auto transaction = reinterpret_cast<SurfaceComposerClient::Transaction*>(transactionObj);
+
+    SurfaceControl* const ctrl = reinterpret_cast<SurfaceControl *>(nativeObject);
+    transaction->setMirrorPosition(ctrl, x, y);
+}
+
 static void nativeSetScale(JNIEnv* env, jclass clazz, jlong transactionObj, jlong nativeObject,
                            jfloat xScale, jfloat yScale) {
     auto transaction = reinterpret_cast<SurfaceComposerClient::Transaction*>(transactionObj);
@@ -2226,6 +2234,8 @@ static const JNINativeMethod sSurfaceControlMethods[] = {
             (void*)nativeSetRelativeLayer },
     {"nativeSetPosition", "(JJFF)V",
             (void*)nativeSetPosition },
+    {"nativeSetMirrorPosition", "(JJFF)V",
+            (void*)nativeSetMirrorPosition },
     {"nativeSetScale", "(JJFF)V",
             (void*)nativeSetScale },
     {"nativeSetTransparentRegionHint", "(JJLandroid/graphics/Region;)V",
