@@ -236,7 +236,9 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
         mBounds.writeToParcel(dest, flags);
         dest.writeTypedObject(mAppBounds, flags);
         mMaxBounds.writeToParcel(dest, flags);
-        mFreeformBounds.writeToParcel(dest, flags);
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            mFreeformBounds.writeToParcel(dest, flags);
+        }      
         dest.writeInt(mWindowingMode);
         dest.writeInt(mActivityType);
         dest.writeInt(mAlwaysOnTop);
@@ -248,7 +250,10 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
     /** @hide */
     public void readFromParcel(@NonNull Parcel source) {
         mBounds.readFromParcel(source);
-        mFreeformBounds.readFromParcel(source);
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            mFreeformBounds.readFromParcel(source);
+        }
+        
         mAppBounds = source.readTypedObject(Rect.CREATOR);
         mMaxBounds.readFromParcel(source);
         mWindowingMode = source.readInt();
@@ -478,7 +483,10 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
 
     public void setTo(WindowConfiguration other) {
         setBounds(other.mBounds);
-        setFreeformBounds(other.mFreeformBounds);
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            setFreeformBounds(other.mFreeformBounds);
+        }
+        
         setAppBounds(other.mAppBounds);
         setMaxBounds(other.mMaxBounds);
         setDisplayRotation(other.mDisplayRotation);
@@ -596,7 +604,10 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
     public void setTo(@NonNull WindowConfiguration delta, @WindowConfig int mask) {
         //add by freeform
         if ((mask & WINDOW_CONFIG_FREEFORM_BOUNDS) != 0) {
-            setFreeformBounds(delta.mFreeformBounds);
+            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                setFreeformBounds(delta.mFreeformBounds);
+            }
+            
             Log.i("lsm33","setTo delta.mFreeformBounds " + delta.mFreeformBounds);
         }
         //add end

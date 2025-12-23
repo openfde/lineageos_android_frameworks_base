@@ -190,7 +190,8 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                     if(magicTaskInfo != null){
                         wct.setDragResizing(magicTaskInfo.token, true /* dragResizing */);
                     }
-                    wct.setDragResizing(mWindowDecoration.mTaskInfo.token, true /* dragResizing */);
+                //    DragPositioningCallbackUtility.applyTaskBoundsChange(wct, mWindowDecoration,
+                //     mRepositionTaskBounds, mTaskOrganizer);
                 }
             }
       
@@ -250,7 +251,16 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                     mWindowDecoration);
 
             if (boundsChanged) {
-                wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+                if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                   if (mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
+                    Log.i("lsm33","onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
+                        wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+                    } else {
+                        wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+                    }
+                }else{
+                    wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
+                }
             }
 
             updateMagicTaskBounds(wct);
