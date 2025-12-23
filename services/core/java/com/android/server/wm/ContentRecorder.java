@@ -544,25 +544,15 @@ final class ContentRecorder implements WindowContainerListener {
         DisplayInfo inputDisplayInfo = mRecordedWindowContainer.mDisplayContent.getDisplayInfo();
         DisplayInfo outputDisplayInfo = mDisplayContent.getDisplayInfo();
 
-        // [openfde add] fix scrcpy window display is too small
-        int screenWidth = mDisplayContent.getConfiguration().screenWidthDp;
-        int screenHeight = mDisplayContent.getConfiguration().screenHeightDp;
-        if (screenWidth > mDisplayContent.getDisplayMetrics().widthPixels
-                || screenHeight > mDisplayContent.getDisplayMetrics().heightPixels) {
-            screenWidth = recordedContentBounds.width();
-            screenHeight = recordedContentBounds.height();
-        }
-        // [openfde end]
-
         PointF scale = new PointF();
-        computeScaling(screenWidth,screenHeight,
+        computeScaling(recordedContentBounds.width(), recordedContentBounds.height(),
                 inputDisplayInfo.physicalXDpi, inputDisplayInfo.physicalYDpi,
                 surfaceSize.x, surfaceSize.y,
                 outputDisplayInfo.physicalXDpi, outputDisplayInfo.physicalYDpi,
                 scale);
 
-        int scaledWidth = Math.round(scale.x * (float) screenWidth);
-        int scaledHeight = Math.round(scale.y * (float) screenHeight);
+        int scaledWidth = Math.round(scale.x * (float) recordedContentBounds.width());
+        int scaledHeight = Math.round(scale.y * (float) recordedContentBounds.height());
 
         // Calculate the shift to apply to the root mirror SurfaceControl to centre the mirrored
         // contents in the output surface.
@@ -584,16 +574,21 @@ final class ContentRecorder implements WindowContainerListener {
                 mDisplayContent.getConfiguration().screenWidthDp,
                 mDisplayContent.getConfiguration().screenHeightDp, surfaceSize.x, surfaceSize.y);
 
+        float recordTransformTx = shiftedX - (recordedContentBounds.left * scale.x);
+        float recordTransformTy = shiftedY - (recordedContentBounds.top * scale.y);
+
         transaction
                 // Crop the area to capture to exclude the 'extra' wallpaper that is used
                 // for parallax (b/189930234).
                 .setWindowCrop(mRecordedSurface, recordedContentBounds)
                 // Scale the root mirror SurfaceControl, based upon the size difference between the
                 // source (DisplayArea to capture) and output (surface the app reads images from).
-                .setMatrix(mRecordedSurface, 1, 0 /* dtdx */, 0 /* dtdy */, 1)
+                .setMatrix(mRecordedSurface, scale.x, 0 /* dtdx */, 0 /* dtdy */, scale.y)
                 // Position needs to be updated when the mirrored DisplayArea has changed, since
                 // the content will no longer be centered in the output surface.
-                .setPosition(mRecordedSurface, shiftedX /* x */, shiftedY /* y */);
+                .setPosition(mRecordedSurface, shiftedX /* x */, shiftedY /* y */)
+                // Mirror Layer Position needs to be updated
+                .setMirrorPosition(mRecordedSurface, recordTransformTx, recordTransformTy);
         mLastRecordedBounds = new Rect(recordedContentBounds);
         mLastConsumingSurfaceSize.x = surfaceSize.x;
         mLastConsumingSurfaceSize.y = surfaceSize.y;
