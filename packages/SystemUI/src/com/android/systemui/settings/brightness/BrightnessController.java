@@ -239,7 +239,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
             mBrightnessMax = info.brightnessMaximum;
             mBrightnessMin = info.brightnessMinimum;
             // Value is passed as intbits, since this is what the message takes.
-            final int valueAsIntBits = Float.floatToIntBits(info.brightness);
+            final int valueAsIntBits = BrightnessSynchronizer.brightnessFloatToInt(info.brightness)/*Float.floatToIntBits(info.brightness)*/;
             mMainHandler.obtainMessage(MSG_UPDATE_SLIDER, valueAsIntBits,
                     inVrMode ? 1 : 0).sendToTarget();
         }
@@ -263,7 +263,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
                         updateIcon(msg.arg1 != 0);
                         break;
                     case MSG_UPDATE_SLIDER:
-                        updateSlider(Float.intBitsToFloat(msg.arg1), msg.arg2 != 0);
+                        updateSlider(BrightnessSynchronizer.brightnessIntToFloat(msg.arg1)/*Float.intBitsToFloat(msg.arg1)*/, msg.arg2 != 0);
                         break;
                     case MSG_ATTACH_LISTENER:
                         mControl.setOnChangedListener(BrightnessController.this);
@@ -310,7 +310,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
             @Background Handler bgHandler) {
         mContext = context;
         mControl = control;
-        mControl.setMax(GAMMA_SPACE_MAX);
+        mControl.setMax(PowerManager.BRIGHTNESS_ON - 1/*GAMMA_SPACE_MAX*/);
         mMainExecutor = mainExecutor;
         mBackgroundHandler = bgHandler;
         mUserTracker = userTracker;
@@ -362,14 +362,13 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
                 : MetricsEvent.ACTION_BRIGHTNESS;
         minBacklight = mBrightnessMin;
         maxBacklight = mBrightnessMax;
-        final float valFloat = MathUtils.min(
+        final float valFloat = BrightnessSynchronizer.brightnessIntToFloat(value + 1)/*MathUtils.min(
                 convertGammaToLinearFloat(value, minBacklight, maxBacklight),
-                maxBacklight);
+                maxBacklight)*/;
         if (stopTracking) {
             // TODO(brightnessfloat): change to use float value instead.
             MetricsLogger.action(mContext, metric,
-                    BrightnessSynchronizer.brightnessFloatToInt(valFloat));
-
+                    value/*BrightnessSynchronizer.brightnessFloatToInt(valFloat)*/);
         }
         setBrightness(valFloat);
         if (!tracking) {
@@ -430,13 +429,14 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         }
         // convertGammaToLinearFloat returns 0-1
         if (BrightnessSynchronizer.floatEquals(brightnessValue,
-                convertGammaToLinearFloat(mControl.getValue(), min, max))) {
+                BrightnessSynchronizer.brightnessIntToFloat(mControl.getValue() + 1)/*convertGammaToLinearFloat(mControl.getValue(), min, max)*/)) {
             // If the value in the slider is equal to the value on the current brightness
             // then the slider does not need to animate, since the brightness will not change.
             return;
         }
         // Returns GAMMA_SPACE_MIN - GAMMA_SPACE_MAX
-        final int sliderVal = convertLinearToGammaFloat(brightnessValue, min, max);
+        final int sliderVal = BrightnessSynchronizer.brightnessFloatToInt(brightnessValue) - 1/*convertLinearToGammaFloat(brightnessValue, min, max)*/;
+
         animateSliderTo(sliderVal);
     }
 
@@ -457,7 +457,7 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
             mExternalChange = false;
         });
         final long animationDuration = SLIDER_ANIMATION_DURATION * Math.abs(
-                mControl.getValue() - target) / GAMMA_SPACE_MAX;
+                mControl.getValue() - target) / (PowerManager.BRIGHTNESS_ON - 1)/*GAMMA_SPACE_MAX*/;
         mSliderAnimator.setDuration(animationDuration);
         mSliderAnimator.start();
     }
