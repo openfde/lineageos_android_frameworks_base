@@ -436,7 +436,6 @@ public class BrightnessController implements ToggleSlider.Listener, MirroredBrig
         }
         // Returns GAMMA_SPACE_MIN - GAMMA_SPACE_MAX
         final int sliderVal = BrightnessSynchronizer.brightnessFloatToInt(brightnessValue) - 1/*convertLinearToGammaFloat(brightnessValue, min, max)*/;
-
         animateSliderTo(sliderVal);
     }
 
