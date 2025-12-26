@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.window.WindowContainerTransaction;
 import android.widget.TextView;
+import android.widget.Button;
 
 import com.android.wm.shell.R;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -334,12 +335,22 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private void bindData(View rootView, RunningTaskInfo taskInfo) {
         final boolean isFullscreen =
                 taskInfo.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
-        rootView.findViewById(R.id.maximize_window)
-                .setBackgroundResource(isFullscreen ? R.drawable.decor_restore_button_dark
-                        : R.drawable.decor_maximize_button_dark);
+        final boolean isMagicMainWindow = taskInfo.magicWindowType == 1;
+        Button maximize = (Button) rootView.findViewById(R.id.maximize_window);
+        android.util.Log.d(TAG, "bindData():  isMagicMainWindow :" + isMagicMainWindow + ", taskInfo :" + taskInfo + "");
+        if (isMagicMainWindow) {
+            maximize.setBackgroundResource(R.drawable.decor_maximize_button_dark_disable);
+            maximize.setEnabled(false);
+            maximize.setClickable(false);
+        } else {
+            maximize.setBackgroundResource(isFullscreen ? R.drawable.decor_restore_button_dark
+                    : R.drawable.decor_maximize_button_dark);
+            maximize.setEnabled(true);
+            maximize.setClickable(true);
+        }
     }
 
-    void setCaptionColor(int captionColor) {
+    void setCaptionColor(int captionColor, RunningTaskInfo taskInfo) {
         if (mResult.mRootView == null) {
             return;
         }
@@ -381,8 +392,11 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         minimizeBackground.setTintList(buttonTintColor);
 
         final View maximize = caption.findViewById(R.id.maximize_window);
-        final VectorDrawable maximizeBackground = (VectorDrawable) maximize.getBackground();
-        maximizeBackground.setTintList(buttonTintColor);
+        final boolean isMagicMainWindow = taskInfo.magicWindowType == 1;
+        if (!isMagicMainWindow) {
+            final VectorDrawable maximizeBackground = (VectorDrawable) maximize.getBackground();
+            maximizeBackground.setTintList(buttonTintColor);
+        }
 
         final View close = caption.findViewById(R.id.close_window);
         final VectorDrawable closeBackground = (VectorDrawable) close.getBackground();
