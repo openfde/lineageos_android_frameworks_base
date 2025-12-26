@@ -416,6 +416,10 @@ class ActivityMetricsLogger {
                 if (lastTask == currentTask) {
                     return true;
                 }
+                if (lastTask.getBounds().width() == currentTask.getBounds().width() &&
+                        lastTask.getBounds().height() == currentTask.getBounds().height()) {
+                    return true;
+                }
                 return lastTask.getBounds().equals(currentTask.getBounds());
             }
             return mLastLaunchedActivity.isUid(r.launchedFromUid);

@@ -76,6 +76,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
+import android.webkit.MimeTypeMap;
+
 
 /**
  * This is a class for reading and writing Exif tags in various image file formats.
@@ -1499,6 +1501,8 @@ public class ExifInterface {
         if (file == null) {
             throw new NullPointerException("file cannot be null");
         }
+        String path = file.getAbsolutePath();
+        mMimeType = getMimeType(path);
         initForFilename(file.getAbsolutePath());
     }
 
@@ -2587,6 +2591,34 @@ public class ExifInterface {
                 modernFd.close();
             }
         }
+    }
+
+    private int getMimeType(String filePath) {
+        String mimeType = "image/png";
+        String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+        if (extension != null) {
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            mimeType = mime.getMimeTypeFromExtension(extension);
+        }
+        if (mimeType != null) {
+            String path = filePath.toLowerCase();
+            Log.d(TAG,"loadAttributes loadAttributes filePath: "+filePath +",path "+path);
+            if("image/jpeg".equals(mimeType) || path.endsWith(".jpg")){
+                return IMAGE_TYPE_JPEG;
+            }else if("image/png".equals(mimeType) || path.endsWith(".png")){
+                return IMAGE_TYPE_PNG;    
+            }else if("image/webp".equals(mimeType)){
+                return IMAGE_TYPE_WEBP;
+            }else if("image/x-panasonic-rw2".equals(mimeType)){
+                return IMAGE_TYPE_RW2;
+            }else if("image/x-fuji-raf".equals(mimeType)){
+                return IMAGE_TYPE_RAF;
+            }else if("image/x-olympus-orf".equals(mimeType)){
+                return IMAGE_TYPE_ORF;
+            }    
+        }   
+          
+        return IMAGE_TYPE_UNKNOWN; 
     }
 
     // Checks the type of image file
