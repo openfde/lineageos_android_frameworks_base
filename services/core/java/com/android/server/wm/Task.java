@@ -789,8 +789,10 @@ class Task extends TaskFragment {
 
      void setBoundsByFreeFormSurfaceBound() {
         SurfaceControl.Transaction t = getSyncTransaction();
+        Slog.i(TAG,"lsm33  setBoundsByFreeFormSurfaceBound mFreeFormSurfaceBound.width: "+mFreeFormSurfaceBound.width() + ",getBounds().width: "+getBounds().width());
         float scale = (float)mFreeFormSurfaceBound.width() / (float) getBounds().width();
         t.setScale(getSurfaceControl(),scale,scale);
+        Slog.i(TAG,"lsm33  setBoundsByFreeFormSurfaceBound mFreeFormSurfaceBound.left: "+mFreeFormSurfaceBound.left + ",mFreeFormSurfaceBound.top: "+mFreeFormSurfaceBound.top + ",scale "+scale);
         t.setPosition(getSurfaceControl(),mFreeFormSurfaceBound.left,mFreeFormSurfaceBound.top);
         t.apply();
     }
@@ -2179,7 +2181,7 @@ class Task extends TaskFragment {
         if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             //add by freeform
             if (mFreeFormSurfaceBound != null ) {
-                Log.i("lsm33","enter Task onConfigurationChanged getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() = " + getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() + " \n mFreeFormSurfaceBound = "+mFreeFormSurfaceBound);
+                Log.i(TAG,"lsm33 Task onConfigurationChanged getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() = " + getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds() + " \n mFreeFormSurfaceBound = "+mFreeFormSurfaceBound);
 
                 if (getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds().isEmpty()) {
                     return;
@@ -2187,7 +2189,7 @@ class Task extends TaskFragment {
                 mFreeFormSurfaceBound.set(getRequestedOverrideConfiguration().windowConfiguration.getFreeformBounds());
                 setBoundsByFreeFormSurfaceBound();
                 dispatchTaskInfoChangedIfNeeded(true);
-                Log.i("lsm33","Task onConfigurationChanged newParentConfig.windowConfiguration.getFreeformBounds() = " + newParentConfig.windowConfiguration.getFreeformBounds());
+                Log.i(TAG,"lsm33 Task onConfigurationChanged newParentConfig.windowConfiguration.getFreeformBounds() = " + newParentConfig.windowConfiguration.getFreeformBounds());
             }
             //add end                
         }
@@ -3632,13 +3634,13 @@ class Task extends TaskFragment {
 
 		if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             if (inFreeformWindowingMode()) {
-                if (mFreeFormSurfaceBound== null) {
+                if (mFreeFormSurfaceBound == null) {
                     initFreeformPosition();
                 }
                 try{
+                    android.util.Log.i(TAG,"lsm33 info.positionInParent.y = " + info.positionInParent.y+",info.positionInParent.x = " + info.positionInParent.x +  ", mFreeFormSurfaceBound " + mFreeFormSurfaceBound);
                     info.positionInParent.x = mFreeFormSurfaceBound.left;
                     info.positionInParent.y = mFreeFormSurfaceBound.top;
-                    android.util.Log.i("lsm33","info.positionInParent.y = " + info.positionInParent.y + " mFreeFormSurfaceBound " + mFreeFormSurfaceBound);
                 }catch(Exception e){
                     e.printStackTrace();
 

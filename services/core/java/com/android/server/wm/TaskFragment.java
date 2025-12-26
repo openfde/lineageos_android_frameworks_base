@@ -2588,28 +2588,28 @@ class TaskFragment extends WindowContainer<WindowContainer> {
 
     
     void initFreeformPosition() {
-     android.util.Log.i("lsm888","initFreeformPosition getBounds = " + getBounds() + " getWindowingMode() == WINDOWING_MODE_FREEFORM " + (getWindowingMode() == WINDOWING_MODE_FREEFORM));
-     if (getBounds().left == 0 && getBounds().width() == getMaxBounds().width()
-     && getWindowingMode() == WINDOWING_MODE_FREEFORM) {
-         SurfaceControl.Transaction t = getSyncTransaction();
-         Matrix matrix = new Matrix();
-         matrix.reset();
-         matrix.postScale(0.5f,0.5f);
-         matrix.postTranslate(getBounds().width() * 0.5f * 0.5f,getBounds().top);
-         if (mFreeFormSurfaceBound == null) {
-             mFreeFormSurfaceBound = new Rect();
-         }
-         mFreeFormSurfaceBound.set(getBounds());
-         mFreeFormSurfaceBound.scale(0.5f);
-         int deta  = 0 ;
-         if (mFreeFormSurfaceBound.top < getBounds().top) {
-             deta = getBounds().top -mFreeFormSurfaceBound.top;
-         }
-         mFreeFormSurfaceBound.offset((int)(getBounds().width() * 0.5f * 0.5f),deta);
-         t.setMatrix(getSurfaceControl(),matrix,new float[9]);
-         t.apply();
-         android.util.Log.i("lsm33","initFreeformPosition mFreeFormSurfaceBound = " + mFreeFormSurfaceBound + " getBounds " + getBounds());
-     }
+        android.util.Log.i(TAG,"lsm33 initFreeformPosition getBounds = " + getBounds() + " getWindowingMode() == WINDOWING_MODE_FREEFORM " + (getWindowingMode() == WINDOWING_MODE_FREEFORM));
+        android.util.Log.i(TAG,"lsm33 initFreeformPosition getBounds().left: "+getBounds().left + " ,getBounds().width: " +getBounds().width() + ",getMaxBounds().width: "+getMaxBounds().width());
+        if (getWindowingMode() == WINDOWING_MODE_FREEFORM) {
+            SurfaceControl.Transaction t = getSyncTransaction();
+            // Matrix matrix = new Matrix();
+            // matrix.reset();
+            // matrix.postScale(0.5f,0.5f);
+            // matrix.postTranslate(getBounds().width() * 0.5f * 0.5f,getBounds().top);
+            if (mFreeFormSurfaceBound == null) {
+                mFreeFormSurfaceBound = new Rect();
+            }
+            mFreeFormSurfaceBound.set(getBounds());
+            mFreeFormSurfaceBound.scale(0.8f);
+            int deta  = 0 ;
+            if (mFreeFormSurfaceBound.top < getBounds().top) {
+                deta = getBounds().top -mFreeFormSurfaceBound.top;
+            }
+            mFreeFormSurfaceBound.offset((int)(getBounds().width() * 0.5f * 0.5f),deta);
+            // t.setMatrix(getSurfaceControl(),matrix,new float[9]);
+            t.apply();
+            android.util.Log.i(TAG,"lsm33 initFreeformPosition mFreeFormSurfaceBound = " + mFreeFormSurfaceBound + " getBounds " + getBounds());
+        }
      }
 
     /**
@@ -3255,7 +3255,6 @@ class TaskFragment extends WindowContainer<WindowContainer> {
                 }
             }		
         }
-
     }
 
     @Override

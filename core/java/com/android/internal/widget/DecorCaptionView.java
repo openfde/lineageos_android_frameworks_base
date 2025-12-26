@@ -136,17 +136,17 @@ public class DecorCaptionView extends ViewGroup implements View.OnTouchListener,
     @Override
      protected void dispatchDraw(Canvas canvas) {
          super.dispatchDraw(canvas);
-         if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
-              if (mNeedDrawRect) {
-                Paint paint = new Paint();
-                paint.setColor(Color.RED);
-                paint.setAntiAlias(true);
-                paint.setStrokeWidth(20);
-                paint.setStyle(Paint.Style.STROKE);
-                Rect rect = new Rect(0,0,getWidth(),getHeight());
-                canvas.drawRect(rect,paint);
-             }
-         }
+        //  if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+        //       if (mNeedDrawRect) {
+        //         Paint paint = new Paint();
+        //         paint.setColor(Color.RED);
+        //         paint.setAntiAlias(true);
+        //         paint.setStrokeWidth(20);
+        //         paint.setStyle(Paint.Style.STROKE);
+        //         Rect rect = new Rect(0,0,getWidth(),getHeight());
+        //         canvas.drawRect(rect,paint);
+        //      }
+        //  }
        
      }
 

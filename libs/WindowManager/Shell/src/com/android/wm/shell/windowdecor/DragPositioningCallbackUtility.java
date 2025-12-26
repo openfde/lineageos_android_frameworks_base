@@ -34,6 +34,7 @@ import android.os.SystemProperties;
  * and applying that change to the task bounds when applicable.
  */
 public class DragPositioningCallbackUtility {
+    private static final String TAG = "DragPositioningCallbackUtility";
 
     /**
      * Determine the delta between input's current point and the input start point.
@@ -112,12 +113,12 @@ public class DragPositioningCallbackUtility {
         }
 
           //add by freeform
-        Log.i("lsm33","before adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds + " taskBoundsAtDragStart = " +taskBoundsAtDragStart + " delta " +delta);
+        Log.i(TAG,"lsm33 before adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds + " taskBoundsAtDragStart = " +taskBoundsAtDragStart + " delta " +delta);
         if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             adapterRectByRatio(repositionTaskBounds,taskBoundsAtDragStart);
 		}
         
-        Log.i("lsm33","after adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds);
+        Log.i(TAG,"lsm33 after adapterRectByRatio repositionTaskBounds = " +repositionTaskBounds);
         // add end
 
         // If there are no changes to the bounds after checking new bounds against minimum width
@@ -135,6 +136,8 @@ public class DragPositioningCallbackUtility {
     static void adapterRectByRatio(Rect inRect,Rect ratioRect) {
         float ratioOfHW =ratioRect.height() / ratioRect.width() ;
         int ratioHeight =(int)(inRect.width() * ratioOfHW) ;
+        Log.i(TAG,"lsm33 ratioRect.height() "+ratioRect.height() + ",ratioRect.width(): "+ratioRect.width() 
+        +",inRect.height() "+inRect.height() + ",inRect.width(): "+inRect.width()+",ratioHeight: "+ratioHeight );
         inRect.bottom = inRect.top + ratioHeight;
     }
 
@@ -218,13 +221,14 @@ public class DragPositioningCallbackUtility {
                 windowDecoration)
                 : windowDecoration.mTaskInfo.minHeight;
     }
-    static float gWidthRotio = 0.2f;
+    static float gWidthRotio = 1.0f;
 
     private static float getDefaultMinSize(DisplayController displayController,
             WindowDecoration windowDecoration) {
         float density =  displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId)
                 .densityDpi() * DisplayMetrics.DENSITY_DEFAULT_SCALE;
         if (SystemProperties.getBoolean("persist.wm.fde.small.window", false)) {
+             Log.i(TAG,"lsm33 density "+density + ",displayId.width: "+displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId).width()); 
            return displayController.getDisplayLayout(windowDecoration.mTaskInfo.displayId).width() * gWidthRotio;
         }        
         return windowDecoration.mTaskInfo.defaultMinSize * density;

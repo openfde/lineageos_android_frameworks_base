@@ -106,7 +106,7 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
 
     @Override
     public Rect onDragPositioningStart(int ctrlType, float x, float y) {
-        Log.d(TAG, "onDragPositioningStart called: ctrlType=" + ctrlType +
+        Log.d(TAG, "lsm33 onDragPositioningStart called: ctrlType=" + ctrlType +
                 ", x=" + x + ", y=" + y);
 
         mCtrlType = ctrlType;
@@ -123,8 +123,6 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                 mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getBounds());
         }
         
-
-       
 
         mRepositionStartPoint.set(x, y);
         mDragStartListener.onDragStart(mWindowDecoration.mTaskInfo.taskId);
@@ -165,7 +163,7 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
 
     @Override
     public Rect onDragPositioningMove(float x, float y) {
-        Log.d(TAG, "onDragPositioningMove called: x=" + x + ", y=" + y +
+        Log.d(TAG, "lsm33 onDragPositioningMove called: x=" + x + ", y=" + y +
                 ", mCtrlType=" + mCtrlType + ", isResizing=" + isResizing());
 
         final WindowContainerTransaction wct = new WindowContainerTransaction();
@@ -253,7 +251,7 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
             if (boundsChanged) {
                 if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
                    if (mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
-                    Log.i("lsm33","onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
+                        Log.i(TAG,"lsm33 onDragPositioningEnd   setBounds = " +mRepositionTaskBounds);
                         wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
                     } else {
                         wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
@@ -278,7 +276,7 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                     mWindowDecoration.calculateValidDragArea());
             if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
                 if (mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
-                    Log.i("lsm33","onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
+                    Log.i(TAG,"lsm33 onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
                     wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
                 } else {
                     wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
@@ -303,7 +301,7 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
 
             if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
                 if (mWindowDecoration.mTaskInfo.configuration.windowConfiguration.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FREEFORM) {
-                    Log.i("lsm33","onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
+                    Log.i(TAG,"lsm33 onDragPositioningEnd do not  setBounds = " +mRepositionTaskBounds);
                     wct.setFreeformBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);
                 } else {
                     wct.setBounds(mWindowDecoration.mTaskInfo.token, mRepositionTaskBounds);

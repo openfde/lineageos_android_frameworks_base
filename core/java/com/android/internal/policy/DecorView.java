@@ -626,17 +626,17 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public  void setFreeFormSideShow(boolean show) {
-        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
-             if (mDecorCaptionView!= null) {
-                mDecorCaptionView.mNeedDrawRect = show;
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDecorCaptionView.invalidate();
-                    }
-                });
-            }
-        }
+        // if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+        //      if (mDecorCaptionView!= null) {
+        //         mDecorCaptionView.mNeedDrawRect = show;
+        //         post(new Runnable() {
+        //             @Override
+        //             public void run() {
+        //                 mDecorCaptionView.invalidate();
+        //             }
+        //         });
+        //     }
+        // }
         
      }
 

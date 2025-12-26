@@ -89,6 +89,7 @@ import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Slog;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -965,10 +966,15 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
             SurfaceControl targetLeash) {
         final Point tmpPos = new Point();
         target.getRelativePosition(tmpPos);
+        
+        if(target.asTask() == null ){
+            Log.w(TAG,"lsm33  setPosition  target.asTask() is null ");
+        }
 		if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             if (target.asTask() != null && target.asTask().inFreeformWindowingMode()) {
-                android.util.Log.i("lsm33","do not setPosition  target.asTask() ="+target.asTask());
+                Log.i(TAG,"lsm33  setPosition  target.asTask() ="+target.asTask());
             } else {
+                Log.i(TAG,"lsm33  setPosition  tmpPos.x: "+tmpPos.x + ",tmpPos.y: "+tmpPos.y);
                 t.setPosition(targetLeash, tmpPos.x, tmpPos.y);
             }
 		}else{
@@ -988,8 +994,9 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
 
 		if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             if (target.asTask() != null && target.asTask().inFreeformWindowingMode()) {
-                android.util.Log.i("lsm33","do not setMatrix target.asTask() ="+target.asTask());
+                Log.i(TAG,"lsm33 do not setMatrix target.asTask() ="+target.asTask());
             } else {
+                Log.i(TAG,"lsm33  setPosition  full screen.... ");
                 t.setMatrix(targetLeash, 1, 0, 0, 1);
             }
 		}else{

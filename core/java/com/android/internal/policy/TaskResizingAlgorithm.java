@@ -25,6 +25,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import android.os.SystemProperties;
+import android.util.Log;
 /**
  * Given a move coordinate (x, y), the original taks bounds and relevant details, calculate the new
  * bounds.
@@ -50,6 +51,8 @@ public class TaskResizingAlgorithm {
     public static final int CTRL_TOP    = 0x4;
     public static final int CTRL_BOTTOM = 0x8;
 
+    private static final String TAG = "TaskResizingAlgorithm";
+
     // The minimal aspect ratio which needs to be met to count as landscape (or 1/.. for portrait).
     @VisibleForTesting
     public static final float MIN_ASPECT = 1.2f;
@@ -74,6 +77,10 @@ public class TaskResizingAlgorithm {
             Rect originalBounds, int ctrlType, int minVisibleWidth, int minVisibleHeight,
             Point maxVisibleSize, boolean preserveOrientation,
             boolean startOrientationWasLandscape) {
+        Log.w(TAG,"lsm33 resizeDrag called: x=" + x + ", y=" + y +
+                ", startDragX=" + startDragX + ", startDragY=" + startDragY +
+                ",minVisibleWidth: "+minVisibleWidth+", minVisibleHeight: "+minVisibleHeight+
+                ", maxVisibleSize: "+maxVisibleSize);        
         // This is a resizing operation.
         // We need to keep various constraints:
         // 1. mMinVisible[Width/Height] <= [width/height] <= mMaxVisibleSize.[x/y]

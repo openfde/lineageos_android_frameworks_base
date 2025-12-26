@@ -214,6 +214,7 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
             WINDOW_CONFIG_ROTATION,
             WINDOW_CONFIG_DISPLAY_WINDOWING_MODE,
             WINDOW_CONFIG_DISPLAY_ROTATION,
+            WINDOW_CONFIG_FREEFORM_BOUNDS,
     })
     public @interface WindowConfig {}
 
@@ -250,12 +251,11 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
     /** @hide */
     public void readFromParcel(@NonNull Parcel source) {
         mBounds.readFromParcel(source);
+        mAppBounds = source.readTypedObject(Rect.CREATOR);
+        mMaxBounds.readFromParcel(source);
         if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             mFreeformBounds.readFromParcel(source);
         }
-        
-        mAppBounds = source.readTypedObject(Rect.CREATOR);
-        mMaxBounds.readFromParcel(source);
         mWindowingMode = source.readInt();
         mActivityType = source.readInt();
         mAlwaysOnTop = source.readInt();
@@ -486,7 +486,6 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
         if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
             setFreeformBounds(other.mFreeformBounds);
         }
-        
         setAppBounds(other.mAppBounds);
         setMaxBounds(other.mMaxBounds);
         setDisplayRotation(other.mDisplayRotation);
@@ -565,6 +564,15 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
             changed |= WINDOW_CONFIG_MAX_BOUNDS;
             setMaxBounds(delta.mMaxBounds);
         }
+
+        if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (!delta.mFreeformBounds.isEmpty() && !delta.mFreeformBounds.equals(mFreeformBounds)) {
+                changed |= WINDOW_CONFIG_FREEFORM_BOUNDS;
+                setFreeformBounds(delta.mFreeformBounds);
+            }
+		}
+
+
         if (delta.mWindowingMode != WINDOWING_MODE_UNDEFINED
                 && mWindowingMode != delta.mWindowingMode) {
             changed |= WINDOW_CONFIG_WINDOWING_MODE;
@@ -603,13 +611,6 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
      */
     public void setTo(@NonNull WindowConfiguration delta, @WindowConfig int mask) {
         //add by freeform
-        if ((mask & WINDOW_CONFIG_FREEFORM_BOUNDS) != 0) {
-            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
-                setFreeformBounds(delta.mFreeformBounds);
-            }
-            
-            Log.i("lsm33","setTo delta.mFreeformBounds " + delta.mFreeformBounds);
-        }
         //add end
         if ((mask & WINDOW_CONFIG_BOUNDS) != 0) {
             setBounds(delta.mBounds);
@@ -619,6 +620,12 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
         }
         if ((mask & WINDOW_CONFIG_MAX_BOUNDS) != 0) {
             setMaxBounds(delta.mMaxBounds);
+        }
+        if ((mask & WINDOW_CONFIG_FREEFORM_BOUNDS) != 0) {
+            if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                setFreeformBounds(delta.mFreeformBounds);
+            }   
+            Log.i("lsm33","setTo delta.mFreeformBounds " + delta.mFreeformBounds);
         }
         if ((mask & WINDOW_CONFIG_WINDOWING_MODE) != 0) {
             setWindowingMode(delta.mWindowingMode);
@@ -668,6 +675,12 @@ public class WindowConfiguration implements Parcelable, Comparable<WindowConfigu
         if (!mMaxBounds.equals(other.mMaxBounds)) {
             changes |= WINDOW_CONFIG_MAX_BOUNDS;
         }
+
+		if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+            if (!mFreeformBounds.equals(other.mFreeformBounds)) {
+                changes |= WINDOW_CONFIG_FREEFORM_BOUNDS;
+            }
+		}
 
         if ((compareUndefined || other.mWindowingMode != WINDOWING_MODE_UNDEFINED)
                 && mWindowingMode != other.mWindowingMode) {

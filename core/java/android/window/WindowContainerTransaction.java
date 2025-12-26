@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import android.os.SystemProperties;
+import android.util.Log;
 /**
  * Represents a collection of operations on some WindowContainers that should be applied all at
  * once.
@@ -59,6 +60,7 @@ import android.os.SystemProperties;
 @TestApi
 public final class WindowContainerTransaction implements Parcelable {
     private final ArrayMap<IBinder, Change> mChanges = new ArrayMap<>();
+    private static final String TAG = "WindowContainerTransaction";
 
     // Flat list because re-order operations are order-dependent
     private final ArrayList<HierarchyOp> mHierarchyOps = new ArrayList<>();
@@ -128,6 +130,7 @@ public final class WindowContainerTransaction implements Parcelable {
       public WindowContainerTransaction setFreeformBounds(
               @NonNull WindowContainerToken container,@NonNull Rect freeFormBounds) {
             if(SystemProperties.getBoolean("persist.wm.fde.small.window", false)){
+                Log.i(TAG,"lsm33 setFreeformBounds freeFormBounds: "+freeFormBounds);
                 Change chg = getOrCreateChange(container.asBinder());
                 chg.mConfiguration.windowConfiguration.setFreeformBounds(freeFormBounds);
                 chg.mConfigSetMask |= ActivityInfo.CONFIG_WINDOW_CONFIGURATION;
