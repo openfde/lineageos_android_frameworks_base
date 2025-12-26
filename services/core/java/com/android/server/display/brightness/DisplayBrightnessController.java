@@ -19,9 +19,11 @@ package com.android.server.display.brightness;
 import android.annotation.Nullable;
 import android.content.Context;
 import android.hardware.display.DisplayManagerInternal;
+import android.openfde.Light;
 import android.os.HandlerExecutor;
 import android.os.PowerManager;
 import android.util.IndentingPrintWriter;
+import android.util.MathUtils;
 import android.view.Display;
 
 import com.android.internal.annotations.GuardedBy;
@@ -115,7 +117,9 @@ public final class DisplayBrightnessController {
         mBrightnessSetting = brightnessSetting;
         mPendingScreenBrightness = PowerManager.BRIGHTNESS_INVALID_FLOAT;
         mScreenBrightnessDefault = BrightnessUtils.clampAbsoluteBrightness(defaultScreenBrightness);
-        mCurrentScreenBrightness = getScreenBrightnessSetting();
+        mCurrentScreenBrightness = MathUtils.constrainedMap(PowerManager.BRIGHTNESS_MIN, PowerManager.BRIGHTNESS_MAX,
+            PowerManager.BRIGHTNESS_OFF + 1, PowerManager.BRIGHTNESS_ON, Light.getInstance(null).getBacklight())/*getScreenBrightnessSetting()*/;
+        setBrightness(mCurrentScreenBrightness);
         mOnBrightnessChangeRunnable = onBrightnessChangeRunnable;
         mDisplayBrightnessStrategySelector = injector.getDisplayBrightnessStrategySelector(context,
                 displayId, flags);

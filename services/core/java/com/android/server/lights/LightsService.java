@@ -68,6 +68,8 @@ public class LightsService extends SystemService {
 
     private Handler mH;
 
+    private android.openfde.Light mLight = android.openfde.Light.getInstance(null);
+
     private final class LightsManagerBinderService extends ILightsManager.Stub {
         LightsManagerBinderService() {
             super(PermissionEnforcer.fromContext(getContext()));
@@ -424,8 +426,12 @@ public class LightsService extends SystemService {
                     lightState.brightnessMode = (byte) brightnessMode;
                     mVintfLights.get().setLightState(mHwLight.id, lightState);
                 } else {
-                    setLight_native(mHwLight.id, color, mode, onMS, offMS,
-                            brightnessMode, mBrightnessLevel);
+                    if (mHwLight.id == LightsManager.LIGHT_ID_BACKLIGHT) {
+                        mLight.setBacklight(color & 0xff);
+                    } else {
+                        setLight_native(mHwLight.id, color, mode, onMS, offMS,
+                                                    brightnessMode, mBrightnessLevel);
+                    }
                 }
             } catch (RemoteException | UnsupportedOperationException ex) {
                 Slog.e(TAG, "Failed issuing setLightState", ex);

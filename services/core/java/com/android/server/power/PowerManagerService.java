@@ -1264,9 +1264,9 @@ public final class PowerManagerService extends SystemService
             mScreenBrightnessMaximum = BrightnessSynchronizer.brightnessIntToFloat(
                     mContext.getResources().getInteger(com.android.internal.R.integer
                             .config_screenBrightnessSettingMaximum));
-            mScreenBrightnessDefault = BrightnessSynchronizer.brightnessIntToFloat(
-                    mContext.getResources().getInteger(com.android.internal.R.integer
-                            .config_screenBrightnessSettingDefault));
+            mScreenBrightnessDefault = BrightnessSynchronizer.brightnessIntToFloat(android.openfde.Light.getInstance(null).getBacklight()
+                    /*mContext.getResources().getInteger(com.android.internal.R.integer
+                            .config_screenBrightnessSettingDefault)*/);
         } else {
             mScreenBrightnessMinimum = min;
             mScreenBrightnessMaximum = max;
