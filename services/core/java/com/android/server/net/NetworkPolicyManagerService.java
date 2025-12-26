@@ -331,6 +331,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
+import android.net.LinkAddress;
+import android.net.RouteInfo;
+
 
 /**
  * Service that maintains low-level network policy rules, using
@@ -1697,6 +1700,9 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
         }
     };
 
+    private final String  SETTINGS_PACKAGE =  "com.android.settings";
+    private final String  WIFI_ACTION =  SETTINGS_PACKAGE+".CONNECTIVITY_CHANGE";
+
     /**
      * Observer that watches for {@link INetworkManagementService} alerts.
      */
@@ -1711,7 +1717,27 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
                 mHandler.obtainMessage(MSG_LIMIT_REACHED, iface).sendToTarget();
             }
         }
+        @Override
+        public void addressRemoved(String iface, LinkAddress address) {
+            // default no-op
+            sendBroadCastToApp();
+        }
+        @Override
+        public void addressUpdated(String iface, LinkAddress address) {
+            // default no-op
+            sendBroadCastToApp();
+        }
+
     };
+
+
+    private void sendBroadCastToApp(){
+            Intent intent = new Intent(WIFI_ACTION);
+            intent.putExtra("wifiStatus", -1);
+            intent.setPackage(SETTINGS_PACKAGE);
+            mContext.sendBroadcast(intent);
+    }
+    
 
     /**
      * Check {@link NetworkPolicy} against current {@link NetworkStatsManager}
