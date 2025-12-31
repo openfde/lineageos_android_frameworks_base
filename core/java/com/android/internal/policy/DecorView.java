@@ -128,6 +128,11 @@ import android.widget.Toast;
 import android.widget.Button;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.Typeface;
+import android.app.Activity;
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
+
+
 
 /** @hide */
 public class DecorView extends FrameLayout implements RootViewSurfaceTaker, WindowCallbacks {
@@ -638,6 +643,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         @Override
         public void run() {
             Log.d(TAG, "UpdateWindowStatusRunnable start");
+            if(!isResizeWindow()){
+                return ;
+            }
             updateWindowStatus();
         }
     }
@@ -663,11 +671,28 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
-    public void startFullScreenWindow(){
+    public boolean isResizeWindow(){
+       try{
+           String packageName = mContext.getPackageName();
+           String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+           String[] selectionArgs = {packageName,"forcedPortraitMode", ""};
+           String result = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+           Log.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
+           if(TextUtils.equals(result, "true")){
+              return false ; 
+           }
+         }catch(Exception e){
+            e.printStackTrace();
+         }
+        return true ;
+    }
+    
+
+    private void startFullScreenWindow(){
         startFullScreenWindow(true);
     }
 
-    public void startFullScreenWindow(boolean hideSystemBar){
+    private void startFullScreenWindow(boolean hideSystemBar){
         if(hideSystemBar){
             hideStatusBarNavigationBar();
         }
@@ -684,7 +709,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if(mContext != null) mContext.sendBroadcast(intent);
     }
 
-    public void updateWindowStatus(){
+    private void updateWindowStatus(){
         if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
             && !"com.android.systemui".equals(mContext.getPackageName())){
             try{
@@ -763,6 +788,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
                         && !"com.android.systemui".equals(mContext.getPackageName())){
                         Log.d(TAG,"received KEYCODE_F11 packageName: " + mContext.getPackageName());
+                        if(!isResizeWindow()){
+                            Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
+                            return true ;
+                        }
                         try{
                             mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
                         }catch(Exception e){

@@ -281,4 +281,5 @@
     <!-- Accessibility text for the handle menu open menu button [CHAR LIMIT=NONE] -->
     <string name="expand_menu_text">Open Menu</string>
     <string name="forced_maximized" >This window has been forced to maximize.</string>
+    <string name="forbid_exit_full_screen_tips" >The App has disabled the maximization, full screen mode, and zoom functions.</string>
 </resources>
