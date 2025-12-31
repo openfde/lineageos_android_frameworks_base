@@ -5379,5 +5379,6 @@
   <java-symbol type="string" name="config_defaultContextualSearchLegacyEnabled" />
   <java-symbol type="string" name="exit_full_screen_display_prompt" />
   <java-symbol type="string" name="exit_full_screen" />
+  <java-symbol type="string" name="forbid_exit_full_screen_tips" />
   <java-symbol type="drawable" name="range_button_bg" />
 </resources>

@@ -172,6 +172,12 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     @Override
     public void setSplitScreenController(SplitScreenController splitScreenController) {}
+    
+    private String queryStringValueData(String packageName,String keyCode,String activityName){
+              String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+              String[] selectionArgs= {packageName,keyCode, activityName};
+              return CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+    }
 
     @Override
     public boolean onTaskOpening(
@@ -184,9 +190,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             Log.d(TAG,"onTaskOpening mRunningTaskId: " + mRunningTaskId);
             if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                 String packageName = taskInfo.topActivity.getPackageName();
-                String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-                String[] selectionArgsWithoutActivity = {packageName,"forcedMaximizeStart", ""};
-                String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgsWithoutActivity);
+                String resultStrWithoutActivity = queryStringValueData(packageName, "forcedMaximizeStart", "");
                 Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity);
                 boolean forcedMaximizeStart = false;
                 if(TextUtils.equals(resultStrWithoutActivity, "true")){
@@ -194,8 +198,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                     Log.d(TAG,"onTaskOpening packageName: " + packageName + ", forcedMaximizeStart: " + forcedMaximizeStart);
                 }else{
                     String activityName = extractActivityName(taskInfo.topActivity.getClassName());
-                    String[] selectionArgs = {packageName,"forcedMaximizeStart", activityName};
-                    String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                    String resultStr = queryStringValueData(packageName, "forcedMaximizeStart", activityName);
                     Log.d(TAG,"forcedMaximizeStart resultStr: " + resultStr);
                     if(TextUtils.equals(resultStr, "true")){
                         forcedMaximizeStart = true;
@@ -402,6 +405,14 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 mTaskOperations.injectBackKey(mDisplayId);
             } else if (id == R.id.fullscreen_window) {
                 Log.d(TAG, "onClick fullscreen_window");
+                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
+                    String packageName = taskInfo.topActivity.getPackageName();
+                    if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
+                        Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                }
                 mMainHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -423,18 +434,19 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
-                    String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-                    String[] selectionArgsWithoutActivity = {packageName,"forcedMaximizeStart", ""};
-                    String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgsWithoutActivity);
-                    Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity);
+                    if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
+                        Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String resultStrWithoutActivity = queryStringValueData(packageName, "forcedMaximizeStart", "");
+                    Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity + ",packageName "+packageName);
                     boolean forcedMaximizeStart = false;
                     if(TextUtils.equals(resultStrWithoutActivity, "true")){
                         forcedMaximizeStart = true;
                         Log.d(TAG,"onClick maximize packageName: " + packageName + ", forcedMaximizeStart: " + forcedMaximizeStart);
                     }else{
                         String activityName = extractActivityName(taskInfo.topActivity.getClassName());
-                        String[] selectionArgs = {packageName,"forcedMaximizeStart", activityName};
-                        String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                        String resultStr = queryStringValueData(packageName, "forcedMaximizeStart", activityName);
                         Log.d(TAG,"forcedMaximizeStart resultStr: " + resultStr);
                         if(TextUtils.equals(resultStr, "true")){
                             forcedMaximizeStart = true;

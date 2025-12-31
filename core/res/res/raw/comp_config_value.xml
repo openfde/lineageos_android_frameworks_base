@@ -186,10 +186,13 @@
 	<item
         isdel="false"
         key_code="forcedPortraitMode"
-        update_date="2025-11-13">
+        update_date="2025-12-30">
 		<package name="net.csdn.csdnplus">
-            <activity name="SplashActivity">true</activity>
-        </package>
+			<activity name="SplashActivity">true</activity>
+		</package>
+		<package name="com.zhihu.android">
+			<activity name="">true</activity>
+		</package>
     </item>
 	<item
         isdel="false"
@@ -199,9 +202,6 @@
             <activity name="QRActivity">true</activity>
         </package>
     </item>
-
-
-
     <item
         isdel="false"
         key_code="enableMagicWindow"
