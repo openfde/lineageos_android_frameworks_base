@@ -1702,7 +1702,7 @@ public final class Display {
             updateDisplayInfoLocked();
             if (shouldReportMaxBounds()) {
                 final Rect bounds = mResources.getConfiguration()
-                        .windowConfiguration.getMaxBounds();
+                        .windowConfiguration.getAppBounds();
                 outSize.x = bounds.width();
                 outSize.y = bounds.height();
                 if (DEBUG) {
