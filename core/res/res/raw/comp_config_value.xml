@@ -193,6 +193,9 @@
 		<package name="com.zhihu.android">
 			<activity name="">true</activity>
 		</package>
+        	<package name="com.douban.frodo">
+			<activity name="">true</activity>
+		</package>
     </item>
 	<item
         isdel="false"
