@@ -169,11 +169,11 @@
 		<package name="com.tencent.tmgp.sgame">
             <activity name="">true</activity>
         </package>
-		<package name="com.xs.fm">
+	<package name="com.xs.fm">
             <activity name="">true</activity>
         </package>
         <package name="com.android.permissioncontroller">
-		<activity name="">true</activity>
+	   <activity name="">true</activity>
 	</package>           
     </item>
 
@@ -189,7 +189,7 @@
 	<item
         isdel="false"
         key_code="forcedPortraitMode"
-        update_date="2026-01-08">
+        update_date="2026-01-09">
 		<package name="net.csdn.csdnplus">
 			<activity name="SplashActivity">true</activity>
 		</package>
@@ -201,7 +201,10 @@
 		</package>
         	<package name="com.android.permissioncontroller">
 			<activity name="">true</activity>
-		</package>        
+		</package>       
+        	<package name="com.dianping.v1">
+			<activity name="">true</activity>
+		</package>           
     </item>
 	<item
         isdel="false"
