@@ -144,7 +144,7 @@
     <item
         isdel="false"
         key_code="isShiftContentBelowCaption"
-        update_date="2025-12-02">
+        update_date="2026-01-08">
         <package name="com.lemon.lv">
             <activity name="">true</activity>
         </package>
@@ -172,6 +172,9 @@
 		<package name="com.xs.fm">
             <activity name="">true</activity>
         </package>
+        <package name="com.android.permissioncontroller">
+		<activity name="">true</activity>
+	</package>           
     </item>
 
     <item
@@ -186,7 +189,7 @@
 	<item
         isdel="false"
         key_code="forcedPortraitMode"
-        update_date="2025-12-30">
+        update_date="2026-01-08">
 		<package name="net.csdn.csdnplus">
 			<activity name="SplashActivity">true</activity>
 		</package>
@@ -196,6 +199,9 @@
         	<package name="com.douban.frodo">
 			<activity name="">true</activity>
 		</package>
+        	<package name="com.android.permissioncontroller">
+			<activity name="">true</activity>
+		</package>        
     </item>
 	<item
         isdel="false"
