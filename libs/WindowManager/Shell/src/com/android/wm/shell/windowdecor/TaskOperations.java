@@ -34,7 +34,8 @@ import android.window.WindowContainerTransaction;
 import com.android.wm.shell.common.SyncTransactionQueue;
 import com.android.wm.shell.freeform.FreeformTaskTransitionStarter;
 import com.android.wm.shell.transition.Transitions;
-
+import com.android.internal.util.CompatibleConfig;
+import android.text.TextUtils;
 /**
  * Utility class to handle task operations performed on a window decoration.
  */
@@ -112,9 +113,22 @@ class TaskOperations {
         }
     }
 
+    private String queryStringValueData(String packageName,String keyCode,String activityName){
+              String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+              String[] selectionArgs= {packageName,keyCode, activityName};
+              return CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+    }
+
     void maximizeTask(RunningTaskInfo taskInfo) {
         final boolean isMagicMainWindow = taskInfo.magicWindowType == 1;
         Log.d(TAG, "maximizeTask RunningTaskInfo taskId: " + taskInfo.taskId);
+        if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
+            String packageName = taskInfo.topActivity.getPackageName();
+            Log.d(TAG, "onTaskChanging packageName: " + packageName);
+            if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
+                return;
+            }
+        }
         WindowContainerTransaction wct = new WindowContainerTransaction();
         int targetWindowingMode = taskInfo.getWindowingMode() != WINDOWING_MODE_FULLSCREEN
                 ? WINDOWING_MODE_FULLSCREEN : WINDOWING_MODE_FREEFORM;
