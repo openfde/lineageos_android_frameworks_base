@@ -335,10 +335,10 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private void bindData(View rootView, RunningTaskInfo taskInfo) {
         final boolean isFullscreen =
                 taskInfo.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
-        final boolean isMagicMainWindow = taskInfo.magicWindowType == 1;
+        final boolean isMagicWindow = taskInfo.magicWindowType != 0;
         Button maximize = (Button) rootView.findViewById(R.id.maximize_window);
-        android.util.Log.d(TAG, "bindData():  isMagicMainWindow :" + isMagicMainWindow + ", taskInfo :" + taskInfo + "");
-        if (isMagicMainWindow) {
+        android.util.Log.d(TAG, "bindData():  isMagicWindow :" + isMagicWindow + ", taskInfo :" + taskInfo + "");
+        if (isMagicWindow) {
             maximize.setBackgroundResource(R.drawable.decor_maximize_button_dark_disable);
             maximize.setEnabled(false);
             maximize.setClickable(false);
@@ -392,8 +392,8 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         minimizeBackground.setTintList(buttonTintColor);
 
         final View maximize = caption.findViewById(R.id.maximize_window);
-        final boolean isMagicMainWindow = taskInfo.magicWindowType == 1;
-        if (!isMagicMainWindow) {
+        final boolean isMagicWindow = taskInfo.magicWindowType != 0;
+        if (!isMagicWindow) {
             final VectorDrawable maximizeBackground = (VectorDrawable) maximize.getBackground();
             maximizeBackground.setTintList(buttonTintColor);
         }
