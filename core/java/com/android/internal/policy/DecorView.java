@@ -688,11 +688,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
     
 
-    private void startFullScreenWindow(){
+    public void startFullScreenWindow(){
         startFullScreenWindow(true);
     }
 
-    private void startFullScreenWindow(boolean hideSystemBar){
+    public void startFullScreenWindow(boolean hideSystemBar){
         if(hideSystemBar){
             hideStatusBarNavigationBar();
         }
