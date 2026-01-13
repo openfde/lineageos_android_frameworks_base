@@ -319,6 +319,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import android.openfde.UserMonitor;
+
 
 /**
  * System service for managing activities and their containers (task, displays,... ).
@@ -392,6 +394,8 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     GrammaticalInflectionManagerInternal mGrammaticalManagerInternal;
     PendingIntentController mPendingIntentController;
     IntentFirewall mIntentFirewall;
+
+    private UserMonitor mUserMonitor ;
 
     final VisibleActivityProcessTracker mVisibleActivityProcessTracker;
 
@@ -879,6 +883,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         mTaskFragmentOrganizerController =
                 mWindowOrganizerController.mTaskFragmentOrganizerController;
         mBackNavigationController = new BackNavigationController();
+
     }
 
     public void onSystemReady() {
@@ -1273,12 +1278,32 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                         : intent.isSandboxActivity(context));
     }
 
+    public void removeIfPossible(String packageName){
+        if(mUserMonitor == null){
+            mUserMonitor = UserMonitor.getInstance(mContext);
+        }
+        if(packageName == null ){
+            return;
+        }
+        mUserMonitor.packageStateChanged(4,packageName,0);
+    }
+
     private int startActivityAsUser(IApplicationThread caller, String callingPackage,
             @Nullable String callingFeatureId, Intent intent, String resolvedType,
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
         final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
 
+        try{
+            if(mUserMonitor == null){           
+                mUserMonitor = UserMonitor.getInstance(mContext);      
+            } 
+            String packageName = intent.getComponent().getPackageName();
+            if(packageName !=null && !callingPackage.equals(packageName)){
+                mUserMonitor.packageStateChanged(3,packageName,0);
+            }    
+        }catch(Exception e){
+         }    
         assertPackageMatchesCallingUid(callingPackage);
         enforceNotIsolatedCaller("startActivityAsUser");
 

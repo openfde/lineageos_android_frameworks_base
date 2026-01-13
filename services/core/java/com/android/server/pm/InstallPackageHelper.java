@@ -208,6 +208,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import android.openfde.Platform;
 
 final class InstallPackageHelper {
     private final PackageManagerService mPm;
@@ -225,6 +226,7 @@ final class InstallPackageHelper {
     private final SharedLibrariesImpl mSharedLibraries;
     private final PackageManagerServiceInjector mInjector;
     private final UpdateOwnershipHelper mUpdateOwnershipHelper;
+    private Platform mPlatform ;
 
     // TODO(b/198166813): remove PMS dependency
     InstallPackageHelper(PackageManagerService pm,
@@ -1440,6 +1442,7 @@ final class InstallPackageHelper {
                             }
                         }
                     } catch (PackageManagerException e) {
+                        sendInstallErrorMsg(pkgName,e);
                         throw new PrepareFailure(e.error, e.getMessage());
                     }
                 }
@@ -3003,6 +3006,12 @@ final class InstallPackageHelper {
                 -1, UserHandle.USER_SYSTEM);
     }
 
+    private void sendInstallErrorMsg(String packageName,PackageManagerException e){
+        if(mPlatform == null){
+            mPlatform = Platform.getInstance(mContext);
+        }
+        mPlatform.installAppCallBack(packageName,e.error,e.getMessage());
+    }
     /**
      * Uncompress and install stub applications.
      * <p>In order to save space on the system partition, some applications are shipped in a
@@ -3047,6 +3056,7 @@ final class InstallPackageHelper {
                         UserHandle.USER_SYSTEM, "android");
                 systemStubPackageNames.remove(i);
             } catch (PackageManagerException e) {
+                sendInstallErrorMsg(pkg.getPackageName(),e);
                 Slog.e(TAG, "Failed to parse uncompressed system package: " + e.getMessage());
             }
 
@@ -3087,6 +3097,7 @@ final class InstallPackageHelper {
                                 pkg, stubPkgSetting, null, null,
                                 Collections.unmodifiableMap(mPm.mPackages));
                     } catch (PackageManagerException e) {
+                        sendInstallErrorMsg(stubPkg.getPackageName(),e);
                         Slog.w(TAG, "updateAllSharedLibrariesLPw failed: ", e);
                     }
                     mPm.mPermissionManager.onPackageInstalled(pkg,
@@ -3098,6 +3109,7 @@ final class InstallPackageHelper {
                     // set restricted settings on it.
                 }
             } catch (PackageManagerException e) {
+                sendInstallErrorMsg(stubPkg.getPackageName(),e);
                 // Whoops! Something went very wrong; roll back to the stub and disable the package
                 try (PackageFreezer freezer =
                              mPm.freezePackage(stubPkg.getPackageName(), UserHandle.USER_ALL,
@@ -3162,6 +3174,7 @@ final class InstallPackageHelper {
         try {
             return initPackageTracedLI(scanFile, parseFlags, scanFlags);
         } catch (PackageManagerException e) {
+            sendInstallErrorMsg(stubPkg.getPackageName(),e);
             Slog.w(TAG, "Failed to install compressed system package:" + stubPkg.getPackageName(),
                     e);
             // Remove the failed install
@@ -3243,6 +3256,7 @@ final class InstallPackageHelper {
                         origUsers, writeSettings);
             }
         } catch (PackageManagerException e) {
+            sendInstallErrorMsg(deletedPs.getPackageName(),e);
             Slog.w(TAG, "Failed to restore system package:" + deletedPs.getPackageName() + ": "
                     + e.getMessage());
             // TODO(b/194319951): can we avoid this; throw would come from scan...
@@ -3478,6 +3492,7 @@ final class InstallPackageHelper {
                         initPackageTracedLI(codePath, 0, scanFlags);
                     }
                 } catch (PackageManagerException e) {
+                    sendInstallErrorMsg(packageName,e);
                     Slog.e(TAG, "Failed to parse updated, ex-system package: "
                             + e.getMessage());
                 }
@@ -4483,7 +4498,7 @@ final class InstallPackageHelper {
             // package isn't already installed, since we don't want to break
             // things that are installed.
             if ((scanFlags & SCAN_NEW_INSTALL) != 0) {
-                mPm.mComponentResolver.assertProvidersNotDefined(pkg);
+               mPm.mComponentResolver.assertProvidersNotDefined(pkg);
             }
 
             // If this package has defined explicit processes, then ensure that these are

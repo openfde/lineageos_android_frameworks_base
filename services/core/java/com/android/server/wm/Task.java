@@ -1613,6 +1613,7 @@ class Task extends TaskFragment {
         } else if (!mReuseTask && shouldRemoveSelfOnLastChildRemoval()) {
             reason += ", last child = " + r + " in " + this;
             removeIfPossible(reason);
+            mAtmService.removeIfPossible(mWindowLayoutAffinity);
         }
     }
 
