@@ -189,7 +189,7 @@
 	<item
         isdel="false"
         key_code="forcedPortraitMode"
-        update_date="2026-01-09">
+        update_date="2026-01-14">
 		<package name="net.csdn.csdnplus">
 			<activity name="SplashActivity">true</activity>
 		</package>
@@ -204,7 +204,34 @@
 		</package>       
         	<package name="com.dianping.v1">
 			<activity name="">true</activity>
-		</package>           
+		</package>   
+        <package name="com.jingdong.app.mall">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.ss.android.article.news">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.xingin.xhs">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.sina.weibo">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.kuaishou.nebula">
+            <activity name="">true</activity>
+        </package>
+        <package name="ctrip.android.view">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.Qunar">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.tencent.mm">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.lite.ceclanxin">
+            <activity name="">true</activity>
+        </package>        
     </item>
 	<item
         isdel="false"
