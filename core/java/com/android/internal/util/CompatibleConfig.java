@@ -52,6 +52,8 @@ import java.util.concurrent.Executors;
 import com.android.internal.util.CompatibleDatabaseHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.DisplayMetrics;
+import android.os.SystemProperties;
 /**
  * compatible tool api add by xudq
  */
@@ -64,7 +66,8 @@ public class CompatibleConfig {
     private CompatibleDatabaseHelper dbHelper;
 
     private static CompatibleConfig instance;
-
+    private static final int DESIGN_WIDTH = 1920;  // Design reference width (landscape)
+    private static final int DESIGN_HEIGHT = 1080; // Design reference height (landscape)
     private CompatibleConfig() {
     }
 
@@ -77,6 +80,35 @@ public class CompatibleConfig {
             instance = new CompatibleConfig(context);
         }
         return instance;
+    }
+
+
+    /**
+     * Scales a given dimension (based on a 1920x1080 design) to match the current device's screen size.
+     * Width is scaled relative to 1920, and height is scaled relative to 1080 independently.
+     *
+     * @param context    The application context (used to retrieve display metrics)
+     * @param srcWidth   Original width in pixels (based on 1920px design width)
+     * @param srcHeight  Original height in pixels (based on 1080px design height)
+     * @return           An array containing {scaledWidth, scaledHeight} as integers
+     */
+    public static int[] scaleFrom1920x1080(Context context, int srcWidth, int srcHeight) {
+        DisplayMetrics dm = new DisplayMetrics();
+        context.getDisplay().getRealMetrics(dm);
+        int screenWidth = dm.widthPixels;
+        int screenHeight = dm.heightPixels;
+//        int screenWidth = SystemProperties.getInt("openfde.display_width", DESIGN_WIDTH);
+//        int screenHeight = SystemProperties.getInt("openfde.display_height", DESIGN_HEIGHT);
+
+        // Calculate independent scaling ratios for width and height
+        float widthRatio = (float) screenWidth / DESIGN_WIDTH;
+        float heightRatio = (float) screenHeight / DESIGN_HEIGHT;
+
+        // Apply scaling ratios separately and round to nearest integer
+        int targetWidth = (int) (srcWidth * widthRatio + 0.5f);
+        int targetHeight = (int) (srcHeight * heightRatio + 0.5f);
+
+        return new int[]{targetWidth, targetHeight};
     }
 
     /**

@@ -24,6 +24,7 @@ import static com.android.server.wm.LaunchParamsController.LaunchParamsModifier.
 import static com.android.server.wm.LaunchParamsController.LaunchParamsModifier.RESULT_CONTINUE;
 import static com.android.server.wm.LaunchParamsController.LaunchParamsModifier.RESULT_DONE;
 import static com.android.server.wm.LaunchParamsController.LaunchParamsModifier.RESULT_SKIP;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
@@ -35,6 +36,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.Context;
+import com.android.internal.util.CompatibleConfig;
+import org.json.JSONObject;
+import org.json.JSONException;
+import android.util.Slog;
+import android.text.TextUtils;
 
 /**
  * {@link LaunchParamsController} calculates the {@link LaunchParams} by coordinating between
@@ -44,6 +51,7 @@ class LaunchParamsController {
     private final ActivityTaskManagerService mService;
     private final LaunchParamsPersister mPersister;
     private final List<LaunchParamsModifier> mModifiers = new ArrayList<>();
+    private static final String TAG = "LaunchParamsController";
 
     // Temporary {@link LaunchParams} for internal calculations. This is kept separate from
     // {@code mTmpCurrent} and {@code mTmpResult} to prevent clobbering values.
@@ -105,6 +113,37 @@ class LaunchParamsController {
                     return;
                 case RESULT_CONTINUE:
                     // Set result and continue
+                    if (task != null ) {
+                        Slog.d(TAG, "calculate packagename:" + task.getBasePackageName() + " task:" + task );
+                        Context context = mService.mContext;
+                        if (context != null) {
+                            String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+                            String[] selectionArgs = {task.getBasePackageName(), "activityLunchSize", ""};
+                            String resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+                            Slog.d(TAG, "calculate: query " + task.getBasePackageName() + " resultStr: " + resultStr);
+                            if (!TextUtils.isEmpty(resultStr)) {
+                                JSONObject jsonObject = null;
+                                try {
+                                    jsonObject = new JSONObject(resultStr);
+                                    int width = jsonObject.getInt("width");
+                                    int height = jsonObject.getInt("height");
+                                    if (width > 0 && height > 0) {
+                                        int[] size = CompatibleConfig.scaleFrom1920x1080(context, width, height);
+                                        Slog.d(TAG, "calculate scaled size " + size[0] + "x" + size[1]);
+                                        int left = mTmpResult.mBounds.left;
+                                        int right = mTmpResult.mBounds.left + size[0];
+                                        int top = mTmpResult.mBounds.top;
+                                        int bottom = mTmpResult.mBounds.top + size[1];
+                                        mTmpResult.mBounds.set(new Rect(left, top, right, bottom));
+                                    }
+                                    mTmpResult.mWindowingMode = WINDOWING_MODE_FREEFORM;
+                                    Slog.d(TAG, "calculate mTmpResult: " + mTmpResult);
+                                } catch (JSONException e) {
+                                    Slog.d(TAG, "calculate error: " + e);
+                                }
+                            }
+                        }
+                    }
                     result.set(mTmpResult);
                     break;
             }
