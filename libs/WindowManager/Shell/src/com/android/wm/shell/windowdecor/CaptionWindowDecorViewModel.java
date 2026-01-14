@@ -408,10 +408,12 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
-                    if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
+                    String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+                    String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+                    if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(enableMagicWindow, "true") ){
                         Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                        return;
+                    }
                 }
                 mMainHandler.postDelayed(new Runnable() {
                     @Override
@@ -434,7 +436,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
-                    if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
+                    String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+                    String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+                    if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(enableMagicWindow, "true") ){
                         Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                         return;
                     }
