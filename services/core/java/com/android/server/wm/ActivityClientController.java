@@ -203,7 +203,7 @@ class ActivityClientController extends IActivityClientController.Stub {
                             int type = mTaskSupervisor.getMagicWindowType(actR.intent.getComponent().getPackageName(), actR.intent.getComponent().flattenToShortString());
                             if(type == MAGIC_MAIN_WINDOW){
                                 task.type = MAGIC_MAIN_WINDOW;
-                                task.dispatchTaskInfoChangedIfNeeded(true);
+//                                task.dispatchTaskInfoChangedIfNeeded(true);
                             }
                         });
                     }

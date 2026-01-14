@@ -335,19 +335,9 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private void bindData(View rootView, RunningTaskInfo taskInfo) {
         final boolean isFullscreen =
                 taskInfo.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
-        final boolean isMagicWindow = taskInfo.magicWindowType != 0;
-        Button maximize = (Button) rootView.findViewById(R.id.maximize_window);
-        android.util.Log.d(TAG, "bindData():  isMagicWindow :" + isMagicWindow + ", taskInfo :" + taskInfo + "");
-        if (isMagicWindow) {
-            maximize.setBackgroundResource(R.drawable.decor_maximize_button_dark_disable);
-            maximize.setEnabled(false);
-            maximize.setClickable(false);
-        } else {
-            maximize.setBackgroundResource(isFullscreen ? R.drawable.decor_restore_button_dark
-                    : R.drawable.decor_maximize_button_dark);
-            maximize.setEnabled(true);
-            maximize.setClickable(true);
-        }
+        rootView.findViewById(R.id.maximize_window)
+                .setBackgroundResource(isFullscreen ? R.drawable.decor_restore_button_dark
+                        : R.drawable.decor_maximize_button_dark);
     }
 
     void setCaptionColor(int captionColor, RunningTaskInfo taskInfo) {
@@ -392,11 +382,8 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         minimizeBackground.setTintList(buttonTintColor);
 
         final View maximize = caption.findViewById(R.id.maximize_window);
-        final boolean isMagicWindow = taskInfo.magicWindowType != 0;
-        if (!isMagicWindow) {
-            final VectorDrawable maximizeBackground = (VectorDrawable) maximize.getBackground();
-            maximizeBackground.setTintList(buttonTintColor);
-        }
+        final VectorDrawable maximizeBackground = (VectorDrawable) maximize.getBackground();
+        maximizeBackground.setTintList(buttonTintColor);
 
         final View close = caption.findViewById(R.id.close_window);
         final VectorDrawable closeBackground = (VectorDrawable) close.getBackground();
