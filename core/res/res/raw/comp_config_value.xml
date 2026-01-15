@@ -134,10 +134,11 @@
         key_code="enabledVirtualDisplaySize"
         update_date="2025-04-21">
         <package name="com.microsoft.office.word">
-            <activity name="">{ width = 800,height = 600 }</activity>
+            <activity name="">{"width":"800","height":"600"}</activity>
+
         </package>
         <package name="com.microsoft.office.excel">
-            <activity name="">{ width = 800,height = 600 }</activity>
+            <activity name="">{"width":"800","height":"600"}</activity>
         </package>
     </item>
 
@@ -182,7 +183,43 @@
         key_code="enabledResourceFixedLayout"
         update_date="2025-04-29">
         <package name="com.tencent.mm">
-            <activity name="">{ width = 720,height = 1080 }</activity>
+            <activity name="">{"width":"720","height":"1080"}</activity>
+        </package>
+    </item>
+
+    <item
+        isdel="false"
+        key_code="activityLunchSize"
+        update_date="2026-01-15">
+        <package name="com.jingdong.app.mall">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.ss.android.article.news">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.zhihu.android">
+            <activity name="">{"width":"650","height":"850"}</activity>
+        </package>
+        <package name="com.xingin.xhs">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.sina.weibo">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.kuaishou.nebula">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="ctrip.android.view">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.Qunar">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.tencent.mm">
+            <activity name="">{"width":"412","height":"713"}</activity>
+        </package>
+        <package name="com.lite.ceclanxin">
+            <activity name="">{"width":"412","height":"713"}</activity>
         </package>
     </item>
 
