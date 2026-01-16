@@ -2496,23 +2496,28 @@ public class StatusBar extends SystemUI implements DemoMode,
         if (displayId != mDisplayId) {
             return;
         }
-        boolean showing = state == WINDOW_STATE_SHOWING;
-        if (mNotificationShadeWindowView != null
-                && window == StatusBarManager.WINDOW_STATUS_BAR
-                && mStatusBarWindowState != state) {
-            mStatusBarWindowState = state;
-            if (DEBUG_WINDOW_STATE) Log.d(TAG, "Status bar " + windowStateToString(state));
-            if (!showing && mState == StatusBarState.SHADE) {
-                mStatusBarView.collapsePanel(false /* animate */, false /* delayed */,
-                        1.0f /* speedUpFactor */);
+        try{
+            boolean showing = state == WINDOW_STATE_SHOWING;
+            if (mNotificationShadeWindowView != null
+                    && window == StatusBarManager.WINDOW_STATUS_BAR
+                    && mStatusBarWindowState != state) {
+                mStatusBarWindowState = state;
+                if (DEBUG_WINDOW_STATE) Log.d(TAG, "Status bar " + windowStateToString(state));
+                if (!showing && mState == StatusBarState.SHADE) {
+                    if(mStatusBarView !=null){
+                        mStatusBarView.collapsePanel(false /* animate */, false /* delayed */,
+                            1.0f /* speedUpFactor */);
+                    }
+                }
+                if (mStatusBarView != null) {
+                    mStatusBarWindowHidden = state == WINDOW_STATE_HIDDEN;
+                    updateHideIconsForBouncer(false /* animate */);
+                }
             }
-            if (mStatusBarView != null) {
-                mStatusBarWindowHidden = state == WINDOW_STATE_HIDDEN;
-                updateHideIconsForBouncer(false /* animate */);
-            }
+            updateBubblesVisibility();
+        }catch (Exception e) {
+            e.printStackTrace();
         }
-
-        updateBubblesVisibility();
     }
 
     @Override
