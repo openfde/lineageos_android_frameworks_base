@@ -88,13 +88,17 @@ public interface StatusBarIconController {
     /** Reads the default blacklist from config value unless blacklistStr is provided. */
     static ArraySet<String> getIconBlacklist(Context context, String blackListStr) {
         ArraySet<String> ret = new ArraySet<>();
-        String[] blacklist = blackListStr == null
-            ? context.getResources().getStringArray(R.array.config_statusBarIconBlackList)
-            : blackListStr.split(",");
-        for (String slot : blacklist) {
-            if (!TextUtils.isEmpty(slot)) {
-                ret.add(slot);
+        try{
+            String[] blacklist = blackListStr == null
+                ? context.getResources().getStringArray(R.array.config_statusBarIconBlackList)
+                : blackListStr.split(",");
+            for (String slot : blacklist) {
+                if (!TextUtils.isEmpty(slot)) {
+                    ret.add(slot);
+                }
             }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
         return ret;
     }
