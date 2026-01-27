@@ -50,7 +50,7 @@ import android.util.Pair;
 import android.util.Slog;
 import android.view.KeyEvent;
 import android.view.View;
-
+import android.annotation.SuppressLint;
 import com.android.internal.compat.IPlatformCompat;
 import com.android.internal.statusbar.AppClipsServiceConnector;
 import com.android.internal.statusbar.IAddTileResultCallback;
@@ -689,6 +689,40 @@ public class StatusBarManager {
         } catch (RemoteException ex) {
             throw ex.rethrowFromSystemServer();
         }
+    }
+
+    /**
+     *  Get system bar visibility
+     * @hide
+     */
+    @SuppressLint("UnflaggedApi")
+    public boolean getSystemBarVisibility(int display, int window) {
+        try {
+            final IStatusBarService svc = getService();
+            if (svc != null) {
+                svc.getSystemBarVisibility(display, window);
+            }
+        } catch (RemoteException ex) {
+            throw ex.rethrowFromSystemServer();
+        }
+        return true;
+    }
+
+    /**
+     *  SetWindowState
+     * @hide
+     */
+    @SuppressLint("UnflaggedApi")
+    public boolean setWindowState(int display, int window, int state){
+        try {
+            final IStatusBarService svc = getService();
+            if (svc != null) {
+                svc.setWindowState(display, window, state);
+            }
+        } catch (RemoteException ex) {
+            throw ex.rethrowFromSystemServer();
+        }
+        return true;
     }
 
     /**

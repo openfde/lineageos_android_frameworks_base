@@ -208,7 +208,7 @@ import com.android.internal.view.ScrollCaptureInternal;
 import com.android.internal.view.TooltipPopup;
 import com.android.internal.view.menu.MenuBuilder;
 import com.android.internal.widget.ScrollBarUtils;
-
+import com.android.internal.policy.DecorView;
 import com.google.android.collect.Lists;
 import com.google.android.collect.Maps;
 
@@ -13263,18 +13263,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
         // [openfde add] fix caption window would cover app window content
         boolean isTurnOnFullScreen = false;
-        if (mSharedPreferences == null) {
-            try {
-                if (mContext != null) {
-                    mSharedPreferences = mContext.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-                }
-            } catch(Exception e) {
-                Log.e(VIEW_LOG_TAG, "fde getSharedPreferences error: " + e);
-            }
+        if(getRootView() instanceof DecorView){
+            DecorView decorView = (DecorView)getRootView();
+            isTurnOnFullScreen = decorView.isTurnOnFullScreen();
         }
-        if (mSharedPreferences != null) {
-            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen", false);
-        }
+        Log.d(VIEW_LOG_TAG, "isTurnOnFullScreen: " + isTurnOnFullScreen);
         // [openfde end]
 
         boolean isOptionalFitSystemWindows = (mViewFlags & OPTIONAL_FITS_SYSTEM_WINDOWS) != 0

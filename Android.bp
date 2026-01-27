@@ -153,6 +153,9 @@ filegroup {
         ":statslog-framework-java-gen", // FrameworkStatsLog.java
         ":audio_policy_configuration_V7_0",
         ":perfetto_trace_javastream_protos",
+
+        //opefdesdk
+        ":openfde-sdk-sources",
     ],
 }
 

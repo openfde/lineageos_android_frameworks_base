@@ -119,7 +119,6 @@ import com.android.internal.widget.ActionBarContextView;
 import com.android.internal.widget.BackgroundFallback;
 import com.android.internal.widget.DecorCaptionView;
 import com.android.internal.widget.floatingtoolbar.FloatingToolbar;
-
 import java.util.List;
 import java.util.function.Consumer;
 import android.os.SystemProperties;
@@ -131,6 +130,10 @@ import android.graphics.Typeface;
 import android.app.Activity;
 import com.android.internal.util.CompatibleConfig;
 import android.text.TextUtils;
+import android.app.ActivityManager.RunningTaskInfo;
+import android.openfde.WmShellAppTaskController;
+import android.openfde.AppTaskStatusListener;
+import java.lang.ref.WeakReference;
 
 
 
@@ -156,6 +159,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     public static final int DECOR_SHADOW_UNFOCUSED_HEIGHT_IN_DIP = 5;
 
     private static final int SCRIM_LIGHT = 0xe6ffffff; // 90% white
+    private DecorWindowInsetsCallback mDecorWindowInsetsCallback;
 
     public static final ColorViewAttributes STATUS_BAR_COLOR_VIEW_ATTRIBUTES =
             new ColorViewAttributes(FLAG_TRANSLUCENT_STATUS,
@@ -317,8 +321,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private SharedPreferences mSharedPreferences = null;
     // endregion
 
+    private WmShellAppTaskController mWmShellController = new WmShellAppTaskController();
+    private Context realContext;
+
     DecorView(Context context, int featureId, PhoneWindow window,
-            WindowManager.LayoutParams params) {
+              WindowManager.LayoutParams params) {
         super(context);
         mFeatureId = featureId;
         mShowInterpolator = AnimationUtils.loadInterpolator(context,
@@ -340,30 +347,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         updateLogTag(params);
 
         mLegacyNavigationBarBackgroundPaint.setColor(Color.BLACK);
-        // region @fde
-        try{
-            mSharedPreferences = context.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-        }catch(Exception e){
-            Log.e(TAG,"fde getSharedPreferences error: " + e);
-        }
-        boolean isTurnOnFullScreen = false;
-        if(mSharedPreferences != null){
-            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-        }
-        Log.d(TAG,"fde decorView init isTurnOnFullScreen current: " + isTurnOnFullScreen);
-        if(isTurnOnFullScreen && !"com.android.launcher3".equals(context.getPackageName()) && !"org.lineageos.setupwizard".equals(context.getPackageName())
-            && !"com.android.systemui".equals(context.getPackageName())){
-            startFullScreenWindow();
-        }else{
-            showStatusBarNavigationBar();
-        }
-        // endregion
         mWearGestureInterceptionDetector =
                 WearGestureInterceptionDetector.isEnabled(context)
                         ? new WearGestureInterceptionDetector(context, this)
                         : null;
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        mScreenWidth = dm.widthPixels;
     }
 
     private class ShowExitFullscreenFloatingButtonRunnable implements Runnable {
@@ -408,8 +395,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     private void initExitFullscreenFloatingButton() {
-        if(mContext != null && "com.android.launcher3".equals(mContext.getPackageName()) && "org.lineageos.setupwizard".equals(mContext.getPackageName())
-                && "com.android.systemui".equals(mContext.getPackageName())){
+        if(!allowToggleFullscreen()){
             return;
         }
         if (mExitFullscreenFloatingButton == null) {
@@ -433,7 +419,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             drawable.setColor(Color.WHITE);
 
             float radius = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 6f, getResources().getDisplayMetrics()
+                    TypedValue.COMPLEX_UNIT_DIP, 6f, getResources().getDisplayMetrics()
             );
             drawable.setCornerRadius(radius);
 
@@ -442,8 +428,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             Typeface newTypeface = Typeface.create(typeface, 1000, false);
             mExitFullscreenFloatingButton.setTypeface(newTypeface);
             LayoutParams params = new LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT
+                    LayoutParams.WRAP_CONTENT,
+                    LayoutParams.WRAP_CONTENT
             );
             params.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
             int topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, getResources().getDisplayMetrics());
@@ -454,25 +440,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             mExitFullscreenFloatingButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try{
-                        mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-                    }catch(Exception e){
-                        Log.e(TAG,"fde getSharedPreferences error: " + e);
-                    }
-                    boolean isTurnOnFullScreen = false;
-                    if(mSharedPreferences != null){
-                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                        if(isTurnOnFullScreen){
-                            SharedPreferences.Editor editor = mSharedPreferences.edit();
-                            editor.putBoolean("mTurnOnFullScreen", false);
-                            editor.apply();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    exitFullScreenWindow();
-                                }
-                            },100);
-                        }
+                    if (isTurnOnFullScreen() && mDecorWindowInsetsCallback != null) {
+                        mWmShellController.enterOrExitFullscreen();
                     }
                 }
             });
@@ -481,6 +450,20 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             removeView(mExitFullscreenFloatingButton);
             addView(mExitFullscreenFloatingButton);
         }
+    }
+
+    public boolean isTurnOnFullScreen(){
+        return mWmShellController.getWindowingMode() == AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN
+                && !mWmShellController.getSystemBarVisibilityStatus();
+    }
+
+    private boolean allowToggleFullscreen(){
+        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())
+                && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
+                && !"com.android.systemui".equals(mContext.getPackageName())){
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -494,21 +477,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 if (y >= 0 && y <= EDGE_TRIGGERING_AREA_LENGTH) {
                     if (!mIsHoveringTopArea) {
                         mIsHoveringTopArea = true;
-                        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
-                            && !"com.android.systemui".equals(mContext.getPackageName())){
-                            try{
-                                mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-                            }catch(Exception e){
-                                Log.e(TAG,"fde getSharedPreferences error: " + e);
-                            }
-                            boolean isTurnOnFullScreen = false;
-                            if(mSharedPreferences != null){
-                                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                                Log.e(TAG,"fde isTurnOnFullScreen: " + isTurnOnFullScreen);
-                                if(isTurnOnFullScreen){
-                                    shortTimeShowExitFullscreenFloatingButton();
-                                }
-                            }
+                        if (allowToggleFullscreen() && isTurnOnFullScreen()) {
+                            shortTimeShowExitFullscreenFloatingButton();
                         }
                     }
                 } else {
@@ -524,7 +494,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 }
                 break;
         }
-
         return super.onInterceptHoverEvent(event);
     }
 
@@ -539,8 +508,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
             if (getWidth() > 0) {
                 mExitFullscreenFloatingButton.measure(
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
                 );
                 int buttonWidth = mExitFullscreenFloatingButton.getMeasuredWidth();
                 params.leftMargin = 0;
@@ -552,9 +521,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             mExitFullscreenFloatingButton.setAlpha(0f);
             mExitFullscreenFloatingButton.setVisibility(View.VISIBLE);
             mExitFullscreenFloatingButton.animate()
-                .alpha(1f)
-                .setDuration(300)
-                .start();
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start();
         }
     }
 
@@ -562,17 +531,17 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         Log.d(TAG,"hideExitFullscreenFloatingButton");
         if (mExitFullscreenFloatingButton != null && mExitFullscreenFloatingButton.getVisibility() == View.VISIBLE) {
             mExitFullscreenFloatingButton.animate()
-                .alpha(0f)
-                .setDuration(300)
-                .withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(mExitFullscreenFloatingButton != null){
-                            mExitFullscreenFloatingButton.setVisibility(View.GONE);
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(mExitFullscreenFloatingButton != null){
+                                mExitFullscreenFloatingButton.setVisibility(View.GONE);
+                            }
                         }
-                    }
-                })
-                .start();
+                    })
+                    .start();
         }
     }
 
@@ -630,28 +599,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 mStatusColorViewState.view, mNavigationColorViewState.view);
     }
     Handler mHandler = new Handler();
-    private boolean mIgnoreKeyCodeF11 = false;
-
-    private class RestoreResponseF11KeyTriggeredRunnable implements Runnable {
-        @Override
-        public void run() {
-            mIgnoreKeyCodeF11 = false;
-        }
-    }
-
-    private class UpdateWindowStatusRunnable implements Runnable {
-        @Override
-        public void run() {
-            Log.d(TAG, "UpdateWindowStatusRunnable start");
-            if(!isResizeWindow()){
-                return ;
-            }
-            updateWindowStatus();
-        }
-    }
-
-    private final RestoreResponseF11KeyTriggeredRunnable mRestoreResponseF11KeyTriggeredRunnable = new RestoreResponseF11KeyTriggeredRunnable();
-    private final UpdateWindowStatusRunnable mUpdateWindowStatusRunnable = new UpdateWindowStatusRunnable();
 
     public void showStatusBarNavigationBar(){
         final WindowInsetsController insetsController = getWindowInsetsController();
@@ -659,6 +606,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             insetsController.privateShow(WindowInsets.Type.statusBars());
             insetsController.privateShow(WindowInsets.Type.navigationBars());
             insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+            mWmShellController.setSystemBarVisibleByInsetControl(true);
         }
     }
 
@@ -668,25 +616,26 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             insetsController.privateHide(WindowInsets.Type.statusBars());
             insetsController.privateHide(WindowInsets.Type.navigationBars());
             insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            mWmShellController.setSystemBarVisibleByInsetControl(false);
         }
     }
 
     public boolean isResizeWindow(){
-       try{
-           String packageName = mContext.getPackageName();
-           String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-           String[] selectionArgs = {packageName,"forcedPortraitMode", ""};
-           String result = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
-           Log.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
-           if(TextUtils.equals(result, "true")){
-              return false ; 
-           }
-         }catch(Exception e){
+        try{
+            String packageName = mContext.getPackageName();
+            String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+            String[] selectionArgs = {packageName,"forcedPortraitMode", ""};
+            String result = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+            Log.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
+            if(TextUtils.equals(result, "true")){
+                return false ;
+            }
+        }catch(Exception e){
             e.printStackTrace();
-         }
+        }
         return true ;
     }
-    
+
 
     public void startFullScreenWindow(){
         startFullScreenWindow(true);
@@ -696,44 +645,13 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if(hideSystemBar){
             hideStatusBarNavigationBar();
         }
-        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
-        intent.putExtra("mode", 1);
-        if(mContext != null) mContext.sendBroadcast(intent);
         shortTimeShowExitFullscreenFloatingButtonDelayed();
-
     }
+
     public void exitFullScreenWindow(){
         showStatusBarNavigationBar();
-        Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
-        intent.putExtra("mode", 0);
-        if(mContext != null) mContext.sendBroadcast(intent);
     }
 
-    private void updateWindowStatus(){
-        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
-            && !"com.android.systemui".equals(mContext.getPackageName())){
-            try{
-                mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-            }catch(Exception e){
-                Log.e(TAG,"fde getSharedPreferences error: " + e);
-            }
-            boolean isTurnOnFullScreen = false;
-            if(mSharedPreferences != null){
-                isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                Log.d(TAG,"fde updateWindowStatus isTurnOnFullScreen: " + isTurnOnFullScreen);
-                if(isTurnOnFullScreen){
-                    hideStatusBarNavigationBar();
-                }else{
-                    showStatusBarNavigationBar();
-                }
-                Intent intent = new Intent("com.fde.fullscreen.ENABLE_OR_DISABLE");
-                intent.putExtra("mode", 2);
-                if(mContext != null) mContext.sendBroadcast(intent);
-            }
-        }
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        mScreenWidth = dm.widthPixels;
-    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -780,88 +698,24 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         final boolean isDown = action == KeyEvent.ACTION_DOWN;
         if (!mWindow.isDestroyed()) {
             if (keyCode == KeyEvent.KEYCODE_F11 && isDown && (event.getRepeatCount() == 0)) {
-                Log.d(TAG, "dispatchKeyEventPreIme KEYCODE_F11");
-                if(!mIgnoreKeyCodeF11){
-                    mIgnoreKeyCodeF11 = true;
-                    mHandler.removeCallbacks(mRestoreResponseF11KeyTriggeredRunnable);
-                    mHandler.postDelayed(mRestoreResponseF11KeyTriggeredRunnable, 800);
-                    if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
-                        && !"com.android.systemui".equals(mContext.getPackageName())){
-                        Log.d(TAG,"received KEYCODE_F11 packageName: " + mContext.getPackageName());
-                        if(!isResizeWindow()){
-                            Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
-                            return true ;
-                        }
-                        try{
-                            mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-                        }catch(Exception e){
-                            Log.e(TAG,"fde getSharedPreferences error: " + e);
-                        }
-                        boolean isTurnOnFullScreen = false;
-                        if(mSharedPreferences != null){
-                            isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                            Log.d(TAG,"fde received F11 isTurnOnFullScreen: " + isTurnOnFullScreen);
-                            if(isTurnOnFullScreen){
-                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                editor.putBoolean("mTurnOnFullScreen", false);
-                                editor.apply();
-                                mHandler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        exitFullScreenWindow();
-                                    }
-                                },100);
-                            }else{
-                                Toast.makeText( mContext, R.string.exit_full_screen_display_prompt, Toast.LENGTH_SHORT).show();
-                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                editor.putBoolean("mTurnOnFullScreen", true);
-                                editor.apply();
-                                mHandler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        startFullScreenWindow();
-                                    }
-                                },100);
-                            }
-                        }
+                if (allowToggleFullscreen())
+                    if (mDecorWindowInsetsCallback != null) {
+                        mWmShellController.enterOrExitFullscreen();
                         return true;
                     }
-                }
             }
-            if (keyCode == KeyEvent.KEYCODE_ESCAPE && isDown && (event.getRepeatCount() == 0)) {
-                Log.d(TAG, "dispatchKeyEvent KEYCODE_ESCAPE");
-                if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName()) && !"org.lineageos.setupwizard".equals(mContext.getPackageName())){
-                    try{
-                        mSharedPreferences = mContext.getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
-                    }catch(Exception e){
-                        Log.e(TAG,"fde getSharedPreferences error: " + e);
-                    }
-                    boolean isTurnOnFullScreen = false;
-                    if(mSharedPreferences != null){
-                        isTurnOnFullScreen = mSharedPreferences.getBoolean("mTurnOnFullScreen",false);
-                        Log.d(TAG,"fde received ESC isTurnOnFullScreen current: " + isTurnOnFullScreen);
-                        if(isTurnOnFullScreen){
-                            SharedPreferences.Editor editor = mSharedPreferences.edit();
-                            editor.putBoolean("mTurnOnFullScreen", false);
-                            editor.apply();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    exitFullScreenWindow();
-                                }
-                            },60);
-                        }
-                    }
-                    return true;
-                }
-            }
-
-            if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
-                Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
-                if (callback != null) {
-                    callback.moveActivityTaskToBack(true);
-                    return true;
-                }
+        }
+//        if (keyCode == KeyEvent.KEYCODE_ESCAPE && isDown && (event.getRepeatCount() == 0)) {
+//            if (allowToggleFullscreen()) {
+//                exitFullScreenWindow();
+//                return true;
+//            }
+//        }
+        if (keyCode == KeyEvent.KEYCODE_F9 && isDown && (event.getRepeatCount() == 0)) {
+            Window.WindowControllerCallback callback = mWindow.getWindowControllerCallback();
+            if (callback != null) {
+                callback.moveActivityTaskToBack(true);
+                return true;
             }
         }
         return super.dispatchKeyEventPreIme(event);
@@ -954,14 +808,14 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public boolean superDispatchTouchEvent(MotionEvent event) {
-        if (!isFullScreenMode()) {
+        if (!isTurnOnFullScreen()) {
             return super.dispatchTouchEvent(event);
         }
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 Log.d(TAG,"superDispatchTouchEvent mScreenWidth: " + mScreenWidth +
-                    ", event.getRawX: " + event.getRawX() + ", event.getX: " + event.getX() + ", event.getY: " + event.getY());
+                        ", event.getRawX: " + event.getRawX() + ", event.getX: " + event.getX() + ", event.getY: " + event.getY());
                 if (event.getY() < EDGE_TRIGGERING_AREA_LENGTH) {
                     mDownY = (int) event.getY();
                     mIsTouchingTopArea = true;
@@ -970,7 +824,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     mDownX = (int) event.getRawX();
                     mIsTouchingLeftArea = true;
                 }
-                if (event.getX() > mScreenWidth - EDGE_TRIGGERING_AREA_LENGTH) {
+                if (event.getX() > getResources().getDisplayMetrics().widthPixels - EDGE_TRIGGERING_AREA_LENGTH) {
                     mDownX = (int) event.getX();
                     mIsTouchingRightArea = true;
                 }
@@ -1357,7 +1211,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     private boolean showContextMenuForChildInternal(View originalView,
-            float x, float y) {
+                                                    float x, float y) {
         // Only allow one context menu at a time.
         if (mWindow.mContextMenuHelper != null) {
             mWindow.mContextMenuHelper.dismiss();
@@ -1395,7 +1249,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     @Override
     public ActionMode startActionModeForChild(View originalView,
-            ActionMode.Callback callback) {
+                                              ActionMode.Callback callback) {
         return startActionModeForChild(originalView, callback, ActionMode.TYPE_PRIMARY);
     }
 
@@ -1462,6 +1316,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         return mode;
     }
 
+    public void setWindowInsetsCallback(DecorWindowInsetsCallback callback){
+        mDecorWindowInsetsCallback = callback;
+        mWmShellController = (WmShellAppTaskController) callback;
+    }
+
     private void cleanupPrimaryActionMode() {
         if (mPrimaryActionMode != null) {
             mPrimaryActionMode.finish();
@@ -1480,7 +1339,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if (mFloatingActionModeOriginatingView != null) {
             if (mFloatingToolbarPreDrawListener != null) {
                 mFloatingActionModeOriginatingView.getViewTreeObserver()
-                    .removeOnPreDrawListener(mFloatingToolbarPreDrawListener);
+                        .removeOnPreDrawListener(mFloatingToolbarPreDrawListener);
                 mFloatingToolbarPreDrawListener = null;
             }
             mFloatingActionModeOriginatingView = null;
@@ -1560,9 +1419,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-        mHandler.removeCallbacks(mUpdateWindowStatusRunnable);
-        mHandler.postDelayed(mUpdateWindowStatusRunnable, 500);
-
+        if (mDecorWindowInsetsCallback != null) {
+            mDecorWindowInsetsCallback.onApplyWindowInsets();
+        }
+        android.util.Log.d(TAG, "onApplyWindowInsets():  insets :" + insets + "");
         final WindowManager.LayoutParams attrs = mWindow.getAttributes();
         mFloatingInsets.setEmpty();
         if ((attrs.flags & FLAG_LAYOUT_IN_SCREEN) == 0) {
@@ -1611,7 +1471,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public static void getNavigationBarRect(int canvasWidth, int canvasHeight, Rect systemBarInsets,
-            Rect outRect, float scale) {
+                                            Rect outRect, float scale) {
         final int bottomInset = (int) (systemBarInsets.bottom * scale);
         final int leftInset = (int) (systemBarInsets.left * scale);
         final int rightInset = (int) (systemBarInsets.right * scale);
@@ -1698,7 +1558,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             mDrawLegacyNavigationBarBackground =
                     ((requestedVisibleTypes | mLastForceConsumingTypes)
                             & WindowInsets.Type.navigationBars()) != 0
-                    && (mWindow.getAttributes().flags & FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) == 0;
+                            && (mWindow.getAttributes().flags & FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) == 0;
             if (oldDrawLegacy != mDrawLegacyNavigationBarBackground) {
                 mDrawLegacyNavigationBarBackgroundHandled =
                         mWindow.onDrawLegacyNavigationBarBackgroundChanged(
@@ -1745,7 +1605,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         && (sysUiVisibility & SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION) == 0
                         && decorFitsSystemWindows
                         && !hideNavigation)
-                || ((mLastForceConsumingTypes & WindowInsets.Type.navigationBars()) != 0
+                        || ((mLastForceConsumingTypes & WindowInsets.Type.navigationBars()) != 0
                         && hideNavigation);
 
         boolean consumingNavBar =
@@ -1753,7 +1613,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         && (sysUiVisibility & SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION) == 0
                         && decorFitsSystemWindows
                         && !hideNavigation)
-                || forceConsumingNavBar;
+                        || forceConsumingNavBar;
 
         // If we didn't request fullscreen layout, but we still got it because of the
         // mForceWindowDrawsBarBackgrounds flag, also consume top inset.
@@ -1769,7 +1629,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                         && (attrs.flags & FLAG_LAYOUT_INSET_DECOR) == 0
                         && mForceWindowDrawsBarBackgrounds
                         && mLastTopInset != 0)
-                || ((mLastForceConsumingTypes & WindowInsets.Type.statusBars()) != 0
+                        || ((mLastForceConsumingTypes & WindowInsets.Type.statusBars()) != 0
                         && fullscreen);
 
         int consumedTop = consumingStatusBar ? mLastTopInset : 0;
@@ -1828,7 +1688,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         Drawable destDrawable = mOriginalBackgroundDrawable;
         if (mBackgroundBlurDrawable != null) {
             destDrawable = new LayerDrawable(new Drawable[] {mBackgroundBlurDrawable,
-                                                             mOriginalBackgroundDrawable});
+                    mOriginalBackgroundDrawable});
         }
 
         if (destDrawable != null && !mBackgroundInsets.equals(Insets.NONE)) {
@@ -1937,8 +1797,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public static int calculateBarColor(int flags, int translucentFlag, int semiTransparentBarColor,
-            int barColor, @Appearance int appearance, @Appearance int lightAppearanceFlag,
-            boolean scrimTransparent) {
+                                        int barColor, @Appearance int appearance, @Appearance int lightAppearanceFlag,
+                                        boolean scrimTransparent) {
         if ((flags & translucentFlag) != 0) {
             return semiTransparentBarColor;
         } else if ((flags & FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) == 0) {
@@ -1972,8 +1832,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
      * @param animate if true, the change will be animated.
      */
     private void updateColorViewInt(final ColorViewState state, int color, int dividerColor,
-            int size, boolean verticalBar, boolean seascape, int sideMargin, boolean animate,
-            boolean force, @InsetsType int requestedVisibleTypes) {
+                                    int size, boolean verticalBar, boolean seascape, int sideMargin, boolean animate,
+                                    boolean force, @InsetsType int requestedVisibleTypes) {
         // fde start never update navigationbar and status
 //        final @InsetsType int type = state.attributes.insetsType;
 //        state.present = state.attributes.isPresent(
@@ -2065,7 +1925,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     private static void setColor(View v, int color, int dividerColor, boolean verticalBar,
-            boolean seascape) {
+                                 boolean seascape) {
         if (dividerColor != 0) {
             final Pair<Boolean, Boolean> dir = (Pair<Boolean, Boolean>) v.getTag();
             if (dir == null || dir.first != verticalBar || dir.second != seascape) {
@@ -2374,6 +2234,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         updateBackgroundBlurRadius();
 
         mWindow.onViewRootImplSet(getViewRootImpl());
+
+        initAppTaskController();
     }
 
     @Override
@@ -2421,6 +2283,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         mPendingInsetsController.detach();
+
+        mWmShellController.cleanup();
     }
 
     @Override
@@ -2628,13 +2492,13 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 new FloatingActionMode(mContext, callback, originatingView, mFloatingToolbar);
         mFloatingActionModeOriginatingView = originatingView;
         mFloatingToolbarPreDrawListener =
-            new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    mode.updateViewLocationInWindow();
-                    return true;
-                }
-            };
+                new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        mode.updateViewLocationInWindow();
+                        return true;
+                    }
+                };
         return mode;
     }
 
@@ -2642,7 +2506,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         mFloatingActionMode = mode;
         mFloatingActionMode.invalidate();  // Will show the floating toolbar if necessary.
         mFloatingActionModeOriginatingView.getViewTreeObserver()
-            .addOnPreDrawListener(mFloatingToolbarPreDrawListener);
+                .addOnPreDrawListener(mFloatingToolbarPreDrawListener);
     }
 
     /**
@@ -2672,6 +2536,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     void setWindow(PhoneWindow phoneWindow) {
         mWindow = phoneWindow;
+        realContext = phoneWindow.getContext();
         Context context = getContext();
         if (context instanceof DecorContext) {
             DecorContext decorContext = (DecorContext) context;
@@ -2772,7 +2637,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if (mResizingBackgroundDrawable == null) {
             mResizingBackgroundDrawable = getResizingBackgroundDrawable(mWindow.mBackgroundDrawable,
                     mWindow.mBackgroundFallbackDrawable, mWindow.isTranslucent()
-                    || mWindow.isShowingWallpaper());
+                            || mWindow.isShowingWallpaper());
             if (mResizingBackgroundDrawable == null) {
                 // We shouldn't really get here as the background fallback should be always
                 // available since it is defaulted by the system.
@@ -2876,7 +2741,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
      * user is resizing the window of an activity in multi-window mode.
      */
     public static Drawable getResizingBackgroundDrawable(@Nullable Drawable backgroundDrawable,
-            @Nullable Drawable fallbackDrawable, boolean windowTranslucent) {
+                                                         @Nullable Drawable fallbackDrawable, boolean windowTranslucent) {
         if (backgroundDrawable != null) {
             return enforceNonTranslucentBackground(backgroundDrawable, windowTranslucent);
         }
@@ -2892,7 +2757,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
      * window is not translucent.
      */
     private static Drawable enforceNonTranslucentBackground(Drawable drawable,
-            boolean windowTranslucent) {
+                                                            boolean windowTranslucent) {
         if (!windowTranslucent && drawable instanceof ColorDrawable) {
             ColorDrawable colorDrawable = (ColorDrawable) drawable;
             int color = colorDrawable.getColor();
@@ -2925,7 +2790,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     @Override
     public void onWindowSizeIsChanging(Rect newBounds, boolean fullscreen, Rect systemInsets,
-            Rect stableInsets) {
+                                       Rect stableInsets) {
         if (mBackdropFrameRenderer != null) {
             mBackdropFrameRenderer.setTargetRect(newBounds, fullscreen, systemInsets);
         }
@@ -2933,7 +2798,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     @Override
     public void onWindowDragResizeStart(Rect initialBounds, boolean fullscreen, Rect systemInsets,
-            Rect stableInsets) {
+                                        Rect stableInsets) {
         if (mWindow.isDestroyed()) {
             // If the owner's window is gone, we should not be able to come here anymore.
             releaseThreadedRenderer();
@@ -3196,7 +3061,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         final @InsetsType int insetsType;
 
         private ColorViewAttributes(int translucentFlag, int verticalGravity, int horizontalGravity,
-                int seascapeGravity, String transitionName, int id, @InsetsType int insetsType) {
+                                    int seascapeGravity, String transitionName, int id, @InsetsType int insetsType) {
             this.id = id;
             this.translucentFlag = translucentFlag;
             this.verticalGravity = verticalGravity;
@@ -3218,18 +3083,56 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
 
         public boolean isVisible(@InsetsType int requestedVisibleTypes, int color, int windowFlags,
-                boolean force) {
+                                 boolean force) {
             final boolean requestedVisible = (requestedVisibleTypes & insetsType) != 0;
             final boolean present = isPresent(requestedVisible, windowFlags, force);
             return isVisible(present, color, windowFlags, force);
         }
     }
 
-    private boolean isFullScreenMode() {
-        if (mSharedPreferences == null) {
-            return false;
+    public void onResume(){
+        Log.d(TAG, "onResume: ");
+        initAppTaskController();
+    }
+
+    private void initAppTaskController(){
+        if(realContext == null || !(realContext instanceof Activity)){
+            Log.d(TAG, "initAppTaskController: is not activity ");
+            return;
         }
-        return mSharedPreferences.getBoolean("mTurnOnFullScreen", false);
+
+        if(mDecorWindowInsetsCallback != null){
+            mWmShellController.reinit();
+        } else {
+            Activity activity = (Activity) realContext;
+            mWmShellController.initCustomCaption(new WeakReference<>(activity), null, false);
+            if (!mWmShellController.hasBeenLinkToWmShell()) {
+                mWmShellController.updateSystemBarController(new SystemBarController() {
+                    @Override
+                    public void hideStatusBarNavigationBar() {
+                        DecorView.this.post(() -> {
+                            if (DecorView.this.isAttachedToWindow()) {
+                                DecorView.this.hideStatusBarNavigationBar();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void showStatusBarNavigationBar() {
+                        DecorView.this.post(() -> {
+                            if (DecorView.this.isAttachedToWindow()) {
+                                DecorView.this.showStatusBarNavigationBar();
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+    }
+
+    public void onPause(){
+        Log.d(TAG, "onPause: ");
     }
 
     /**
@@ -3292,37 +3195,37 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                             1f, 0f);
                     mFadeAnim.addListener(new Animator.AnimatorListener() {
 
-                                @Override
-                                public void onAnimationStart(Animator animation) {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
 
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            // If mPrimaryActionModeView has changed - it means that we've
+                            // cleared the content while preserving decor view. We don't
+                            // want to change the state of new instances accidentally here.
+                            if (lastActionModeView == mPrimaryActionModeView) {
+                                lastActionModeView.setVisibility(GONE);
+                                if (mPrimaryActionModePopup != null) {
+                                    mPrimaryActionModePopup.dismiss();
                                 }
+                                lastActionModeView.killMode();
+                                mFadeAnim = null;
+                                requestApplyInsets();
+                            }
+                        }
 
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    // If mPrimaryActionModeView has changed - it means that we've
-                                    // cleared the content while preserving decor view. We don't
-                                    // want to change the state of new instances accidentally here.
-                                    if (lastActionModeView == mPrimaryActionModeView) {
-                                        lastActionModeView.setVisibility(GONE);
-                                        if (mPrimaryActionModePopup != null) {
-                                            mPrimaryActionModePopup.dismiss();
-                                        }
-                                        lastActionModeView.killMode();
-                                        mFadeAnim = null;
-                                        requestApplyInsets();
-                                    }
-                                }
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
 
-                                @Override
-                                public void onAnimationCancel(Animator animation) {
+                        }
 
-                                }
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
 
-                                @Override
-                                public void onAnimationRepeat(Animator animation) {
-
-                                }
-                            });
+                        }
+                    });
                     mFadeAnim.start();
                 }
 
@@ -3350,4 +3253,5 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             }
         }
     }
+
 }

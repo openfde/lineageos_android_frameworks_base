@@ -30,6 +30,7 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import static android.view.ViewRootImpl.CLIENT_TRANSIENT;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY;
 
+import java.util.HashMap;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -1172,6 +1173,57 @@ public class StatusBarManagerService extends IStatusBarService.Stub implements D
     @Override
     public boolean isTracing() {
         return mTracingEnabled;
+    }
+
+    @Override
+    public boolean getSystemBarVisibility(int displayId, int window){
+        if(displayId != this.displayId) {
+            return true;
+        }
+
+        return mSystemBarVisibility.get(window) == null ||  mSystemBarVisibility.get(window) == 0;
+    }
+
+    @Override
+    public void setWindowState(int displayId, int window, int state){
+        if(displayId != this.displayId) {
+            return;
+        }
+        if(mInternalService != null){
+            mInternalService.setWindowState(displayId, window, state);
+        }
+    }
+
+    @Override
+    public void setTopAppHidesStatusBar(boolean hidesStatusBar) {
+        if(displayId != this.displayId) {
+            return;
+        }
+        if(mInternalService != null){
+            mInternalService.setTopAppHidesStatusBar(hidesStatusBar);
+        }
+    }
+
+    private HashMap<Integer, Integer> mSystemBarVisibility = new HashMap<>();
+    private int displayId = 0;
+
+    /**
+     *      WINDOW_STATE_SHOWING = 0;
+     *      WINDOW_STATE_HIDING = 1;
+     *      WINDOW_STATE_HIDDEN = 2;
+     *
+     *      WINDOW_STATUS_BAR = 1;
+     *      WINDOW_NAVIGATION_BAR = 2;
+     *
+     *      @param displayId
+     *      @param window
+     *      @param status
+     */
+    @Override
+    public void setSystemBarVisibility(int displayId, int window, int status){
+        this.displayId = displayId;
+        mSystemBarVisibility.put(window, status);
+        Slog.e(TAG, "setSystemBarVisibility displayId=" + displayId + " window=" + window + " status=" + status);
     }
 
     // TODO(b/117478341): make it aware of multi-display if needed.

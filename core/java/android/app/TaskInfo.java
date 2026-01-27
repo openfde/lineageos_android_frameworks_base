@@ -18,6 +18,7 @@ package android.app;
 
 import static android.app.ActivityTaskManager.INVALID_TASK_ID;
 import static android.window.DisplayAreaOrganizer.FEATURE_UNDEFINED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -110,6 +111,17 @@ public class TaskInfo {
      */
     public int magicWindowType = 0;
 
+    /**
+     * task windowingmode
+     * @hide
+     */
+    public int taskWindowingMode = WINDOWING_MODE_FREEFORM;
+
+    /**
+     * task systembar visiblity
+     * @hide
+     */
+    public boolean taskSystembarVisiblity = true;
     /**
      * The number of activities in this task (including running).
      */
@@ -586,6 +598,7 @@ public class TaskInfo {
                 + " isTopActivityTransparent=" + isTopActivityTransparent
                 + " appCompatTaskInfo=" + appCompatTaskInfo
                 + " magicWindowType=" + magicWindowType
+                + " taskSystembarVisiblity=" + taskSystembarVisiblity
                 + "}";
     }
 }

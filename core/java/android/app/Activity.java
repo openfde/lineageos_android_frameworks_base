@@ -190,7 +190,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
-
+import com.android.internal.policy.DecorView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2211,6 +2211,9 @@ public class Activity extends ContextThemeWrapper
         notifyContentCaptureManagerIfNeeded(CONTENT_CAPTURE_RESUME);
 
         mCalled = true;
+        if(mDecor != null && mDecor instanceof DecorView){
+            ((DecorView)mDecor).onResume();
+        }
     }
 
     /**
@@ -2640,6 +2643,9 @@ public class Activity extends ContextThemeWrapper
                 VoiceInteractionSession.VOICE_INTERACTION_ACTIVITY_EVENT_PAUSE);
 
         mCalled = true;
+        if(mDecor != null && mDecor instanceof DecorView){
+            ((DecorView)mDecor).onPause();
+        }
     }
 
     /**

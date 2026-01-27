@@ -308,6 +308,37 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     void onStatusBarWindowStateChanged(@WindowVisibleState int state) {
         mStatusBarWindowState = state;
         updateBubblesVisibility();
+        if(mBarService != null){
+            try {
+                mBarService.setSystemBarVisibility(mDisplayId, 1, state);
+            } catch (RemoteException ex) {
+                ex.rethrowFromSystemServer();
+            }
+        }
+        if(mBarService != null){
+            try {
+                boolean statusBarVisibility = mBarService.getSystemBarVisibility(mDisplayId, 1);
+            } catch (RemoteException ex) {
+                ex.rethrowFromSystemServer();
+            }
+        }
+    }
+
+    void onNavigationBarVisible(boolean visible) {
+        if(mBarService != null){
+            try {
+                mBarService.setSystemBarVisibility(mDisplayId, 2, visible ? 0 : 2);
+            } catch (RemoteException ex) {
+                ex.rethrowFromSystemServer();
+            }
+        }
+        if(mBarService != null){
+            try {
+                boolean navigationBarVisibility = mBarService.getSystemBarVisibility(mDisplayId, 2);
+            } catch (RemoteException ex) {
+                ex.rethrowFromSystemServer();
+            }
+        }
     }
 
     @Override
@@ -1373,6 +1404,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
         mGestureWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK,
                 "sysui:GestureWakeLock");
+
+        getNavigationBarView().setNavigationBarWindowStateListener(this::onNavigationBarVisible);
 
         // receive broadcasts
         registerBroadcastReceiver();
