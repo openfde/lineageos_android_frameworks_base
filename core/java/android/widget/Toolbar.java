@@ -55,6 +55,8 @@ import com.android.internal.view.menu.MenuView;
 import com.android.internal.view.menu.SubMenuBuilder;
 import com.android.internal.widget.DecorToolbar;
 import com.android.internal.widget.ToolbarWidgetWrapper;
+import android.view.ViewConfiguration;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -235,6 +237,7 @@ public class Toolbar extends ViewGroup {
 
     public Toolbar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+         mDragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar,
                 defStyleAttr, defStyleRes);
@@ -1581,45 +1584,66 @@ public class Toolbar extends ViewGroup {
         removeCallbacks(mShowOverflowMenuRunnable);
     }
 
+    private boolean mDragging = false;
+    private int mTouchDownX;
+    private int mTouchDownY;
+    private boolean mCheckForDragging;
+    private int mDragSlop;
+
+    private boolean passedSlop(int x, int y) {
+        return Math.abs(x - mTouchDownX) > mDragSlop || Math.abs(y - mTouchDownY) > mDragSlop;
+    }
+
     @Override
-    public boolean onTouchEvent(MotionEvent ev) {
+    public boolean onTouchEvent(MotionEvent e) {
         // Toolbars always eat touch events, but should still respect the touch event dispatch
         // contract. If the normal View implementation doesn't want the events, we'll just silently
         // eat the rest of the gesture without reporting the events to the default implementation
         // since that's what it expects.
 
-        final int action = ev.getActionMasked();
-        if(getTag() !=null && "drag".equals(getTag())){
-            switch (action) {
-                case MotionEvent.ACTION_DOWN:
+        final int x = (int) e.getX();
+        final int y = (int) e.getY();
+        final boolean fromMouse = e.getToolType(e.getActionIndex()) == MotionEvent.TOOL_TYPE_MOUSE;
+        final boolean primaryButton = (e.getButtonState() & MotionEvent.BUTTON_PRIMARY) != 0;
+        final int actionMasked = e.getActionMasked();
+        switch (actionMasked) {
+            case MotionEvent.ACTION_DOWN:
+                // Checking for a drag action is started if we aren't dragging already and the
+                // starting event is either a left mouse button or any other input device.
+                if (!fromMouse || primaryButton) {
+                    mCheckForDragging = true;
+                    mTouchDownX = x;
+                    mTouchDownY = y;
+                }
                 break;
 
-                case MotionEvent.ACTION_MOVE:
-                this.startMovingTask(ev.getRawX(), ev.getRawY());
+            case MotionEvent.ACTION_MOVE:
+                if (!mDragging && mCheckForDragging && (fromMouse || passedSlop(x, y))) {
+                    mCheckForDragging = false;
+                    mDragging = true;
+                    startMovingTask(e.getRawX(), e.getRawY());
+                    // After the above call the framework will take over the input.
+                    // This handler will receive ACTION_CANCEL soon (possible after a few spurious
+                    // ACTION_MOVE events which are safe to ignore).
+                }
                 break;
 
-                case MotionEvent.ACTION_UP:
-                this.finishMovingTask();
-                return false;
-                case MotionEvent.ACTION_CANCEL:
-                return false;
-            }   
-         }else{
-            if (action == MotionEvent.ACTION_DOWN) {
-                 mEatingTouch = false;
-            }
-            if (!mEatingTouch) {
-                 final boolean handled = super.onTouchEvent(ev);
-            if (action == MotionEvent.ACTION_DOWN && !handled) {
-                 mEatingTouch = true;
-            }
-            }
-
-            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-                 mEatingTouch = false;
-            }    
-         }
-         return true;  
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (!mDragging) {
+                    break;
+                }
+                // Abort the ongoing dragging.
+                if (actionMasked == MotionEvent.ACTION_UP) {
+                    // If it receives ACTION_UP event, the dragging is already finished and also
+                    // the system can not end drag on ACTION_UP event. So request to finish
+                    // dragging.
+                    finishMovingTask();
+                }
+                mDragging = false;
+                return !mCheckForDragging;
+        }
+        return mDragging || mCheckForDragging;
         
     }
 
