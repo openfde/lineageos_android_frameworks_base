@@ -101,4 +101,12 @@ public interface WindowDecorViewModel {
      * @param taskInfo the info of the task
      */
     void destroyWindowDecoration(ActivityManager.RunningTaskInfo taskInfo);
+
+    void maximizeTask();
+
+    void minimizeTask();
+
+    void closeTask();
+
+    boolean isTaskMaximized();
 }
