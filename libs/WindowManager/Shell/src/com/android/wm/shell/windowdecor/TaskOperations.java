@@ -124,7 +124,6 @@ class TaskOperations {
         Log.d(TAG, "maximizeTask RunningTaskInfo taskId: " + taskInfo.taskId);
         if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
             String packageName = taskInfo.topActivity.getPackageName();
-            Log.d(TAG, "onTaskChanging packageName: " + packageName);
             if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
                 return;
             }
@@ -138,6 +137,8 @@ class TaskOperations {
 //            android.util.Log.w(TAG, "never maximize maigc main Task ");
 //            return;
 //        }
+
+        Log.d(TAG, "onTaskChanging targetWindowingMode: " + targetWindowingMode + " ,displayWindowingMode "+displayWindowingMode);
         wct.setWindowingMode(taskInfo.token,
                 targetWindowingMode == displayWindowingMode
                         ? WINDOWING_MODE_UNDEFINED : targetWindowingMode);

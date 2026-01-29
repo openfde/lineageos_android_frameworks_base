@@ -385,6 +385,7 @@ public class ResolverActivity extends Activity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Use a specialized prompt when we're handling the 'Home' app startActivity()
+        Log.d(TAG,"onCreate 2222222222 ");
         final Intent intent = makeMyIntent();
         final Set<String> categories = intent.getCategories();
         if (Intent.ACTION_MAIN.equals(intent.getAction())
@@ -427,6 +428,7 @@ public class ResolverActivity extends Activity implements
             CharSequence title, int defaultTitleRes, Intent[] initialIntents,
             List<ResolveInfo> rList, boolean supportsAlwaysUseOption) {
         setTheme(appliedThemeResId());
+        Log.d(TAG,"onCreate 111111111111 ");
         super.onCreate(savedInstanceState);
 
         mQuietModeManager = createQuietModeManager();
@@ -1131,6 +1133,7 @@ public class ResolverActivity extends Activity implements
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG,"onStart 111111111111 ");
 
         this.getWindow().addSystemFlags(SYSTEM_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
         if (shouldShowTabs()) {

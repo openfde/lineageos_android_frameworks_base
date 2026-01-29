@@ -50,6 +50,7 @@ import android.content.IntentFilter;
 import com.android.internal.util.CompatibleConfig;
 import android.text.TextUtils;
 import android.widget.Toast;
+import android.window.DisplayAreaInfo;
 
 /**
  * View model for the window decoration with a caption and shadows. Works with
@@ -391,21 +392,23 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         public void onClick(View v) {
             final int id = v.getId();
             if (id == R.id.close_window) {
-                mTaskOperations.closeTask(mTaskToken);
-                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
-                if( taskInfo.topActivity != null && taskInfo.magicWindowType == 1){
-                    RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
-                            taskInfo.topActivity.getPackageName(), taskInfo.magicWindowType);
-                    if(magicTaskInfo != null){
-                        mTaskOperations.closeTask(magicTaskInfo.token);
-                    }
-                }
+                mCloseTask();
             } else if (id == R.id.back_button) {
                 Log.d(TAG, "onClick back_button");
                 mTaskOperations.injectBackKey(mDisplayId);
             } else if (id == R.id.fullscreen_window) {
                 Log.d(TAG, "onClick fullscreen_window");
-                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                mFullscreen();
+            }else if (id == R.id.minimize_window) {
+                mMinimizeTask();
+            } else if (id == R.id.maximize_window) {
+                Log.d(TAG, "onClick maximize_window");
+                mMaximizeTask();
+            }
+        }
+
+        private void mFullscreen(){
+            RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
                     if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
@@ -419,8 +422,22 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         mTaskOperations.injectKey(mDisplayId, KeyEvent.KEYCODE_F11);
                     }
                 },80);
-            }else if (id == R.id.minimize_window) {
-                mTaskOperations.minimizeTask(mTaskToken);
+        }
+
+        private void mCloseTask(){
+            mTaskOperations.closeTask(mTaskToken);
+                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                if( taskInfo.topActivity != null && taskInfo.magicWindowType == 1){
+                    RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
+                            taskInfo.topActivity.getPackageName(), taskInfo.magicWindowType);
+                    if(magicTaskInfo != null){
+                        mTaskOperations.closeTask(magicTaskInfo.token);
+                    }
+                }
+        }
+
+        private void mMinimizeTask(){
+            mTaskOperations.minimizeTask(mTaskToken);
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if( taskInfo.topActivity != null && taskInfo.magicWindowType != 0){
                     RunningTaskInfo magicTaskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId,
@@ -429,9 +446,10 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         mTaskOperations.minimizeTask(magicTaskInfo.token);
                     }
                 }
-            } else if (id == R.id.maximize_window) {
-                Log.d(TAG, "onClick maximize_window");
-                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+        }
+
+        private void mMaximizeTask(){
+            RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
                     if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
@@ -461,7 +479,6 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
                 }
                 mTaskOperations.maximizeTask(taskInfo);
-            }
         }
 
         @Override
@@ -540,4 +557,44 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             return true;
         }
     }
+
+    @Override
+    public void maximizeTask() {
+        Log.w(TAG,"maximizeTask..........");
+        // RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
+        //         final DisplayAreaInfo rootDisplayAreaInfo =
+        //                 mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(taskInfo.displayId);
+        //         mTaskOperations.maximizeTask(taskInfo,
+        //                 rootDisplayAreaInfo.configuration.windowConfiguration.getWindowingMode());
+
+        RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
+        
+        Log.w(TAG,"maximizeTask..........shouldShowWindowDecor "+shouldShowWindowDecor(taskInfo));
+        mTaskOperations.maximizeTask(taskInfo);
+    }
+
+    @Override
+    public void minimizeTask() {
+        Log.w(TAG,"minimizeTask.......... "+mRunningTaskId);
+        RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
+        mTaskOperations.minimizeTask(taskInfo.token);
+        //  mTaskOperations.minimizeTask(taskInfo);
+    }
+
+    @Override
+    public void closeTask() {
+        Log.w(TAG,"closeTask.......... "+mRunningTaskId);
+         RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
+        mTaskOperations.closeTask(taskInfo.token);
+        //  mTaskOperations.closeTask(taskInfo);
+       // mCloseTask();
+    }
+
+    @Override
+    public boolean isTaskMaximized() {
+        Log.w(TAG,"isTaskMaximized.......... "+mRunningTaskId);
+        RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
+       return mTaskOperations.isTaskMaximized(taskInfo);
+    }
+
 }

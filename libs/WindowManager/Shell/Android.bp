@@ -167,6 +167,16 @@ java_library {
 }
 
 java_library {
+    name: "WMShellInterfaces",
+    srcs: [
+        "src/com/android/wm/shell/sysui/IDecorShellService.aidl",
+    ],
+    sdk_version: "system_current",
+    min_sdk_version: "29",
+    installable: false,
+}
+
+java_library {
     name: "WindowManager-Shell-shared",
 
     srcs: ["shared/**/*.java"],

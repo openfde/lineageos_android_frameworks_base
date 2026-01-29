@@ -24,6 +24,7 @@
     android:maxCollapsedHeight="@dimen/resolver_max_collapsed_height_with_default"
     android:id="@id/contentPanel">
 
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

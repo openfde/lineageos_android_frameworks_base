@@ -1235,6 +1235,23 @@ public class DesktopModeWindowDecorViewModel implements WindowDecorViewModel {
             }
         }
     }
+
+     @Override
+    public void maximizeTask() {
+    }
+
+    @Override
+    public void minimizeTask() {
+    }
+
+    @Override
+    public void closeTask() {
+    }
+
+    @Override
+    public boolean isTaskMaximized() {
+       return false;
+    }
 }
 
 

@@ -186,6 +186,10 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 shouldSetTaskPositionAndCrop);
     }
 
+    public void addChildView(String type ){
+        Log.w(TAG,"addChildView.............. type "+type);
+    }
+
     void relayout(RunningTaskInfo taskInfo,
             SurfaceControl.Transaction startT, SurfaceControl.Transaction finishT,
             boolean applyStartTransactionOnDraw, boolean setTaskCropAndPosition) {

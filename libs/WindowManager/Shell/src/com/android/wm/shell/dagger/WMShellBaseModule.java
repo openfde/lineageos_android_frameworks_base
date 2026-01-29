@@ -116,9 +116,12 @@ import dagger.BindsOptionalOf;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
+import dagger.Binds;
 
 import java.util.Optional;
-
+import com.android.wm.shell.sysui.DecorShellService;
+import android.util.Log;
+import android.os.ServiceManager;
 /**
  * Provides basic dependencies from {@link com.android.wm.shell}, these dependencies are only
  * accessible from components within the WM subcomponent (can be explicitly exposed to the
@@ -147,8 +150,27 @@ public abstract class WMShellBaseModule {
             IWindowManager wmService,
             ShellInit shellInit,
             @ShellMainThread ShellExecutor mainExecutor) {
+                 Log.w("WMShellBaseModule","111 init add Service");
         return new DisplayController(context, wmService, shellInit, mainExecutor);
     }
+
+
+    // @WMSingleton
+    // @Provides
+    // static int provideShellServices(
+    //         ShellInit shellInit,
+    //         WindowDecorViewModel decorViewModel
+    // ) {
+    //     Log.w("WMShellBaseModule","init add Service");
+    //     shellInit.addInitCallback(() -> {
+    //         Log.w("WMShellBaseModule","addInitCallback add  Service");
+    //         ServiceManager.addService(
+    //                 "decor_shell",
+    //                 new DecorShellService(decorViewModel)
+    //         );
+    //     }, 1);
+    //     return 1;
+    // }
 
     @WMSingleton
     @Provides
@@ -477,6 +499,11 @@ public abstract class WMShellBaseModule {
             SyncTransactionQueue syncQueue,
             Optional<RecentTasksController> recentTasksOptional,
             Optional<WindowDecorViewModel> windowDecorViewModelOptional) {
+            WindowDecorViewModel decorViewModel = windowDecorViewModelOptional.get();
+            ServiceManager.addService(
+                    "decor_shell",
+                    new DecorShellService(decorViewModel)
+            );
         if (fullscreenTaskListener.isPresent()) {
             return fullscreenTaskListener.get();
         } else {
