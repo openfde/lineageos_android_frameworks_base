@@ -40,6 +40,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import android.graphics.Color;
+import android.util.Log;
 
 /**
  * A popup for a menu which will allow multiple submenus to appear in a cascading fashion, side by
@@ -54,6 +56,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
     private static final int HORIZ_POSITION_LEFT = 0;
     private static final int HORIZ_POSITION_RIGHT = 1;
+    private static final String TAG = "CascadingMenuPopup";
 
     /**
      * Delay between hovering over a menu item with a mouse and receiving
@@ -202,9 +205,10 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      */
     public CascadingMenuPopup(@NonNull Context context, @NonNull View anchor,
             @AttrRes int popupStyleAttr, @StyleRes int popupStyleRes, boolean overflowOnly) {
+                
         mContext = Preconditions.checkNotNull(context);
         mAnchorView = Preconditions.checkNotNull(anchor);
-        mPopupStyleAttr = popupStyleAttr;
+        mPopupStyleAttr = 0;//popupStyleAttr;
         mPopupStyleRes = popupStyleRes;
         mOverflowOnly = overflowOnly;
 

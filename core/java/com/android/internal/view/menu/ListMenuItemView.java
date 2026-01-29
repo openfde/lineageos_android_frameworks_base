@@ -34,7 +34,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
-
+import android.util.Log;
+import android.graphics.Color;
 /**
  * The item view for each item in the ListView-based MenuViews.
  */
@@ -85,7 +86,7 @@ public class ListMenuItemView extends LinearLayout
         final TypedArray b = context.getTheme()
                 .obtainStyledAttributes(null, new int[] { com.android.internal.R.attr.divider },
                         com.android.internal.R.attr.dropDownListViewStyle, 0);
-        mHasListDivider = b.hasValue(0);
+        // mHasListDivider = b.hasValue(0);
 
         a.recycle();
         b.recycle();
@@ -100,21 +101,22 @@ public class ListMenuItemView extends LinearLayout
     }
 
     public ListMenuItemView(Context context, AttributeSet attrs) {
-        this(context, attrs, com.android.internal.R.attr.listMenuViewStyle);
+        this(context, attrs, 0);
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        setBackgroundDrawable(mBackground);
+        // setBackgroundDrawable(mBackground);
 
         mTitleView = findViewById(com.android.internal.R.id.title);
         if (mTextAppearance != -1) {
-            mTitleView.setTextAppearance(mTextAppearanceContext,
-                                         mTextAppearance);
+            // mTitleView.setTextAppearance(mTextAppearanceContext,
+            //                              mTextAppearance);
+            
         }
-
+        mTitleView.setTextSize(14);
         mShortcutView = findViewById(com.android.internal.R.id.shortcut);
         mSubMenuArrowView = findViewById(com.android.internal.R.id.submenuarrow);
         if (mSubMenuArrowView != null) {
