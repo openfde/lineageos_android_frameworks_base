@@ -3,7 +3,7 @@ package com.android.internal.policy;
 /** @hide */
 public interface AppTaskController {
 
-    void close();
+    void closeTask();
     void back();
     void enterOrExitFullscreen();
     void minimize();

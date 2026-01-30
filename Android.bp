@@ -155,7 +155,7 @@ filegroup {
         ":perfetto_trace_javastream_protos",
 
         //opefdesdk
-        ":openfde-sdk-sources",
+        //":openfde-sdk-sources",
     ],
 }
 
