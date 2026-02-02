@@ -29499,6 +29499,49 @@ package android.net.vcn {
 
 }
 
+package android.openfde {
+
+  @FlaggedApi("android.openfde.openfde_api") public class AppTaskControllerProxy {
+    method @FlaggedApi("android.openfde.openfde_api") public void back();
+    method @FlaggedApi("android.openfde.openfde_api") public void callTaskOperation(int);
+    method @FlaggedApi("android.openfde.openfde_api") public void cleanup();
+    method @FlaggedApi("android.openfde.openfde_api") public void closeTask();
+    method @FlaggedApi("android.openfde.openfde_api") @NonNull public static android.openfde.AppTaskControllerProxy create();
+    method @FlaggedApi("android.openfde.openfde_api") public void enterOrExitFullscreen();
+    method @FlaggedApi("android.openfde.openfde_api") @NonNull public String getStatus();
+    method @FlaggedApi("android.openfde.openfde_api") @NonNull public android.openfde.SystemBarOperator getSystemBarOperator();
+    method @FlaggedApi("android.openfde.openfde_api") @NonNull public android.openfde.WmShellCaller getmWmShellCaller();
+    method @FlaggedApi("android.openfde.openfde_api") public void initCustomCaption(@NonNull java.lang.ref.WeakReference<android.app.Activity>, boolean, @NonNull android.openfde.AppTaskStatusListener);
+    method @FlaggedApi("android.openfde.openfde_api") public void maximizeOrNot();
+    method @FlaggedApi("android.openfde.openfde_api") public void minimize();
+    method @FlaggedApi("android.openfde.openfde_api") public void toggleStatusBarNavigationBar(boolean);
+  }
+
+  @FlaggedApi("android.openfde.openfde_api") public interface AppTaskStatusListener {
+    method @FlaggedApi("android.openfde.openfde_api") @NonNull public default String onGetListenerId();
+    method @FlaggedApi("android.openfde.openfde_api") @NonNull public default String onGetStatus(int, boolean);
+    method @FlaggedApi("android.openfde.openfde_api") public void onStatusChanged(int, boolean);
+    field @FlaggedApi("android.openfde.openfde_api") public static final int WINDOWING_MODE_FREEFORM = 5; // 0x5
+    field @FlaggedApi("android.openfde.openfde_api") public static final int WINDOWING_MODE_FULLSCREEN = 1; // 0x1
+    field @FlaggedApi("android.openfde.openfde_api") public static final int WINDOWING_MODE_UNDEFINED = 0; // 0x0
+  }
+
+  @FlaggedApi("android.openfde.openfde_api") public interface SystemBarOperator {
+    method @FlaggedApi("android.openfde.openfde_api") public void toggleStatusBarNavigationBar(boolean);
+  }
+
+  @FlaggedApi("android.openfde.openfde_api") public interface WmShellCaller {
+    method @FlaggedApi("android.openfde.openfde_api") public void callTaskOperation(int);
+    field @FlaggedApi("android.openfde.openfde_api") public static final int OPERATION_BACK = 1; // 0x1
+    field @FlaggedApi("android.openfde.openfde_api") public static final int OPERATION_CLOSE = 0; // 0x0
+    field @FlaggedApi("android.openfde.openfde_api") public static final int OPERATION_FULLSCREEN = 2; // 0x2
+    field @FlaggedApi("android.openfde.openfde_api") public static final int OPERATION_MAXIMIZE = 4; // 0x4
+    field @FlaggedApi("android.openfde.openfde_api") public static final int OPERATION_MINIMIZE = 3; // 0x3
+    field @FlaggedApi("android.openfde.openfde_api") public static final int OPERATION_WINDOWDECORATION_RELAYOUT = 5; // 0x5
+  }
+
+}
+
 package android.opengl {
 
   public class EGL14 {
