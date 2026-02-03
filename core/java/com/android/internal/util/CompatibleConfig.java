@@ -202,7 +202,7 @@ public class CompatibleConfig {
      * @param selectionArgs
      * @return
      */
-    public static String queryStringValueData(Context context, String selection, String[] selectionArgs) {
+    public static String queryStringValueDataByDb(Context context, String selection, String[] selectionArgs) {
         Uri uri = Uri.parse(COMPATIBLE_URI + "/COMPATIBLE_VALUE");
         Cursor cursor = null;
         String result = null;
@@ -223,23 +223,24 @@ public class CompatibleConfig {
         return result;
     }
 
-    public static String queryValueDataBySharedMemory(Context context, String key) {
+
+    public static String queryStringValueData(Context context, String keyCode , String packageName) {
         String result = null;
         String fdebootCompleted = SystemProperties.get("fde.boot_completed", "0");
-        Slog.d(TAG,"queryValueDataBySharedMemory fdebootCompleted: " + fdebootCompleted + ",key: " + key);
+        Slog.d(TAG,"queryValueDataBySharedMemory fdebootCompleted: " + fdebootCompleted + ",keyCode: " + keyCode + ",packageName: " + packageName);
 
         if (fdebootCompleted.equals("1")) {
-            String res = SystemProperties.get(key, "");
-            return res;
+            return SystemProperties.get(packageName + "_" + keyCode, "");
         } else {
             return null;
         }
     }
 
-    public static String queryValueDataBySharedMemory(Context context, String packageName,String activityName, String keyCode) {
+
+    public static String queryStringValueData(Context context, String keyCode ,String packageName,  String activityName) {
         String result = null;
         String fdebootCompleted = SystemProperties.get("fde.boot_completed", "0");
-        Slog.d(TAG,"queryValueDataBySharedMemory fdebootCompleted: " + fdebootCompleted + ",keyCode: " + keyCode + ",packageName: " + packageName);
+        Slog.d(TAG,"queryValueDataBySharedMemory fdebootCompleted: " + fdebootCompleted + ",keyCode: " + keyCode + ",packageName: " + packageName+ ",activityName: " + activityName);
 
         if (fdebootCompleted.equals("1")) {
             if (activityName == null || "".equals(activityName)) {
@@ -402,14 +403,16 @@ public class CompatibleConfig {
                     Slog.w(TAG,"deleteCompatibleByKeyCode "+keyCode);
                     db.deleteCompatibleByKeyCode( keyCode);
                 }else{
-                    List<Map<String,Object>> list = db.queryCompatiblesByKeyCode(keyCode);
+                    /*List<Map<String,Object>> list = db.queryCompatiblesByKeyCode(keyCode);
                     if(list != null && list.size() > 0 ){
                         String queryDate = list.get(0).get("FIELDS1").toString();
+                        String createDate = list.get(0).get("CREATE_DATE").toString();
+                        String editDate = list.get(0).get("EDIT_DATE").toString();
                         if (!"".equals(queryDate) && !updateDate.equals(queryDate)) {
                             Slog.d(TAG,"deleteCompatibleByKeyCode "+keyCode + ",queryDate: "+queryDate +",updateDate: "+updateDate);
                             db.deleteCompatibleByKeyCode( keyCode);
                         }
-                    }
+                    }*/
                     for (int j = 0; j < packageList.getLength(); j++) {
                         Element packageElement = (Element) packageList.item(j);
                         String packageName = packageElement.getAttribute("name");

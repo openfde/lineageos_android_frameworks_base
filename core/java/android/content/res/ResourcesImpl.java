@@ -231,7 +231,7 @@ public class ResourcesImpl {
             if(context != null){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {context.getPackageName(),"enabledResourceFixedLayout", ""};
-                String resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+                String resultStr = CompatibleConfig.queryStringValueData(context, "enabledResourceFixedLayout", context.getPackageName());
 
                 Slog.d(TAG, "getDisplayMetrics: query " + context.getPackageName() + " resultStr: " + resultStr);
                 if(!TextUtils.isEmpty(resultStr)){

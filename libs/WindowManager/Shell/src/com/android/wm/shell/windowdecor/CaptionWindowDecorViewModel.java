@@ -176,7 +176,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private String queryStringValueData(String packageName,String keyCode,String activityName){
               String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
               String[] selectionArgs= {packageName,keyCode, activityName};
-              return CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+              return CompatibleConfig.queryStringValueData(mContext, keyCode, packageName ,activityName);
     }
 
     @Override

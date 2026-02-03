@@ -2025,7 +2025,7 @@ public class Instrumentation {
             String packageName =  intent.getComponent().getPackageName();
             String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
             String[] selectionArgsWithoutActivity = {packageName,"enableMagicWindow", ""};
-            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, selection, selectionArgsWithoutActivity);
+            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "enableMagicWindow", packageName);
             Log.d(TAG,"enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
             if(TextUtils.equals(resultStrWithoutActivity, "true")){
                 Log.d(TAG,  "put extra fde_magic_window true");

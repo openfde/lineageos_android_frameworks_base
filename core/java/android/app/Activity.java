@@ -1846,7 +1846,7 @@ public class Activity extends ContextThemeWrapper
         String selectionWithoutActivity = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
 
         String[] selectionArgsWithoutActivity = {packageName,"isShiftContentBelowCaption", ""};
-        String resultStr = CompatibleConfig.queryStringValueData(this, selectionWithoutActivity, selectionArgsWithoutActivity);
+        String resultStr = CompatibleConfig.queryStringValueData(this, "isShiftContentBelowCaption", packageName);
         Slog.d(TAG,"isShiftContentBelowCaption without activity, resultStr: " + resultStr);
         if(TextUtils.equals(resultStr, "true")){
             getWindow().addCompatibleFlags(WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION);
@@ -1857,7 +1857,7 @@ public class Activity extends ContextThemeWrapper
         Slog.d(TAG,"extractActivityName: " + activityName);
         String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
         String[] selectionArgs = {packageName,"isShiftContentBelowCaption", activityName};
-        resultStr = CompatibleConfig.queryStringValueData(this, selection, selectionArgs);
+        resultStr = CompatibleConfig.queryStringValueData(this, "isShiftContentBelowCaption", packageName);
         Slog.d(TAG,"isShiftContentBelowCaption resultStr: " + resultStr);
         if(TextUtils.equals(resultStr, "true")){
             getWindow().addCompatibleFlags(WindowManager.LayoutParams.COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION);

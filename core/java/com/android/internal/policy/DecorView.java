@@ -625,7 +625,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             String packageName = mContext.getPackageName();
             String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
             String[] selectionArgs = {packageName,"forcedPortraitMode", ""};
-            String result = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+            String result = CompatibleConfig.queryStringValueData(mContext, "forcedPortraitMode", packageName);
             Log.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
             if(TextUtils.equals(result, "true")){
                 return false ;

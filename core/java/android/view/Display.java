@@ -1693,7 +1693,7 @@ public final class Display {
             if(mContext != null){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
-                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, "isAllowRealDisplaySize", mContext.getPackageName());
                 if(TextUtils.equals(resultStr, "true")){
                     getSize(outSize);
                     return;
@@ -1773,7 +1773,7 @@ public final class Display {
             if(mContext != null){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
-                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, "isAllowRealDisplaySize", mContext.getPackageName());
                 if(TextUtils.equals(resultStr, "true")){
                     getMetrics(outMetrics);
                     return;
@@ -1782,7 +1782,7 @@ public final class Display {
             if(mContext != null){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {mContext.getPackageName(),"enabledVirtualDisplaySize", ""};
-                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, "enabledVirtualDisplaySize", mContext.getPackageName());
                 if(resultStr != null && !"".equals(resultStr)){
                     getMetrics(outMetrics);
                     JSONObject jsonObject = null;

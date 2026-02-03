@@ -207,7 +207,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
             String packageName = taskInfo.topActivity.getPackageName();
             String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
             String[] selectionArgsWithoutActivity = {packageName,"forcedPortraitMode", ""};
-            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgsWithoutActivity);
+            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(mContext, "forcedPortraitMode", packageName);
             Log.d(TAG,"forcedPortraitMode resultStrWithoutActivity: " + resultStrWithoutActivity);
             if(TextUtils.equals(resultStrWithoutActivity, "true")){
                 isDragResizeable = false;
@@ -215,7 +215,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
             }else{
                 String activityName = extractActivityName(taskInfo.topActivity.getClassName());
                 String[] selectionArgs = {packageName,"forcedPortraitMode", activityName};
-                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+                String resultStr = CompatibleConfig.queryStringValueData(mContext, "forcedPortraitMode", packageName,activityName);
                 Log.d(TAG,"forcedPortraitMode resultStr: " + resultStr);
                 if(TextUtils.equals(resultStr, "true")){
                     isDragResizeable = false;
