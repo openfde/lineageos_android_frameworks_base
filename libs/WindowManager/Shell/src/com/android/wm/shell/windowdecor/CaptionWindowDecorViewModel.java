@@ -439,13 +439,6 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         return;
                     }
                 }
-                mMainHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTaskOperations.injectKey(mDisplayId, KeyEvent.KEYCODE_F11);
-
-                    }
-                }
                 boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
 
                 if(!mTaskOperations.isTaskMaximized(taskInfo)){
