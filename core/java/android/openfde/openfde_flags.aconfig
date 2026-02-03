@@ -1,0 +1,9 @@
+package: "android.openfde"
+container: "system"
+
+flag {
+    name: "openfde_api"
+    namespace: "window_manager"
+    description: "This flag controls the availability of OpenFDE task controller APIs"
+    bug: "123456789"  // 填入你的 Bug ID 或项目追踪 ID
+}

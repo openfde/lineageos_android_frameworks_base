@@ -126,6 +126,18 @@ java_defaults {
     libs: ["fake_device_config"],
 }
 
+aconfig_declarations {
+    name: "android.openfde_flags",
+    package: "android.openfde",
+    srcs: ["core/java/android/openfde/openfde_flags.aconfig"],
+}
+
+// openfde
+java_aconfig_library {
+    name: "android.openfde_flags_lib",
+    aconfig_declarations: "android.openfde_flags",
+}
+
 // Camera
 java_aconfig_library {
     name: "camera_platform_flags_core_java_lib",

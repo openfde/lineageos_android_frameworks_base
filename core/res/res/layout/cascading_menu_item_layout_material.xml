@@ -21,6 +21,7 @@
     android:layout_height="wrap_content"
     android:minWidth="112dip"
     android:maxWidth="280dip"
+    android:background="#F9FAFC"
     android:orientation="vertical" >
 
     <ImageView
@@ -34,7 +35,7 @@
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
-        android:layout_height="48dip"
+        android:layout_height="32dp"
         android:layout_marginStart="12dip"
         android:layout_marginEnd="12dip"
         android:duplicateParentState="true" >
@@ -49,6 +50,7 @@
             android:layout_marginStart="6dip"
             android:textAppearance="?attr/textAppearanceLargePopupMenu"
             android:singleLine="true"
+            android:textSize="14sp"
             android:duplicateParentState="true"
             android:textAlignment="viewStart" />
 
