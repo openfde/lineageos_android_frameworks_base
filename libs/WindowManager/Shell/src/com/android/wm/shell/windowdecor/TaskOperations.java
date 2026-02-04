@@ -125,10 +125,10 @@ class TaskOperations {
         if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
             String packageName = taskInfo.topActivity.getPackageName();
             String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
-            String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+            //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
            
             Log.d(TAG, "onTaskChanging packageName: " + packageName);
-            if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(enableMagicWindow, "true") ){
+            if(TextUtils.equals(forcedPortraitMode, "true") ){
                 return;
             }
         }

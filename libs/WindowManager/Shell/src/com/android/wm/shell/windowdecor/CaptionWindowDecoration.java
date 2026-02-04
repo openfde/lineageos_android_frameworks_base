@@ -213,16 +213,16 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
             String packageName = taskInfo.topActivity.getPackageName();
 
             String forcedPortraitMode =  queryStringValueData("forcedPortraitMode",packageName, "");
-            String enableMagicWindow =  queryStringValueData("enableMagicWindow",packageName, "");
+            //String enableMagicWindow =  queryStringValueData("enableMagicWindow",packageName, "");
            
-            if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(enableMagicWindow, "true")){
+            if(TextUtils.equals(forcedPortraitMode, "true") ){
                 isDragResizeable = false;
                 Log.d(TAG,"relayout packageName: " + packageName + ", isDragResizeable: " + isDragResizeable);
             }else{
                 String activityName = extractActivityName(taskInfo.topActivity.getClassName());
                 forcedPortraitMode =  queryStringValueData("forcedPortraitMode",packageName, activityName);
                 Log.d(TAG,"forcedPortraitMode forcedPortraitMode: " + forcedPortraitMode);
-                if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(enableMagicWindow, "true")){
+                if(TextUtils.equals(forcedPortraitMode, "true") ){
                     isDragResizeable = false;
                     Log.d(TAG,"relayout className: " + taskInfo.topActivity.getClassName() + ", isDragResizeable: " + isDragResizeable);
                 }

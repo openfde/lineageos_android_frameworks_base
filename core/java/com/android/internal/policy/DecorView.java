@@ -630,10 +630,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
        try{
            String packageName = mContext.getPackageName();
            String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
-           String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+           //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
            
-           Log.d(TAG,"fde isResizeWindow " + packageName + ", forcedPortraitMode: " + forcedPortraitMode+ ", enableMagicWindow: " + enableMagicWindow);
-           if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(enableMagicWindow, "true") ){
+         //  Log.d(TAG,"fde isResizeWindow " + packageName + ", forcedPortraitMode: " + forcedPortraitMode+ ", enableMagicWindow: " + enableMagicWindow);
+           if(TextUtils.equals(forcedPortraitMode, "true") ){
               return false ; 
            }
          }catch(Exception e){
