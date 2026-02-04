@@ -105,7 +105,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         // Get initial state
         mWindowingMode = getCurrentWindowingMode(activity.get());
         mSystemBarVisibility = getSystemBarVisibility();
-        Log.d(TAG, "mSystemBarVisibility:" + mSystemBarVisibility + " taskSystembarVisiblity:" + mTaskInfo.taskSystembarVisiblity);
+        //Log.d(TAG, "mSystemBarVisibility:" + mSystemBarVisibility + " taskSystembarVisiblity:" + mTaskInfo.taskSystembarVisiblity);
 
 
         mLinkedToWMshell = true;
