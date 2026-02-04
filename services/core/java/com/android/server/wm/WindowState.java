@@ -1910,7 +1910,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         boolean allowScreenshotAndRecord = false;
         String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
         String[] selectionArgs = {packageName,"isAllowScreenshotRecord", ""};
-        String resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+        String resultStr = CompatibleConfig.queryStringValueData(context, "isAllowScreenshotRecord", packageName);
         if(TextUtils.equals(resultStr, "true")){
             allowScreenshotAndRecord = true;
         }

@@ -186,6 +186,12 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 shouldSetTaskPositionAndCrop);
     }
 
+    private String queryStringValueData(String keyCode,String packageName,String activityName){
+        String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+        String[] selectionArgs= {packageName,keyCode, activityName};
+        return CompatibleConfig.queryStringValueData(mContext, keyCode, packageName,activityName);
+    } 
+
     void relayout(RunningTaskInfo taskInfo,
             SurfaceControl.Transaction startT, SurfaceControl.Transaction finishT,
             boolean applyStartTransactionOnDraw, boolean setTaskCropAndPosition) {
@@ -205,19 +211,18 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
 
         if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null && !TextUtils.equals(mTopActivity, taskInfo.topActivity.getClassName())) {
             String packageName = taskInfo.topActivity.getPackageName();
-            String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-            String[] selectionArgsWithoutActivity = {packageName,"forcedPortraitMode", ""};
-            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgsWithoutActivity);
-            Log.d(TAG,"forcedPortraitMode resultStrWithoutActivity: " + resultStrWithoutActivity);
-            if(TextUtils.equals(resultStrWithoutActivity, "true")){
+
+            String forcedPortraitMode =  queryStringValueData("forcedPortraitMode",packageName, "");
+            //String enableMagicWindow =  queryStringValueData("enableMagicWindow",packageName, "");
+           
+            if(TextUtils.equals(forcedPortraitMode, "true") ){
                 isDragResizeable = false;
                 Log.d(TAG,"relayout packageName: " + packageName + ", isDragResizeable: " + isDragResizeable);
             }else{
                 String activityName = extractActivityName(taskInfo.topActivity.getClassName());
-                String[] selectionArgs = {packageName,"forcedPortraitMode", activityName};
-                String resultStr = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
-                Log.d(TAG,"forcedPortraitMode resultStr: " + resultStr);
-                if(TextUtils.equals(resultStr, "true")){
+                forcedPortraitMode =  queryStringValueData("forcedPortraitMode",packageName, activityName);
+                Log.d(TAG,"forcedPortraitMode forcedPortraitMode: " + forcedPortraitMode);
+                if(TextUtils.equals(forcedPortraitMode, "true") ){
                     isDragResizeable = false;
                     Log.d(TAG,"relayout className: " + taskInfo.topActivity.getClassName() + ", isDragResizeable: " + isDragResizeable);
                 }

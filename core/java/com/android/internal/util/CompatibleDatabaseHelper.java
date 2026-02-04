@@ -186,6 +186,49 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    
+    public List<Map<String, Object>> queryCompatiblesByAll(String keyCode,String packageName,String activityName) {
+            SQLiteDatabase db = this.getReadableDatabase();
+            String selection = "KEY_CODE = ?  AND PACKAGE_NAME = ?  AND  ACTIVITY_NAME = ?  AND  IS_DEL != 1";
+            String[] selectionArgs = {keyCode,packageName,activityName};
+            Cursor cursor = db.query(TABLE_NAME, null, selection, selectionArgs, null, null, null);
+    
+            List<Map<String, Object>> list = new ArrayList<>();
+            if (cursor.moveToFirst()) {
+                do {
+                    int _ID = cursor.getInt(cursor.getColumnIndex("_ID"));
+                    Slog.w(TAG, " queryMapValueData _ID "+_ID );
+                    String PACKAGE_NAME = cursor.getString(cursor.getColumnIndex("PACKAGE_NAME"));
+                    String KEY_CODE = cursor.getString(cursor.getColumnIndex("KEY_CODE"));
+                    String VALUE = cursor.getString(cursor.getColumnIndex("VALUE"));
+                    String ACTIVITY_NAME = cursor.getString(cursor.getColumnIndex("ACTIVITY_NAME"));
+                    String IS_ENABLE = cursor.getString(cursor.getColumnIndex("IS_ENABLE"));
+                    String IS_DEL = cursor.getString(cursor.getColumnIndex("IS_DEL"));
+                    String CREATE_DATE = cursor.getString(cursor.getColumnIndex("CREATE_DATE"));
+                    String EDIT_DATE = cursor.getString(cursor.getColumnIndex("EDIT_DATE"));
+                    String FIELDS1 = cursor.getString(cursor.getColumnIndex("FIELDS1"));
+                    Map<String, Object> mp = new HashMap<>();
+                    mp.put("_ID", _ID);
+                    mp.put("PACKAGE_NAME", PACKAGE_NAME);
+                    mp.put("KEY_CODE", KEY_CODE);
+                    mp.put("ACTIVITY_NAME", ACTIVITY_NAME);
+                    mp.put("IS_ENABLE", IS_ENABLE);
+                    mp.put("VALUE", VALUE);
+                    mp.put("IS_DEL", IS_DEL);
+                    mp.put("FIELDS1", FIELDS1);
+                    mp.put("CREATE_DATE", CREATE_DATE);
+                    mp.put("EDIT_DATE", EDIT_DATE);
+                    list.add(mp);
+                } while (cursor.moveToNext());
+            }else{
+                Slog.w(TAG, " queryMapValueData is null data! " );
+            }
+            cursor.close();
+            db.close();
+            return list;
+        }
+
+
     public Map<String, Object> queryMapValueData(String selection, String[] selectionArgs) {
         SQLiteDatabase db = this.getReadableDatabase();
         String queryParam = selection + " AND IS_DEL != 1";
@@ -265,7 +308,7 @@ public class CompatibleDatabaseHelper extends SQLiteOpenHelper {
         values.put("FIELDS1", getCurDate());
         values.put("FIELDS2", "");
         values.put("ACTIVITY_NAME", activityName);
-        db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict(TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
         db.close();
     }
 

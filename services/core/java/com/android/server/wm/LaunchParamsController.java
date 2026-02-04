@@ -119,7 +119,7 @@ class LaunchParamsController {
                         if (context != null) {
                             String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                             String[] selectionArgs = {task.getBasePackageName(), "activityLunchSize", ""};
-                            String resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+                            String resultStr = CompatibleConfig.queryStringValueData(context, "activityLunchSize", task.getBasePackageName());
                             Slog.d(TAG, "calculate: query " + task.getBasePackageName() + " resultStr: " + resultStr);
                             if (!TextUtils.isEmpty(resultStr)) {
                                 JSONObject jsonObject = null;

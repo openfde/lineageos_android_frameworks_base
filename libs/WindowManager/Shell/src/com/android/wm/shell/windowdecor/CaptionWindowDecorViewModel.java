@@ -176,7 +176,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private String queryStringValueData(String packageName,String keyCode,String activityName){
               String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
               String[] selectionArgs= {packageName,keyCode, activityName};
-              return CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
+              return CompatibleConfig.queryStringValueData(mContext, keyCode, packageName ,activityName);
     }
 
     @Override
@@ -431,9 +431,11 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 Log.d(TAG, "onClick fullscreen_window");
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
-                    String packageName = taskInfo.topActivity.getPackageName();
-                    if (TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true")) {
-                        Toast.makeText(mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
+                    String packageName = taskInfo.topActivity.getPackageName();      
+                    String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+                    //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+                    if(TextUtils.equals(forcedPortraitMode, "true") ){
+                        Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
@@ -453,7 +455,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
-                    if(TextUtils.equals(queryStringValueData(packageName, "forcedPortraitMode", ""), "true") ){
+                    String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+                    //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+                    if(TextUtils.equals(forcedPortraitMode, "true") ){
                         Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                         return;
                     }

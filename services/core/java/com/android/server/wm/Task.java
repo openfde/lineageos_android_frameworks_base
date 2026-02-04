@@ -2219,9 +2219,9 @@ class Task extends TaskFragment {
                 Slog.d(TAG,"adjustForMinimalTaskDimensions packageName: " + packageName);
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgsMinWidth = {packageName,"minBoundsVisibleWidth", ""};
-                String minWidthResults = CompatibleConfig.queryStringValueData(mAtmService.mContext, selection, selectionArgsMinWidth);
+                String minWidthResults = CompatibleConfig.queryStringValueData(mAtmService.mContext, "minBoundsVisibleWidth", packageName);
                 String[] selectionArgsMinHeight = {packageName,"minBoundsVisibleHeight", ""};
-                String minHeightResults = CompatibleConfig.queryStringValueData(mAtmService.mContext, selection, selectionArgsMinHeight);
+                String minHeightResults = CompatibleConfig.queryStringValueData(mAtmService.mContext, "minBoundsVisibleHeight", packageName);
                 if(minWidthResults != null && !"".equals(minWidthResults)){
                     Slog.d(TAG,"packageName: " + packageName + " minWidthResults: " + minWidthResults);
                     try{

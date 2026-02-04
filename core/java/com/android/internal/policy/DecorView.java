@@ -620,17 +620,23 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
+    private String queryStringValueData(String packageName,String keyCode,String activityName){
+              String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+              String[] selectionArgs= {packageName,keyCode, activityName};
+              return CompatibleConfig.queryStringValueData(mContext, keyCode, packageName);
+    } 
+
     public boolean isResizeWindow(){
-        try{
-            String packageName = mContext.getPackageName();
-            String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-            String[] selectionArgs = {packageName,"forcedPortraitMode", ""};
-            String result = CompatibleConfig.queryStringValueData(mContext, selection, selectionArgs);
-            Log.d(TAG,"fde isResizeWindow " + packageName + ", result: " + result);
-            if(TextUtils.equals(result, "true")){
-                return false ;
-            }
-        }catch(Exception e){
+       try{
+           String packageName = mContext.getPackageName();
+           String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+           //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+           
+         //  Log.d(TAG,"fde isResizeWindow " + packageName + ", forcedPortraitMode: " + forcedPortraitMode+ ", enableMagicWindow: " + enableMagicWindow);
+           if(TextUtils.equals(forcedPortraitMode, "true") ){
+              return false ; 
+           }
+         }catch(Exception e){
             e.printStackTrace();
         }
         return true ;

@@ -4111,7 +4111,7 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         String[] selectionArgs = {packageName,"isTurnOffSimulatedTouch", ""};
         String resultStr = null;
         if(context != null){
-            resultStr = CompatibleConfig.queryStringValueData(context, selection, selectionArgs);
+            resultStr = CompatibleConfig.queryStringValueData(context, "isTurnOffSimulatedTouch", packageName);
             Slog.d(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query resultStr: " + resultStr);
         }else{
             Slog.e(TAG,"isCompatibilityFeaturesTurnOffSimulatedTouch query failed, context is null.");
