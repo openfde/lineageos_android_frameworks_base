@@ -258,6 +258,19 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         }
     }
 
+    private void appWindowEnterOrExistFullScreen(int taskId){
+        IAppSystemBarController controller = mAppSystemBarControllers.get(taskId);
+        if(controller == null){
+            android.util.Log.e(TAG, "AppSystemBarControllers is null ");
+            return;
+        }
+        try {
+            controller.enterOrExistFullScreen();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onTaskChanging(
             RunningTaskInfo taskInfo,
@@ -439,14 +452,14 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         return;
                     }
                 }
-                boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
-
-                if(!mTaskOperations.isTaskMaximized(taskInfo)){
-                    mTaskOperations.maximizeTask(taskInfo);
-                }
-                appWindowHideSystemBar(systemBarVisibility, mTaskId);
-                updateWindowDecorationDelay(RELAYOUT_DELAY);
-
+//                boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
+//
+//                if(!mTaskOperations.isTaskMaximized(taskInfo)){
+//                    mTaskOperations.maximizeTask(taskInfo);
+//                }
+//                appWindowHideSystemBar(systemBarVisibility, mTaskId);
+//                updateWindowDecorationDelay(RELAYOUT_DELAY);
+                appWindowEnterOrExistFullScreen(mTaskId);
             }else if (id == R.id.minimize_window) {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 minimizeWithMagicWindow(taskInfo);
