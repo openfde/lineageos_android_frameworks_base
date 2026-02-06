@@ -20,4 +20,6 @@ oneway interface IAppSystemBarController {
 
     void hideSystemBar(int taskId, boolean hide);
 
+    void enterOrExistFullScreen();
+
 }
