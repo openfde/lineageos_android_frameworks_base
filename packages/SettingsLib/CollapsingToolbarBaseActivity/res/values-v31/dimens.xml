@@ -16,8 +16,12 @@
 -->
 <resources>
     <!-- Collapsing toolbar layout dimensions -->
-    <dimen name="settingslib_toolbar_layout_height">16dp</dimen>
+    <dimen name="settingslib_toolbar_layout_height">44dp</dimen>
     <dimen name="settingslib_scrim_visible_height_trigger">137dp</dimen>
     <dimen name="expanded_title_margin_start">0dp</dimen>
     <dimen name="expanded_title_margin_end">24dp</dimen>
+
+    <dimen name="top_menu_icon_size">28dp</dimen>
+    <dimen name="top_menu_icon_margin_right">6dp</dimen>
+    <dimen name="top_menu_icon_padding">5dp</dimen>
 </resources>

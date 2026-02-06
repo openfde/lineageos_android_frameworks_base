@@ -57,7 +57,7 @@ public class TwoTargetPreference extends Preference {
 
     private final String[] arrayTop = {"dark_ui_mode", "toggle_keyboard_sticky_keys", "toggle_audio_description"};
     private final String[] arrayBottom = {"screen_timeout", "toggle_keyboard_bounce_keys"};
-    private final String[] arraySquare = {"brightness","night_display","toggle_asm"};//preference_two_target_card
+    private final String[] arraySquare = {"brightness","night_display","toggle_asm","add_bt_devices"};//preference_two_target_card
 
 
     public TwoTargetPreference(Context context, AttributeSet attrs,

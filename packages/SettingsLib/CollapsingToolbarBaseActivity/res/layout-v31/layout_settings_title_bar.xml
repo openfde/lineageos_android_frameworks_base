@@ -2,7 +2,7 @@
 <RelativeLayout
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    android:layout_height="44dp"
+    android:layout_height="@dimen/settingslib_toolbar_layout_height"
     android:paddingRight="6dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -20,6 +20,7 @@
         android:layout_toRightOf="@id/imgLeft"
         android:layout_width="wrap_content"
         android:src="@drawable/icon_right"
+        android:visibility="gone"
         android:layout_centerVertical="true"
         android:layout_height="wrap_content"/>
 
@@ -36,41 +37,44 @@
     <ImageView
         android:id="@+id/imgFullscreen"
         android:layout_gravity="center_vertical|end"
-        android:src="@drawable/icon_fullscreen"
+        android:src="@drawable/window_full_screen_button"
         android:duplicateParentState="true"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/top_menu_icon_size"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/imgMinimize"
-        android:layout_width="wrap_content"/>
+        android:padding="@dimen/top_menu_icon_padding"
+        android:layout_width="@dimen/top_menu_icon_size"/>
 
     <ImageView
         android:id="@+id/imgMinimize"
         android:layout_gravity="center_vertical|end"
-        android:src="@drawable/icon_minimize"
+        android:src="@drawable/window_mini_button"
         android:duplicateParentState="true"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/top_menu_icon_size"
         android:layout_toLeftOf="@id/imgMaximize"
         android:layout_centerVertical="true"
-        android:layout_width="wrap_content"/>
+        android:padding="@dimen/top_menu_icon_padding"
+        android:layout_width="@dimen/top_menu_icon_size"/>
 
     <ImageView
         android:id="@+id/imgMaximize"
         android:layout_gravity="center_vertical|end"
-        android:src="@drawable/icon_maximize"
+        android:src="@drawable/window_normal_button"
         android:duplicateParentState="true"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/top_menu_icon_size"
         android:layout_toLeftOf="@id/imgClose"
         android:layout_centerVertical="true"
-        android:layout_width="wrap_content"/>
+        android:padding="@dimen/top_menu_icon_padding"
+        android:layout_width="@dimen/top_menu_icon_size"/>
 
     <ImageView
         android:id="@+id/imgClose"
-        android:src="@drawable/icon_close"
+        android:src="@drawable/window_close_button"
         android:duplicateParentState="true"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/top_menu_icon_size"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_width="wrap_content"/>
-
+        android:padding="@dimen/top_menu_icon_padding"
+        android:layout_width="@dimen/top_menu_icon_size"/>
 
 </RelativeLayout>
