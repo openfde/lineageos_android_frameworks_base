@@ -248,14 +248,13 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             List<ActivityManager.RunningTaskInfo> runningTasks =
                     activityManager.getRunningTasks(Integer.MAX_VALUE);
 
-            String packageName = activity.getPackageName();
             int taskId = activity.getTaskId();
 
-            Log.d(TAG, "Looking for task, package: " + packageName + ", taskId: " + taskId);
+            Log.d(TAG, "Looking for task, activity: " + activity + ", taskId: " + taskId);
 
             for (ActivityManager.RunningTaskInfo taskInfo : runningTasks) {
                 if (taskInfo.topActivity != null &&
-                        taskInfo.topActivity.getPackageName().equals(packageName) &&
+                        taskInfo.topActivity.equals(activity.getComponentName()) &&
                         taskInfo.id == taskId) {
                     Log.d(TAG, "Found matching task: " + taskInfo.taskId);
                     return taskInfo;
@@ -283,12 +282,13 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         // Implementation depends on available API
         // This is a placeholder - implement based on your framework
         try {
+            final ActivityManager.RunningTaskInfo taskInfo = getTaskInfoFromActivity(activity);
             // Example implementation - adjust based on your actual API
-            if (activity != null && activity.getWindow() != null) {
-                if(activity.getResources().getConfiguration().windowConfiguration.getWindowingMode() == 6){
+            if (taskInfo != null ) {
+                if(taskInfo.getWindowingMode() == 6){
                     return AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN;
                 }
-                return activity.getResources().getConfiguration().windowConfiguration.getWindowingMode();
+                return taskInfo.getWindowingMode();
             }
         } catch (Exception e) {
             Log.e(TAG, "Error getting windowing mode", e);
@@ -472,7 +472,8 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             int currentWindowingMode = getCurrentWindowingMode(activity);
 
             Log.i(TAG, "New status - windowingMode: " + currentWindowingMode +
-                    ", systemBarVisibility: " + systemBarVisibility);
+                    ", systemBarVisibility: " + systemBarVisibility +
+                    ", mActivity: " + mActivity.get());
             if (mStatusListener != null) {
                 try {
                     mStatusListener.onStatusChanged(currentWindowingMode, systemBarVisibility);
