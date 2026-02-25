@@ -4164,6 +4164,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     private static final String SET_PACKAGE_BOTTOM_ASHEIGHT = "com.tencent.mm";
     private static final String SET_VIEW_BOTTOM_ASHEIGHT = "LayoutListenerView";
 
+
     /**
      * @hide
      *
@@ -13283,8 +13284,17 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
                 return in;
             }
             Pair<Insets, WindowInsets> result = listener.onContentApplyWindowInsets(this, in);
-            outLocalInsets.set(result.first.toRect());
-            return result.second;
+            WindowInsets windowInsets = result.second;
+            if(isTurnOnFullScreen){
+                outLocalInsets.set(new Rect(0,0,0,0));
+                windowInsets  = new WindowInsets.Builder(in)
+                        .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
+                        .setStableInsets(Insets.of(0, 0, 0, 0))
+                        .build();
+            } else {
+                outLocalInsets.set(result.first.toRect());
+            }
+            return windowInsets;
         } else {
             outLocalInsets.set(in.getSystemWindowInsetsAsRect());
             return in.consumeSystemWindowInsets().inset(outLocalInsets);
@@ -16843,7 +16853,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      * is not attached to a window, this is simply the raw display size.
      */
     public void getWindowVisibleDisplayFrame(Rect outRect) {
-        if (mAttachInfo != null) {
+	if (mAttachInfo != null) {
             mAttachInfo.mViewRootImpl.getWindowVisibleDisplayFrame(outRect);
             if( getClass().getName().contains(SET_PACKAGE_BOTTOM_ASHEIGHT)
                     && getClass().getSimpleName().contains(SET_VIEW_BOTTOM_ASHEIGHT)){
@@ -16860,7 +16870,6 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         outRect.set(metrics.getBounds());
         outRect.inset(insets);
         outRect.offsetTo(0, 0);
-
     }
 
     /**
@@ -16872,7 +16881,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
     @UnsupportedAppUsage
     @TestApi
     public void getWindowDisplayFrame(@NonNull Rect outRect) {
-        if (mAttachInfo != null) {
+	    if (mAttachInfo != null) {
             mAttachInfo.mViewRootImpl.getDisplayFrame(outRect);
             return;
         }

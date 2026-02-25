@@ -457,6 +457,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 && !mWmShellController.getSystemBarVisibilityStatus();
     }
 
+    public boolean isModeFullScreen(){
+        return mWmShellController.getWindowingMode() == AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN;
+    }
+
     private boolean allowToggleFullscreen(){
         if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())
                 && !"org.lineageos.setupwizard".equals(mContext.getPackageName())

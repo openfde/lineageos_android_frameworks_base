@@ -119,6 +119,7 @@ class TaskOperations {
               return CompatibleConfig.queryStringValueData(mContext, keyCode, packageName,activityName);
     }
 
+
     void maximizeTask(RunningTaskInfo taskInfo) {
 //        final boolean isMagicWindow = taskInfo.magicWindowType != 0;
         Log.d(TAG, "maximizeTask RunningTaskInfo taskId: " + taskInfo.taskId);
@@ -127,7 +128,7 @@ class TaskOperations {
             String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
             //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
            
-            Log.d(TAG, "onTaskChanging packageName: " + packageName);
+            Log.d(TAG, "maximizeTask packageName: " + packageName);
             if(TextUtils.equals(forcedPortraitMode, "true") ){
                 return;
             }
