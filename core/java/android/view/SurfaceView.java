@@ -66,6 +66,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import com.android.internal.policy.DecorView;
+import android.util.DisplayMetrics;
 
 /**
  * Provides a dedicated drawing surface embedded inside of a view hierarchy.
@@ -541,6 +543,17 @@ public class SurfaceView extends View implements ViewRootImpl.SurfaceChangedCall
         int height = mRequestedHeight >= 0
                 ? resolveSizeAndState(mRequestedHeight, heightMeasureSpec, 0)
                 : getDefaultSize(0, heightMeasureSpec);
+
+        if (getRootView() instanceof DecorView) {
+            DecorView decorView = (DecorView) getRootView();
+            if (getClass().getName().equals("tv.danmaku.render.core.c")  && decorView.isModeFullScreen()
+            ) {
+                DisplayMetrics d = new DisplayMetrics();
+                getDisplay().getRealMetrics(d);
+                height = d.widthPixels;
+            }
+        }
+
         setMeasuredDimension(width, height);
     }
 

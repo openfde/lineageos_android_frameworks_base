@@ -143,7 +143,7 @@ public class DesktopModeWindowDecoration extends WindowDecoration<WindowDecorLin
         super(context, displayController, taskOrganizer, taskInfo, taskSurface, windowDecorConfig,
                 surfaceControlBuilderSupplier, surfaceControlTransactionSupplier,
                 windowContainerTransactionSupplier, surfaceControlSupplier,
-                surfaceControlViewHostFactory);
+                surfaceControlViewHostFactory, null);
 
         mHandler = handler;
         mChoreographer = choreographer;

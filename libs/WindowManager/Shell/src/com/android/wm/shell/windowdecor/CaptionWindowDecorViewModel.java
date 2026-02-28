@@ -94,7 +94,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         setCaptionLable(decoration);
     }
 
-    private boolean getSystemBarVisibility(RunningTaskInfo taskInfo){
+    public boolean getSystemBarVisibility(RunningTaskInfo taskInfo){
         boolean systemBarVisibility = true;
         mBarService = getStatusBarService();
         try {
@@ -233,9 +233,6 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         Log.d(TAG, "onTaskInfoChanged taskInfo: " + taskInfo);
         if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
-            if(!taskInfo.taskSystembarVisiblity){
-                appWindowHideSystemBar(true, mRunningTaskId);
-            }
             updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
@@ -277,15 +274,17 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl taskSurface,
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
-        Log.d(TAG, "onTaskChanging taskInfo.taskId: " + taskInfo + ", taskInfo.isFocused: " + taskInfo.isFocused);
         if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
             updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
-
-        if (!shouldShowWindowDecor(taskInfo)) {
+        boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
+        Log.d(TAG, "onTaskChanging taskInfo: " + taskInfo + ", taskInfo.isFocused: " + taskInfo.isFocused + " systemBarVisibility:" + systemBarVisibility);
+        if (!shouldShowWindowDecor(taskInfo) || !systemBarVisibility) {
             if (decoration != null) {
+                decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
+                        false /* setTaskCropAndPosition */);
                 destroyWindowDecoration(taskInfo);
             }
             Log.d(TAG, "onTaskChanging decoration: " + decoration);
@@ -358,7 +357,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         taskSurface,
                         mMainHandler,
                         mMainChoreographer,
-                        mSyncQueue);
+                        mSyncQueue,
+                        this);
         mWindowDecorByTaskId.put(taskInfo.taskId, windowDecoration);
 
         final FluidResizeTaskPositioner taskPositioner =
@@ -452,13 +452,6 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         return;
                     }
                 }
-//                boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
-//
-//                if(!mTaskOperations.isTaskMaximized(taskInfo)){
-//                    mTaskOperations.maximizeTask(taskInfo);
-//                }
-//                appWindowHideSystemBar(systemBarVisibility, mTaskId);
-//                updateWindowDecorationDelay(RELAYOUT_DELAY);
                 appWindowEnterOrExistFullScreen(mTaskId);
             }else if (id == R.id.minimize_window) {
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
