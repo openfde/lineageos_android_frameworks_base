@@ -388,6 +388,8 @@ public class Dialog implements DialogInterface, Window.Callback,
         } else {
             mHandler.post(mDismissAction);
         }
+        int width = getWindow().getDecorView().getMeasuredWidth();
+        Log.e(TAG, "dismiss width:" + width);
     }
 
     @UnsupportedAppUsage
