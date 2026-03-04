@@ -1805,7 +1805,10 @@ public final class Display {
             }
             updateDisplayInfoLocked();
             if (shouldReportMaxBounds()) {
-                if(mContext != null && !mContext.getPackageName().contains("android")){
+                if(mContext != null
+                    && !mContext.getPackageName().contains("com.android")
+                    && !"android".equals(mContext.getPackageName())
+                    ){
                     mDisplayInfo.getAppMetrics(outMetrics,
                             CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO,
                             mResources.getConfiguration());
