@@ -1805,9 +1805,15 @@ public final class Display {
             }
             updateDisplayInfoLocked();
             if (shouldReportMaxBounds()) {
-                mDisplayInfo.getMaxBoundsMetrics(outMetrics,
-                        CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO,
-                        mResources.getConfiguration());
+                if(mContext != null && !mContext.getPackageName().contains("android")){
+                    mDisplayInfo.getAppMetrics(outMetrics,
+                            CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO,
+                            mResources.getConfiguration());
+                } else {
+                    mDisplayInfo.getMaxBoundsMetrics(outMetrics,
+                            CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO,
+                            mResources.getConfiguration());
+                }
                 if (DEBUG) {
                     Log.d(TAG, "getRealMetrics determined from max bounds: " + outMetrics);
                 }
