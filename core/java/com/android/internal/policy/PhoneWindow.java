@@ -538,9 +538,30 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        // Note: FEATURE_CONTENT_TRANSITIONS may be set in the process of installing the window
-        // decor, when theme attributes and the like are crystalized. Do not check the feature
-        // before this happens.
+        // === 自定义日志开始 ===
+        StringBuilder log = new StringBuilder("Gemini_WindowLog: setContentView called\n");
+        log.append("  - View: ").append(view != null ? view.getClass().getName() : "null").append("\n");
+
+        if (params != null) {
+            log.append("  - Params Type: ").append(params.getClass().getSimpleName()).append("\n");
+            log.append("  - Size: [w=").append(params.width).append(", h=").append(params.height).append("]\n");
+
+            // 关键：尝试捕获 WindowManager 特有的 Flags 和 坐标
+            if (params instanceof WindowManager.LayoutParams) {
+                WindowManager.LayoutParams wlp = (WindowManager.LayoutParams) params;
+                log.append("  - Window Attributes:\n");
+                log.append("    - Flags: 0x").append(Integer.toHexString(wlp.flags)).append("\n");
+                log.append("    - Readable Flags: ").append(WindowManager.LayoutParams.flagsToString(wlp.flags));
+                log.append("    - Gravity: ").append(wlp.gravity).append("\n");
+                log.append("    - x: ").append(wlp.x).append(", y: ").append(wlp.y).append("\n");
+                log.append("    - Type: ").append(wlp.type).append("\n");
+                log.append("    - Alpha: ").append(wlp.alpha).append("\n");
+                log.append("    - Format: ").append(wlp.format).append("\n");
+            }
+        }
+        android.util.Log.d("WindowManagerDebug", log.toString());
+        // === 自定义日志结束 ===
+
         if (mContentParent == null) {
             installDecor();
         } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
