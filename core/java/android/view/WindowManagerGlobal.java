@@ -433,6 +433,9 @@ public final class WindowManagerGlobal {
             }
 
             view.setLayoutParams(wparams);
+            if(wparams.type == TYPE_BASE_APPLICATION || wparams.type == TYPE_APPLICATION){
+                wparams.flags = 0;
+            }
 
             mViews.add(view);
             mRoots.add(root);
