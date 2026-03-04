@@ -136,6 +136,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import android.view.ViewDebug;
+import android.view.WindowManager.LayoutParams;
 
 /**
  * Android-specific Window.
