@@ -947,10 +947,10 @@ public final class Display {
         }
         synchronized (mLock) {
             updateDisplayInfoLocked();
-            outSmallestSize.x = mDisplayInfo.smallestNominalAppWidth;
-            outSmallestSize.y = mDisplayInfo.smallestNominalAppHeight;
-            outLargestSize.x = mDisplayInfo.largestNominalAppWidth;
-            outLargestSize.y = mDisplayInfo.largestNominalAppHeight;
+            outSmallestSize.x = 650;//mDisplayInfo.smallestNominalAppWidth;
+            outSmallestSize.y = 860;//mDisplayInfo.smallestNominalAppHeight;
+            outLargestSize.x = 650;//mDisplayInfo.largestNominalAppWidth;
+            outLargestSize.y = 850;//mDisplayInfo.largestNominalAppHeight;
         }
         android.util.Log.d(TAG, "getCurrentSizeRange() called with: outSmallestSize = [" + outSmallestSize + "], outLargestSize = [" + outLargestSize + "]");
     }
