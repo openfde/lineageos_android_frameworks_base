@@ -97,6 +97,7 @@ public final class WindowMetricsController {
         final IBinder token = Context.getToken(mContext);
         final Supplier<WindowInsets> insetsSupplier = () -> getWindowInsetsFromServerForDisplay(
                 mContext.getDisplayId(), token, bounds, isScreenRound, activityType);
+        android.util.Log.d(TAG, "getWindowMetricsInternal() called with: bounds = [" + bounds + "]");
         return new WindowMetrics(new Rect(bounds), insetsSupplier, density);
     }
 
