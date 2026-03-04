@@ -44,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import android.util.Log;
 
 /**
  * A controller to handle {@link android.view.WindowMetrics} related APIs, which are
@@ -97,7 +98,7 @@ public final class WindowMetricsController {
         final IBinder token = Context.getToken(mContext);
         final Supplier<WindowInsets> insetsSupplier = () -> getWindowInsetsFromServerForDisplay(
                 mContext.getDisplayId(), token, bounds, isScreenRound, activityType);
-        android.util.Log.d(TAG, "getWindowMetricsInternal() called with: bounds = [" + bounds + "]");
+        android.util.Log.d("WindowMetrics", "getWindowMetricsInternal() called with: bounds = [" + bounds + "]");
         return new WindowMetrics(new Rect(bounds), insetsSupplier, density);
     }
 

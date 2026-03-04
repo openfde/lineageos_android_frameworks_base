@@ -1343,7 +1343,7 @@ public class PopupWindow {
 
         p.x = x;
         p.y = y;
-        android.util.Log.d(TAG, "showAtLocation() called with: token = [" + token + "], gravity = [" + gravity + "], x = [" + x + "], y = [" + y + "]");
+        android.util.Log.d("PopupWindow", "showAtLocation() called with: token = [" + token + "], gravity = [" + gravity + "], x = [" + x + "], y = [" + y + "]");
         invokePopup(p);
     }
 
