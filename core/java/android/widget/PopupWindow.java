@@ -63,6 +63,7 @@ import com.android.internal.R;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import android.util.Log;
 
 /**
  * <p>
@@ -1342,7 +1343,7 @@ public class PopupWindow {
 
         p.x = x;
         p.y = y;
-
+        android.util.Log.d(TAG, "showAtLocation() called with: token = [" + token + "], gravity = [" + gravity + "], x = [" + x + "], y = [" + y + "]");
         invokePopup(p);
     }
 
