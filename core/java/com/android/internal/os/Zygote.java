@@ -1059,12 +1059,12 @@ public final class Zygote {
      * @param args non-null; zygote spawner args
      */
     static void applyDebuggerSystemProperty(ZygoteArguments args) {
-        if (Build.IS_ENG || (Build.IS_USERDEBUG && ENABLE_JDWP)) {
+//        if (Build.IS_ENG || (Build.IS_USERDEBUG && ENABLE_JDWP)) {
             args.mRuntimeFlags |= Zygote.DEBUG_ENABLE_JDWP;
             // Also enable ptrace when JDWP is enabled for consistency with
             // before persist.debug.ptrace.enabled existed.
             args.mRuntimeFlags |= Zygote.DEBUG_ENABLE_PTRACE;
-        }
+//        }
         if (Build.IS_ENG || (Build.IS_USERDEBUG && ENABLE_PTRACE)) {
             args.mRuntimeFlags |= Zygote.DEBUG_ENABLE_PTRACE;
         }
