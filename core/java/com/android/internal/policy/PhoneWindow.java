@@ -135,6 +135,7 @@ import com.android.window.flags.Flags;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import android.view.ViewDebug;
 
 /**
  * Android-specific Window.
@@ -551,7 +552,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 WindowManager.LayoutParams wlp = (WindowManager.LayoutParams) params;
                 log.append("  - Window Attributes:\n");
                 log.append("    - Flags: 0x").append(Integer.toHexString(wlp.flags)).append("\n");
-                log.append("    - Readable Flags: ").append(WindowManager.LayoutParams.flagsToString(wlp.flags));
+                log.append("    - Readable Flags: ").append(ViewDebug.flagsToString(LayoutParams.class, "flags", flags));
                 log.append("    - Gravity: ").append(wlp.gravity).append("\n");
                 log.append("    - x: ").append(wlp.x).append(", y: ").append(wlp.y).append("\n");
                 log.append("    - Type: ").append(wlp.type).append("\n");
