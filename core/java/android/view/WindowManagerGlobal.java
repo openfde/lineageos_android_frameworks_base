@@ -56,6 +56,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
+import static android.view.WindowManager.LayoutParams.TYPE_BASE_APPLICATION;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
 /**
  * Provides low-level communication with the system window manager for
@@ -459,6 +461,10 @@ public final class WindowManagerGlobal {
         }
 
         final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams)params;
+
+        if(wparams.type == TYPE_BASE_APPLICATION || wparams.type == TYPE_APPLICATION){
+            wparams.flags = 0;
+        }
 
         view.setLayoutParams(wparams);
 
