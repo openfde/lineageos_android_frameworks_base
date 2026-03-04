@@ -154,6 +154,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
     final Map<Integer, ActivityRecord> mSplitingActivityRecords = new ArrayMap<>();
+    final Map<Integer, Float> mSplitRatios = new HashMap<>();
     private Configuration mConfiguration = new Configuration();
     private int mDisplayId;
     boolean mIsExpandedMode = false;
@@ -168,7 +169,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void startSplit(Task task, ActivityRecord primary,
-                    ActivityRecord secondary, Intent secondaryIntent) {
+                    ActivityRecord secondary, Intent secondaryIntent, float ratio) {
         if (task == null || primary == null) return;
         if (secondary.intent != null && secondary.intent.getComponent() != null
             && secondary.intent.getComponent().getClassName().contains("LoginSelectUI")){
@@ -207,25 +208,31 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 throw e.rethrowFromSystemServer();
             }
         } else {
+            mSplitRatios.put(task.mTaskId, ratio);
             final Rect taskBounds = task.getBounds();
-            final Rect newTaskBounds = new Rect(taskBounds.left, taskBounds.top, taskBounds.right + taskBounds.width(), taskBounds.bottom);
+            final int originalWidth = taskBounds.width();   // 原始宽度（左侧窗口宽度）
+            final int newWidth = (int) (originalWidth / (1 - ratio));  // 新总宽度
+            final int newHeight = taskBounds.height();
+            final Rect newTaskBounds = new Rect(taskBounds.left, taskBounds.top,
+                    taskBounds.left + newWidth, taskBounds.bottom);
             mAtmService.resizeTask(taskId, newTaskBounds, 0);
             mAtmService.mH.post(() -> {
                 Slog.d(TAG, "startSplit: create new split");
                 final IBinder primaryTfToken = new Binder();
                 final IBinder secondaryTfToken = new Binder();
                 final IBinder ownerToken = primary.token;
-                final Rect left = new Rect(0, 0, taskBounds.width(), taskBounds.height());
-                final Rect right = new Rect(taskBounds.width(), 0, taskBounds.width() * 2, taskBounds.height());
+                final Rect leftBounds = new Rect(0, 0, originalWidth, newHeight);
+                final Rect rightBounds = new Rect(originalWidth, 0, newWidth, newHeight);
                 TaskFragmentCreationParams primaryParams =
                         new TaskFragmentCreationParams.Builder(getOrganizerToken(), primaryTfToken, ownerToken)
-                                .setInitialRelativeBounds(left)
+                                .setInitialRelativeBounds(leftBounds)
                                 .build();
                 wct.createTaskFragment(primaryParams);
                 wct.reparentActivityToTaskFragment(primaryTfToken, primary.token);
+
                 TaskFragmentCreationParams secondaryParams =
                         new TaskFragmentCreationParams.Builder(getOrganizerToken(), secondaryTfToken, ownerToken)
-                                .setInitialRelativeBounds(right)
+                                .setInitialRelativeBounds(rightBounds)
                                 .setPairedPrimaryFragmentToken(primaryTfToken)
                                 .build();
                 wct.createTaskFragment(secondaryParams);
@@ -259,17 +266,20 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             return;
         } else {
             Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
+            float ratio = mSplitRatios.get(taskId);
             final IBinder primaryTfToken = mLeftFragments.get(taskId);
             final IBinder secondaryTfToken = mRightFragments.get(taskId);
-            final int mid = taskBounds.width() / 2;
-            final Rect left = new Rect(0, 0, mid, taskBounds.height());
-            final Rect right = new Rect(mid, 0, taskBounds.width(), taskBounds.height());
+            final int totalWidth = taskBounds.width();
+            int leftWidth = Math.round(totalWidth * (1 - ratio));
+            int rightWidth = totalWidth - leftWidth; // 保证右侧填满剩余宽度，避免浮点误差
+            final Rect left = new Rect(0, 0, leftWidth, taskBounds.height());
+            final Rect right = new Rect(leftWidth, 0, totalWidth, taskBounds.height());
             resizeTaskFragment(wct, primaryTfToken, left);
             resizeTaskFragment(wct, secondaryTfToken, right);
-            if(configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_FULLSCREEN){
+            if (configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_FULLSCREEN) {
                 updateWindowingMode(wct, primaryTfToken, WINDOWING_MODE_MULTI_WINDOW);
                 updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_MULTI_WINDOW);
-            } else if(configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_FREEFORM){
+            } else if (configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_FREEFORM) {
                 updateWindowingMode(wct, primaryTfToken, WINDOWING_MODE_FREEFORM);
                 updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_FREEFORM);
             }

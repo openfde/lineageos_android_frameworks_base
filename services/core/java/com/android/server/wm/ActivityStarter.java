@@ -209,6 +209,7 @@ class ActivityStarter {
     private int mLaunchFlags;
     private boolean mMagicLaunch = false;
     private boolean isMagicPackage = false;
+    private float mSplitRatio;
     private String mWindowAffinity = null;
 
     private LaunchParams mLaunchParams = new LaunchParams();
@@ -974,8 +975,15 @@ class ActivityStarter {
         // fde start: MAGIC WINDOW -> parallel world
         Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
         String extraFDE = request.extraFDE;
-        if (intent != null && extraFDE != null) {
-            isMagicPackage = TextUtils.equals(extraFDE, "true");
+        if(extraFDE != null){
+            try {
+                mSplitRatio = Float.parseFloat(extraFDE);
+            } catch (NumberFormatException e) {
+                Slog.w(TAG, "Pare Num exception " + extraFDE);
+            }
+        }
+        if (intent != null && mSplitRatio <= 0.8f && mSplitRatio > 0) {
+            isMagicPackage = true;
             Slog.d(TAG, "query isMagicPackage:" + isMagicPackage + "  extraFDE:"
                     + extraFDE);
             mSupervisor.updateMagicFromCompatibleConfig(aInfo.packageName, isMagicPackage);
@@ -1557,7 +1565,7 @@ class ActivityStarter {
             Slog.e(TAG, "SystemTaskFragmentOrganizer is null");
             return;
         }
-        organizer.startSplit(task, primary, target, secondaryIntent);
+        organizer.startSplit(task, primary, target, secondaryIntent, mSplitRatio);
     }
     // fde end
 
