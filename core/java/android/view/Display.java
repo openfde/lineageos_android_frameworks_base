@@ -94,7 +94,7 @@ import org.json.JSONException;
 @android.ravenwood.annotation.RavenwoodKeepPartialClass
 public final class Display {
     private static final String TAG = "Display";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private final Object mLock = new Object();
     private final DisplayManagerGlobal mGlobal;
@@ -1769,6 +1769,11 @@ public final class Display {
      */
     @Deprecated
     public void getRealMetrics(DisplayMetrics outMetrics) {
+        try {
+            throw new Exception("getRealMetrics");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         synchronized (mLock) {
             if(mContext != null){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
