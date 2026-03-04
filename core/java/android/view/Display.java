@@ -940,6 +940,11 @@ public final class Display {
      * for example, screen decorations like the status bar are being hidden.
      */
     public void getCurrentSizeRange(Point outSmallestSize, Point outLargestSize) {
+        try {
+            throw new Exception("getCurrentSizeRange");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         synchronized (mLock) {
             updateDisplayInfoLocked();
             outSmallestSize.x = mDisplayInfo.smallestNominalAppWidth;
@@ -947,6 +952,7 @@ public final class Display {
             outLargestSize.x = mDisplayInfo.largestNominalAppWidth;
             outLargestSize.y = mDisplayInfo.largestNominalAppHeight;
         }
+        android.util.Log.d(TAG, "getCurrentSizeRange() called with: outSmallestSize = [" + outSmallestSize + "], outLargestSize = [" + outLargestSize + "]");
     }
 
     /**
