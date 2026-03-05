@@ -343,7 +343,7 @@ public class ResourcesImpl {
 
     int getIdentifier(String name, String defType, String defPackage) {
         if("status_bar_height".equals(name)){
-            return mAssets.getResourceIdentifier("freeform_decor_caption_height", defType, defPackage);
+            return 300;//mAssets.getResourceIdentifier("freeform_decor_caption_height", defType, defPackage);
         }
         if (name == null) {
             throw new NullPointerException("name is null");
