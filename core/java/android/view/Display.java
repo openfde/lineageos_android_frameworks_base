@@ -948,7 +948,7 @@ public final class Display {
             getRealSize(outSize);
             outSmallestSize.x = outSize.x;//mDisplayInfo.smallestNominalAppWidth;
             outSmallestSize.y = outSize.y;//mDisplayInfo.smallestNominalAppHeight;
-            outLargestSize.x = outSize.y;//mDisplayInfo.largestNominalAppWidth;
+            outLargestSize.x = outSize.x;//mDisplayInfo.largestNominalAppWidth;
             outLargestSize.y = outSize.y;//mDisplayInfo.largestNominalAppHeight;
         }
         android.util.Log.d(TAG, "getCurrentSizeRange() called with: outSmallestSize = [" + outSmallestSize + "], outLargestSize = [" + outLargestSize + "]");
