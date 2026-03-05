@@ -940,11 +940,8 @@ public final class Display {
      * for example, screen decorations like the status bar are being hidden.
      */
     public void getCurrentSizeRange(Point outSmallestSize, Point outLargestSize) {
-        try {
-            throw new Exception("getCurrentSizeRange");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Log.d(TAG, "getCurrentSizeRange called", new Throwable("getCurrentSizeRange"));
+
         synchronized (mLock) {
             updateDisplayInfoLocked();
             outSmallestSize.x = 650;//mDisplayInfo.smallestNominalAppWidth;
