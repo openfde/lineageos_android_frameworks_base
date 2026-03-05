@@ -945,7 +945,7 @@ public final class Display {
         synchronized (mLock) {
             updateDisplayInfoLocked();
             outSmallestSize.x = 650;//mDisplayInfo.smallestNominalAppWidth;
-            outSmallestSize.y = 860;//mDisplayInfo.smallestNominalAppHeight;
+            outSmallestSize.y = 850;//mDisplayInfo.smallestNominalAppHeight;
             outLargestSize.x = 650;//mDisplayInfo.largestNominalAppWidth;
             outLargestSize.y = 850;//mDisplayInfo.largestNominalAppHeight;
         }
