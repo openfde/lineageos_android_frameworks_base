@@ -942,10 +942,13 @@ public final class Display {
     public void getCurrentSizeRange(Point outSmallestSize, Point outLargestSize) {
         synchronized (mLock) {
             updateDisplayInfoLocked();
-            outSmallestSize.x = mDisplayInfo.smallestNominalAppWidth;
-            outSmallestSize.y = mDisplayInfo.smallestNominalAppHeight;
-            outLargestSize.x = mDisplayInfo.largestNominalAppWidth;
-            outLargestSize.y = mDisplayInfo.largestNominalAppHeight;
+            Point outSize = new Point();
+            getRealSize(outSize);
+            // in FDE, this method return app size to app, should never bigger than itself
+            outSmallestSize.x = outSize.x;//mDisplayInfo.smallestNominalAppWidth;
+            outSmallestSize.y = outSize.y;//mDisplayInfo.smallestNominalAppHeight;
+            outLargestSize.x = outSize.x;//mDisplayInfo.largestNominalAppWidth;
+            outLargestSize.y = outSize.y;//mDisplayInfo.largestNominalAppHeight;
         }
     }
 
