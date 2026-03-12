@@ -103,6 +103,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
     final Context mContext;
     final DisplayController mDisplayController;
     final ShellTaskOrganizer mTaskOrganizer;
+    final CaptionWindowDecorViewModel mDecorViewModel;
     final Supplier<SurfaceControl.Builder> mSurfaceControlBuilderSupplier;
     final Supplier<SurfaceControl.Transaction> mSurfaceControlTransactionSupplier;
     final Supplier<WindowContainerTransaction> mWindowContainerTransactionSupplier;
@@ -145,11 +146,12 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             ShellTaskOrganizer taskOrganizer,
             RunningTaskInfo taskInfo,
             SurfaceControl taskSurface,
-            Configuration windowDecorConfig) {
+            Configuration windowDecorConfig,
+            CaptionWindowDecorViewModel viewmodel) {
         this(context, displayController, taskOrganizer, taskInfo, taskSurface, windowDecorConfig,
                 SurfaceControl.Builder::new, SurfaceControl.Transaction::new,
                 WindowContainerTransaction::new, SurfaceControl::new,
-                new SurfaceControlViewHostFactory() {});
+                new SurfaceControlViewHostFactory() {}, viewmodel);
     }
 
     WindowDecoration(
@@ -163,7 +165,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             Supplier<SurfaceControl.Transaction> surfaceControlTransactionSupplier,
             Supplier<WindowContainerTransaction> windowContainerTransactionSupplier,
             Supplier<SurfaceControl> surfaceControlSupplier,
-            SurfaceControlViewHostFactory surfaceControlViewHostFactory) {
+            SurfaceControlViewHostFactory surfaceControlViewHostFactory,
+            CaptionWindowDecorViewModel viewmodel) {
         mContext = context;
         mDisplayController = displayController;
         mTaskOrganizer = taskOrganizer;
@@ -177,6 +180,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         mDisplay = mDisplayController.getDisplay(mTaskInfo.displayId);
         mWindowDecorConfig = windowDecorConfig;
         mDecorWindowContext = mContext.createConfigurationContext(mWindowDecorConfig);
+        mDecorViewModel = viewmodel;
     }
 
     /**
@@ -207,6 +211,10 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         mLayoutResId = params.mLayoutResId;
 
         if (!mTaskInfo.isVisible) {
+            wct.removeInsetsSource(mTaskInfo.token, mOwner, 0 /* index */,
+                    WindowInsets.Type.captionBar());
+            wct.removeInsetsSource(mTaskInfo.token, mOwner, 0 /* index */,
+                    WindowInsets.Type.mandatorySystemGestures());
             releaseViews();
             finishT.hide(mTaskSurface);
             finishT.apply();
@@ -498,7 +506,11 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                 continue;
             }
 
-            mIsCaptionVisible = source.isVisible();
+            if(mDecorViewModel != null){
+                mIsCaptionVisible = source.isVisible() && mDecorViewModel.getSystemBarVisibility(mTaskInfo);
+            } else {
+                mIsCaptionVisible = source.isVisible();
+            }
             mIsCaptionVisible &= !(mTaskInfo.taskDescription.getWindowDecorationStatus() == 1);
             setCaptionVisibility(rootView, mIsCaptionVisible);
 

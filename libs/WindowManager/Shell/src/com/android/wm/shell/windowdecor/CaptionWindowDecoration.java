@@ -83,9 +83,10 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
             SurfaceControl taskSurface,
             Handler handler,
             Choreographer choreographer,
-            SyncTransactionQueue syncQueue) {
+            SyncTransactionQueue syncQueue,
+            CaptionWindowDecorViewModel viewmodel) {
         super(context, displayController, taskOrganizer, taskInfo, taskSurface,
-                taskInfo.getConfiguration());
+                taskInfo.getConfiguration(), viewmodel);
 
         mHandler = handler;
         mChoreographer = choreographer;

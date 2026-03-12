@@ -2392,7 +2392,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         final String msg = "Permission Denial: package=" + packageName
                 + " does not belong to uid=" + callingUid;
         Slog.w(TAG, msg);
-        throw new SecurityException(msg);
+        if(!"android".equals(packageName)){
+            throw new SecurityException(msg);
+        }
     }
 
     /**

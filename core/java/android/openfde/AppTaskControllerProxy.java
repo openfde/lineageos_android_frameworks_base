@@ -6,7 +6,7 @@ import android.annotation.FlaggedApi;
 import android.annotation.NonNull; // 必须添加这一行
 import android.annotation.SuppressLint;
 /**
- * Proxy class for {@code AppTaskControllerImpl}.
+ * Proxy class for {@code AppTaskController}.
  * <p>
  * This class serves as the primary controller for the Application Title Bar (Caption).
  * The methods provided here directly map to standard window controls:
@@ -14,10 +14,10 @@ import android.annotation.SuppressLint;
  * <pre>
  * _________________________________________________________________
  * | [App Icon] Target Activity Name        [<]         [<>]                    [-]         [口]         [X] |
- * |_____________________________________(back)__(enterOrExitFullscreen)__(minimize)__(maximizeOrNot)__(close)
+ * |_____________________________________(back)__(enterOrExitFullscreen)__(minimize)__(maximizeOrNot)__(closeTask)
  * </pre>
  * <ul>
- * <li>(0) <b>close:</b> {@link #close()}</li>
+ * <li>(0) <b>closeTask:</b> {@link #closeTask()}</li>
  * <li>(1) <b>back:</b> {@link #back()}</li>
  * <li>(2) <b>Fullscreen:</b> {@link #enterOrExitFullscreen()}</li>
  * <li>(3) <b>minimize:</b> {@link #minimize()}</li>

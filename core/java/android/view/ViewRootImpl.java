@@ -232,6 +232,7 @@ import android.window.OnBackInvokedDispatcher;
 import android.window.ScreenCapture;
 import android.window.SurfaceSyncGroup;
 import android.window.WindowOnBackInvokedDispatcher;
+import android.graphics.Insets;
 
 import com.android.internal.R;
 import com.android.internal.annotations.GuardedBy;
@@ -3088,6 +3089,11 @@ public final class ViewRootImpl implements ViewParent,
     }
 
     /* package */ WindowInsets getWindowInsets(boolean forceConstruct) {
+        boolean isTurnOnFullScreen = false;
+        if(mView instanceof DecorView){
+            DecorView decorView = (DecorView)mView;
+            isTurnOnFullScreen = decorView.isTurnOnFullScreen();
+        }
         if (mLastWindowInsets == null || forceConstruct) {
             final Configuration config = getConfiguration();
             mLastWindowInsets = mInsetsController.calculateInsets(
@@ -3095,12 +3101,21 @@ public final class ViewRootImpl implements ViewParent,
                     config.windowConfiguration.getActivityType(), mWindowAttributes.softInputMode,
                     mWindowAttributes.flags, (mWindowAttributes.systemUiVisibility
                             | mWindowAttributes.subtreeSystemUiVisibility));
-
-            mAttachInfo.mContentInsets.set(mLastWindowInsets.getSystemWindowInsets().toRect());
-            mAttachInfo.mStableInsets.set(mLastWindowInsets.getStableInsets().toRect());
-            mAttachInfo.mVisibleInsets.set(mInsetsController.calculateVisibleInsets(
-                    mWindowAttributes.type, config.windowConfiguration.getActivityType(),
-                    mWindowAttributes.softInputMode, mWindowAttributes.flags).toRect());
+            if(isTurnOnFullScreen){
+                mLastWindowInsets = new WindowInsets.Builder()
+                        .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
+                        .setStableInsets(Insets.of(0, 0, 0, 0))
+                        .build();
+                mAttachInfo.mContentInsets.set(new Rect(0,0,0,0));
+                mAttachInfo.mStableInsets.set(new Rect(0,0,0,0));
+                mAttachInfo.mVisibleInsets.set(new Rect(0,0,0,0));
+            } else {
+                mAttachInfo.mContentInsets.set(mLastWindowInsets.getSystemWindowInsets().toRect());
+                mAttachInfo.mStableInsets.set(mLastWindowInsets.getStableInsets().toRect());
+                mAttachInfo.mVisibleInsets.set(mInsetsController.calculateVisibleInsets(
+                        mWindowAttributes.type, config.windowConfiguration.getActivityType(),
+                        mWindowAttributes.softInputMode, mWindowAttributes.flags).toRect());
+            }
         }
         return mLastWindowInsets;
     }
@@ -3415,7 +3430,6 @@ public final class ViewRootImpl implements ViewParent,
         final boolean computesInternalInsets =
                 mAttachInfo.mTreeObserver.hasComputeInternalInsetsListeners()
                 || mAttachInfo.mHasNonEmptyGivenInternalInsets;
-
         boolean insetsPending = false;
         int relayoutResult = 0;
         boolean updatedConfiguration = false;

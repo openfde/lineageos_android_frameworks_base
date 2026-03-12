@@ -10,6 +10,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.ConcurrentHashMap;
+import android.app.Activity;
+import java.lang.ref.WeakReference;
 
 /**
  * TaskRemoteServiceWrapper - Wrapper class for remote service operations related to tasks.
@@ -33,6 +36,7 @@ public class TaskRemoteServiceWrapper {
     private int mTaskId = -1;
 
     private boolean mSystemBarVisible = true;
+    private ConcurrentHashMap mActivityMap = new ConcurrentHashMap<Integer, WeakReference<Activity>>();
     /**
      * Private constructor for singleton pattern.
      */
@@ -101,6 +105,16 @@ public class TaskRemoteServiceWrapper {
         }
     }
 
+
+    public void unregisterSystemBarController(int taskId, WeakReference<Activity> actRef) {
+        Log.d(TAG, "Unregistering system bar controller, taskId: " + taskId);
+        if(actRef != mActivityMap.get(taskId)){
+            Log.w(TAG, "already unregister");
+            return;
+        }
+        unregisterSystemBarController(taskId);
+    }
+
     /**
      * Unregister system bar controller for the specified task.
      *
@@ -135,7 +149,7 @@ public class TaskRemoteServiceWrapper {
      * @param taskId The task identifier
      * @param controller The SystemBarController instance
      */
-    public void registerSystemBarController(int taskId, SystemBarController controller) {
+    public void registerSystemBarController(int taskId, AppTaskController appTaskController, SystemBarController controller) {
         Log.d(TAG, "Registering system bar controller, taskId: " + taskId);
         this.mTaskId = taskId;
         synchronized (mCallbackLock) {
@@ -143,7 +157,7 @@ public class TaskRemoteServiceWrapper {
             unregisterSystemBarController(taskId);
 
             this.mSystemBarController = controller;
-            mSystemBarCallback = new SystemBarCallback(controller, taskId);
+            mSystemBarCallback = new SystemBarCallback(controller, appTaskController, taskId);
             try {
                 getOperationService().registerSystemBarController(taskId, mSystemBarCallback);
                 Log.i(TAG, "System bar controller registered successfully for task: " + taskId);
@@ -213,12 +227,16 @@ public class TaskRemoteServiceWrapper {
         }
     }
 
+    public void putActivityRef(int taskId, WeakReference<Activity> actRef){
+        mActivityMap.put(taskId, actRef);
+    }
+
     /**
      * Clean up all resources and service connections.
      */
-    public void cleanup() {
-        Log.d(TAG, "Cleaning up TaskRemoteServiceWrapper resources");
-        unregisterSystemBarController(mTaskId);
+    public void cleanup(WeakReference<Activity> actRef) {
+        Log.d(TAG, "Cleaning up TaskRemoteServiceWrapper resources act:" + actRef.get());
+        unregisterSystemBarController(mTaskId, actRef);
 
         synchronized (mStatusBarServiceLock) {
             mStatusBarService = null;
@@ -267,6 +285,8 @@ public class TaskRemoteServiceWrapper {
      */
     private static class SystemBarCallback extends IAppSystemBarController.Stub {
         private final WeakReference<SystemBarController> mControllerRef;
+        private final WeakReference<AppTaskController> mAppTaskControllerRef;
+
         private final int mRegisteredTaskId;
 
         /**
@@ -275,10 +295,28 @@ public class TaskRemoteServiceWrapper {
          * @param controller The SystemBarController instance
          * @param taskId The task identifier
          */
-        SystemBarCallback(SystemBarController controller, int taskId) {
+        SystemBarCallback(SystemBarController controller, AppTaskController appTaskController,  int taskId) {
             mControllerRef = new WeakReference<>(controller);
+            mAppTaskControllerRef = new WeakReference<>(appTaskController);
             mRegisteredTaskId = taskId;
             Log.d(TAG, "SystemBarCallback created for taskId: " + taskId);
+        }
+
+        @Override
+        public void enterOrExistFullScreen(){
+            final AppTaskController controller = mAppTaskControllerRef.get();
+            if (controller == null) {
+                Log.w(TAG, "AppTaskController has been garbage collected");
+                return;
+            }
+            Log.d(TAG, "enterOrExistFullScreen() called");
+            if (Looper.myLooper() != Looper.getMainLooper()) {
+                Log.d(TAG, "Switching to main thread for system bar operation");
+                Handler mainHandler = new Handler(Looper.getMainLooper());
+                mainHandler.post(() -> executeenterOrExistFullScreen(controller));
+            } else {
+                executeenterOrExistFullScreen(controller);
+            }
         }
 
         @Override
@@ -306,6 +344,11 @@ public class TaskRemoteServiceWrapper {
             } else {
                 executeHideSystemBar(controller, hide);
             }
+        }
+
+        private void executeenterOrExistFullScreen(AppTaskController controller) {
+            Log.d(TAG, "Executing enterOrExistFullScreen");
+            controller.enterOrExitFullscreen();
         }
 
         /**
