@@ -102,7 +102,7 @@
 	<item
         isdel="false"
         key_code="isTurnOffSimulatedTouch"
-        update_date="2025-04-21">
+        update_date="2026-03-12">
 		<package name="com.iiordanov.bVNC">
             <activity name="">true</activity>
         </package>
@@ -113,6 +113,15 @@
             <activity name="">true</activity>
         </package>
         <package name="com.fde.x11">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.android.gallery3d">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.fde.txt">
+            <activity name="">true</activity>
+        </package>
+        <package name="com.android.documentsui">
             <activity name="">true</activity>
         </package>
     </item>
