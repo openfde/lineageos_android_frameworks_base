@@ -1427,11 +1427,15 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         }
     }
 
-    @Override
-    public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+    public void onWindowInsetsCallback() {
         if (mDecorWindowInsetsCallback != null) {
             mDecorWindowInsetsCallback.onApplyWindowInsets();
         }
+    }
+
+    @Override
+    public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+        onWindowInsetsCallback();
         final WindowManager.LayoutParams attrs = mWindow.getAttributes();
         mFloatingInsets.setEmpty();
         if ((attrs.flags & FLAG_LAYOUT_IN_SCREEN) == 0) {

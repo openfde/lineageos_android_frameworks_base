@@ -268,6 +268,19 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         }
     }
 
+    private void appWindowMaximizeOrNot(int taskId){
+        IAppSystemBarController controller = mAppSystemBarControllers.get(taskId);
+        if(controller == null){
+            android.util.Log.e(TAG, "AppSystemBarControllers is null ");
+            return;
+        }
+        try {
+            controller.maximizeOrNot();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onTaskChanging(
             RunningTaskInfo taskInfo,
@@ -489,7 +502,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                     }
 
                 }
-                mTaskOperations.maximizeTask(taskInfo);
+                appWindowMaximizeOrNot(mTaskId);
+//                mTaskOperations.maximizeTask(taskInfo);
             }
         }
 

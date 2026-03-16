@@ -22,4 +22,6 @@ oneway interface IAppSystemBarController {
 
     void enterOrExistFullScreen();
 
+    void maximizeOrNot();
+
 }

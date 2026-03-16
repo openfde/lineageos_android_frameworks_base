@@ -35,8 +35,9 @@ public class TaskRemoteServiceWrapper {
     private final Object mCallbackLock = new Object();
     private int mTaskId = -1;
 
-    private boolean mSystemBarVisible = true;
     private ConcurrentHashMap mActivityMap = new ConcurrentHashMap<Integer, WeakReference<Activity>>();
+    private ConcurrentHashMap mLastSetModeMap = new ConcurrentHashMap<Integer, Integer>();
+
     /**
      * Private constructor for singleton pattern.
      */
@@ -84,6 +85,23 @@ public class TaskRemoteServiceWrapper {
                 }
             }
             return mStatusBarService;
+        }
+    }
+
+    public int getLastSetWindowMode(int taskId) {
+        int mode = mLastSetModeMap.get(taskId) == null ? 5 : (int) mLastSetModeMap.get(taskId);
+        android.util.Log.d(TAG, "getLastSetWindowMode() taskId: " + taskId + " mode:" + mode);
+        return mode;
+    }
+
+    public void updateLastSetWindowMode(int taskId, int mode) {
+        android.util.Log.d(TAG, "updateLastSetWindowMode() called with: taskId = [" + taskId + "], mode = [" + mode + "]");
+        mLastSetModeMap.put(taskId, mode);
+    }
+
+    public void updateLastSetWindowModeIfNull(int taskId, int mode) {
+        if (!mLastSetModeMap.containsKey(taskId)) {
+            updateLastSetWindowMode(taskId, mode);
         }
     }
 
@@ -270,15 +288,6 @@ public class TaskRemoteServiceWrapper {
         return available;
     }
 
-
-    public boolean getLocalSystemBarVisiblity(){
-        return mSystemBarVisible;
-    }
-
-    public void setLocalSystemBarVisiblity(boolean visible){
-        this.mSystemBarVisible = visible;
-    }
-
     /**
      * Inner callback class for system bar controller operations.
      * Handles communication between remote service and local controller.
@@ -317,6 +326,28 @@ public class TaskRemoteServiceWrapper {
             } else {
                 executeenterOrExistFullScreen(controller);
             }
+        }
+
+        @Override
+        public void maximizeOrNot(){
+            final AppTaskController controller = mAppTaskControllerRef.get();
+            if (controller == null) {
+                Log.w(TAG, "AppTaskController has been garbage collected");
+                return;
+            }
+            Log.d(TAG, "enterOrExistFullScreen() called");
+            if (Looper.myLooper() != Looper.getMainLooper()) {
+                Log.d(TAG, "Switching to main thread for system bar operation");
+                Handler mainHandler = new Handler(Looper.getMainLooper());
+                mainHandler.post(() -> executeMaximizeOrNot(controller));
+            } else {
+                executeMaximizeOrNot(controller);
+            }
+        }
+
+        private void executeMaximizeOrNot(AppTaskController controller) {
+            Log.d(TAG, "Executing maximizeOrNot");
+            controller.maximizeOrNot();
         }
 
         @Override
