@@ -610,7 +610,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             insetsController.privateShow(WindowInsets.Type.statusBars());
             insetsController.privateShow(WindowInsets.Type.navigationBars());
             insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
-            mWmShellController.setSystemBarVisibleByInsetControl(true);
         }
     }
 
@@ -620,7 +619,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             insetsController.privateHide(WindowInsets.Type.statusBars());
             insetsController.privateHide(WindowInsets.Type.navigationBars());
             insetsController.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-            mWmShellController.setSystemBarVisibleByInsetControl(false);
         }
     }
 
