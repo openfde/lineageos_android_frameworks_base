@@ -14822,6 +14822,10 @@ public class ActivityManagerService extends IActivityManager.Stub
             return;
         }
 
+        if(action != null && action.contains("x11")){
+            return;
+        }
+
         // This broadcast may be a problem...  but there are often system components that
         // want to send an internal broadcast to themselves, which is annoying to have to
         // explicitly list each action as a protected broadcast, so we will check for that
