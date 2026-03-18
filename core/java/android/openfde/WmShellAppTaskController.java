@@ -52,7 +52,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
     private static final int WINDOW_STATUS_BAR = 1;
     private static final int WINDOW_NAVIGATION_BAR = 2;
-    private int mLastSetWindowMode = AppTaskStatusListener.WINDOWING_MODE_UNDEFINED;
+    private int mLastSetWindowMode = AppTaskStatusListener.WINDOWING_MODE_FREEFORM;
 
     /**
      * Initialize custom caption for the activity.
@@ -105,11 +105,12 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
         // Get initial state
         mWindowingMode = getCurrentWindowingMode(activity.get());
-        mLastSetWindowMode = mWindowingMode;
         mSystemBarVisibility = getSystemBarVisibility();
         //Log.d(TAG, "mSystemBarVisibility:" + mSystemBarVisibility + " taskSystembarVisiblity:" + mTaskInfo.taskSystembarVisiblity);
 
-
+        if (mTaskInfo != null) {
+            mServiceWrapper.updateLastSetWindowModeIfNull(mTaskInfo.taskId, mWindowingMode);
+        }
         mLinkedToWMshell = true;
         Log.i(TAG, "Custom caption initialized successfully");
     }
@@ -253,10 +254,17 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             Log.d(TAG, "Looking for task, activity: " + activity + ", taskId: " + taskId);
 
             for (ActivityManager.RunningTaskInfo taskInfo : runningTasks) {
+                Log.d(TAG, "getTaskInfoFromActivity: " + taskInfo);
                 if (taskInfo.topActivity != null &&
                         taskInfo.topActivity.equals(activity.getComponentName()) &&
                         taskInfo.id == taskId) {
-                    Log.d(TAG, "Found matching task: " + taskInfo.taskId);
+                    Log.d(TAG, "Found topActivity matching task: " + taskInfo.taskId);
+                    return taskInfo;
+                }
+                if (taskInfo.baseActivity != null &&
+                        taskInfo.baseActivity.equals(activity.getComponentName()) &&
+                        taskInfo.id == taskId) {
+                    Log.d(TAG, "Found baseActivity matching task: " + taskInfo.taskId);
                     return taskInfo;
                 }
             }
@@ -346,10 +354,12 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             if (mWindowingMode == AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN &&
                     !mSystemBarVisibility) {
                 Log.d(TAG, "Exiting fullscreen, showing system bars");
+                mLastSetWindowMode = mServiceWrapper.getLastSetWindowMode(mTaskInfo.taskId);
                 if(mLastSetWindowMode == AppTaskStatusListener.WINDOWING_MODE_FREEFORM){
                     callTaskOperation(TASK_CAPTION_OPERATION_MAXIMIZE);
                     mLastSetWindowMode = mWindowingMode;
                 }
+                mServiceWrapper.updateLastSetWindowMode(mTaskInfo.taskId, mLastSetWindowMode);
                 if (mDecorView != null) {
                     mDecorView.showStatusBarNavigationBar();
                 }
@@ -358,6 +368,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
                 mLastSetWindowMode = mWindowingMode;
                 callTaskOperation(TASK_CAPTION_OPERATION_MAXIMIZE);
                 toggleStatusBarNavigationBar(true);
+                mServiceWrapper.updateLastSetWindowMode(mTaskInfo.taskId, mLastSetWindowMode);
             } else {
                 Log.d(TAG, "Hiding system bars");
                 toggleStatusBarNavigationBar(true);
@@ -365,14 +376,6 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             // Trigger window decoration relayout
             callTaskOperation(TASK_CAPTION_OPERATION_WINDOWDECORATION_RELAYOUT);
         }
-    }
-
-    public void setSystemBarVisibleByInsetControl(boolean visible){
-        mServiceWrapper.setLocalSystemBarVisiblity(visible);
-    }
-
-    public boolean getSystemBarVisibleByInsetControl(){
-        return mServiceWrapper.getLocalSystemBarVisiblity();
     }
 
     public void toggleStatusBarNavigationBar(boolean hide){
@@ -408,6 +411,9 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             mDecorView.showStatusBarNavigationBar();
             Log.d(TAG, "System bars shown after maximize");
         }
+        mLastSetWindowMode = mWindowingMode == AppTaskStatusListener.WINDOWING_MODE_FREEFORM?
+                AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN : AppTaskStatusListener.WINDOWING_MODE_FREEFORM;
+        mServiceWrapper.updateLastSetWindowMode(mTaskInfo.taskId, mLastSetWindowMode);
     }
 
     @Override
@@ -423,35 +429,6 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         updateSystemBarController(null);
         // Notify status change
         onStatusChanged();
-        if(getSystemBarVisibilityStatus() !=
-                getSystemBarVisibleByInsetControl()){
-            correctFullscreen();
-        }
-    }
-
-    public void correctFullscreen() {
-        Log.i(TAG, "correctFullscreen");
-
-        synchronized (mLock) {
-            if (Looper.myLooper() != Looper.getMainLooper()) {
-                Log.e(TAG, "correctFullscreen must be called on main thread");
-                throw new IllegalArgumentException("enterOrExitFullscreen must called on main thread");
-            }
-
-            // Handle different windowing modes
-            if (mWindowingMode == AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN &&
-                    !mSystemBarVisibility) {
-                toggleStatusBarNavigationBar(false);
-            } else if (mWindowingMode == AppTaskStatusListener.WINDOWING_MODE_FREEFORM) {
-                callTaskOperation(TASK_CAPTION_OPERATION_MAXIMIZE);
-                toggleStatusBarNavigationBar(true);
-            } else {
-                Log.d(TAG, "Hiding system bars");
-                toggleStatusBarNavigationBar(true);
-            }
-            // Trigger window decoration relayout
-            callTaskOperation(TASK_CAPTION_OPERATION_WINDOWDECORATION_RELAYOUT);
-        }
     }
 
     /**
@@ -546,24 +523,23 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             } catch (Exception e) {
                 Log.e(TAG, "Error unregistering system bar controller", e);
             }
+            // Cleanup service wrapper
+            try {
+                mServiceWrapper.cleanup(mActivity);
+                Log.d(TAG, "Service wrapper cleaned up");
+            } catch (Exception e) {
+                Log.e(TAG, "Error cleaning up service wrapper", e);
+            }
+
+            // Clear references to prevent memory leaks
+            mStatusListener = null;
+            mTaskInfo = null;
+            mDecorView = null;
+            mActivity = null;
+            mLinkedToWMshell = false;
+
+            Log.i(TAG, "WmShellAppTaskController cleanup completed");
         }
-
-        // Cleanup service wrapper
-        try {
-            mServiceWrapper.cleanup(mActivity);
-            Log.d(TAG, "Service wrapper cleaned up");
-        } catch (Exception e) {
-            Log.e(TAG, "Error cleaning up service wrapper", e);
-        }
-
-        // Clear references to prevent memory leaks
-        mStatusListener = null;
-        mTaskInfo = null;
-        mDecorView = null;
-        mActivity = null;
-        mLinkedToWMshell = false;
-
-        Log.i(TAG, "WmShellAppTaskController cleanup completed");
     }
 
     /**
