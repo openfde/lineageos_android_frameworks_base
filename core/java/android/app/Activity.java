@@ -3040,7 +3040,7 @@ public class Activity extends ContextThemeWrapper
      * @return True if the activity is in multi-window mode.
      */
     public boolean isInMultiWindowMode() {
-        return mIsInMultiWindowMode;
+        return false;// mIsInMultiWindowMode;
     }
 
     /**
