@@ -7771,9 +7771,11 @@ public final class ViewRootImpl implements ViewParent,
             mPointerIconType = pointerType;
             mCustomPointerIcon = null;
             if (mPointerIconType != PointerIcon.TYPE_CUSTOM) {
-                InputManagerGlobal
+                mHandler.postDelayed(() -> {
+                    InputManagerGlobal
                         .getInstance()
                         .setPointerIconType(pointerType);
+                }, 8);//The update occurs after the shell, thus increasing the delay.
                 return true;
             }
         }
