@@ -3992,6 +3992,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
 
                 break;
+            case KeyEvent.KEYCODE_SPACE:
+                if (firstDown && event.isCtrlPressed()) {
+                    int direction = (metaState & KeyEvent.META_SHIFT_MASK) != 0 ? -1 : 1;
+                    sendSwitchKeyboardLayout(event, focusedToken, direction);
+                    logKeyboardSystemsEvent(event, KeyboardLogEvent.LANGUAGE_SWITCH);
+                    return false;
+                }
+                break;
             case KeyEvent.KEYCODE_ESCAPE:
                 if (firstDown) {
                     logKeyboardSystemsEvent(event, KeyboardLogEvent.BACK);
