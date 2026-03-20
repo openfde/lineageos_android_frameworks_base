@@ -7775,7 +7775,7 @@ public final class ViewRootImpl implements ViewParent,
                     InputManagerGlobal
                         .getInstance()
                         .setPointerIconType(pointerType);
-                }, 8);//The update occurs after the shell, thus increasing the delay.
+                }, 50);//The update occurs after the shell, thus increasing the delay.
                 return true;
             }
         }
