@@ -199,6 +199,7 @@ public class ResolverActivity extends Activity implements
     protected static final String METRICS_CATEGORY_CHOOSER = "intent_chooser";
 
     private static final String LAUNCHER_APP = "com.android.launcher3";
+    private static final String DOCUMENTSUI_APP = "com.android.documentsui";
 
     /** Tracks if we should ignore future broadcasts telling us the work profile is enabled */
     private boolean mWorkProfileHasBeenEnabled = false;
@@ -404,7 +405,7 @@ public class ResolverActivity extends Activity implements
             referrerPackage = referrer.toString();
             Log.d(TAG,"referrerPackage: "+referrerPackage);
         }
-        if(referrerPackage !=null && (referrerPackage.contains(LAUNCHER_APP) )){
+        if(referrerPackage !=null && (referrerPackage.contains(LAUNCHER_APP) || referrerPackage.contains(DOCUMENTSUI_APP ))){
             setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
         }
         
