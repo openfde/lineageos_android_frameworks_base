@@ -5848,6 +5848,19 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
+    public void getWindowSizeByName(String packageName, Point size) {
+        synchronized (mGlobalLock) {
+            final ArrayList<WindowState> windows = new ArrayList();
+            mRoot.getWindowsByName(windows, packageName);
+            if (!windows.isEmpty()) {
+                final WindowState win = windows.get(0);
+                size.x = win.mRequestedWidth;
+                size.y = win.mRequestedHeight;
+            }
+        }
+    }
+
+    @Override
     public void getBaseDisplaySize(int displayId, Point size) {
         synchronized (mGlobalLock) {
             final DisplayContent displayContent = mRoot.getDisplayContent(displayId);

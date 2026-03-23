@@ -54,6 +54,8 @@ import com.android.systemui.statusbar.policy.ConfigurationController
 import com.android.systemui.util.AsyncActivityLauncher
 import javax.inject.Inject
 
+import android.os.SystemProperties
+
 class MediaProjectionAppSelectorActivity(
     private val componentFactory: MediaProjectionAppSelectorComponent.Factory,
     private val activityLauncher: AsyncActivityLauncher,
@@ -161,6 +163,9 @@ class MediaProjectionAppSelectorActivity(
         if (targetInfo is NotSelectableTargetInfo) return
 
         val intent = createIntent(targetInfo)
+
+        val packageName = intent?.getComponent()?.getPackageName()
+        SystemProperties.set("com.fde.record.package", packageName)
 
         val launchCookie = LaunchCookie("media_projection_launch_token")
         val activityOptions = ActivityOptions.makeBasic()

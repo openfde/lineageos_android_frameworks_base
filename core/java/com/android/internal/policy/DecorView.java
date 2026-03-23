@@ -628,17 +628,22 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
               return CompatibleConfig.queryStringValueData(mContext, keyCode, packageName);
     } 
 
-    public boolean isResizeWindow(){
-       try{
-           String packageName = mContext.getPackageName();
-           String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
-           //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
+    public boolean isResizeWindow() {
+        try{
+            String packageName = mContext.getPackageName();
+            String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+            // String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
            
-         //  Log.d(TAG,"fde isResizeWindow " + packageName + ", forcedPortraitMode: " + forcedPortraitMode+ ", enableMagicWindow: " + enableMagicWindow);
-           if(TextUtils.equals(forcedPortraitMode, "true") ){
-              return false ; 
-           }
-         }catch(Exception e){
+            // Log.d(TAG,"fde isResizeWindow " + packageName + ", forcedPortraitMode: " + forcedPortraitMode+ ", enableMagicWindow: " + enableMagicWindow);
+            if(TextUtils.equals(forcedPortraitMode, "true") ){
+               return false ;
+            }
+            String recordPackageName = SystemProperties.get("com.fde.record.package", "null");
+            if (TextUtils.equals(recordPackageName, packageName)) {
+                Log.d(TAG, packageName + " is recording, and forbid to resize window");
+                return false;
+            }
+        } catch(Exception e) {
             e.printStackTrace();
         }
         return true ;

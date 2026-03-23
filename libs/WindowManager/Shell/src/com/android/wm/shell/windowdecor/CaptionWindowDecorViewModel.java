@@ -457,10 +457,11 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 Log.d(TAG, "onClick fullscreen_window");
                 RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
-                    String packageName = taskInfo.topActivity.getPackageName();      
+                    String packageName = taskInfo.topActivity.getPackageName();
+                    String recordPackageName = SystemProperties.get("com.fde.record.package", "null");
                     String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
                     //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
-                    if(TextUtils.equals(forcedPortraitMode, "true") ){
+                    if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(recordPackageName, packageName)){
                         Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -475,8 +476,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
                     String packageName = taskInfo.topActivity.getPackageName();
                     String forcedPortraitMode =  queryStringValueData(packageName,"forcedPortraitMode", "");
+                    String recordPackageName = SystemProperties.get("com.fde.record.package", "null");
                     //String enableMagicWindow =  queryStringValueData(packageName,"enableMagicWindow", "");
-                    if(TextUtils.equals(forcedPortraitMode, "true") ){
+                    if(TextUtils.equals(forcedPortraitMode, "true") || TextUtils.equals(recordPackageName, packageName)){
                         Toast.makeText( mContext, R.string.forbid_exit_full_screen_tips, Toast.LENGTH_SHORT).show();
                         return;
                     }
