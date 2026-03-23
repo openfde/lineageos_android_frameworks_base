@@ -29,6 +29,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
+import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodec;
@@ -46,12 +47,15 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemProperties;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.view.IWindowManager;
+import android.view.WindowManagerGlobal;
 
 import com.android.internal.R;
 import com.android.systemui.mediaprojection.MediaProjectionCaptureTarget;
@@ -104,6 +108,8 @@ public class ScreenMediaRecorder extends MediaProjection.Callback {
 
     private Context mContext;
     ScreenMediaRecorderListener mListener;
+
+    private WindowManager mWindowManager;
 
     public ScreenMediaRecorder(Context context, Handler handler,
             int uid, ScreenRecordingAudioSource audioSource,
@@ -163,7 +169,6 @@ public class ScreenMediaRecorder extends MediaProjection.Callback {
 
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
-
         // Set up video
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -175,6 +180,18 @@ public class ScreenMediaRecorder extends MediaProjection.Callback {
         int width = dimens[0];
         int height = dimens[1];
         refreshRate = dimens[2];
+
+        String packageName = SystemProperties.get("com.fde.record.package", "null");
+        IWindowManager windowManager = WindowManagerGlobal.getWindowManagerService();
+        if (windowManager != null) {
+            Point windowSize = new Point();
+            windowManager.getWindowSizeByName(packageName, windowSize);
+            if (windowSize.x > 0 && windowSize.y > 0) {
+                width = (windowSize.x + 15) & ~15;
+                height = (windowSize.y + 15) & ~15;
+            }
+        }
+
         int resRatio = mLowQuality ? LOW_VIDEO_FRAME_RATE_TO_RESOLUTION_RATIO
                 : VIDEO_FRAME_RATE_TO_RESOLUTION_RATIO;
         int vidBitRate = width * height * refreshRate / VIDEO_FRAME_RATE * resRatio;
@@ -352,6 +369,7 @@ public class ScreenMediaRecorder extends MediaProjection.Callback {
 
         mMediaRecorder = null;
         mMediaProjection = null;
+        SystemProperties.set("com.fde.record.package", "");
 
         Log.d(TAG, "end recording");
     }

@@ -24,6 +24,7 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.hardware.input.InputManager;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
@@ -131,6 +132,12 @@ class TaskOperations {
             Log.d(TAG, "maximizeTask packageName: " + packageName);
             if(TextUtils.equals(forcedPortraitMode, "true") ){
                 return;
+            }
+
+            String recordPackageName = SystemProperties.get("com.fde.record.package", "null");
+            if (recordPackageName.equals(packageName)) {
+                Log.d(TAG, packageName + " is recording, and prohibit to maximize window");
+                return ;
             }
         }
         WindowContainerTransaction wct = new WindowContainerTransaction();

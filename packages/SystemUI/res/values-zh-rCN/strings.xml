@@ -103,7 +103,7 @@
     <string name="screenrecord_channel_description" msgid="4147077128486138351">"持续显示屏幕录制会话通知"</string>
     <string name="screenrecord_permission_dialog_title" msgid="303380743267672953">"要开始录制吗？"</string>
     <string name="screenrecord_permission_dialog_warning_entire_screen" msgid="4152602778470789965">"在录制内容时，Android 可以访问屏幕上显示或设备中播放的所有内容。因此，请务必小心操作，谨防密码、付款信息、消息、照片、音频和视频等内容遭到泄露。"</string>
-    <string name="screenrecord_permission_dialog_warning_single_app" msgid="6818309727772146138">"在录制某个应用时，Android 可以访问此应用显示或播放的所有内容。因此，请务必小心操作，谨防密码、付款信息、消息、照片、音频和视频等内容遭到泄露。"</string>
+    <string name="screenrecord_permission_dialog_warning_single_app" msgid="6818309727772146138">"在录制某个应用时，该应用无法调整其窗口大小，同时 Android 可以访问此应用显示或播放的所有内容。因此，请务必小心操作，谨防密码、付款信息、消息、照片、音频和视频等内容遭到泄露。"</string>
     <string name="screenrecord_permission_dialog_continue" msgid="5811122652514424967">"开始录制"</string>
     <string name="screenrecord_audio_label" msgid="6183558856175159629">"录制音频"</string>
     <string name="screenrecord_device_audio_label" msgid="9016927171280567791">"设备音频"</string>

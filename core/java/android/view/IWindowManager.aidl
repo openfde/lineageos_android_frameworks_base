@@ -119,6 +119,8 @@ interface IWindowManager
 
     IWindowSession openSession(in IWindowSessionCallback callback);
 
+    void getWindowSizeByName(String packageName, out Point size);
+
     @UnsupportedAppUsage
     void getInitialDisplaySize(int displayId, out Point size);
     @UnsupportedAppUsage
