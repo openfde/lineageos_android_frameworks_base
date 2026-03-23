@@ -294,7 +294,7 @@ public class TaskRemoteServiceWrapper {
      */
     private static class SystemBarCallback extends IAppSystemBarController.Stub {
         private final WeakReference<SystemBarController> mControllerRef;
-        private final WeakReference<AppTaskController> mAppTaskControllerRef;
+        private final AppTaskController mAppTaskController;
 
         private final int mRegisteredTaskId;
 
@@ -306,14 +306,14 @@ public class TaskRemoteServiceWrapper {
          */
         SystemBarCallback(SystemBarController controller, AppTaskController appTaskController,  int taskId) {
             mControllerRef = new WeakReference<>(controller);
-            mAppTaskControllerRef = new WeakReference<>(appTaskController);
+            mAppTaskController = appTaskController;
             mRegisteredTaskId = taskId;
-            Log.d(TAG, "SystemBarCallback created for taskId: " + taskId);
+            Log.d(TAG, "SystemBarCallback created for taskId: " + taskId + " appTaskController: " + appTaskController);
         }
 
         @Override
         public void enterOrExistFullScreen(){
-            final AppTaskController controller = mAppTaskControllerRef.get();
+            final AppTaskController controller = mAppTaskController;
             if (controller == null) {
                 Log.w(TAG, "AppTaskController has been garbage collected");
                 return;
@@ -330,7 +330,7 @@ public class TaskRemoteServiceWrapper {
 
         @Override
         public void maximizeOrNot(){
-            final AppTaskController controller = mAppTaskControllerRef.get();
+            final AppTaskController controller = mAppTaskController;
             if (controller == null) {
                 Log.w(TAG, "AppTaskController has been garbage collected");
                 return;

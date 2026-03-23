@@ -10,9 +10,11 @@ import android.os.RemoteException;
 import android.os.Looper;
 import android.view.Display;
 import android.util.Log;
-
+import android.widget.Toast;
+import com.android.internal.R;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import android.text.TextUtils;
 import com.android.internal.policy.DecorView;
 import com.android.internal.policy.AppTaskController;
 import com.android.internal.policy.DecorWindowInsetsCallback;
@@ -184,10 +186,10 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             return;
         }
 
-        final ActivityManager.RunningTaskInfo taskInfo = getTaskInfoFromActivity(activity);
+        ActivityManager.RunningTaskInfo taskInfo = getTaskInfoFromActivity(activity);
         if (taskInfo == null) {
-            Log.w(TAG, "Task info is null");
-            return;
+            taskInfo = getForegroundTaskInfo();
+            Log.w(TAG, "Task info is null, use foreground task");
         }
 
         // Skip if same task
@@ -343,7 +345,16 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
     @Override
     public void enterOrExitFullscreen() {
         Log.i(TAG, "Enter/Exit fullscreen");
-
+        if (mTaskInfo == null) {
+            mTaskInfo = getForegroundTaskInfo();
+        }
+        if (mTaskInfo != null && mTaskInfo.baseActivity != null
+                && mTaskInfo.baseActivity.getPackageName() != null) {
+            if (TextUtils.equals(mTaskInfo.baseActivity.getPackageName(), "com.android.settings")) {
+                Toast.makeText(mActivity.get(), R.string.forbid_exit_fullscreen_tips, Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
         synchronized (mLock) {
             if (Looper.myLooper() != Looper.getMainLooper()) {
                 Log.e(TAG, "enterOrExitFullscreen must be called on main thread");

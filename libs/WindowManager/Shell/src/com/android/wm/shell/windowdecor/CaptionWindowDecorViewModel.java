@@ -122,6 +122,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             DisplayController displayController,
             SyncTransactionQueue syncQueue,
             Transitions transitions) {
+        android.util.Log.d(TAG, "CaptionWindowDecorViewModel() called with: context = [" + context + "], mainHandler = [" + mainHandler + "], mainChoreographer = [" + mainChoreographer + "], taskOrganizer = [" + taskOrganizer + "], displayController = [" + displayController + "], syncQueue = [" + syncQueue + "], transitions = [" + transitions + "]");
         mContext = context;
         mMainHandler = mainHandler;
         mMainChoreographer = mainChoreographer;
@@ -159,7 +160,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
             @Override
             public void unregisterSystemBarController(int taskId){
-                mAppSystemBarControllers.remove(taskId);
+//                mAppSystemBarControllers.remove(taskId);
             }
         };
         ServiceManager.addService("TASK_CAPTION_OPERATION", mTaskCaptionOperationService);
@@ -330,6 +331,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     public void destroyWindowDecoration(RunningTaskInfo taskInfo) {
         final CaptionWindowDecoration decoration =
                 mWindowDecorByTaskId.removeReturnOld(taskInfo.taskId);
+        mAppSystemBarControllers.remove(taskInfo.taskId);
         if (decoration == null) return;
 
         decoration.close();

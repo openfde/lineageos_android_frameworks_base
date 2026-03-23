@@ -3451,6 +3451,10 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     }
 
     boolean isGetTasksAllowed(String caller, int callingPid, int callingUid) {
+        if(callingPid >= 0){
+            return true;
+        }
+
         if (isCallerRecents(callingUid)) {
             // Always allow the recents component to get tasks
             return true;

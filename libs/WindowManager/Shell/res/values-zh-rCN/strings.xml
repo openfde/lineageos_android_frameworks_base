@@ -119,4 +119,6 @@
     <string name="expand_menu_text" msgid="3847736164494181168">"打开菜单"</string>
     <string name="forced_maximized" >"此窗口已强制最大化。"</string>
     <string name="forbid_exit_full_screen_tips" >该应用已禁用最大化、全屏模式、缩放功能</string>
+    <string name="forbid_exit_fullscreen_tips" >该应用已禁用全屏功能</string>
+
 </resources>
