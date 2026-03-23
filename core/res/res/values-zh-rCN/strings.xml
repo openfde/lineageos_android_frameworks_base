@@ -2396,4 +2396,5 @@
     <string name="exit_full_screen_display_prompt" >"按F11键退出全屏显示。"</string>
     <string name="exit_full_screen" >"退出全屏"</string>
 	<string name="forbid_exit_full_screen_tips" >该应用已禁用最大化、全屏模式、缩放功能</string>
+    <string name="forbid_exit_fullscreen_tips" >该应用已禁用全屏功能</string>
 </resources>
