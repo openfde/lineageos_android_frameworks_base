@@ -155,7 +155,15 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
             @Override
             public void registerSystemBarController(int taskId, IAppSystemBarController controller){
-                mAppSystemBarControllers.put(taskId, controller);
+                mAppSystemBarControllers.remove(taskId);
+                try {
+                    controller.asBinder().linkToDeath(() -> {
+                        mAppSystemBarControllers.remove(taskId);
+                    }, 0);
+                    mAppSystemBarControllers.put(taskId, controller);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "registerSystemBarController ex" + e.getMessage());
+                }
             }
 
             @Override
