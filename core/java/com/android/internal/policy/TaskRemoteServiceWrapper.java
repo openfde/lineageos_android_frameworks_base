@@ -37,6 +37,7 @@ public class TaskRemoteServiceWrapper {
 
     private ConcurrentHashMap mActivityMap = new ConcurrentHashMap<Integer, WeakReference<Activity>>();
     private ConcurrentHashMap mLastSetModeMap = new ConcurrentHashMap<Integer, Integer>();
+    private ConcurrentHashMap mBarControllerMap = new ConcurrentHashMap<Integer, SystemBarController>();
 
     /**
      * Private constructor for singleton pattern.
@@ -141,20 +142,14 @@ public class TaskRemoteServiceWrapper {
     public void unregisterSystemBarController(int taskId) {
         Log.d(TAG, "Unregistering system bar controller, taskId: " + taskId);
         synchronized (mCallbackLock) {
-            if (mSystemBarCallback != null) {
-                try {
-                    getOperationService().unregisterSystemBarController(taskId);
-                    Log.i(TAG, "System bar controller unregistered successfully");
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to unregister system bar controller, taskId: " + taskId, e);
-                }
-                mSystemBarCallback = null;
-            } else {
-                Log.d(TAG, "No system bar callback to unregister");
+            try {
+                getOperationService().unregisterSystemBarController(taskId);
+                Log.i(TAG, "System bar controller unregistered successfully");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to unregister system bar controller, taskId: " + taskId, e);
             }
-            mSystemBarController = null;
         }
-        this.mTaskId  = -1;
+        this.mTaskId = -1;
     }
 
     public boolean isRegistered(){
@@ -167,22 +162,25 @@ public class TaskRemoteServiceWrapper {
      * @param taskId The task identifier
      * @param controller The SystemBarController instance
      */
-    public void registerSystemBarController(int taskId, AppTaskController appTaskController, SystemBarController controller) {
+    public void registerSystemBarController(int taskId,
+             AppTaskController appTaskController, SystemBarController controller) {
         Log.d(TAG, "Registering system bar controller, taskId: " + taskId);
         this.mTaskId = taskId;
+        if(mBarControllerMap.get(taskId) == controller){
+            Log.w(TAG, "already register bar controller");
+            return;
+        }
+        mBarControllerMap.put(taskId, controller);
         synchronized (mCallbackLock) {
             // Unregister existing controller first
-            unregisterSystemBarController(taskId);
-
-            this.mSystemBarController = controller;
-            mSystemBarCallback = new SystemBarCallback(controller, appTaskController, taskId);
+//            unregisterSystemBarController(taskId);
+            SystemBarCallback systemBarCallback = new SystemBarCallback(controller, appTaskController, taskId);
             try {
-                getOperationService().registerSystemBarController(taskId, mSystemBarCallback);
+                getOperationService().registerSystemBarController(taskId, systemBarCallback);
                 Log.i(TAG, "System bar controller registered successfully for task: " + taskId);
             } catch (RemoteException e) {
                 Log.e(TAG, "Failed to register system bar controller, taskId: " + taskId, e);
-                mSystemBarCallback = null;
-                mSystemBarController = null;
+                systemBarCallback = null;
             }
         }
     }

@@ -321,6 +321,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private SharedPreferences mSharedPreferences = null;
     // endregion
 
+    private boolean mAllowDecorOperation = true;
     private WmShellAppTaskController mWmShellController = new WmShellAppTaskController();
     private Context realContext;
 
@@ -351,6 +352,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                 WearGestureInterceptionDetector.isEnabled(context)
                         ? new WearGestureInterceptionDetector(context, this)
                         : null;
+        mAllowDecorOperation = allowDecorOperation();
     }
 
     private class ShowExitFullscreenFloatingButtonRunnable implements Runnable {
@@ -464,6 +466,14 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     private boolean allowToggleFullscreen(){
         if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())
                 && !"org.lineageos.setupwizard".equals(mContext.getPackageName())
+                && !"com.android.systemui".equals(mContext.getPackageName())){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean allowDecorOperation(){
+        if(mContext != null && !"com.android.launcher3".equals(mContext.getPackageName())
                 && !"com.android.systemui".equals(mContext.getPackageName())){
             return true;
         }
@@ -1431,6 +1441,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     public void onWindowInsetsCallback() {
+        if(!mAllowDecorOperation){
+            return;
+        }
         if (mDecorWindowInsetsCallback != null) {
             mDecorWindowInsetsCallback.onApplyWindowInsets();
         }
@@ -1438,7 +1451,6 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
-        onWindowInsetsCallback();
         final WindowManager.LayoutParams attrs = mWindow.getAttributes();
         mFloatingInsets.setEmpty();
         if ((attrs.flags & FLAG_LAYOUT_IN_SCREEN) == 0) {
@@ -3112,6 +3124,9 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     }
 
     private void initAppTaskController(){
+        if(!mAllowDecorOperation){
+            return;
+        }
         if(realContext == null || !(realContext instanceof Activity)){
             Log.d(TAG, "initAppTaskController: is not activity ");
             return;

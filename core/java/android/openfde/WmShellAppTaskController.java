@@ -20,6 +20,7 @@ import com.android.internal.policy.AppTaskController;
 import com.android.internal.policy.DecorWindowInsetsCallback;
 import com.android.internal.policy.TaskRemoteServiceWrapper;
 import com.android.internal.policy.SystemBarController;
+import android.content.res.Configuration;
 
 /**
  * WmShellAppTaskController - Implementation of AppTaskController interface.
@@ -103,7 +104,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         mDecorView.setWindowInsetsCallback(this);
 
         // Update system bar controller
-        updateSystemBarController(null);
+        updateSystemBarController(mSystemBarController);
 
         // Get initial state
         mWindowingMode = getCurrentWindowingMode(activity.get());
@@ -186,12 +187,14 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             return;
         }
 
-        ActivityManager.RunningTaskInfo taskInfo = getTaskInfoFromActivity(activity);
-        if (taskInfo == null) {
-            taskInfo = getForegroundTaskInfo();
-            Log.w(TAG, "Task info is null, use foreground task");
+        ActivityManager.RunningTaskInfo taskInfo = null;
+        if (mTaskInfo == null) {
+            taskInfo = getTaskInfoFromActivity(activity);
+            if (taskInfo == null) {
+                taskInfo = getForegroundTaskInfo();
+                Log.w(TAG, "Task info is null, use foreground task");
+            }
         }
-
         // Skip if same task
 //        if (mTaskInfo != null && mTaskInfo.taskId == taskInfo.taskId) {
 //            Log.d(TAG, "Same task, skipping controller update");
@@ -203,11 +206,12 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             if (mTaskInfo != null) {
                 Log.d(TAG, "Unregistering old system bar controller for task: " + mTaskInfo.taskId);
                 mServiceWrapper.unregisterSystemBarController(mTaskInfo.taskId, mActivity);
+            } else {
+                mTaskInfo = taskInfo;
             }
 
             // Update task info
-            mTaskInfo = taskInfo;
-            Log.d(TAG, "Registering system bar controller for new task: " + taskInfo.taskId);
+            Log.d(TAG, "Registering system bar controller for new task: " + mTaskInfo.taskId);
             if (systemBarController == null) {
                 systemBarController = new SystemBarController() {
                     @Override
@@ -226,14 +230,29 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
             // Create and register new controller
             // Note: TaskRemoteServiceWrapper will create the IAppSystemBarController.Stub callback
-            mServiceWrapper.registerSystemBarController(taskInfo.taskId, this, systemBarController);
-            mServiceWrapper.putActivityRef(taskInfo.taskId, mActivity);
+            mServiceWrapper.registerSystemBarController(mTaskInfo.taskId, this, systemBarController);
+            mServiceWrapper.putActivityRef(mTaskInfo.taskId, mActivity);
             beenLinkToWmShell = true;
             Log.i(TAG, "System bar controller updated successfully");
         } catch (Exception e) {
             Log.e(TAG, "Unexpected error updating system bar controller", e);
         }
     }
+
+
+    SystemBarController mSystemBarController = new SystemBarController() {
+        @Override
+        public void hideStatusBarNavigationBar() {
+            Log.d(TAG, "SystemBarController: hideStatusBarNavigationBar");
+            toggleStatusBarNavigationBar(true);
+        }
+
+        @Override
+        public void showStatusBarNavigationBar() {
+            Log.d(TAG, "SystemBarController: showStatusBarNavigationBar");
+            toggleStatusBarNavigationBar(false);
+        }
+    };
 
     /**
      * Get task information from activity.
@@ -292,14 +311,22 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         // Implementation depends on available API
         // This is a placeholder - implement based on your framework
         try {
-            final ActivityManager.RunningTaskInfo taskInfo = getTaskInfoFromActivity(activity);
-            // Example implementation - adjust based on your actual API
-            if (taskInfo != null ) {
-                if(taskInfo.getWindowingMode() == 6){
+            Configuration config = activity.getResources().getConfiguration();
+            if (config != null) {
+                int mode = config.windowConfiguration.getWindowingMode();
+                if (mode == 6) {
                     return AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN;
                 }
-                return taskInfo.getWindowingMode();
+                return mode;
             }
+//            final ActivityManager.RunningTaskInfo taskInfo = getTaskInfoFromActivity(activity);
+            // Example implementation - adjust based on your actual API
+//            if (taskInfo != null ) {
+//                if(taskInfo.getWindowingMode() == 6){
+//                    return AppTaskStatusListener.WINDOWING_MODE_FULLSCREEN;
+//                }
+//                return taskInfo.getWindowingMode();
+//            }
         } catch (Exception e) {
             Log.e(TAG, "Error getting windowing mode", e);
         }
@@ -437,7 +464,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
     public void onApplyWindowInsets() {
         Log.d(TAG, "Window insets applied");
         // Update system bar controller when window insets change
-        updateSystemBarController(null);
+        updateSystemBarController(mSystemBarController);
         // Notify status change
         onStatusChanged();
     }
@@ -458,13 +485,17 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
             boolean systemBarVisibility = getSystemBarVisibility();
             int currentWindowingMode = getCurrentWindowingMode(activity);
-
+            if(mTaskInfo != null){
+                Log.d(TAG, "onStatusChanged: " + mTaskInfo.getWindowingMode());
+            }
             Log.i(TAG, "New status - windowingMode: " + currentWindowingMode +
                     ", systemBarVisibility: " + systemBarVisibility +
                     ", mActivity: " + mActivity.get());
+            mWindowingMode = currentWindowingMode;
+            mSystemBarVisibility = systemBarVisibility;
             if (mStatusListener != null) {
                 try {
-                    mStatusListener.onStatusChanged(currentWindowingMode, systemBarVisibility);
+                    mStatusListener.onStatusChanged(mWindowingMode, mSystemBarVisibility);
                     Log.d(TAG, "Status change notified to listener");
                 } catch (Exception e) {
                     Log.e(TAG, "Error in status listener callback", e);
@@ -472,9 +503,6 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
             } else {
                 Log.w(TAG, "No status listener registered");
             }
-
-            mWindowingMode = currentWindowingMode;
-            mSystemBarVisibility = systemBarVisibility;
         } else {
             Log.d(TAG, "Not linked to WM shell, skipping status update");
         }

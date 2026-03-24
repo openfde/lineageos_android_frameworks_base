@@ -12466,11 +12466,10 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
      */
     public WindowInsets dispatchApplyWindowInsets(WindowInsets insets) {
         try {
-            final View rootView = getRootView();
-            if (rootView instanceof DecorView) {
-                ((DecorView) rootView).onWindowInsetsCallback();
-            }
             mPrivateFlags3 |= PFLAG3_APPLYING_INSETS;
+            if (this instanceof DecorView) {
+                ((DecorView) this).onWindowInsetsCallback();
+            }
             if (mListenerInfo != null && mListenerInfo.mOnApplyWindowInsetsListener != null) {
                 return mListenerInfo.mOnApplyWindowInsetsListener.onApplyWindowInsets(this, insets);
             } else {
