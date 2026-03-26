@@ -253,7 +253,8 @@ void DeferredLayerUpdater::apply() {
                             int height = graphicBuffer->getHeight();
                             dst_gb = new GraphicBuffer(
                                     width, height, HAL_PIXEL_FORMAT_RGB_565,
-                                    GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER);
+                                    GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER
+                                        | GRALLOC_USAGE_PRIVATE_0);
 
                             void* dst_data = nullptr;
                             int dst_result = dst_gb->lock(GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_OFTEN, &dst_data);
