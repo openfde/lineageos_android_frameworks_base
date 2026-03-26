@@ -3997,7 +3997,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     int direction = (metaState & KeyEvent.META_SHIFT_MASK) != 0 ? -1 : 1;
                     sendSwitchKeyboardLayout(event, focusedToken, direction);
                     logKeyboardSystemsEvent(event, KeyboardLogEvent.LANGUAGE_SWITCH);
-                    return false;
+                    return true;
                 }
                 break;
             case KeyEvent.KEYCODE_ESCAPE:
