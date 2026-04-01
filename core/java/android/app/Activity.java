@@ -959,7 +959,7 @@ public class Activity extends ContextThemeWrapper
     @UnsupportedAppUsage
     private CharSequence mTitle;
     private int mTitleColor = 0;
-    private int mWindowDecoraitonStatus;
+    private int mWindowDecoraitonStatus = -1;
 
     // we must have a handler before the FragmentController is constructed
     @UnsupportedAppUsage
@@ -7770,6 +7770,8 @@ public class Activity extends ContextThemeWrapper
      * Optional parameter values
      * Window.WINDOW_DECORATION_FORCE_HIDE: captionbar will force hide
      * Window.WINDOW_DECORATION_FOLLOW_STATUS_BAR: captionbar follow statusbar show or hide
+     *
+     * if you use it, it better before WmShellAppTaskController init
      */
     @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
     public void setWindowDecorationStatus(int status) {
