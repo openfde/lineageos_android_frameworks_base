@@ -875,7 +875,7 @@ public class GestureDetector {
         }
 
         final long deltaTime = secondDown.getEventTime() - firstUp.getEventTime();
-        if (deltaTime > DOUBLE_TAP_TIMEOUT || deltaTime < DOUBLE_TAP_MIN_TIME) {
+        if (deltaTime > DOUBLE_TAP_TIMEOUT || (deltaTime < DOUBLE_TAP_MIN_TIME &&  deltaTime != 0)) {
             return false;
         }
 
