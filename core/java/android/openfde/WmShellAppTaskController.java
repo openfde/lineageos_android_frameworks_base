@@ -88,17 +88,22 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
         mStatusListener = listener;
         mActivity = activity;
-        mIsRawCaptionHidden = hideRawCaption;
+        boolean userSetCaptionStatus = activity.get().getWindowDecorationStatus() != -1;
 
         // Hide raw caption if requested
-        if (hideRawCaption) {
-            Log.i(TAG, "Hiding raw window decoration");
-            activity.get().setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
+        if(userSetCaptionStatus){
+            Log.i(TAG, "User set window decoration");
+            mIsRawCaptionHidden = activity.get().getWindowDecorationStatus() == Window.WINDOW_DECORATION_FORCE_HIDE;
         } else {
-            Log.i(TAG, "show raw window decoration");
-            activity.get().setWindowDecorationStatus(Window.WINDOW_DECORATION_FOLLOW_STATUS_BAR);
+            if (hideRawCaption) {
+                Log.i(TAG, "Hiding raw window decoration");
+                activity.get().setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
+            } else {
+                Log.i(TAG, "show raw window decoration");
+                activity.get().setWindowDecorationStatus(Window.WINDOW_DECORATION_FOLLOW_STATUS_BAR);
+            }
+            mIsRawCaptionHidden = hideRawCaption;
         }
-
         // Get decor view
         mDecorView = (DecorView) activity.get().getWindow().getDecorView();
         if (mDecorView == null) {
