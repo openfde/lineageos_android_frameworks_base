@@ -289,8 +289,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                             TaskConstants.TASK_CHILD_LAYER_WINDOW_DECORATIONS);
         }
 
-        startT.setWindowCrop(mDecorationContainerSurface, outResult.mWidth, outResult.mHeight)
-                .show(mDecorationContainerSurface);
+//        startT.setWindowCrop(mDecorationContainerSurface, outResult.mWidth, outResult.mHeight)
+//                .show(mDecorationContainerSurface);
 
         // CaptionContainerSurface, CaptionWindowManager
         if (mCaptionContainerSurface == null) {
