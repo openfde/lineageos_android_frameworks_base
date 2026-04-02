@@ -3667,7 +3667,6 @@ public final class SurfaceControl implements Parcelable {
           */
         public Transaction setShadowRadius(SurfaceControl sc, float shadowRadius) {
             android.util.Log.e(TAG, "setShadowRadius() called with: sc = [" + sc + "], shadowRadius = [" + shadowRadius + "]", new Throwable());
-            shadowRadius = 0;
             checkPreconditions(sc);
             if (SurfaceControlRegistry.sCallStackDebuggingEnabled) {
                 SurfaceControlRegistry.getProcessInstance().checkCallStackDebugging(

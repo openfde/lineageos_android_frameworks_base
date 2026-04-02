@@ -329,10 +329,10 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         mLastSavedStateIsMaximizedByTaskId.delete(taskInfo.taskId);
         mIsFullscreenEnabledByTaskId.delete(taskInfo.taskId);
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
-        if (decoration == null) return;
+//        if (decoration == null) return;
 
-        decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
-                false /* setTaskCropAndPosition */);
+//        decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
+//                false /* setTaskCropAndPosition */);
     }
 
     @Override
