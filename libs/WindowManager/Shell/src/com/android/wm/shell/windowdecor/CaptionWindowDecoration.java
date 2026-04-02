@@ -51,6 +51,7 @@ import android.view.ViewRootImpl;
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
 import com.android.internal.util.CompatibleConfig;
 import android.text.TextUtils;
+import java.util.Set;
 
 /**
  * Defines visuals and behaviors of a window decoration of a caption bar and shadows. It works with
@@ -70,7 +71,11 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private DragDetector mDragDetector;
     private String mTopActivity;
     private boolean mDragResizeable = true;
-
+    private static final Set<String> SPECIAL_PACKAGES = Set.of(
+            "com.android.packageinstaller",
+            "com.fde.fde_linux_app_launcher"
+    );
+    private static final String RESOLVER_ACTIVITY = "com.android.internal.app.ResolverActivity";
     private RelayoutParams mRelayoutParams = new RelayoutParams();
     private final RelayoutResult<WindowDecorLinearLayout> mResult =
             new RelayoutResult<>();
@@ -199,10 +204,11 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         int shadowRadiusID = taskInfo.isFocused
                 ? R.dimen.freeform_decor_shadow_focused_thickness
                 : R.dimen.freeform_decor_shadow_unfocused_thickness;
-        if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
-                &&  (taskInfo.topActivity.getPackageName().equals("com.android.packageinstaller")
-                || taskInfo.topActivity.getPackageName().equals("com.fde.fde_linux_app_launcher")
-                || taskInfo.topActivity.getClassName().equals("com.android.internal.app.ResolverActivity"))) {
+        boolean shouldUseZeroShadow = (taskInfo.topActivity == null) ||
+                (taskInfo.topActivity.getPackageName() != null && SPECIAL_PACKAGES.contains(taskInfo.topActivity.getPackageName())) ||
+                RESOLVER_ACTIVITY.equals(taskInfo.topActivity.getClassName());
+
+        if (shouldUseZeroShadow) {
             shadowRadiusID = R.dimen.freeform_decor_shadow_focused_0_thickness;
         }
 
