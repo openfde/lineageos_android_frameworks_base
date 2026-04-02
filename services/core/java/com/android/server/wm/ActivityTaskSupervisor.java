@@ -1798,7 +1798,7 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
             // Prevent recursion.
             return;
         }
-        task.mTransitionController.requestCloseTransitionIfNeeded(task);
+//        task.mTransitionController.requestCloseTransitionIfNeeded(task);
         // Consume the stopping activities immediately so activity manager won't skip killing
         // the process because it is still foreground state, i.e. RESUMED -> PAUSING set from
         // removeActivities -> finishIfPossible.

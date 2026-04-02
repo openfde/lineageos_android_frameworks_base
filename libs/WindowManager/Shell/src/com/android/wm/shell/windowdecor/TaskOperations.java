@@ -95,7 +95,7 @@ class TaskOperations {
     void closeTask(WindowContainerToken taskToken) {
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.removeTask(taskToken);
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             mTransitionStarter.startRemoveTransition(wct);
         } else {
             mSyncQueue.queue(wct);
