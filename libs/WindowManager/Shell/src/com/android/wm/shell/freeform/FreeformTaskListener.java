@@ -114,14 +114,14 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
         mTasks.remove(taskInfo.taskId);
 
         if (DesktopModeStatus.isEnabled()) {
-            mDesktopModeTaskRepository.ifPresent(repository -> {
-                repository.removeFreeformTask(taskInfo.taskId);
-                if (repository.removeActiveTask(taskInfo.taskId)) {
-                    ProtoLog.v(ShellProtoLogGroup.WM_SHELL_DESKTOP_MODE,
-                            "Removing active freeform task: #%d", taskInfo.taskId);
-                }
-                repository.updateVisibleFreeformTasks(taskInfo.displayId, taskInfo.taskId, false);
-            });
+//            mDesktopModeTaskRepository.ifPresent(repository -> {
+//                repository.removeFreeformTask(taskInfo.taskId);
+//                if (repository.removeActiveTask(taskInfo.taskId)) {
+//                    ProtoLog.v(ShellProtoLogGroup.WM_SHELL_DESKTOP_MODE,
+//                            "Removing active freeform task: #%d", taskInfo.taskId);
+//                }
+//                repository.updateVisibleFreeformTasks(taskInfo.displayId, taskInfo.taskId, false);
+//            });
         }
 
         if (!Transitions.ENABLE_SHELL_TRANSITIONS) {
