@@ -51,6 +51,7 @@ import android.view.ViewRootImpl;
 import com.android.internal.graphics.drawable.BackgroundBlurDrawable;
 import com.android.internal.util.CompatibleConfig;
 import android.text.TextUtils;
+import java.util.Set;
 
 /**
  * Defines visuals and behaviors of a window decoration of a caption bar and shadows. It works with
