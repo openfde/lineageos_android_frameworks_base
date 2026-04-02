@@ -43,7 +43,7 @@ import com.android.wm.shell.windowdecor.OnTaskResizeAnimationListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-
+import android.util.Log;
 /**
  * The {@link Transitions.TransitionHandler} that handles transitions for desktop mode tasks
  * entering and exiting freeform.
@@ -89,6 +89,7 @@ public class EnterDesktopTaskTransitionHandler implements Transitions.Transition
             @NonNull SurfaceControl.Transaction startT,
             @NonNull SurfaceControl.Transaction finishT,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
+        android.util.Log.d("EnterDesktopTaskTransitionHandler", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startT = [" + startT + "], finishT = [" + finishT + "], finishCallback = [" + finishCallback + "]");
         boolean transitionHandled = false;
         for (TransitionInfo.Change change : info.getChanges()) {
             if ((change.getFlags() & TransitionInfo.FLAG_IS_WALLPAPER) != 0) {

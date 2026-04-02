@@ -39,6 +39,7 @@ import com.android.wm.shell.transition.Transitions;
 
 import java.util.function.Supplier;
 import android.util.Log;
+import android.util.Log;
 
 /**
  * A task positioner that resizes/relocates task contents as it is dragged.
@@ -307,6 +308,7 @@ class FluidResizeTaskPositioner implements DragPositioningCallback,
                                   @NonNull SurfaceControl.Transaction startTransaction,
                                   @NonNull SurfaceControl.Transaction finishTransaction,
                                   @NonNull Transitions.TransitionFinishCallback finishCallback) {
+        android.util.Log.d("FluidResizeTaskPositioner", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startTransaction = [" + startTransaction + "], finishTransaction = [" + finishTransaction + "], finishCallback = [" + finishCallback + "]");
         for (TransitionInfo.Change change: info.getChanges()) {
             final SurfaceControl sc = change.getLeash();
             final Rect endBounds = change.getEndAbsBounds();

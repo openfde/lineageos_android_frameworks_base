@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
+import android.util.Log;
 
 /**
  * The {@link Transitions.TransitionHandler} that handles transitions for desktop mode tasks
@@ -95,6 +95,7 @@ public class ExitDesktopTaskTransitionHandler implements Transitions.TransitionH
             @NonNull SurfaceControl.Transaction startT,
             @NonNull SurfaceControl.Transaction finishT,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
+        android.util.Log.d("ExitDesktopTaskTransitionHandler", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startT = [" + startT + "], finishT = [" + finishT + "], finishCallback = [" + finishCallback + "]");
         boolean transitionHandled = false;
         for (TransitionInfo.Change change : info.getChanges()) {
             if ((change.getFlags() & TransitionInfo.FLAG_IS_WALLPAPER) != 0) {

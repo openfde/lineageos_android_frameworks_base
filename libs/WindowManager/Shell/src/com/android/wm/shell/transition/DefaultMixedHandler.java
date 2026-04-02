@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import android.util.Log;
 
 /**
  * A handler for dealing with transitions involving multiple other handlers. For example: an
@@ -399,7 +400,7 @@ public class DefaultMixedHandler implements Transitions.TransitionHandler,
             @NonNull SurfaceControl.Transaction startTransaction,
             @NonNull SurfaceControl.Transaction finishTransaction,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
-
+        android.util.Log.d("DefaultMixedHandler", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startTransaction = [" + startTransaction + "], finishTransaction = [" + finishTransaction + "], finishCallback = [" + finishCallback + "]");
         MixedTransition mixed = null;
         for (int i = mActiveTransitions.size() - 1; i >= 0; --i) {
             if (mActiveTransitions.get(i).mTransition != transition) continue;

@@ -118,6 +118,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import android.util.Log;
 
 /** The default handler that handles anything not already handled. */
 public class DefaultTransitionHandler implements Transitions.TransitionHandler {
@@ -297,6 +298,7 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
             @NonNull SurfaceControl.Transaction startTransaction,
             @NonNull SurfaceControl.Transaction finishTransaction,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
+        android.util.Log.d("DefaultTransitionHandler", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startTransaction = [" + startTransaction + "], finishTransaction = [" + finishTransaction + "], finishCallback = [" + finishCallback + "]");
         ProtoLog.v(ShellProtoLogGroup.WM_SHELL_TRANSITIONS,
                 "start default transition animation, info = %s", info);
         // If keyguard goes away, we should loadKeyguardExitAnimation. Otherwise this just

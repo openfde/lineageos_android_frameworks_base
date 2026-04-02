@@ -45,6 +45,7 @@ import com.android.wm.shell.windowdecor.WindowDecorViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 /**
  * The {@link Transitions.TransitionHandler} that handles freeform task maximizing, closing, and
@@ -124,6 +125,7 @@ public class FreeformTaskTransitionHandler
             @NonNull SurfaceControl.Transaction startT,
             @NonNull SurfaceControl.Transaction finishT,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
+        android.util.Log.d("FreeformTaskTransitionHandler", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startT = [" + startT + "], finishT = [" + finishT + "], finishCallback = [" + finishCallback + "]");
         boolean transitionHandled = false;
         final ArrayList<Animator> animations = new ArrayList<>();
         final Runnable onAnimFinish = () -> {

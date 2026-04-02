@@ -42,6 +42,7 @@ import com.android.wm.shell.protolog.ShellProtoLogGroup;
 import com.android.wm.shell.shared.TransitionUtil;
 
 import java.util.ArrayList;
+import android.util.Log;
 
 /**
  * Handler that deals with RemoteTransitions. It will only request to handle a transition
@@ -103,6 +104,7 @@ public class RemoteTransitionHandler implements Transitions.TransitionHandler {
             @NonNull SurfaceControl.Transaction startTransaction,
             @NonNull SurfaceControl.Transaction finishTransaction,
             @NonNull Transitions.TransitionFinishCallback finishCallback) {
+        android.util.Log.d("RemoteTransitionHandler", "startAnimation() called with: transition = [" + transition + "], info = [" + info + "], startTransaction = [" + startTransaction + "], finishTransaction = [" + finishTransaction + "], finishCallback = [" + finishCallback + "]");
         if (!Transitions.SHELL_TRANSITIONS_ROTATION && TransitionUtil.hasDisplayChange(info)) {
             // Note that if the remote doesn't have permission ACCESS_SURFACE_FLINGER, some
             // operations of the start transaction may be ignored.
