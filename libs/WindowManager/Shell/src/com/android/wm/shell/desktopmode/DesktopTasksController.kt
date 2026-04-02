@@ -204,7 +204,7 @@ class DesktopTasksController(
         val wct = WindowContainerTransaction()
         bringDesktopAppsToFront(displayId, wct)
 
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             // TODO(b/255649902): ensure remote transition is supplied once state is introduced
             val transitionType = if (remoteTransition == null) TRANSIT_NONE else TRANSIT_TO_FRONT
             val handler = remoteTransition?.let {
@@ -315,7 +315,7 @@ class DesktopTasksController(
         bringDesktopAppsToFront(task.displayId, wct)
         addMoveToDesktopChanges(wct, task)
 
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             enterDesktopTaskTransitionHandler.moveToDesktop(wct)
         } else {
             shellTaskOrganizer.applyTransaction(wct)
@@ -402,7 +402,7 @@ class DesktopTasksController(
         val wct = WindowContainerTransaction()
         wct.setBounds(task.token, Rect())
         addMoveToSplitChanges(wct, task)
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             transitions.startTransition(TRANSIT_CHANGE, wct, null /* handler */)
         } else {
             shellTaskOrganizer.applyTransaction(wct)
@@ -441,7 +441,7 @@ class DesktopTasksController(
         val wct = WindowContainerTransaction()
         addMoveToFullscreenChanges(wct, task)
 
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             exitDesktopTaskTransitionHandler.startTransition(
             Transitions.TRANSIT_EXIT_DESKTOP_MODE, wct, position, mOnAnimationFinishedCallback)
         } else {
@@ -465,7 +465,7 @@ class DesktopTasksController(
 
         val wct = WindowContainerTransaction()
         wct.reorder(taskInfo.token, true)
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             transitions.startTransition(TRANSIT_TO_FRONT, wct, null /* handler */)
         } else {
             shellTaskOrganizer.applyTransaction(wct)
@@ -528,7 +528,7 @@ class DesktopTasksController(
 
         val wct = WindowContainerTransaction()
         wct.reparent(task.token, displayAreaInfo.token, true /* onTop */)
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             transitions.startTransition(TRANSIT_CHANGE, wct, null /* handler */)
         } else {
             shellTaskOrganizer.applyTransaction(wct)
@@ -552,7 +552,7 @@ class DesktopTasksController(
         }
 
         val wct = WindowContainerTransaction().setBounds(taskInfo.token, destinationBounds)
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             toggleResizeDesktopTaskTransitionHandler.startTransition(wct)
         } else {
             shellTaskOrganizer.applyTransaction(wct)
@@ -593,7 +593,7 @@ class DesktopTasksController(
         if (destinationBounds == taskInfo.configuration.windowConfiguration.bounds) return
 
         val wct = WindowContainerTransaction().setBounds(taskInfo.token, destinationBounds)
-        if (Transitions.ENABLE_SHELL_TRANSITIONS) {
+        if (false) {
             toggleResizeDesktopTaskTransitionHandler.startTransition(wct)
         } else {
             shellTaskOrganizer.applyTransaction(wct)
