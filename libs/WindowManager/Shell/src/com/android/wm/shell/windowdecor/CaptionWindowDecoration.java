@@ -206,7 +206,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 || taskInfo.topActivity.getClassName().equals("com.android.internal.app.ResolverActivity"))) {
             shadowRadiusID = R.dimen.freeform_decor_shadow_focused_0_thickness;
             android.util.Log.d(TAG, "relayout: set shadowRadiusID 0");
-        } ellse {
+        } else {
             if(taskInfo.isFocused){
                 android.util.Log.d(TAG, "relayout: set shadowRadiusID 14");
             } else {
