@@ -196,6 +196,7 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     void relayout(RunningTaskInfo taskInfo,
             SurfaceControl.Transaction startT, SurfaceControl.Transaction finishT,
             boolean applyStartTransactionOnDraw, boolean setTaskCropAndPosition) {
+        android.util.Log.d(TAG, "relayout() called with: taskInfo = [" + taskInfo + "], startT = [" + startT + "], finishT = [" + finishT + "], applyStartTransactionOnDraw = [" + applyStartTransactionOnDraw + "], setTaskCropAndPosition = [" + setTaskCropAndPosition + "]");
         int shadowRadiusID = taskInfo.isFocused
                 ? R.dimen.freeform_decor_shadow_focused_thickness
                 : R.dimen.freeform_decor_shadow_unfocused_thickness;
@@ -204,6 +205,13 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
                 || taskInfo.topActivity.getPackageName().equals("com.fde.fde_linux_app_launcher")
                 || taskInfo.topActivity.getClassName().equals("com.android.internal.app.ResolverActivity"))) {
             shadowRadiusID = R.dimen.freeform_decor_shadow_focused_0_thickness;
+            android.util.Log.d(TAG, "relayout: set shadowRadiusID 0");
+        } ellse {
+            if(taskInfo.isFocused){
+                android.util.Log.d(TAG, "relayout: set shadowRadiusID 14");
+            } else {
+                android.util.Log.d(TAG, "relayout: set shadowRadiusID 5");
+            }
         }
 
             final boolean isFreeform =
