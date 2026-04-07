@@ -140,6 +140,14 @@ class JetpackTaskFragmentOrganizer extends TaskFragmentOrganizer {
                              @WindowingMode int windowingMode, @NonNull SplitAttributes splitAttributes) {
         Log.d(TAG, "startActivityToSide: 开始将 Activity 启动到侧边分屏，主 fragmentToken="
                 + launchingFragmentToken + ", 次 fragmentToken=" + secondaryFragmentToken);
+        Log.d(TAG, "startActivityToSide: launchingRelBounds=" + launchingRelBounds
+                + ", secondaryRelBounds=" + secondaryRelBounds
+                + ", windowingMode=" + windowingMode);
+        Log.d(TAG, "startActivityToSide: activityIntent=" + activityIntent
+                + ", activityOptions=" + activityOptions);
+        Log.d(TAG, "startActivityToSide: splitRule=" + rule
+                + ", splitAttributes=" + splitAttributes);
+
         final IBinder ownerToken = launchingActivity.getActivityToken();
 
         // Create or resize the launching TaskFragment.
