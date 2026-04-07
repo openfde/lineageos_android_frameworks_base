@@ -814,6 +814,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
     // Lineage sdk activity related helper
     private LineageActivityManager mLineageActivityManager;
+    public SystemTaskFragmentOrganizer mParallelVisionOrganizer;
 
     private final class SettingObserver extends ContentObserver {
         private final Uri mFontScaleUri = Settings.System.getUriFor(FONT_SCALE);
@@ -1038,6 +1039,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         mVrController = new VrController(mGlobalLock);
         mKeyguardController = mTaskSupervisor.getKeyguardController();
         mPackageConfigPersister = new PackageConfigPersister(mTaskSupervisor.mPersisterQueue, this);
+        mParallelVisionOrganizer = new SystemTaskFragmentOrganizer(this);
     }
 
     public void onActivityManagerInternalAdded() {

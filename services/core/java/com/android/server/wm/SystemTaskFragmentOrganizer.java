@@ -1,0 +1,110 @@
+package com.android.server.wm;
+
+import android.app.WindowConfiguration;
+import android.graphics.Rect;
+import android.os.Binder;
+import android.os.IBinder;
+import android.view.RemoteAnimationAdapter;
+import android.window.ITaskFragmentOrganizer;
+import android.window.TaskFragmentCreationParams;
+import android.window.TaskFragmentInfo;
+import android.window.TaskFragmentOrganizer;
+import android.window.WindowContainerTransaction;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 精简版系统平行视界控制器
+ */
+public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
+
+    private final ActivityTaskManagerService mAtmService;
+
+    // 用于记录某个 Task 对应的左、右 TaskFragment 的 Binder Token
+    private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
+    private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
+
+    public SystemTaskFragmentOrganizer(ActivityTaskManagerService atmService) {
+        // 使用主线程的 Executor 或者 ATM 的 Handler
+        super(atmService.mH::post);
+        mAtmService = atmService;
+    }
+
+    /**
+     * 初始化并向系统注册自己
+     */
+    public void register() {
+        // 注册到系统的 WindowOrganizerController
+        mAtmService.mWindowOrganizerController.registerOrganizer(this);
+    }
+
+    /**
+     * 为指定的 Task 创建平行视界的左右两个 TaskFragment
+     */
+    public void createParallelTaskFragments(Task task) {
+        if (mLeftFragments.containsKey(task.mTaskId)) {
+            return; // 已经创建过了
+        }
+
+        WindowContainerTransaction wct = new WindowContainerTransaction();
+
+        // 1. 计算左右 Bounds (以 50:50 为例，实际 PC 模式下需动态获取 task.getBounds())
+        Rect taskBounds = task.getBounds();
+        int midX = taskBounds.left + taskBounds.width() / 2;
+
+        Rect leftBounds = new Rect(taskBounds.left, taskBounds.top, midX, taskBounds.bottom);
+        Rect rightBounds = new Rect(midX, taskBounds.top, taskBounds.right, taskBounds.bottom);
+
+        // 2. 创建左侧 Fragment
+        IBinder leftToken = new Binder();
+        TaskFragmentCreationParams leftParams = new TaskFragmentCreationParams.Builder(
+                this.getOrganizerToken(), leftToken, task.mRemoteToken.toWindowContainerToken())
+                .setInitialBounds(leftBounds)
+                .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
+                .build();
+        wct.createTaskFragment(leftParams);
+
+        // 3. 创建右侧 Fragment
+        IBinder rightToken = new Binder();
+        TaskFragmentCreationParams rightParams = new TaskFragmentCreationParams.Builder(
+                this.getOrganizerToken(), rightToken, task.mRemoteToken.toWindowContainerToken())
+                .setInitialBounds(rightBounds)
+                .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
+                .build();
+        wct.createTaskFragment(rightParams);
+
+        // 记录 Token
+        mLeftFragments.put(task.mTaskId, leftToken);
+        mRightFragments.put(task.mTaskId, rightToken);
+
+        // 4. 提交事务给系统
+        mAtmService.mWindowOrganizerController.applyTransaction(wct);
+    }
+
+    /**
+     * 获取指定 Task 的右侧容器 Token
+     */
+    public IBinder getRightFragmentToken(int taskId) {
+        return mRightFragments.get(taskId);
+    }
+
+    // --- 实现 TaskFragmentOrganizer 的抽象回调 ---
+
+    @Override
+    public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
+        super.onTaskFragmentAppeared(taskFragmentInfo);
+        // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
+    }
+
+    @Override
+    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
+        super.onTaskFragmentInfoChanged(taskFragmentInfo);
+        // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
+    }
+
+    @Override
+    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
+        super.onTaskFragmentVanished(taskFragmentInfo);
+    }
+}
