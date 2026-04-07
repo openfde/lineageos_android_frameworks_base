@@ -60,7 +60,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         IBinder leftToken = new Binder();
         TaskFragmentCreationParams leftParams = new TaskFragmentCreationParams.Builder(
                 this.getOrganizerToken(), leftToken, task.mRemoteToken.asBinder())
-                .setInitialBounds(leftBounds)
+                .setInitialRelativeBounds(leftBounds)
                 .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
                 .build();
         wct.createTaskFragment(leftParams);
@@ -69,7 +69,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         IBinder rightToken = new Binder();
         TaskFragmentCreationParams rightParams = new TaskFragmentCreationParams.Builder(
                 this.getOrganizerToken(), rightToken, task.mRemoteToken.asBinder())
-                .setInitialBounds(rightBounds)
+                .setInitialRelativeBounds(rightBounds)
                 .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
                 .build();
         wct.createTaskFragment(rightParams);
