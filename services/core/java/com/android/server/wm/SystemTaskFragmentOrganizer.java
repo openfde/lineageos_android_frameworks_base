@@ -36,7 +36,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
      */
     public void register() {
         // 注册到系统的 WindowOrganizerController
-        mAtmService.mWindowOrganizerController.registerOrganizer(this);
+        super.registerOrganizer();
     }
 
     /**
@@ -59,7 +59,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         // 2. 创建左侧 Fragment
         IBinder leftToken = new Binder();
         TaskFragmentCreationParams leftParams = new TaskFragmentCreationParams.Builder(
-                this.getOrganizerToken(), leftToken, task.mRemoteToken.toWindowContainerToken())
+                this.getOrganizerToken(), leftToken, task.mRemoteToken.asBinder())
                 .setInitialBounds(leftBounds)
                 .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
                 .build();
@@ -68,7 +68,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         // 3. 创建右侧 Fragment
         IBinder rightToken = new Binder();
         TaskFragmentCreationParams rightParams = new TaskFragmentCreationParams.Builder(
-                this.getOrganizerToken(), rightToken, task.mRemoteToken.toWindowContainerToken())
+                this.getOrganizerToken(), rightToken, task.mRemoteToken.asBinder())
                 .setInitialBounds(rightBounds)
                 .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
                 .build();
@@ -91,20 +91,20 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     // --- 实现 TaskFragmentOrganizer 的抽象回调 ---
 
-    @Override
-    public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
-        super.onTaskFragmentAppeared(taskFragmentInfo);
-        // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
-    }
+//    @Override
+//    public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
+//        super.onTaskFragmentAppeared(taskFragmentInfo);
+//        // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
+//    }
 
-    @Override
-    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
-        super.onTaskFragmentInfoChanged(taskFragmentInfo);
-        // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
-    }
+//    @Override
+//    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
+//        super.onTaskFragmentInfoChanged(taskFragmentInfo);
+//        // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
+//    }
 
-    @Override
-    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
-        super.onTaskFragmentVanished(taskFragmentInfo);
-    }
+//    @Override
+//    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
+//        super.onTaskFragmentVanished(taskFragmentInfo);
+//    }
 }
