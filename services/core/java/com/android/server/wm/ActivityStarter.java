@@ -1561,7 +1561,7 @@ class ActivityStarter {
         if (!split) return;
 
         // 防止重复 split
-        if (mSplitTasks.contains(task.mTaskId)) return;
+//        if (mSplitTasks.contains(task.mTaskId)) return;
 
 //        final Intent secondaryIntent =
 //                bundle.getParcelable(KEY_SECONDARY_INTENT);
