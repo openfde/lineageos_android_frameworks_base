@@ -1306,7 +1306,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
         if (intent != null && shouldSplit(intent)) {
             intent.putExtra("should_split", true);
-            intent.putExtra("should_split_secondary_intent", intent);
+//            intent.putExtra("should_split_secondary_intent", intent);
         }
 
         final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
