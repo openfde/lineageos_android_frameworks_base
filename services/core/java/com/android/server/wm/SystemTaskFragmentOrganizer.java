@@ -36,7 +36,8 @@ import android.os.RemoteException;
 import com.android.server.wm.ActivityRecord;
 import com.android.server.wm.Task;
 import com.android.server.wm.ActivityTaskManagerService;
-
+import android.util.ArrayMap;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import android.util.Slog;
@@ -286,7 +287,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void removeTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
-        Log.d(TAG, "removeTaskFragmentInfo: 移除 TaskFragment 信息，token="
+        Slog.d(TAG, "removeTaskFragmentInfo: 移除 TaskFragment 信息，token="
                 + taskFragmentInfo.getFragmentToken());
         mFragmentInfos.remove(taskFragmentInfo.getFragmentToken());
     }
@@ -296,20 +297,20 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //    @Override
     public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentAppeared() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
-        super.onTaskFragmentAppeared(taskFragmentInfo);
+//        onTaskFragmentAppeared(taskFragmentInfo);
         // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
     }
 
 //    @Override
     public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
-        super.onTaskFragmentInfoChanged(taskFragmentInfo);
+//        onTaskFragmentInfoChanged(taskFragmentInfo);
         // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
     }
 
 //    @Override
     public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
-        super.onTaskFragmentVanished(taskFragmentInfo);
+//        onTaskFragmentVanished(taskFragmentInfo);
     }
 }
