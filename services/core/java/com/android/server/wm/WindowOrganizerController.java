@@ -2252,7 +2252,7 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
                             + "the root activity of the target task belong to the different app");
             sendTaskFragmentOperationFailure(organizer, errorCallbackToken, null /* taskFragment */,
                     OP_TYPE_CREATE_TASK_FRAGMENT, exception);
-            return;
+//            return;
         }
         if (ownerTask.inPinnedWindowingMode()) {
             final Throwable exception = new IllegalArgumentException(
