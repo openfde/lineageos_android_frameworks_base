@@ -17,6 +17,7 @@ import android.os.IBinder;
 
 import android.window.TaskFragmentCreationParams;
 import android.window.WindowContainerTransaction;
+import android.os.RemoteException;
 
 import com.android.server.wm.ActivityRecord;
 import com.android.server.wm.Task;
@@ -89,7 +90,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mRightFragments.put(task.mTaskId, rightToken);
 
         // 4. 提交事务给系统
-        mAtmService.mWindowOrganizerController.applyTransaction(wct);
+        try {
+            mAtmService.mWindowOrganizerController.applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
     }
 
     void startSplit(Task task, ActivityRecord primary, Intent secondaryIntent) {
