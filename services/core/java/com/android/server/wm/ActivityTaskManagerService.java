@@ -1304,7 +1304,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             @Nullable String callingFeatureId, Intent intent, String resolvedType,
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
-        if (intent != null && shouldSplit(intent) && bOptions != null) {
+        if (intent != null && shouldSplit(intent)) {
             if (bOptions == null) bOptions = new Bundle();
             bOptions.putBoolean("should_split", true);
             bOptions.putParcelable("should_split_secondary_intent", intent);
