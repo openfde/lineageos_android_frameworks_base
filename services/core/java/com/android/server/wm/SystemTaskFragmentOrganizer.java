@@ -180,7 +180,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         // =========================
         // 5️⃣ 应用事务
         // =========================
-        mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
     }
 
     /**
