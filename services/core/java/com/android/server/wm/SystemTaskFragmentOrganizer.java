@@ -243,10 +243,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                         removeTaskFragmentInfo(info);
                         onTaskFragmentVanished(info);
                         break;
-//                    case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED:
+                    case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED:
 //                        onTaskFragmentParentInfoChanged(wct, taskId,
 //                                change.getTaskFragmentParentInfo());
-//                        break;
+                        onTaskFragmentVanished(info);
+                        break;
                     case TYPE_TASK_FRAGMENT_ERROR:
 //                        final Bundle errorBundle = change.getErrorBundle();
 //                        final IBinder errorToken = change.getErrorCallbackToken();
@@ -269,8 +270,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //                                change.getActivityToken());
                         break;
                     default:
-                        throw new IllegalArgumentException(
-                                "Unknown TaskFragmentEvent=" + change.getType());
+//                        throw new IllegalArgumentException(
+//                                "Unknown TaskFragmentEvent=" + change.getType());
                 }
             }
 
