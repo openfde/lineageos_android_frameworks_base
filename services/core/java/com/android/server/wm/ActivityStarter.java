@@ -1558,7 +1558,7 @@ class ActivityStarter {
         final Bundle bundle = options.toBundle();
         if (bundle == null) return;
 
-        if (!bundle.getBoolean(KEY_CUSTOM_SPLIT, false)) return;
+        if (!bundle.getBoolean(KEY_SPLIT, false)) return;
 
         // 防止重复 split
         if (mSplitTasks.contains(task.mTaskId)) return;

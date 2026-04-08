@@ -1298,11 +1298,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             @Nullable String callingFeatureId, Intent intent, String resolvedType,
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
-        final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
-        if (mStartActivity != null && mStartActivity.intent != null && shouldSplit(intent)) {
-            opts.putBoolean("should_split", true);
-            opts.putParcelable("should_split_secondary_intent", intent);
+        if (intent != null && shouldSplit(intent) && bOptions != null) {
+            if (bOptions == null) bOptions = new Bundle();
+            bOptions.putBoolean("should_split", true);
+            bOptions.putParcelable("should_split_secondary_intent", intent);
         }
+        final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
+
         try{
             if(mUserMonitor == null){           
                 mUserMonitor = UserMonitor.getInstance(mContext);      
