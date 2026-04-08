@@ -902,7 +902,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                     GrammaticalInflectionManagerInternal.class);
             mH.post(() -> {
                 try {
-                    mSystemTaskFragmentOrganizer.registerOrganizer();
+                    mParallelVisionOrganizer.registerOrganizer();
                 } catch (Exception e) {
                     Slog.e(TAG, "register organizer failed", e);
                 }
