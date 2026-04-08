@@ -10,11 +10,25 @@ import android.window.TaskFragmentCreationParams;
 import android.window.TaskFragmentInfo;
 import android.window.TaskFragmentOrganizer;
 import android.window.WindowContainerTransaction;
+import android.window.TaskFragmentTransaction;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Binder;
 import android.os.IBinder;
-
+import static android.window.TaskFragmentOperation.OP_TYPE_REPARENT_ACTIVITY_TO_TASK_FRAGMENT;
+import static android.window.TaskFragmentOperation.OP_TYPE_START_ACTIVITY_IN_TASK_FRAGMENT;
+import static android.window.TaskFragmentOrganizer.KEY_ERROR_CALLBACK_OP_TYPE;
+import static android.window.TaskFragmentOrganizer.KEY_ERROR_CALLBACK_TASK_FRAGMENT_INFO;
+import static android.window.TaskFragmentOrganizer.KEY_ERROR_CALLBACK_THROWABLE;
+import static android.window.TaskFragmentOrganizer.TASK_FRAGMENT_TRANSIT_CLOSE;
+import static android.window.TaskFragmentOrganizer.TASK_FRAGMENT_TRANSIT_OPEN;
+import static android.window.TaskFragmentTransaction.TYPE_ACTIVITY_REPARENTED_TO_TASK;
+import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_APPEARED;
+import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_ERROR;
+import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_INFO_CHANGED;
+import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED;
+import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_VANISHED;
+import android.annotation.NonNull;
 import android.window.TaskFragmentCreationParams;
 import android.window.WindowContainerTransaction;
 import android.os.RemoteException;
@@ -25,17 +39,20 @@ import com.android.server.wm.ActivityTaskManagerService;
 
 import java.util.HashMap;
 import java.util.Map;
+import android.util.Slog;
 
 /**
  * 精简版系统平行视界控制器
  */
 public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
+    private static final String TAG = "SystemTaskFragmentOrganizer";
     private final ActivityTaskManagerService mAtmService;
 
     // 用于记录某个 Task 对应的左、右 TaskFragment 的 Binder Token
     private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
+    final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
 
     public SystemTaskFragmentOrganizer(ActivityTaskManagerService atmService) {
         // 使用主线程的 Executor 或者 ATM 的 Handler
@@ -201,22 +218,98 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         return mRightFragments.get(taskId);
     }
 
+    @Override
+    public void onTransactionReady(@NonNull TaskFragmentTransaction transaction) {
+        super.onTransactionReady(transaction);
+//            final TransactionRecord transactionRecord = mTransactionManager.startNewTransaction(
+//                    transaction.getTransactionToken());
+//            final WindowContainerTransaction wct = transactionRecord.getTransaction();
+            final List<TaskFragmentTransaction.Change> changes = transaction.getChanges();
+            for (TaskFragmentTransaction.Change change : changes) {
+                final int taskId = change.getTaskId();
+                final TaskFragmentInfo info = change.getTaskFragmentInfo();
+                Slog.d(TAG, "onTransactionReady type: " + change.getType());
+                switch (change.getType()) {
+                    case TYPE_TASK_FRAGMENT_APPEARED:
+                        updateTaskFragmentInfo(info);
+                        onTaskFragmentAppeared(info);
+                        break;
+                    case TYPE_TASK_FRAGMENT_INFO_CHANGED:
+                        updateTaskFragmentInfo(info);
+                        onTaskFragmentInfoChanged(info);
+                        break;
+                    case TYPE_TASK_FRAGMENT_VANISHED:
+                        removeTaskFragmentInfo(info);
+                        onTaskFragmentVanished(info);
+                        break;
+//                    case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED:
+//                        onTaskFragmentParentInfoChanged(wct, taskId,
+//                                change.getTaskFragmentParentInfo());
+//                        break;
+                    case TYPE_TASK_FRAGMENT_ERROR:
+//                        final Bundle errorBundle = change.getErrorBundle();
+//                        final IBinder errorToken = change.getErrorCallbackToken();
+//                        final TaskFragmentInfo errorTaskFragmentInfo = errorBundle.getParcelable(
+//                                KEY_ERROR_CALLBACK_TASK_FRAGMENT_INFO, TaskFragmentInfo.class);
+//                        final int opType = errorBundle.getInt(KEY_ERROR_CALLBACK_OP_TYPE);
+//                        final Throwable exception = errorBundle.getSerializable(
+//                                KEY_ERROR_CALLBACK_THROWABLE, Throwable.class);
+//                        if (errorTaskFragmentInfo != null) {
+//                            mPresenter.updateTaskFragmentInfo(errorTaskFragmentInfo);
+//                        }
+//                        onTaskFragmentError(wct, errorToken, errorTaskFragmentInfo, opType,
+//                                exception);
+                        break;
+                    case TYPE_ACTIVITY_REPARENTED_TO_TASK:
+//                        onActivityReparentedToTask(
+//                                wct,
+//                                taskId,
+//                                change.getActivityIntent(),
+//                                change.getActivityToken());
+                        break;
+                    default:
+                        throw new IllegalArgumentException(
+                                "Unknown TaskFragmentEvent=" + change.getType());
+                }
+            }
+
+            // Notify the server, and the server should apply and merge the
+            // WindowContainerTransaction to the active sync to finish the TaskFragmentTransaction.
+//            transactionRecord.apply(false /* shouldApplyIndependently */);
+//            updateCallbackIfNecessary();
+    }
+
+    void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
+        Slog.d(TAG, "updateTaskFragmentInfo: 更新 TaskFragment 信息，token="
+                + taskFragmentInfo.getFragmentToken());
+        mFragmentInfos.put(taskFragmentInfo.getFragmentToken(), taskFragmentInfo);
+    }
+
+    void removeTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
+        Log.d(TAG, "removeTaskFragmentInfo: 移除 TaskFragment 信息，token="
+                + taskFragmentInfo.getFragmentToken());
+        mFragmentInfos.remove(taskFragmentInfo.getFragmentToken());
+    }
+
     // --- 实现 TaskFragmentOrganizer 的抽象回调 ---
 
 //    @Override
-//    public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
-//        super.onTaskFragmentAppeared(taskFragmentInfo);
-//        // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
-//    }
+    public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
+        Slog.d(TAG, "onTaskFragmentAppeared() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
+        super.onTaskFragmentAppeared(taskFragmentInfo);
+        // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
+    }
 
 //    @Override
-//    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
-//        super.onTaskFragmentInfoChanged(taskFragmentInfo);
-//        // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
-//    }
+    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
+        Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
+        super.onTaskFragmentInfoChanged(taskFragmentInfo);
+        // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
+    }
 
 //    @Override
-//    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
-//        super.onTaskFragmentVanished(taskFragmentInfo);
-//    }
+    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
+        Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
+        super.onTaskFragmentVanished(taskFragmentInfo);
+    }
 }
