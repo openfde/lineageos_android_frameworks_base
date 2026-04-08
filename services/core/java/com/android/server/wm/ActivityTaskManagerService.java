@@ -900,6 +900,13 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             ActivitySecurityModelFeatureFlags.initialize(mContext.getMainExecutor());
             mGrammaticalManagerInternal = LocalServices.getService(
                     GrammaticalInflectionManagerInternal.class);
+            mH.post(() -> {
+                try {
+                    mSystemTaskFragmentOrganizer.registerOrganizer();
+                } catch (Exception e) {
+                    Slog.e(TAG, "register organizer failed", e);
+                }
+            });
         }
     }
 
@@ -1039,7 +1046,6 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         mKeyguardController = mTaskSupervisor.getKeyguardController();
         mPackageConfigPersister = new PackageConfigPersister(mTaskSupervisor.mPersisterQueue, this);
         mParallelVisionOrganizer = new SystemTaskFragmentOrganizer(this);
-        mParallelVisionOrganizer.registerOrganizer();
     }
 
     public void onActivityManagerInternalAdded() {
