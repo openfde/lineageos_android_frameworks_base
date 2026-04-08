@@ -1559,9 +1559,8 @@ class ActivityStarter {
         }
 
         if (!split) return;
-
         // 防止重复 split
-//        if (mSplitTasks.contains(task.mTaskId)) return;
+        if (mSplitTasks.contains(task.mTaskId)) return;
 
 //        final Intent secondaryIntent =
 //                bundle.getParcelable(KEY_SECONDARY_INTENT);
@@ -1569,11 +1568,12 @@ class ActivityStarter {
 //        if (secondaryIntent == null) return;
 
         // 标记已处理
-        mSplitTasks.add(task.mTaskId);
 
         // 异步执行 split（关键！）
         mService.mH.post(() -> {
             try {
+
+                mSplitTasks.add(task.mTaskId);
                 triggerSplit(task, source, r.intent);
             } catch (Exception e) {
                 Slog.e(TAG, "triggerSplit error", e);
