@@ -143,7 +143,7 @@ import com.android.server.wm.TaskFragment.EmbeddingCheckResult;
 import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
 import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
 import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
-
+import android.util.ArraySet;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
