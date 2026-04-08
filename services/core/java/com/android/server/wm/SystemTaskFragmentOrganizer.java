@@ -90,11 +90,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mRightFragments.put(task.mTaskId, rightToken);
 
         // 4. 提交事务给系统
-        try {
+//        try {
             mAtmService.mWindowOrganizerController.applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+//        } catch (RemoteException e) {
+//            throw e.rethrowFromSystemServer();
+//        }
     }
 
     void startSplit(Task task, ActivityRecord primary, Intent secondaryIntent) {
