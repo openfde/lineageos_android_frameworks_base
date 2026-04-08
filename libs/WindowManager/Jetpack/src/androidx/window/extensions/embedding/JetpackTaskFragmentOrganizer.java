@@ -356,6 +356,11 @@ class JetpackTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void resizeTaskFragment(@NonNull WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
                             @Nullable Rect relBounds) {
+        try {
+            throw new Exception("resizeTaskFragment");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Log.d(TAG, "resizeTaskFragment: 调整 TaskFragment 大小，token=" + fragmentToken
                 + ", newBounds=" + relBounds);
         if (!mFragmentInfos.containsKey(fragmentToken)) {
