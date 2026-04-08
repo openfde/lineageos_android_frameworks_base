@@ -1481,9 +1481,9 @@ class ActivityStarter {
                 auxiliaryResponse == null ? null : auxiliaryResponse.filters);
     }
 
-    void postStartActivityProcessing(ActivityRecord r, int result,
+    void postStartActivityProcessing(ActivityRecord source, ActivityRecord r, int result,
             Task startedActivityRootTask) {
-        Slog.e(TAG,  "postStartActivityProcessing() called with: r = [" + r + "], result = [" + result + "], startedActivityRootTask = [" + startedActivityRootTask + "]");
+        Slog.e(TAG,  "postStartActivityProcessing() called with: r = [" + r + "], source = [" + source + "], startedActivityRootTask = [" + startedActivityRootTask + "]");
         if (!ActivityManager.isStartResultSuccessful(result)) {
             if (mFrozeTaskList) {
                 // If we specifically froze the task list as part of starting an activity, then
@@ -1526,7 +1526,7 @@ class ActivityStarter {
         if (ActivityManager.isStartResultSuccessful(result)) {
             mInterceptor.onActivityLaunched(targetTask.getTaskInfo(), r);
             try {
-                handleCustomSplitIfNeeded(r, targetTask, result);
+                handleCustomSplitIfNeeded(mSourceRecord, r, targetTask, result);
             } catch (Exception e) {
                 Slog.e(TAG, "Custom split failed", e);
             }
@@ -1544,8 +1544,13 @@ class ActivityStarter {
         return mSplitTasks.contains(task.mTaskId);
     }
 
-    private void handleCustomSplitIfNeeded(ActivityRecord r, Task task, int result) {
+    private void handleCustomSplitIfNeeded(ActivityRecord source,ActivityRecord r, Task task, int result) {
         if (r == null || task == null) return;
+
+        boolean split = false;
+        if(r.intent != null){
+            split =   r.intent.getBooleanExtra(KEY_SPLIT, false);
+        }
 
         // 只在真正“新启动”时触发
         if (result == START_DELIVERED_TO_TOP
@@ -1553,13 +1558,7 @@ class ActivityStarter {
             return;
         }
 
-        final ActivityOptions options = r.getOptions();
-        if (options == null) return;
-
-        final Bundle bundle = options.toBundle();
-        if (bundle == null) return;
-
-        if (!bundle.getBoolean(KEY_SPLIT, false)) return;
+        if (!split) return;
 
         // 防止重复 split
         if (mSplitTasks.contains(task.mTaskId)) return;
@@ -1575,7 +1574,7 @@ class ActivityStarter {
         // 异步执行 split（关键！）
         mService.mH.post(() -> {
             try {
-                triggerSplit(task, r, secondaryIntent);
+                triggerSplit(task, mSourceRecord, secondaryIntent);
             } catch (Exception e) {
                 Slog.e(TAG, "triggerSplit error", e);
             }
@@ -1670,7 +1669,7 @@ class ActivityStarter {
         } finally {
             mService.continueWindowLayout();
         }
-        postStartActivityProcessing(r, result, startedActivityRootTask);
+        postStartActivityProcessing(sourceRecord, r, result, startedActivityRootTask);
 
         return result;
     }
