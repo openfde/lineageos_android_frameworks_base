@@ -1483,6 +1483,7 @@ class ActivityStarter {
 
     void postStartActivityProcessing(ActivityRecord r, int result,
             Task startedActivityRootTask) {
+        Slog.e(TAG,  "postStartActivityProcessing() called with: r = [" + r + "], result = [" + result + "], startedActivityRootTask = [" + startedActivityRootTask + "]");
         if (!ActivityManager.isStartResultSuccessful(result)) {
             if (mFrozeTaskList) {
                 // If we specifically froze the task list as part of starting an activity, then
