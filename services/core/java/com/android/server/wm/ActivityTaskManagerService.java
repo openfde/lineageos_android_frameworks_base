@@ -1299,7 +1299,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
         final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
-        if (mStartActivity != null && mStartActivity.intent != null && shouldSplit(intent) {
+        if (mStartActivity != null && mStartActivity.intent != null && shouldSplit(intent)) {
             opts.putBoolean("should_split", true);
             opts.putParcelable("should_split_secondary_intent", intent);
         }
