@@ -2247,11 +2247,11 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
         final Task ownerTask = ownerActivity.getTask();
         if (ownerTask.effectiveUid != ownerActivity.getUid()
                 || ownerTask.effectiveUid != caller.mUid) {
-//            final Throwable exception =
-//                    new SecurityException("Not allowed to operate with the ownerToken while "
-//                            + "the root activity of the target task belong to the different app");
-//            sendTaskFragmentOperationFailure(organizer, errorCallbackToken, null /* taskFragment */,
-//                    OP_TYPE_CREATE_TASK_FRAGMENT, exception);
+            final Throwable exception =
+                    new SecurityException("Not allowed to operate with the ownerToken while "
+                            + "the root activity of the target task belong to the different app");
+            sendTaskFragmentOperationFailure(organizer, errorCallbackToken, null /* taskFragment */,
+                    OP_TYPE_CREATE_TASK_FRAGMENT, exception);
 //            return;
         }
         if (ownerTask.inPinnedWindowingMode()) {
