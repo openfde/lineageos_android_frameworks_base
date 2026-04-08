@@ -1524,7 +1524,80 @@ class ActivityStarter {
 
         if (ActivityManager.isStartResultSuccessful(result)) {
             mInterceptor.onActivityLaunched(targetTask.getTaskInfo(), r);
+            try {
+                handleCustomSplitIfNeeded(r, targetTask, result);
+            } catch (Exception e) {
+                Slog.e(TAG, "Custom split failed", e);
+            }
         }
+    }
+
+    // ===== custom split =====
+    private static final String KEY_SPLIT = "should_split";
+    private static final String KEY_SECONDARY_INTENT = "should_split_secondary_intent";
+
+    // 防重复 split（按 taskId）
+    private final ArraySet<Integer> mSplitTasks = new ArraySet<>();
+
+    private boolean taskAlreadySplit(Task task) {
+        return mSplitTasks.contains(task.mTaskId);
+    }
+
+    private void handleCustomSplitIfNeeded(ActivityRecord r, Task task, int result) {
+        if (r == null || task == null) return;
+
+        // 只在真正“新启动”时触发
+        if (result == START_DELIVERED_TO_TOP
+                || result == START_TASK_TO_FRONT) {
+            return;
+        }
+
+        final ActivityOptions options = r.getOptions();
+        if (options == null) return;
+
+        final Bundle bundle = options.toBundle();
+        if (bundle == null) return;
+
+        if (!bundle.getBoolean(KEY_CUSTOM_SPLIT, false)) return;
+
+        // 防止重复 split
+        if (mSplitTasks.contains(task.mTaskId)) return;
+
+        final Intent secondaryIntent =
+                bundle.getParcelable(KEY_SECONDARY_INTENT);
+
+        if (secondaryIntent == null) return;
+
+        // 标记已处理
+        mSplitTasks.add(task.mTaskId);
+
+        // 异步执行 split（关键！）
+        mService.mH.post(() -> {
+            try {
+                triggerSplit(task, r, secondaryIntent);
+            } catch (Exception e) {
+                Slog.e(TAG, "triggerSplit error", e);
+            }
+        });
+    }
+
+    private void triggerSplit(Task task, ActivityRecord primary, Intent secondaryIntent) {
+        if (task == null || primary == null) return;
+
+        SystemTaskFragmentOrganizer organizer =
+                mService.mParallelVisionOrganizer;
+
+        if (organizer == null) {
+            Slog.e(TAG, "SystemTaskFragmentOrganizer is null");
+            return;
+        }
+
+        organizer.startSplit(
+                task,
+                primary,
+                secondaryIntent
+        );
+
     }
 
     /**

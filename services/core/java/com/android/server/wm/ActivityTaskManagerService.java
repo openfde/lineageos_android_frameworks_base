@@ -291,7 +291,6 @@ import com.android.server.uri.NeededUriGrants;
 import com.android.server.uri.UriGrantsManagerInternal;
 import com.android.server.wallpaper.WallpaperManagerInternal;
 import com.android.wm.shell.Flags;
-
 import org.lineageos.internal.applications.LineageActivityManager;
 
 import java.io.BufferedReader;
@@ -1040,6 +1039,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         mKeyguardController = mTaskSupervisor.getKeyguardController();
         mPackageConfigPersister = new PackageConfigPersister(mTaskSupervisor.mPersisterQueue, this);
         mParallelVisionOrganizer = new SystemTaskFragmentOrganizer(this);
+        mParallelVisionOrganizer.registerOrganizer();
     }
 
     public void onActivityManagerInternalAdded() {
@@ -1290,12 +1290,19 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         mUserMonitor.packageStateChanged(4,packageName,0);
     }
 
+    private boolean shouldSplit(Intent intent){
+        return TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.SecondActivity");
+    }
+
     private int startActivityAsUser(IApplicationThread caller, String callingPackage,
             @Nullable String callingFeatureId, Intent intent, String resolvedType,
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
         final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
-
+        if (mStartActivity != null && mStartActivity.intent != null && shouldSplit(intent) {
+            opts.putBoolean("should_split", true);
+            opts.putParcelable("should_split_secondary_intent", intent);
+        }
         try{
             if(mUserMonitor == null){           
                 mUserMonitor = UserMonitor.getInstance(mContext);      

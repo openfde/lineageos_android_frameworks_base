@@ -10,7 +10,17 @@ import android.window.TaskFragmentCreationParams;
 import android.window.TaskFragmentInfo;
 import android.window.TaskFragmentOrganizer;
 import android.window.WindowContainerTransaction;
+import android.content.Intent;
+import android.graphics.Rect;
+import android.os.Binder;
+import android.os.IBinder;
 
+import android.window.TaskFragmentCreationParams;
+import android.window.WindowContainerTransaction;
+
+import com.android.server.wm.ActivityRecord;
+import com.android.server.wm.Task;
+import com.android.server.wm.ActivityTaskManagerService;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,6 +90,92 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
         // 4. 提交事务给系统
         mAtmService.mWindowOrganizerController.applyTransaction(wct);
+    }
+
+    void startSplit(Task task, ActivityRecord primary, Intent secondaryIntent) {
+        if (task == null || primary == null) return;
+
+        final WindowContainerTransaction wct = new WindowContainerTransaction();
+
+        final IBinder primaryTfToken = new Binder();
+        final IBinder secondaryTfToken = new Binder();
+
+        final IBinder ownerToken = primary.token;
+
+        final Rect taskBounds = task.getBounds();
+
+        // 计算左右分屏
+        final int mid = taskBounds.width() / 2;
+
+        final Rect left = new Rect(
+                0,
+                0,
+                mid,
+                taskBounds.height()
+        );
+
+        final Rect right = new Rect(
+                mid,
+                0,
+                taskBounds.width(),
+                taskBounds.height()
+        );
+
+        // =========================
+        // 1️⃣ 创建 primary TF + reparent A
+        // =========================
+        TaskFragmentCreationParams primaryParams =
+                new TaskFragmentCreationParams.Builder(
+                        getOrganizerToken(),
+                        primaryTfToken,
+                        ownerToken)
+                        .setInitialRelativeBounds(left)
+                        .build();
+
+        wct.createTaskFragment(primaryParams);
+
+        wct.reparentActivityToTaskFragment(
+                primaryTfToken,
+                primary.token
+        );
+
+        // =========================
+        // 2️⃣ 创建 secondary TF
+        // =========================
+        TaskFragmentCreationParams secondaryParams =
+                new TaskFragmentCreationParams.Builder(
+                        getOrganizerToken(),
+                        secondaryTfToken,
+                        ownerToken)
+                        .setInitialRelativeBounds(right)
+                        .setPairedPrimaryFragmentToken(primaryTfToken)
+                        .build();
+
+        wct.createTaskFragment(secondaryParams);
+
+        // =========================
+        // 3️⃣ 启动 secondary Activity
+        // =========================
+        wct.startActivityInTaskFragment(
+                secondaryTfToken,
+                ownerToken,
+                secondaryIntent,
+                null
+        );
+
+        // =========================
+        // 4️⃣ 设置相邻（split）
+        // =========================
+        wct.setAdjacentTaskFragments(
+                primaryTfToken,
+                secondaryTfToken,
+                null
+        );
+
+        // =========================
+        // 5️⃣ 应用事务
+        // =========================
+        mAtmService.getWindowOrganizerController().applyTransaction(wct);
     }
 
     /**
