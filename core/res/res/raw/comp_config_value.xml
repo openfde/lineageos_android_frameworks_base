@@ -85,24 +85,30 @@
     <item
         isdel="false"
         key_code="minBoundsVisibleWidth"
-        update_date="2026-03-17">
+        update_date="2026-04-09">
 	 <package name="com.autonavi.minimap">
             <activity name="">960</activity>
         </package>
         <package name="com.android.wallpaper">
             <activity name="">1000</activity>
         </package>
+        <package name="com.sdu.didi.psnger">
+            <activity name="">1400</activity>
+        </package>
     </item>
 
     <item
         isdel="false"
         key_code="minBoundsVisibleHeight"
-        update_date="2026-03-17">
+        update_date="2026-04-09">
 	 <package name="com.autonavi.minimap">
             <activity name="">540</activity>
         </package>
         <package name="com.android.wallpaper">
             <activity name="">600</activity>
+        </package>
+        <package name="com.sdu.didi.psnger">
+            <activity name="">800</activity>
         </package>
     </item>
 	<item
