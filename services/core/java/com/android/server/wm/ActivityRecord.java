@@ -10029,7 +10029,12 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
                     changes, lastReportedConfig, getConfiguration(), mSizeConfigurations);
         // We don't want window configuration to cause relaunches.
         if ((changes & CONFIG_WINDOW_CONFIGURATION) != 0) {
-            changes &= ~CONFIG_WINDOW_CONFIGURATION;
+            boolean isVideoDetail = intent != null && intent.getComponent() != null
+                    && "VideoDetailKmmActivityBk".equals(intent.getComponent().getShortClassName());
+
+            if (!isVideoDetail) {
+                changes &= ~CONFIG_WINDOW_CONFIGURATION;
+            }
         }
 
         return changes;
