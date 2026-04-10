@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import android.util.Slog;
+import android.window.TaskFragmentParentInfo;
 
 /**
  * 精简版系统平行视界控制器
