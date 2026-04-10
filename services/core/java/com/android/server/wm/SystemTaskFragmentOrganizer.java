@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import android.util.Slog;
 import android.window.TaskFragmentParentInfo;
+import android.content.res.Configuration;
 
 /**
  * 精简版系统平行视界控制器
@@ -55,6 +56,9 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
+    private final Configuration mConfiguration = new Configuration();
+    private int mDisplayId;
+
 
     public SystemTaskFragmentOrganizer(ActivityTaskManagerService atmService) {
         // 使用主线程的 Executor 或者 ATM 的 Handler
@@ -198,6 +202,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     secondaryTfToken,
                     null
             );
+            mLeftFragments.put(task.mTaskId, primaryTfToken);
+            mRightFragments.put(task.mTaskId, secondaryTfToken);
 
             // =========================
             // 5️⃣ 应用事务
@@ -211,6 +217,33 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             Binder.restoreCallingIdentity(origId);
         }
 
+    }
+
+    void updateContainersInTask(int taskId, Rect taskBounds){
+        final WindowContainerTransaction wct = new WindowContainerTransaction();
+        final IBinder primaryTfToken = mLeftFragments.get(taskId);
+        final IBinder secondaryTfToken = mRightFragments.get(taskId);
+        final int mid = taskBounds.width() / 2;
+        final Rect left = new Rect( 0,0, mid,taskBounds.height());
+        final Rect right = new Rect( mid, 0, taskBounds.width(),taskBounds.height());
+        resizeTaskFragment(wct, primaryTfToken, left);
+        resizeTaskFragment(wct, secondaryTfToken, right);
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    void resizeTaskFragment(@NonNull WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
+                            @Nullable Rect relBounds) {
+        if (fragmentToken == null) {
+            return;
+        }
+        if (relBounds == null) {
+            relBounds = new Rect();
+        }
+        wct.setRelativeBounds(mFragmentInfos.get(fragmentToken).getToken(), relBounds);
     }
 
     /**
@@ -318,6 +351,26 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
-//        onTaskFragmentVanished(taskFragmentInfo);
+        final Rect taskBounds = taskConfiguration.windowConfiguration.getBounds();
+        if(shouldUpdateContainer(taskFragmentInfo)){
+            updateContainersInTask(taskId, taskBounds);
+        }
+        mConfiguration = taskConfiguration.windowConfiguration;
+        mDisplayId = info.getDisplayId()
+    }
+
+    boolean shouldUpdateContainer(@NonNull TaskFragmentParentInfo info) {
+        final Configuration configuration = info.getConfiguration();
+        return info.isVisible()
+                // No need to update presentation in PIP until the Task exit PIP.
+                && !isInPictureInPicture(configuration)
+                // If the task properties equals regardless of starting position, don't need to
+                // update the container.
+                && (mConfiguration.diffPublicOnly(configuration) != 0
+                || mDisplayId != info.getDisplayId());
+    }
+
+    private static boolean isInPictureInPicture(@NonNull Configuration configuration) {
+        return configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_PINNED;
     }
 }
