@@ -1152,6 +1152,11 @@ class Task extends TaskFragment {
 
     @Override
     void onParentChanged(ConfigurationContainer rawNewParent, ConfigurationContainer rawOldParent) {
+        try {
+            throw new Exception("onParentChanged");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         final WindowContainer<?> newParent = (WindowContainer<?>) rawNewParent;
         final WindowContainer<?> oldParent = (WindowContainer<?>) rawOldParent;
         final DisplayContent display = newParent != null ? newParent.getDisplayContent() : null;
