@@ -357,7 +357,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if(shouldUpdateContainer(taskFragmentInfo)){
             updateContainersInTask(taskId, taskBounds);
         }
-        mConfiguration = taskFragmentInfo.getConfiguration().windowConfiguration;
+        mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
     }
 
