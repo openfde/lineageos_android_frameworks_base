@@ -189,7 +189,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             // =========================
             // 3️⃣ 启动 secondary Activity
             // =========================
-            wct.startActivityInTaskFragment(
+            wct.(
                     secondaryTfToken,
                     ownerToken,
                     secondaryIntent,
@@ -202,8 +202,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             wct.setAdjacentTaskFragments(
                     primaryTfToken,
                     secondaryTfToken,
-                    null
+                    new WindowContainerTransaction.TaskFragmentAdjacentParams.Builder()
+                            .setDelayPrimaryLastActivityRemoval(true) // 防止左侧最后 Activity 移除时导致黑屏
+                            .build()
             );
+            wct.setCompanionTaskFragment(primaryTfToken, secondaryTfToken);
             mLeftFragments.put(task.mTaskId, primaryTfToken);
             mRightFragments.put(task.mTaskId, secondaryTfToken);
 
