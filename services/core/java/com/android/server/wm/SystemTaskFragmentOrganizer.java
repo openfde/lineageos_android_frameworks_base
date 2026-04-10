@@ -127,36 +127,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         final long origId = Binder.clearCallingIdentity();
         try {
             if (task == null || primary == null) return;
-
             final WindowContainerTransaction wct = new WindowContainerTransaction();
-
             final IBinder primaryTfToken = new Binder();
             final IBinder secondaryTfToken = new Binder();
-
             final IBinder ownerToken = primary.token;
-
             final Rect taskBounds = task.getBounds();
-
-            // 计算左右分屏
             final int mid = taskBounds.width() / 2;
-
-            final Rect left = new Rect(
-                    0,
-                    0,
-                    mid,
-                    taskBounds.height()
-            );
-
-            final Rect right = new Rect(
-                    mid,
-                    0,
-                    taskBounds.width(),
-                    taskBounds.height()
-            );
-
-            // =========================
-            // 1️⃣ 创建 primary TF + reparent A
-            // =========================
+            final Rect left = new Rect(0, 0, mid, taskBounds.height());
+            final Rect right = new Rect( mid, 0, taskBounds.width(), taskBounds.height());
             TaskFragmentCreationParams primaryParams =
                     new TaskFragmentCreationParams.Builder(
                             getOrganizerToken(),
@@ -164,17 +142,12 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                             ownerToken)
                             .setInitialRelativeBounds(left)
                             .build();
-
             wct.createTaskFragment(primaryParams);
-
             wct.reparentActivityToTaskFragment(
                     primaryTfToken,
                     primary.token
             );
 
-            // =========================
-            // 2️⃣ 创建 secondary TF
-            // =========================
             TaskFragmentCreationParams secondaryParams =
                     new TaskFragmentCreationParams.Builder(
                             getOrganizerToken(),
@@ -185,34 +158,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                             .build();
 
             wct.createTaskFragment(secondaryParams);
-
-            // =========================
-            // 3️⃣ 启动 secondary Activity
-            // =========================
-            wct.(
-                    secondaryTfToken,
-                    ownerToken,
-                    secondaryIntent,
-                    null
-            );
-
-            // =========================
-            // 4️⃣ 设置相邻（split）
-            // =========================
-            wct.setAdjacentTaskFragments(
-                    primaryTfToken,
-                    secondaryTfToken,
+            wct.startActivityInTaskFragment(secondaryTfToken, ownerToken, secondaryIntent, null );
+            wct.setAdjacentTaskFragments(primaryTfToken, secondaryTfToken,
                     new WindowContainerTransaction.TaskFragmentAdjacentParams.Builder()
                             .setDelayPrimaryLastActivityRemoval(true) // 防止左侧最后 Activity 移除时导致黑屏
-                            .build()
-            );
+                            .build());
             wct.setCompanionTaskFragment(primaryTfToken, secondaryTfToken);
             mLeftFragments.put(task.mTaskId, primaryTfToken);
             mRightFragments.put(task.mTaskId, secondaryTfToken);
-
-            // =========================
-            // 5️⃣ 应用事务
-            // =========================
             try {
                 mAtmService.getWindowOrganizerController().applyTransaction(wct);
             } catch (RemoteException e) {
@@ -221,7 +174,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         } finally {
             Binder.restoreCallingIdentity(origId);
         }
-
     }
 
     void updateContainersInTask(int taskId, Rect taskBounds){
