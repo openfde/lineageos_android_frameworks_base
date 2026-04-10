@@ -244,9 +244,9 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                         onTaskFragmentVanished(info);
                         break;
                     case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED:
-//                        onTaskFragmentParentInfoChanged(wct, taskId,
-//                                change.getTaskFragmentParentInfo());
-                        onTaskFragmentVanished(info);
+                        onTaskFragmentParentInfoChanged(taskId,
+                                change.getTaskFragmentParentInfo());
+//                        onTaskFragmentVanished(info);
                         break;
                     case TYPE_TASK_FRAGMENT_ERROR:
 //                        final Bundle errorBundle = change.getErrorBundle();
@@ -312,6 +312,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //    @Override
     public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
+//        onTaskFragmentVanished(taskFragmentInfo);
+    }
+
+    public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
+        Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
     }
 }
