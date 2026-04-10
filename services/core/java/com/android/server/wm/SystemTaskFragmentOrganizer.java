@@ -58,7 +58,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
-    private final Configuration mConfiguration = new Configuration();
+    private Configuration mConfiguration = new Configuration();
     private int mDisplayId;
 
 
