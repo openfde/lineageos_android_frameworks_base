@@ -239,7 +239,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void resizeTaskFragment(@NonNull WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
                             @Nullable Rect relBounds) {
-        if (fragmentToken == null) {
+        if (fragmentToken == null || mFragmentInfos.get(fragmentToken) == null) {
             return;
         }
         if (relBounds == null) {
@@ -297,6 +297,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //                        }
 //                        onTaskFragmentError(wct, errorToken, errorTaskFragmentInfo, opType,
 //                                exception);
+                        updateTaskFragmentInfo(info);
                         break;
                     case TYPE_ACTIVITY_REPARENTED_TO_TASK:
 //                        onActivityReparentedToTask(
