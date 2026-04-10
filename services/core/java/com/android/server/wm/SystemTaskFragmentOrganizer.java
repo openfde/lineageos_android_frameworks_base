@@ -28,6 +28,7 @@ import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_ERROR;
 import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_INFO_CHANGED;
 import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED;
 import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_VANISHED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_PINNED;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.window.TaskFragmentCreationParams;
@@ -352,12 +353,12 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
-        final Rect taskBounds = taskConfiguration.windowConfiguration.getBounds();
+        final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if(shouldUpdateContainer(taskFragmentInfo)){
             updateContainersInTask(taskId, taskBounds);
         }
-        mConfiguration = taskConfiguration.windowConfiguration;
-        mDisplayId = info.getDisplayId();
+        mConfiguration = taskFragmentInfo.getConfiguration().windowConfiguration;
+        mDisplayId = taskFragmentInfo.getDisplayId();
     }
 
     boolean shouldUpdateContainer(@NonNull TaskFragmentParentInfo info) {
