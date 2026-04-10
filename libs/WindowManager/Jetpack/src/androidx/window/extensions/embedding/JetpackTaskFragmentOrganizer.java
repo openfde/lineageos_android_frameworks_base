@@ -409,6 +409,11 @@ class JetpackTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void deleteTaskFragment(@NonNull WindowContainerTransaction wct,
                             @NonNull IBinder fragmentToken) {
+        try {
+            throw new Exception("deleteTaskFragment");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Log.d(TAG, "deleteTaskFragment: 删除 TaskFragment，token=" + fragmentToken);
         wct.deleteTaskFragment(fragmentToken);
     }
