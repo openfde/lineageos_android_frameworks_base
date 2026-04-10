@@ -123,7 +123,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //        }
     }
 
-    void startSplit(Task task, ActivityRecord primary, Intent secondaryIntent) {
+    void startSplit(Task task, ActivityRecord primary, ActivityRecord secondary,Intent secondaryIntent) {
         final long origId = Binder.clearCallingIdentity();
         try {
             if (task == null || primary == null) return;
@@ -158,7 +158,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                             .build();
 
             wct.createTaskFragment(secondaryParams);
-            wct.startActivityInTaskFragment(secondaryTfToken, ownerToken, secondaryIntent, null );
+//            wct.startActivityInTaskFragment(secondaryTfToken, ownerToken, secondaryIntent, null );
+            wct.reparentActivityToTaskFragment(
+                    secondaryTfToken,
+                    secondary.token
+            );
             WindowContainerTransaction.TaskFragmentAdjacentParams adjacentParams
                     = new WindowContainerTransaction.TaskFragmentAdjacentParams();
             adjacentParams.setShouldDelayPrimaryLastActivityRemoval(true);

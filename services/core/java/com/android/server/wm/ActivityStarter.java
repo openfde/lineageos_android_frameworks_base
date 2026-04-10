@@ -1574,14 +1574,14 @@ class ActivityStarter {
             try {
 
                 mSplitTasks.add(task.mTaskId);
-                triggerSplit(task, source, r.intent);
+                triggerSplit(task, source, r, r.intent);
             } catch (Exception e) {
                 Slog.e(TAG, "triggerSplit error", e);
             }
         });
     }
 
-    private void triggerSplit(Task task, ActivityRecord primary, Intent secondaryIntent) {
+    private void triggerSplit(Task task, ActivityRecord primary, ActivityRecord target, Intent secondaryIntent) {
         if (task == null || primary == null) return;
 
         SystemTaskFragmentOrganizer organizer =
@@ -1595,6 +1595,7 @@ class ActivityStarter {
         organizer.startSplit(
                 task,
                 primary,
+                target,
                 secondaryIntent
         );
 
