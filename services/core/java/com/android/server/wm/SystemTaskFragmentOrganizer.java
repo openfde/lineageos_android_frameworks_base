@@ -319,12 +319,20 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
+        if(taskFragmentInfo == null){
+            Slog.d(TAG, "updateTaskFragmentInfo info is null");
+            return;
+        }
         Slog.d(TAG, "updateTaskFragmentInfo: 更新 TaskFragment 信息，token="
                 + taskFragmentInfo.getFragmentToken());
         mFragmentInfos.put(taskFragmentInfo.getFragmentToken(), taskFragmentInfo);
     }
 
     void removeTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
+        if(taskFragmentInfo == null){
+            Slog.d(TAG, "removeTaskFragmentInfo info is null");
+            return;
+        }
         Slog.d(TAG, "removeTaskFragmentInfo: 移除 TaskFragment 信息，token="
                 + taskFragmentInfo.getFragmentToken());
         mFragmentInfos.remove(taskFragmentInfo.getFragmentToken());
