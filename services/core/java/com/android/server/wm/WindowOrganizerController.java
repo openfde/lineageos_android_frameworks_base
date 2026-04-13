@@ -1349,6 +1349,11 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
                 break;
             }
             case OP_TYPE_DELETE_TASK_FRAGMENT: {
+                try {
+                    throw new Exception("applyTaskFragmentOperation");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 if (isInLockTaskMode) {
                     final ActivityRecord bottomActivity = taskFragment.getActivity(
                             a -> !a.finishing, false /* traverseTopToBottom */);
