@@ -646,6 +646,11 @@ class TaskFragmentContainer {
             // Defer removal the container and wait until TaskFragment appeared.
             return;
         }
+        try {
+            throw new Exception("finish");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Cleanup the visuals
         presenter.deleteTaskFragment(wct, getTaskFragmentToken());
