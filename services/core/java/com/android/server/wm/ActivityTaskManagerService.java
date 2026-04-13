@@ -1297,7 +1297,11 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
     }
 
     private boolean shouldSplit(Intent intent){
-        return TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.SecondActivity");
+        return TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.SecondActivity")
+                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.ThirdActivity")
+                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.ForthActivity")
+                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.FifithActivity")
+                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.SixthActivity");
     }
 
     private int startActivityAsUser(IApplicationThread caller, String callingPackage,
