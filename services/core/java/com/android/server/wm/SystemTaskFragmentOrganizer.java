@@ -312,7 +312,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
             WindowContainerTransaction wct = new WindowContainerTransaction();
             wct.deleteTaskFragment(taskFragmentInfo.getFragmentToken());
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+            try {
+                mAtmService.getWindowOrganizerController().applyTransaction(wct);
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
