@@ -309,6 +309,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
 //    @Override
     public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
+        if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
+            WindowContainerTransaction wct = new WindowContainerTransaction();
+            wct.deleteTaskFragment(taskFragmentInfo.getFragmentToken());
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
         // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
