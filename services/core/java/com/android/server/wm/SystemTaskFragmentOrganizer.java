@@ -172,7 +172,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             );
             WindowContainerTransaction.TaskFragmentAdjacentParams adjacentParams
                     = new WindowContainerTransaction.TaskFragmentAdjacentParams();
-            adjacentParams.setShouldDelayPrimaryLastActivityRemoval(true);
+//            adjacentParams.setShouldDelayPrimaryLastActivityRemoval(true);
             wct.setAdjacentTaskFragments(primaryTfToken, secondaryTfToken,
                     adjacentParams);
             wct.setCompanionTaskFragment(primaryTfToken, secondaryTfToken);
@@ -317,17 +317,31 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     //    @Override
     public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
-            WindowContainerTransaction wct = new WindowContainerTransaction();
-            wct.deleteTaskFragment(taskFragmentInfo.getFragmentToken());
-            try {
-                mAtmService.getWindowOrganizerController().applyTransaction(wct);
-            } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
-            }
+            deleteTaskFragment(taskFragmentInfo);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
         // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
+    }
+
+    void deleteTaskFragment(TaskFragmentInfo taskFragmentInfo) {
+        WindowContainerTransaction wct = new WindowContainerTransaction();
+        wct.deleteTaskFragment(taskFragmentInfo.getFragmentToken());
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+    void deleteTaskFragment(IBinder token) {
+        WindowContainerTransaction wct = new WindowContainerTransaction();
+        wct.deleteTaskFragment(token);
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
     }
 
     //    @Override
@@ -338,6 +352,10 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (mRightFragments.size() == 0 && mLeftFragments.get(taskId) != null) {
             expandTaskFragment(mLeftFragments.get(taskId));
             mSplitingActivityRecords.remove(taskId);
+        }else if(mLeftFragments.get(taskId)) != null &&
+                mFragmentInfos.get(mLeftFragments.get(taskId)) == taskFragmentInfo){
+            deleteTaskFragment(taskFragmentInfo);
+            deleteTaskFragment(mRightFragments.get(taskId));
         }
     }
 
