@@ -1296,22 +1296,11 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
         mUserMonitor.packageStateChanged(4,packageName,0);
     }
 
-    private boolean shouldSplit(Intent intent){
-        return TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.SecondActivity")
-                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.ThirdActivity")
-                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.ForthActivity")
-                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.FifithActivity")
-                || TextUtils.equals(intent.getComponent().getClassName(), "com.fde.nativeDemo.SixthActivity");
-    }
 
     private int startActivityAsUser(IApplicationThread caller, String callingPackage,
             @Nullable String callingFeatureId, Intent intent, String resolvedType,
             IBinder resultTo, String resultWho, int requestCode, int startFlags,
             ProfilerInfo profilerInfo, Bundle bOptions, int userId, boolean validateIncomingUser) {
-        if (intent != null && shouldSplit(intent)) {
-            intent.putExtra("should_split", true);
-//            intent.putExtra("should_split_secondary_intent", intent);
-        }
 
         final SafeActivityOptions opts = SafeActivityOptions.fromBundle(bOptions);
 
