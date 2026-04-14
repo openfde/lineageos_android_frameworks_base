@@ -240,7 +240,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     break;
                 case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
                     updateTaskFragmentInfo(info);
-                    onTaskFragmentInfoChanged(info);
+                    onTaskFragmentInfoChanged(info, taskId);
                     break;
                 case TYPE_TASK_FRAGMENT_VANISHED: //3
                     onTaskFragmentVanished(info, taskId);
@@ -315,7 +315,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     //    @Override
-    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
+    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo, int taskId) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
 //            deleteTaskFragment(taskFragmentInfo);
 //            removeTaskFragmentInfo(taskFragmentInfo);
