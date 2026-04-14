@@ -325,22 +325,32 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void deleteTaskFragment(TaskFragmentInfo taskFragmentInfo) {
+        if(taskFragmentInfo == null || taskFragmentInfo.getFragmentToken() == null
+            || mFragmentInfos.get(taskFragmentInfo.getFragmentToken()) == null){
+            Slog.w(TAG, "fragments already delete");
+            return;
+        }
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.deleteTaskFragment(taskFragmentInfo.getFragmentToken());
         try {
             mAtmService.getWindowOrganizerController().applyTransaction(wct);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            Slog.e(TAG, e.getMessage());
         }
     }
 
     void deleteTaskFragment(IBinder token) {
+        if(token == null
+                || mFragmentInfos.get(token) == null){
+            Slog.w(TAG, "fragments already delete");
+            return;
+        }
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.deleteTaskFragment(token);
         try {
             mAtmService.getWindowOrganizerController().applyTransaction(wct);
         } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+            Slog.e(TAG, e.getMessage());
         }
     }
 
@@ -357,7 +367,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         }else if(mLeftFragments.get(taskId) != null &&
                 mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
         {
-            deleteTaskFragment(mLeftFragments.get(taskId));
+//            deleteTaskFragment(mLeftFragments.get(taskId));
             deleteTaskFragment(mRightFragments.get(taskId));
             mRightFragments.remove(taskId);
             mLeftFragments.remove(taskId);
