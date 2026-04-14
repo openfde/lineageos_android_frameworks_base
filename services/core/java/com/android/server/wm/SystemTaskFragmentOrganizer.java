@@ -318,7 +318,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
             deleteTaskFragment(taskFragmentInfo);
-            removeTaskFragmentInfo(info);
+            removeTaskFragmentInfo(taskFragmentInfo);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
