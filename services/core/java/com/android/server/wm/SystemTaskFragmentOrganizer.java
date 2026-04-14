@@ -324,26 +324,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     //    @Override
     public void onTaskFragmentInfoChanged( WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo, int taskId) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
-//            deleteTaskFragment(taskFragmentInfo);
-//            removeTaskFragmentInfo(taskFragmentInfo);
-        }
-        if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
-            if (mRightFragments.get(taskId) != null &&
-                    mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
-            {
-                expandTaskFragment(wct, mLeftFragments.get(taskId));
-                deleteTaskFragment(wct, taskFragmentInfo);
-                mSplitingActivityRecords.remove(taskId);
-                mRightFragments.remove(taskId);
-            }else if(mLeftFragments.get(taskId) != null &&
-                    mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
-            {
-                deleteTaskFragment(wct, mRightFragments.get(taskId));
-                deleteTaskFragment(wct, taskFragmentInfo);
-                mRightFragments.remove(taskId);
-                mLeftFragments.remove(taskId);
-            }
-
+            deleteTaskFragment(taskFragmentInfo);
+            removeTaskFragmentInfo(taskFragmentInfo);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
@@ -382,6 +364,20 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
+        if (mRightFragments.get(taskId) != null &&
+                mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
+        {
+            expandTaskFragment(wct, mLeftFragments.get(taskId));
+            mSplitingActivityRecords.remove(taskId);
+            mRightFragments.remove(taskId);
+        }else if(mLeftFragments.get(taskId) != null &&
+                mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
+        {
+            deleteTaskFragment(wct, mRightFragments.get(taskId));
+//            deleteTaskFragment(wct, taskFragmentInfo);
+            mRightFragments.remove(taskId);
+            mLeftFragments.remove(taskId);
+        }
         removeTaskFragmentInfo(taskFragmentInfo);
     }
 
