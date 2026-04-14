@@ -243,8 +243,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     onTaskFragmentInfoChanged(info);
                     break;
                 case TYPE_TASK_FRAGMENT_VANISHED: //3
-                    removeTaskFragmentInfo(info);
                     onTaskFragmentVanished(info, taskId);
+                    removeTaskFragmentInfo(info);
                     break;
                 case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED: //4
                     onTaskFragmentParentInfoChanged(taskId,
