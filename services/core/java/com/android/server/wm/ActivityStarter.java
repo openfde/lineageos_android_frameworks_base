@@ -985,17 +985,20 @@ class ActivityStarter {
         if(isMagicPackage) {
             magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
         }
-        // mSupervisor.loadMagicWindowConfig(); for debug
+//        // mSupervisor.loadMagicWindowConfig(); for debug
         if( isMagicPackage
                 &&  magicType == MAGIC_ADDITIONAL_WINDOW) {
-            Task task = mRootWindowContainer.findMagicTask(aInfo.packageName, MAGIC_MAIN_WINDOW);
-            if(task != null){
-                mMagicLaunch = true;
-                aInfo.documentLaunchMode = DOCUMENT_LAUNCH_ALWAYS;
+            if (intent != null ) {
+                intent.putExtra("should_split", true);
             }
-            mWindowAffinity = aInfo.packageName;
-        } else {
-            mMagicLaunch = false;
+//            Task task = mRootWindowContainer.findMagicTask(aInfo.packageName, MAGIC_MAIN_WINDOW);
+//            if(task != null){
+//                mMagicLaunch = true;
+//                aInfo.documentLaunchMode = DOCUMENT_LAUNCH_ALWAYS;
+//            }
+//            mWindowAffinity = aInfo.packageName;
+//        } else {
+//            mMagicLaunch = false;
         }
         Slog.d(TAG, "isMagicPackage:" + isMagicPackage + " magicType:" + magicType);
         // fde end
