@@ -348,7 +348,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
-        mRightFragments.remove(taskId);
         if (mRightFragments.get(taskId) != null &&
                 mFragmentInfos.get(mRightFragments.get(taskId)) == taskFragmentInfo) {
             expandTaskFragment(mLeftFragments.get(taskId));
@@ -358,6 +357,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             deleteTaskFragment(mLeftFragments.get(taskId));
             deleteTaskFragment(mRightFragments.get(taskId));
         }
+        mRightFragments.remove(taskId);
     }
 
     public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
