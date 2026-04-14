@@ -368,7 +368,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             Slog.w(TAG, "fragments already delete");
             return;
         }
-        WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.deleteTaskFragment(token);
 //        try {
 //            mAtmService.getWindowOrganizerController().applyTransaction(wct);
@@ -384,11 +383,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         removeTaskFragmentInfo(taskFragmentInfo);
     }
 
-    public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
+    public void onTaskFragmentParentInfoChanged(WindowContainerTransaction wct, int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if (shouldUpdateContainer(taskFragmentInfo)) {
-            updateContainersInTask(taskId, taskBounds);
+            updateContainersInTask(wct, taskId, taskBounds);
         }
         mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
