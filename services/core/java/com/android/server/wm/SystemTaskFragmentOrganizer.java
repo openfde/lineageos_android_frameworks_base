@@ -188,8 +188,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         }
     }
 
-    void updateContainersInTask(int taskId, Rect taskBounds) {
-        final WindowContainerTransaction wct = new WindowContainerTransaction();
+    void updateContainersInTask(WindowContainerTransaction wct, int taskId, Rect taskBounds) {
         final IBinder primaryTfToken = mLeftFragments.get(taskId);
         final IBinder secondaryTfToken = mRightFragments.get(taskId);
         final int mid = taskBounds.width() / 2;
@@ -229,6 +228,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //                    transaction.getTransactionToken());
 //            final WindowContainerTransaction wct = transactionRecord.getTransaction();
         final List<TaskFragmentTransaction.Change> changes = transaction.getChanges();
+        final WindowContainerTransaction wct = new WindowContainerTransaction();
+
         for (TaskFragmentTransaction.Change change : changes) {
             final int taskId = change.getTaskId();
             final TaskFragmentInfo info = change.getTaskFragmentInfo();
@@ -240,14 +241,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     break;
                 case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
                     updateTaskFragmentInfo(info);
-                    onTaskFragmentInfoChanged(info, taskId);
+                    onTaskFragmentInfoChanged(wct, info, taskId);
                     break;
                 case TYPE_TASK_FRAGMENT_VANISHED: //3
                     onTaskFragmentVanished(info, taskId);
                     removeTaskFragmentInfo(info);
                     break;
                 case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED: //4
-                    onTaskFragmentParentInfoChanged(taskId,
+                    onTaskFragmentParentInfoChanged(wct, taskId,
                             change.getTaskFragmentParentInfo());
 //                        onTaskFragmentVanished(info);
                     break;
@@ -277,6 +278,12 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //                        throw new IllegalArgumentException(
 //                                "Unknown TaskFragmentEvent=" + change.getType());
             }
+
+        }
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            Slog.e(TAG, e.getMessage());
         }
 
         // Notify the server, and the server should apply and merge the
@@ -315,7 +322,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     //    @Override
-    public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo, int taskId) {
+    public void onTaskFragmentInfoChanged( WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo, int taskId) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
 //            deleteTaskFragment(taskFragmentInfo);
 //            removeTaskFragmentInfo(taskFragmentInfo);
@@ -324,39 +331,38 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             if (mRightFragments.get(taskId) != null &&
                     mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
             {
-                expandTaskFragment(mLeftFragments.get(taskId));
+                expandTaskFragment(wct, mLeftFragments.get(taskId));
                 mSplitingActivityRecords.remove(taskId);
                 mRightFragments.remove(taskId);
             }else if(mLeftFragments.get(taskId) != null &&
                     mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
             {
-                deleteTaskFragment(mRightFragments.get(taskId));
+                deleteTaskFragment(wct, mRightFragments.get(taskId));
                 mRightFragments.remove(taskId);
                 mLeftFragments.remove(taskId);
             }
-            deleteTaskFragment(taskFragmentInfo);
+            deleteTaskFragment(wct, taskFragmentInfo);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
         // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
     }
 
-    void deleteTaskFragment(TaskFragmentInfo taskFragmentInfo) {
+    void deleteTaskFragment(WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo) {
         if(taskFragmentInfo == null || taskFragmentInfo.getFragmentToken() == null
                 || mFragmentInfos.get(taskFragmentInfo.getFragmentToken()) == null){
             Slog.w(TAG, "fragments already delete");
             return;
         }
-        WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.deleteTaskFragment(taskFragmentInfo.getFragmentToken());
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            Slog.e(TAG, e.getMessage());
-        }
+//        try {
+//            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+//        } catch (RemoteException e) {
+//            Slog.e(TAG, e.getMessage());
+//        }
     }
 
-    void deleteTaskFragment(IBinder token) {
+    void deleteTaskFragment(WindowContainerTransaction wct, IBinder token) {
         if(token == null
                 || mFragmentInfos.get(token) == null){
             Slog.w(TAG, "fragments already delete");
@@ -364,11 +370,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         }
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.deleteTaskFragment(token);
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            Slog.e(TAG, e.getMessage());
-        }
+//        try {
+//            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+//        } catch (RemoteException e) {
+//            Slog.e(TAG, e.getMessage());
+//        }
     }
 
     //    @Override
@@ -399,23 +405,22 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 || mDisplayId != info.getDisplayId());
     }
 
-    void expandTaskFragment(@NonNull IBinder fragmentToken) {
+    void expandTaskFragment(WindowContainerTransaction wct, @NonNull IBinder fragmentToken) {
         if(mFragmentInfos.get(fragmentToken) == null){
             Slog.w(TAG, "expandTaskFragment fragment is removed ");
             return;
         }
 
         Slog.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
-        WindowContainerTransaction wct = new WindowContainerTransaction();
         resizeTaskFragment(wct, fragmentToken, new Rect());
         wct.clearAdjacentTaskFragments(fragmentToken);
         wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), WINDOWING_MODE_UNDEFINED);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+//        try {
+//            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+//        } catch (RemoteException e) {
+//            throw e.rethrowFromSystemServer();
+//        }
     }
 
 
