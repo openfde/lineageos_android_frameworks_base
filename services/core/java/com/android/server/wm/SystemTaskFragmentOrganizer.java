@@ -363,6 +363,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void expandTaskFragment(@NonNull IBinder fragmentToken) {
+        if(mFragmentInfos.get(fragmentToken) == null){
+            Slog.w(TAG, "expandTaskFragment fragment is removed ");
+            return;
+        }
+
         Slog.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
         WindowContainerTransaction wct = new WindowContainerTransaction();
         resizeTaskFragment(wct, fragmentToken, new Rect());
