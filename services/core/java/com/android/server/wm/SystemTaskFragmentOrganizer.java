@@ -34,6 +34,7 @@ import android.annotation.Nullable;
 import android.window.TaskFragmentCreationParams;
 import android.window.WindowContainerTransaction;
 import android.os.RemoteException;
+import static android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED;
 
 import com.android.server.wm.ActivityRecord;
 import com.android.server.wm.Task;
@@ -227,24 +228,24 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 final TaskFragmentInfo info = change.getTaskFragmentInfo();
                 Slog.d(TAG, "onTransactionReady type: " + change.getType());
                 switch (change.getType()) {
-                    case TYPE_TASK_FRAGMENT_APPEARED:
+                    case TYPE_TASK_FRAGMENT_APPEARED: //1
                         updateTaskFragmentInfo(info);
                         onTaskFragmentAppeared(info);
                         break;
-                    case TYPE_TASK_FRAGMENT_INFO_CHANGED:
+                    case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
                         updateTaskFragmentInfo(info);
                         onTaskFragmentInfoChanged(info);
                         break;
-                    case TYPE_TASK_FRAGMENT_VANISHED:
+                    case TYPE_TASK_FRAGMENT_VANISHED: //3
                         removeTaskFragmentInfo(info);
-                        onTaskFragmentVanished(info);
+                        onTaskFragmentVanished(info, taskId);
                         break;
-                    case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED:
+                    case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED: //4
                         onTaskFragmentParentInfoChanged(taskId,
                                 change.getTaskFragmentParentInfo());
 //                        onTaskFragmentVanished(info);
                         break;
-                    case TYPE_TASK_FRAGMENT_ERROR:
+                    case TYPE_TASK_FRAGMENT_ERROR: //5
 //                        final Bundle errorBundle = change.getErrorBundle();
 //                        final IBinder errorToken = change.getErrorCallbackToken();
 //                        final TaskFragmentInfo errorTaskFragmentInfo = errorBundle.getParcelable(
@@ -259,7 +260,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //                                exception);
                         updateTaskFragmentInfo(info);
                         break;
-                    case TYPE_ACTIVITY_REPARENTED_TO_TASK:
+                    case TYPE_ACTIVITY_REPARENTED_TO_TASK: //6
 //                        onActivityReparentedToTask(
 //                                wct,
 //                                taskId,
@@ -324,9 +325,13 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
 //    @Override
-    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo) {
+    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
+        mRightFragments.remove(taskId);
+        if(mRightFragments.size() == 0 && mLeftFragments.get(taskId) != null){
+            expandTaskFragment(mLeftFragments.get(taskId));
+        }
     }
 
     public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
@@ -349,6 +354,21 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 && (mConfiguration.diffPublicOnly(configuration) != 0
                 || mDisplayId != info.getDisplayId());
     }
+
+    void expandTaskFragment(@NonNull IBinder fragmentToken) {
+        Log.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
+        WindowContainerTransaction wct = new WindowContainerTransaction();
+        resizeTaskFragment(wct, fragmentToken, new Rect());
+        wct.clearAdjacentTaskFragments(fragmentToken);
+        wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), WINDOWING_MODE_UNDEFINED);
+        Log.d(TAG, "expandTaskFragment: 已完成展开");
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
 
     private static boolean isInPictureInPicture(@NonNull Configuration configuration) {
         return configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_PINNED;
