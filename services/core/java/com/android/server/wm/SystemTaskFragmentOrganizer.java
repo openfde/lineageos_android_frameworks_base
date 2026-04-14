@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Binder;
 import android.os.IBinder;
+
 import static android.window.TaskFragmentOperation.OP_TYPE_REPARENT_ACTIVITY_TO_TASK_FRAGMENT;
 import static android.window.TaskFragmentOperation.OP_TYPE_START_ACTIVITY_IN_TASK_FRAGMENT;
 import static android.window.TaskFragmentOrganizer.KEY_ERROR_CALLBACK_OP_TYPE;
@@ -29,13 +30,12 @@ import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_INFO_CHA
 import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED;
 import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_VANISHED;
 import static android.app.WindowConfiguration.WINDOWING_MODE_PINNED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.window.TaskFragmentCreationParams;
 import android.window.WindowContainerTransaction;
 import android.os.RemoteException;
-import static android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED;
-
 import com.android.server.wm.ActivityRecord;
 import com.android.server.wm.Task;
 import com.android.server.wm.ActivityTaskManagerService;
@@ -59,6 +59,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
+    final Map<Integer, ActivityRecord> mSplitingActivityRecords = new ArrayMap<>();
     private Configuration mConfiguration = new Configuration();
     private int mDisplayId;
 
@@ -124,8 +125,13 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //        }
     }
 
-    void startSplit(Task task, ActivityRecord primary, ActivityRecord secondary,Intent secondaryIntent) {
+    void startSplit(Task task, ActivityRecord primary, ActivityRecord secondary, Intent secondaryIntent) {
+        if (mSplitingActivityRecords.get(task.mTaskId) == secondary) {
+            Slog.w(TAG, "spliting " + secondary);
+            return;
+        }
         final long origId = Binder.clearCallingIdentity();
+        mSplitingActivityRecords.put(task.mTaskId, secondary);
         try {
             if (task == null || primary == null) return;
             final WindowContainerTransaction wct = new WindowContainerTransaction();
@@ -135,7 +141,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             final Rect taskBounds = task.getBounds();
             final int mid = taskBounds.width() / 2;
             final Rect left = new Rect(0, 0, mid, taskBounds.height());
-            final Rect right = new Rect( mid, 0, taskBounds.width(), taskBounds.height());
+            final Rect right = new Rect(mid, 0, taskBounds.width(), taskBounds.height());
             TaskFragmentCreationParams primaryParams =
                     new TaskFragmentCreationParams.Builder(
                             getOrganizerToken(),
@@ -182,13 +188,13 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         }
     }
 
-    void updateContainersInTask(int taskId, Rect taskBounds){
+    void updateContainersInTask(int taskId, Rect taskBounds) {
         final WindowContainerTransaction wct = new WindowContainerTransaction();
         final IBinder primaryTfToken = mLeftFragments.get(taskId);
         final IBinder secondaryTfToken = mRightFragments.get(taskId);
         final int mid = taskBounds.width() / 2;
-        final Rect left = new Rect( 0,0, mid,taskBounds.height());
-        final Rect right = new Rect( mid, 0, taskBounds.width(),taskBounds.height());
+        final Rect left = new Rect(0, 0, mid, taskBounds.height());
+        final Rect right = new Rect(mid, 0, taskBounds.width(), taskBounds.height());
         resizeTaskFragment(wct, primaryTfToken, left);
         resizeTaskFragment(wct, secondaryTfToken, right);
         try {
@@ -222,30 +228,30 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //            final TransactionRecord transactionRecord = mTransactionManager.startNewTransaction(
 //                    transaction.getTransactionToken());
 //            final WindowContainerTransaction wct = transactionRecord.getTransaction();
-            final List<TaskFragmentTransaction.Change> changes = transaction.getChanges();
-            for (TaskFragmentTransaction.Change change : changes) {
-                final int taskId = change.getTaskId();
-                final TaskFragmentInfo info = change.getTaskFragmentInfo();
-                Slog.d(TAG, "onTransactionReady type: " + change.getType());
-                switch (change.getType()) {
-                    case TYPE_TASK_FRAGMENT_APPEARED: //1
-                        updateTaskFragmentInfo(info);
-                        onTaskFragmentAppeared(info);
-                        break;
-                    case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
-                        updateTaskFragmentInfo(info);
-                        onTaskFragmentInfoChanged(info);
-                        break;
-                    case TYPE_TASK_FRAGMENT_VANISHED: //3
-                        removeTaskFragmentInfo(info);
-                        onTaskFragmentVanished(info, taskId);
-                        break;
-                    case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED: //4
-                        onTaskFragmentParentInfoChanged(taskId,
-                                change.getTaskFragmentParentInfo());
+        final List<TaskFragmentTransaction.Change> changes = transaction.getChanges();
+        for (TaskFragmentTransaction.Change change : changes) {
+            final int taskId = change.getTaskId();
+            final TaskFragmentInfo info = change.getTaskFragmentInfo();
+            Slog.d(TAG, "onTransactionReady type: " + change.getType());
+            switch (change.getType()) {
+                case TYPE_TASK_FRAGMENT_APPEARED: //1
+                    updateTaskFragmentInfo(info);
+                    onTaskFragmentAppeared(info);
+                    break;
+                case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
+                    updateTaskFragmentInfo(info);
+                    onTaskFragmentInfoChanged(info);
+                    break;
+                case TYPE_TASK_FRAGMENT_VANISHED: //3
+                    removeTaskFragmentInfo(info);
+                    onTaskFragmentVanished(info, taskId);
+                    break;
+                case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED: //4
+                    onTaskFragmentParentInfoChanged(taskId,
+                            change.getTaskFragmentParentInfo());
 //                        onTaskFragmentVanished(info);
-                        break;
-                    case TYPE_TASK_FRAGMENT_ERROR: //5
+                    break;
+                case TYPE_TASK_FRAGMENT_ERROR: //5
 //                        final Bundle errorBundle = change.getErrorBundle();
 //                        final IBinder errorToken = change.getErrorCallbackToken();
 //                        final TaskFragmentInfo errorTaskFragmentInfo = errorBundle.getParcelable(
@@ -258,29 +264,29 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //                        }
 //                        onTaskFragmentError(wct, errorToken, errorTaskFragmentInfo, opType,
 //                                exception);
-                        updateTaskFragmentInfo(info);
-                        break;
-                    case TYPE_ACTIVITY_REPARENTED_TO_TASK: //6
+                    updateTaskFragmentInfo(info);
+                    break;
+                case TYPE_ACTIVITY_REPARENTED_TO_TASK: //6
 //                        onActivityReparentedToTask(
 //                                wct,
 //                                taskId,
 //                                change.getActivityIntent(),
 //                                change.getActivityToken());
-                        break;
-                    default:
+                    break;
+                default:
 //                        throw new IllegalArgumentException(
 //                                "Unknown TaskFragmentEvent=" + change.getType());
-                }
             }
+        }
 
-            // Notify the server, and the server should apply and merge the
-            // WindowContainerTransaction to the active sync to finish the TaskFragmentTransaction.
+        // Notify the server, and the server should apply and merge the
+        // WindowContainerTransaction to the active sync to finish the TaskFragmentTransaction.
 //            transactionRecord.apply(false /* shouldApplyIndependently */);
 //            updateCallbackIfNecessary();
     }
 
     void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
-        if(taskFragmentInfo == null){
+        if (taskFragmentInfo == null) {
             Slog.d(TAG, "updateTaskFragmentInfo info is null");
             return;
         }
@@ -290,7 +296,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void removeTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
-        if(taskFragmentInfo == null){
+        if (taskFragmentInfo == null) {
             Slog.d(TAG, "removeTaskFragmentInfo info is null");
             return;
         }
@@ -301,14 +307,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     // --- 实现 TaskFragmentOrganizer 的抽象回调 ---
 
-//    @Override
+    //    @Override
     public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentAppeared() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentAppeared(taskFragmentInfo);
         // 这里可以监听到 Fragment 真正创建成功，可以做一些 UI 状态维护
     }
 
-//    @Override
+    //    @Override
     public void onTaskFragmentInfoChanged(TaskFragmentInfo taskFragmentInfo) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
             WindowContainerTransaction wct = new WindowContainerTransaction();
@@ -324,20 +330,21 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
     }
 
-//    @Override
+    //    @Override
     public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
         mRightFragments.remove(taskId);
-        if(mRightFragments.size() == 0 && mLeftFragments.get(taskId) != null){
+        if (mRightFragments.size() == 0 && mLeftFragments.get(taskId) != null) {
             expandTaskFragment(mLeftFragments.get(taskId));
+            mSplitingActivityRecords.remove(task.mTaskId);
         }
     }
 
     public void onTaskFragmentParentInfoChanged(int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
-        if(shouldUpdateContainer(taskFragmentInfo)){
+        if (shouldUpdateContainer(taskFragmentInfo)) {
             updateContainersInTask(taskId, taskBounds);
         }
         mConfiguration = taskFragmentInfo.getConfiguration();

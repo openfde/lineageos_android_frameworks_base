@@ -1546,34 +1546,17 @@ class ActivityStarter {
 
     private void handleCustomSplitIfNeeded(ActivityRecord source,ActivityRecord r, Task task, int result) {
         if (r == null || task == null) return;
-
         boolean split = false;
         if(r.intent != null){
             split =   r.intent.getBooleanExtra(KEY_SPLIT, false);
         }
-
-        // 只在真正“新启动”时触发
         if (result == START_DELIVERED_TO_TOP
                 || result == START_TASK_TO_FRONT) {
             return;
         }
-
         if (!split) return;
-        // 防止重复 split
-        if (mSplitTasks.contains(task.mTaskId)) return;
-
-//        final Intent secondaryIntent =
-//                bundle.getParcelable(KEY_SECONDARY_INTENT);
-//
-//        if (secondaryIntent == null) return;
-
-        // 标记已处理
-
-        // 异步执行 split（关键！）
         mService.mH.post(() -> {
             try {
-
-                mSplitTasks.add(task.mTaskId);
                 triggerSplit(task, source, r, r.intent);
             } catch (Exception e) {
                 Slog.e(TAG, "triggerSplit error", e);
