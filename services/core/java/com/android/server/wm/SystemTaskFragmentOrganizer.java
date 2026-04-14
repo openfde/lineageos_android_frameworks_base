@@ -356,12 +356,12 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void expandTaskFragment(@NonNull IBinder fragmentToken) {
-        Log.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
+        Slog.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
         WindowContainerTransaction wct = new WindowContainerTransaction();
         resizeTaskFragment(wct, fragmentToken, new Rect());
         wct.clearAdjacentTaskFragments(fragmentToken);
         wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), WINDOWING_MODE_UNDEFINED);
-        Log.d(TAG, "expandTaskFragment: 已完成展开");
+        Slog.d(TAG, "expandTaskFragment: 已完成展开");
         try {
             mAtmService.getWindowOrganizerController().applyTransaction(wct);
         } catch (RemoteException e) {
