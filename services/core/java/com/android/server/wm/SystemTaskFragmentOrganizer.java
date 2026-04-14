@@ -332,16 +332,18 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
             {
                 expandTaskFragment(wct, mLeftFragments.get(taskId));
+                deleteTaskFragment(wct, taskFragmentInfo);
                 mSplitingActivityRecords.remove(taskId);
                 mRightFragments.remove(taskId);
             }else if(mLeftFragments.get(taskId) != null &&
                     mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
             {
                 deleteTaskFragment(wct, mRightFragments.get(taskId));
+                deleteTaskFragment(wct, taskFragmentInfo);
                 mRightFragments.remove(taskId);
                 mLeftFragments.remove(taskId);
             }
-            deleteTaskFragment(wct, taskFragmentInfo);
+
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
