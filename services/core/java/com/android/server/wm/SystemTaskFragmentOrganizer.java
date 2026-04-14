@@ -320,6 +320,22 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //            deleteTaskFragment(taskFragmentInfo);
 //            removeTaskFragmentInfo(taskFragmentInfo);
         }
+        if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
+            if (mRightFragments.get(taskId) != null &&
+                    mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
+            {
+                expandTaskFragment(mLeftFragments.get(taskId));
+                mSplitingActivityRecords.remove(taskId);
+                mRightFragments.remove(taskId);
+            }else if(mLeftFragments.get(taskId) != null &&
+                    mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
+            {
+                deleteTaskFragment(mRightFragments.get(taskId));
+                mRightFragments.remove(taskId);
+                mLeftFragments.remove(taskId);
+            }
+            deleteTaskFragment(taskFragmentInfo);
+        }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentInfoChanged(taskFragmentInfo);
         // 如果右侧容器内的 Activity 全部退出了，你可以在这里通过 WCT 删掉它，并把左侧拉满
@@ -327,7 +343,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void deleteTaskFragment(TaskFragmentInfo taskFragmentInfo) {
         if(taskFragmentInfo == null || taskFragmentInfo.getFragmentToken() == null
-            || mFragmentInfos.get(taskFragmentInfo.getFragmentToken()) == null){
+                || mFragmentInfos.get(taskFragmentInfo.getFragmentToken()) == null){
             Slog.w(TAG, "fragments already delete");
             return;
         }
@@ -359,20 +375,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
-        if (mRightFragments.get(taskId) != null &&
-                mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
-        {
-            expandTaskFragment(mLeftFragments.get(taskId));
-            mSplitingActivityRecords.remove(taskId);
-            mRightFragments.remove(taskId);
-        }else if(mLeftFragments.get(taskId) != null &&
-                mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
-        {
-//            deleteTaskFragment(mLeftFragments.get(taskId));
-            deleteTaskFragment(mRightFragments.get(taskId));
-            mRightFragments.remove(taskId);
-            mLeftFragments.remove(taskId);
-        }
         removeTaskFragmentInfo(taskFragmentInfo);
     }
 
