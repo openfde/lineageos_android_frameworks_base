@@ -355,27 +355,25 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     public void onTaskFragmentVanished(WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
         if (mRightFragments.get(taskId) != null &&
-                mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken() )
-        {
+                mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken()) {
             expandTaskFragment(wct, mLeftFragments.get(taskId));
             mSplitingActivityRecords.remove(taskId);
             mRightFragments.remove(taskId);
-        }else if(mLeftFragments.get(taskId) != null &&
-                mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken())
-        {
+        } else if (mLeftFragments.get(taskId) != null &&
+                mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken()) {
 //            deleteTaskFragment(wct, mRightFragments.get(taskId));
 //            mLeftFragments.remove(taskId);
             TaskFragmentInfo info = mFragmentInfos.get(mRightFragments.get(taskId));
             ActivityRecord secondary = mSplitingActivityRecords.get(taskId);
-            if (secondary != null) {
-                wct.finishActivity(secondary.token);
-            } else if (info != null) {
+            if (info != null) {
                 List<IBinder> activities = info.getActivities();
                 if (activities != null) {
                     for (IBinder token : activities) {
                         wct.finishActivity(token);
                     }
                 }
+            } else if (secondary != null) {
+                wct.finishActivity(secondary.token);
             }
             mRightFragments.remove(taskId);
         }
