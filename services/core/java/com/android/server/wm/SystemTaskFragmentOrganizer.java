@@ -244,7 +244,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     onTaskFragmentInfoChanged(wct, info, taskId);
                     break;
                 case TYPE_TASK_FRAGMENT_VANISHED: //3
-                    onTaskFragmentVanished(info, taskId);
+                    onTaskFragmentVanished(wct,info, taskId);
                     removeTaskFragmentInfo(info);
                     break;
                 case TYPE_TASK_FRAGMENT_PARENT_INFO_CHANGED: //4
@@ -324,7 +324,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     //    @Override
     public void onTaskFragmentInfoChanged( WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo, int taskId) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
-            deleteTaskFragment(taskFragmentInfo);
+            deleteTaskFragment(wct, taskFragmentInfo);
             removeTaskFragmentInfo(taskFragmentInfo);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
@@ -361,7 +361,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     //    @Override
-    public void onTaskFragmentVanished(TaskFragmentInfo taskFragmentInfo, int taskId) {
+    public void onTaskFragmentVanished(WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
 //        onTaskFragmentVanished(taskFragmentInfo);
         if (mRightFragments.get(taskId) != null &&
