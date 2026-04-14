@@ -352,7 +352,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (mRightFragments.size() == 0 && mLeftFragments.get(taskId) != null) {
             expandTaskFragment(mLeftFragments.get(taskId));
             mSplitingActivityRecords.remove(taskId);
-        }else if(mLeftFragments.get(taskId)) != null &&
+        }else if(mLeftFragments.get(taskId) != null &&
                 mFragmentInfos.get(mLeftFragments.get(taskId)) == taskFragmentInfo){
             deleteTaskFragment(taskFragmentInfo);
             deleteTaskFragment(mRightFragments.get(taskId));
