@@ -169,7 +169,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                         taskBounds.bottom
                 );
                 wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
-//                final int mid = taskBounds.width() / 2;
 
                 final Rect left = new Rect(0, 0, taskBounds.width(), taskBounds.height());
                 final Rect right = new Rect(taskBounds.width(), 0, taskBounds.width() * 2, taskBounds.height());
@@ -299,7 +298,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             switch (change.getType()) {
                 case TYPE_TASK_FRAGMENT_APPEARED: //1
                     updateTaskFragmentInfo(info);
-                    onTaskFragmentAppeared(info);
+                    onTaskFragmentAppeared(wct, info, taskId);
                     break;
                 case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
                     updateTaskFragmentInfo(info);
@@ -348,12 +347,23 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mFragmentInfos.remove(taskFragmentInfo.getFragmentToken());
     }
 
-    //    @Override
-    public void onTaskFragmentAppeared(TaskFragmentInfo taskFragmentInfo) {
+    public void onTaskFragmentAppeared(WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo,
+                                       int taskId) {
         Slog.d(TAG, "onTaskFragmentAppeared() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
+        IBinder token = taskFragmentInfo.getFragmentToken();
+        if (token.equals(mRightFragments.get(taskId))) {
+            final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
+            wct.setRelativeBounds(taskFragmentInfo.getToken(), taskBounds);
+            try {
+                mAtmService.getWindowOrganizerController().applyTransaction(wct);
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
+        }
     }
 
-    public void onTaskFragmentInfoChanged( WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo, int taskId) {
+    public void onTaskFragmentInfoChanged(WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo,
+                                          int taskId) {
         if (taskFragmentInfo != null && !taskFragmentInfo.hasRunningActivity()) {
             deleteTaskFragment(wct, taskFragmentInfo);
             removeTaskFragmentInfo(taskFragmentInfo);
