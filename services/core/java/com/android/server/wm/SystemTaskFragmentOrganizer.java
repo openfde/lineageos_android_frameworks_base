@@ -342,7 +342,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                     taskBounds.right + taskBounds.width()/2,
                     taskBounds.bottom
             );
-            expandTaskFragment(wct, mLeftFragments.get(taskId), taskId, newTaskBounds);
+            expandTaskFragment(mLeftFragments.get(taskId), taskId, newTaskBounds);
             mSplitingActivityRecords.remove(taskId);
             mRightFragments.remove(taskId);
         } else if (mLeftFragments.get(taskId) != null &&
@@ -402,7 +402,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //        Rect leftBounds = new Rect(leftInfo.getConfiguration().windowConfiguration.getBounds());
 //        Task task = mAtmService.mRootWindowContainer.anyTaskForId(taskId);
 //        wct.setBounds(task.mRemoteToken.toWindowContainerToken(), bounds);
-        mAtmService.resizeTask(taskId, newTaskBounds, 0);
+        mAtmService.resizeTask(taskId, bounds, 0);
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
