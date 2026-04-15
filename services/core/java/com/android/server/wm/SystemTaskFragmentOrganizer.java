@@ -246,7 +246,13 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //            } catch (RemoteException e) {
 //                throw e.rethrowFromSystemServer();
 //            }
-            expandTaskFragment(wct, mLeftFragments.get(taskId), taskId);
+//            Rect newTaskBounds = new Rect(
+//                    taskBounds.left,
+//                    taskBounds.top,
+//                    taskBounds.right + taskBounds.width()/2,
+//                    taskBounds.bottom
+//            );
+//            expandTaskFragment(wct, mLeftFragments.get(taskId), taskId, newTaskBounds);
             return;
         } else {
             Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
@@ -379,7 +385,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
         if (mRightFragments.get(taskId) != null &&
                 mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken()) {
-            expandTaskFragment(wct, mLeftFragments.get(taskId), taskId);
+            final Rect taskBounds =  mConfiguration.windowConfiguration.getBounds();
+            Rect newTaskBounds = new Rect(
+                    taskBounds.left,
+                    taskBounds.top,
+                    taskBounds.right + taskBounds.width()/2,
+                    taskBounds.bottom
+            );
+            expandTaskFragment(wct, mLeftFragments.get(taskId), taskId, newTaskBounds);
             mSplitingActivityRecords.remove(taskId);
             mRightFragments.remove(taskId);
         } else if (mLeftFragments.get(taskId) != null &&
@@ -423,18 +436,18 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void expandTaskFragment(WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
-                            int taskId) {
+                            int taskId, Rect bounds) {
         if(mFragmentInfos.get(fragmentToken) == null){
             Slog.w(TAG, "expandTaskFragment fragment is removed ");
             return;
         }
 
         Slog.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
-        IBinder left = mLeftFragments.get(taskId);
-        TaskFragmentInfo leftInfo = mFragmentInfos.get(left);
-        Rect leftBounds = new Rect(leftInfo.getConfiguration().windowConfiguration.getBounds());
+//        IBinder left = mLeftFragments.get(taskId);
+//        TaskFragmentInfo leftInfo = mFragmentInfos.get(left);
+//        Rect leftBounds = new Rect(leftInfo.getConfiguration().windowConfiguration.getBounds());
         Task task = mAtmService.mRootWindowContainer.anyTaskForId(taskId);
-        wct.setBounds(task.mRemoteToken.toWindowContainerToken(), leftBounds);
+        wct.setBounds(task.mRemoteToken.toWindowContainerToken(), bounds);
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
