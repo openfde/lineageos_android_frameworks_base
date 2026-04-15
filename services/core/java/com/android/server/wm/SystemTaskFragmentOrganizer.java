@@ -237,21 +237,31 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void updateContainersInTask(WindowContainerTransaction wct, int taskId, Rect taskBounds) {
         if(mRightFragments.get(taskId) == null){
-            Slog.e(TAG, "only one activity, no need to update");
+            Slog.d(TAG, "updateContainersInTask one activity taskId:" + taskId + " bounds:" + taskBounds);
+//            final IBinder primaryTfToken = mLeftFragments.get(taskId);
+//            final Rect right = new Rect(0, 0, taskBounds.width(), taskBounds.height());
+//            resizeTaskFragment(wct, primaryTfToken, left);
+//            try {
+//                mAtmService.getWindowOrganizerController().applyTransaction(wct);
+//            } catch (RemoteException e) {
+//                throw e.rethrowFromSystemServer();
+//            }
+            expandTaskFragment(wct, mLeftFragments.get(taskId), taskId);
             return;
-        }
-        Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
-        final IBinder primaryTfToken = mLeftFragments.get(taskId);
-        final IBinder secondaryTfToken = mRightFragments.get(taskId);
-        final int mid = taskBounds.width() / 2;
-        final Rect left = new Rect(0, 0, mid, taskBounds.height());
-        final Rect right = new Rect(mid, 0, taskBounds.width(), taskBounds.height());
-        resizeTaskFragment(wct, primaryTfToken, left);
-        resizeTaskFragment(wct, secondaryTfToken, right);
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
+        } else {
+            Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
+            final IBinder primaryTfToken = mLeftFragments.get(taskId);
+            final IBinder secondaryTfToken = mRightFragments.get(taskId);
+            final int mid = taskBounds.width() / 2;
+            final Rect left = new Rect(0, 0, mid, taskBounds.height());
+            final Rect right = new Rect(mid, 0, taskBounds.width(), taskBounds.height());
+            resizeTaskFragment(wct, primaryTfToken, left);
+            resizeTaskFragment(wct, secondaryTfToken, right);
+            try {
+                mAtmService.getWindowOrganizerController().applyTransaction(wct);
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
         }
     }
 
