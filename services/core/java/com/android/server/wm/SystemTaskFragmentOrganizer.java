@@ -108,145 +108,74 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void startSplit(Task task, ActivityRecord primary,
                     ActivityRecord secondary, Intent secondaryIntent) {
-
         if (task == null || primary == null) return;
         if (mSplitingActivityRecords.get(task.mTaskId) == secondary) {
             Slog.w(TAG, "spliting " + secondary);
             return;
         }
         final long origId = Binder.clearCallingIdentity();
-        try {
-            final int taskId = task.mTaskId;
-
-            final IBinder existingRight = mRightFragments.get(taskId);
-            final boolean alreadySplit =
-                    existingRight != null && mFragmentInfos.get(existingRight) != null;
-
-            final WindowContainerTransaction wct = new WindowContainerTransaction();
-
-            if (alreadySplit) {
-                // ==============================
-                // ✅ 已经分屏 → 复用右侧 TF
-                // ==============================
-
-                Slog.d(TAG, "startSplit: already split, reuse right TF");
-
-                // 👉 方式1：已有 ActivityRecord
-                if (secondary != null) {
-                    wct.reparentActivityToTaskFragment(
-                            existingRight,
-                            secondary.token
-                    );
-                }
-                // 👉 方式2：需要新启动 Activity
-                else if (secondaryIntent != null) {
-                    wct.startActivityInTaskFragment(
-                            existingRight,
-                            primary.token,
-                            secondaryIntent,
-                            null
-                    );
-                }
-
-                mSplitingActivityRecords.put(taskId, secondary);
-
-            } else {
-                // ==============================
-                // 🆕 第一次 split
-                // ==============================
-
+        final int taskId = task.mTaskId;
+        final IBinder existingRight = mRightFragments.get(taskId);
+        final boolean alreadySplit =
+                existingRight != null && mFragmentInfos.get(existingRight) != null;
+        final WindowContainerTransaction wct = new WindowContainerTransaction();
+        if (alreadySplit) {
+            Slog.d(TAG, "startSplit: already split, reuse right TF");
+            if (secondary != null) {
+                wct.reparentActivityToTaskFragment(existingRight, secondary.token);
+            } else if (secondaryIntent != null) {
+                wct.startActivityInTaskFragment(existingRight, primary.token, secondaryIntent, null);
+            }
+            mSplitingActivityRecords.put(taskId, secondary);
+            try {
+                mAtmService.getWindowOrganizerController().applyTransaction(wct);
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
+        } else {
+            final Rect taskBounds = task.getBounds();
+            final Rect newTaskBounds = new Rect(taskBounds.left,taskBounds.top,taskBounds.right + taskBounds.width(), taskBounds.bottom);
+            mAtmService.resizeTask(taskId, newTaskBounds, 0);
+            mAtmService.mH.post(()->{
                 Slog.d(TAG, "startSplit: create new split");
-
                 final IBinder primaryTfToken = new Binder();
                 final IBinder secondaryTfToken = new Binder();
                 final IBinder ownerToken = primary.token;
-
-                final Rect taskBounds = task.getBounds();
-                Rect newTaskBounds = new Rect(
-                        taskBounds.left,
-                        taskBounds.top,
-                        taskBounds.right + taskBounds.width(),
-                        taskBounds.bottom
-                );
-//                wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
-
                 final Rect left = new Rect(0, 0, taskBounds.width(), taskBounds.height());
                 final Rect right = new Rect(taskBounds.width(), 0, taskBounds.width() * 2, taskBounds.height());
-
-                // 👉 primary TF
                 TaskFragmentCreationParams primaryParams =
-                        new TaskFragmentCreationParams.Builder(
-                                getOrganizerToken(),
-                                primaryTfToken,
-                                ownerToken)
+                        new TaskFragmentCreationParams.Builder(getOrganizerToken(), primaryTfToken, ownerToken)
                                 .setInitialRelativeBounds(left)
                                 .build();
-
                 wct.createTaskFragment(primaryParams);
                 wct.reparentActivityToTaskFragment(primaryTfToken, primary.token);
-
-                // 👉 secondary TF
                 TaskFragmentCreationParams secondaryParams =
-                        new TaskFragmentCreationParams.Builder(
-                                getOrganizerToken(),
-                                secondaryTfToken,
-                                ownerToken)
+                        new TaskFragmentCreationParams.Builder(getOrganizerToken(), secondaryTfToken, ownerToken)
                                 .setInitialRelativeBounds(right)
                                 .setPairedPrimaryFragmentToken(primaryTfToken)
                                 .build();
-
                 wct.createTaskFragment(secondaryParams);
-
                 if (secondary != null) {
-                    wct.reparentActivityToTaskFragment(
-                            secondaryTfToken,
-                            secondary.token
-                    );
+                    wct.reparentActivityToTaskFragment(secondaryTfToken, secondary.token);
                 } else if (secondaryIntent != null) {
-                    wct.startActivityInTaskFragment(
-                            secondaryTfToken,
-                            ownerToken,
-                            secondaryIntent,
-                            null
-                    );
+                    wct.startActivityInTaskFragment(secondaryTfToken, ownerToken, secondaryIntent, null);
                 }
-
-                // 👉 建立分屏关系
                 WindowContainerTransaction.TaskFragmentAdjacentParams adjacentParams =
                         new WindowContainerTransaction.TaskFragmentAdjacentParams();
-
                 wct.setAdjacentTaskFragments(primaryTfToken, secondaryTfToken, adjacentParams);
                 wct.setCompanionTaskFragment(primaryTfToken, secondaryTfToken);
-
-                // 👉 记录
                 mLeftFragments.put(taskId, primaryTfToken);
                 mRightFragments.put(taskId, secondaryTfToken);
                 mSplitingActivityRecords.put(taskId, secondary);
-            }
-            mIsExpandedMode = true;
-            // 👉 提交事务
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        } finally {
-            Binder.restoreCallingIdentity(origId);
+                try {
+                    mAtmService.getWindowOrganizerController().applyTransaction(wct);
+                } catch (RemoteException e) {
+                    throw e.rethrowFromSystemServer();
+                }
+            });
         }
-
-        try {
-            final WindowContainerTransaction wct = new WindowContainerTransaction();
-            final Rect taskBounds = task.getBounds();
-            Rect newTaskBounds = new Rect(
-                    taskBounds.left,
-                    taskBounds.top,
-                    taskBounds.right + taskBounds.width(),
-                    taskBounds.bottom
-            );
-            wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+        mIsExpandedMode = true;
+        Binder.restoreCallingIdentity(origId);
     }
 
     void updateContainersInTask(WindowContainerTransaction wct, int taskId, Rect taskBounds) {
@@ -460,7 +389,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 || mDisplayId != info.getDisplayId());
     }
 
-    void expandTaskFragment(WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
+    void expandTaskFragment(@NonNull IBinder fragmentToken,
                             int taskId, Rect bounds) {
         if(mFragmentInfos.get(fragmentToken) == null){
             Slog.w(TAG, "expandTaskFragment fragment is removed ");
@@ -471,8 +400,9 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 //        IBinder left = mLeftFragments.get(taskId);
 //        TaskFragmentInfo leftInfo = mFragmentInfos.get(left);
 //        Rect leftBounds = new Rect(leftInfo.getConfiguration().windowConfiguration.getBounds());
-        Task task = mAtmService.mRootWindowContainer.anyTaskForId(taskId);
-        wct.setBounds(task.mRemoteToken.toWindowContainerToken(), bounds);
+//        Task task = mAtmService.mRootWindowContainer.anyTaskForId(taskId);
+//        wct.setBounds(task.mRemoteToken.toWindowContainerToken(), bounds);
+        mAtmService.resizeTask(taskId, newTaskBounds, 0);
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
