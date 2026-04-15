@@ -168,7 +168,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                         taskBounds.right + taskBounds.width(),
                         taskBounds.bottom
                 );
-                wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
+//                wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
 
                 final Rect left = new Rect(0, 0, taskBounds.width(), taskBounds.height());
                 final Rect right = new Rect(taskBounds.width(), 0, taskBounds.width() * 2, taskBounds.height());
@@ -231,6 +231,21 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             throw e.rethrowFromSystemServer();
         } finally {
             Binder.restoreCallingIdentity(origId);
+        }
+
+        try {
+            final WindowContainerTransaction wct = new WindowContainerTransaction();
+            final Rect taskBounds = task.getBounds();
+            Rect newTaskBounds = new Rect(
+                    taskBounds.left,
+                    taskBounds.top,
+                    taskBounds.right + taskBounds.width(),
+                    taskBounds.bottom
+            );
+            wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
         }
     }
 
@@ -354,7 +369,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (token.equals(mRightFragments.get(taskId))) {
             final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
             Slog.d(TAG, "taskBounds = [" + taskBounds + "]");
-//            wct.setRelativeBounds(taskFragmentInfo.getToken(), taskBounds);
+//            resizeTaskFragment(wct, token, taskBounds);
         }
     }
 
