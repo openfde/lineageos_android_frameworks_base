@@ -448,7 +448,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mIsExpandedMode = false;
         ActivityRecord secondary =  mSplitingActivityRecords.get(taskId);
         if(secondary != null){
-            secondary.ensureActivityConfiguration(0 /* globalChanges */, false /* preserveWindow */);
+            secondary.ensureActivityConfiguration(true);
         }
     }
 
