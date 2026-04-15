@@ -240,6 +240,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             Slog.e(TAG, "only one activity, no need to update");
             return;
         }
+        Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
         final IBinder primaryTfToken = mLeftFragments.get(taskId);
         final IBinder secondaryTfToken = mRightFragments.get(taskId);
         final int mid = taskBounds.width() / 2;
@@ -395,7 +396,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     public void onTaskFragmentParentInfoChanged(WindowContainerTransaction wct, int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
-        if (shouldUpdateContainer(taskFragmentInfo) && !mIsExpandedMode) {
+        if (shouldUpdateContainer(taskFragmentInfo)) {
             updateContainersInTask(wct, taskId, taskBounds);
         }
         mConfiguration = taskFragmentInfo.getConfiguration();
