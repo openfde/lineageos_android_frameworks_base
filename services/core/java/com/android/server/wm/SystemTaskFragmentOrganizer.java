@@ -412,22 +412,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         }
 
         Slog.d(TAG, "expandTaskFragment: 展开 TaskFragment，token=" + fragmentToken);
-//        resizeTaskFragment(wct, fragmentToken, new Rect());
-//        wct.clearAdjacentTaskFragments(fragmentToken);
-//        wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), WINDOWING_MODE_UNDEFINED);
         IBinder left = mLeftFragments.get(taskId);
-        // 👉 1. 获取当前左侧 bounds
         TaskFragmentInfo leftInfo = mFragmentInfos.get(left);
-        Rect leftBounds = new Rect(leftInfo.getRelativeBounds());
-
-        // 👉 2. 把 Task 缩回左侧大小
-        wct.setBounds(
-                mAtmService.mRootWindowContainer.anyTaskForId(taskId).mRemoteToken,
-                leftBounds
-        );
-        // ❗ 不再 expand
-        // expandTaskFragment(wct, left); ❌ 删除
-
+        Rect leftBounds = new Rect(leftInfo.getConfiguration().windowConfiguration.getBounds());
+        Task task = mAtmService.mRootWindowContainer.anyTaskForId(taskId);
+        wct.setBounds(task.mRemoteToken.toWindowContainerToken(), leftBounds);
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
