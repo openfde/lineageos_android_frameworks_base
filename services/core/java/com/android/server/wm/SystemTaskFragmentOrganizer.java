@@ -353,12 +353,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         IBinder token = taskFragmentInfo.getFragmentToken();
         if (token.equals(mRightFragments.get(taskId))) {
             final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
+            Slog.d(TAG, "taskBounds = [" + taskBounds + "]");
             wct.setRelativeBounds(taskFragmentInfo.getToken(), taskBounds);
-            try {
-                mAtmService.getWindowOrganizerController().applyTransaction(wct);
-            } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
-            }
         }
     }
 
@@ -430,7 +426,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if (shouldUpdateContainer(taskFragmentInfo)) {
-            updateContainersInTask(wct, taskId, taskBounds);
+//            updateContainersInTask(wct, taskId, taskBounds);
         }
         mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
@@ -461,11 +457,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
     }
 
 
