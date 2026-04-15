@@ -354,7 +354,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (token.equals(mRightFragments.get(taskId))) {
             final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
             Slog.d(TAG, "taskBounds = [" + taskBounds + "]");
-            wct.setRelativeBounds(taskFragmentInfo.getToken(), taskBounds);
+//            wct.setRelativeBounds(taskFragmentInfo.getToken(), taskBounds);
         }
     }
 
@@ -426,7 +426,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if (shouldUpdateContainer(taskFragmentInfo)) {
-//            updateContainersInTask(wct, taskId, taskBounds);
+            updateContainersInTask(wct, taskId, taskBounds);
         }
         mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
