@@ -438,7 +438,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
         Slog.d(TAG, "expandTaskFragment: 已完成展开");
-
+        try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
     }
 
 
