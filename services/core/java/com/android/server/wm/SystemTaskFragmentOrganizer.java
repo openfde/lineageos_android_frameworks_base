@@ -162,6 +162,13 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 final IBinder ownerToken = primary.token;
 
                 final Rect taskBounds = task.getBounds();
+                Rect newTaskBounds = new Rect(
+                        taskBounds.left,
+                        taskBounds.top,
+                        taskBounds.right + taskBounds.width(),
+                        taskBounds.bottom
+                );
+                wct.setBounds(task.mRemoteToken.toWindowContainerToken(), newTaskBounds);
 //                final int mid = taskBounds.width() / 2;
 
                 final Rect left = new Rect(0, 0, taskBounds.width(), taskBounds.height());
