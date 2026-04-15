@@ -446,6 +446,10 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
         mIsExpandedMode = false;
+        ActivityRecord secondary =  mSplitingActivityRecords.get(taskId);
+        if(secondary != null){
+            secondary.ensureActivityConfiguration(0 /* globalChanges */, false /* preserveWindow */);
+        }
     }
 
     boolean shouldUpdateContainer(@NonNull TaskFragmentParentInfo info) {
