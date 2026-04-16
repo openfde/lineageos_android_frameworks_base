@@ -52,12 +52,83 @@ import android.util.Slog;
 import android.window.TaskFragmentParentInfo;
 import android.content.res.Configuration;
 
+/**
+ * SystemTaskFragmentOrganizer
+ *
+ * This class is a custom TaskFragmentOrganizer used to implement a
+ * non-standard split window behavior inside a single Task.
+ *
+ * Core idea:
+ * - A Task is dynamically expanded (width doubled)
+ * - Two TaskFragments are created inside the Task:
+ *      left  -> primary activity
+ *      right -> secondary activity
+ * - The right container lives in the newly expanded area (not traditional split)
+ *
+ * Key responsibilities:
+ *
+ * 1. startSplit(...)
+ *    Entry point for split logic.
+ *    - If the task is NOT split:
+ *         • Resize (expand) the Task
+ *         • Create left/right TaskFragments
+ *         • Move or start activities into corresponding fragments
+ *    - If the task is already split:
+ *         • Reuse the existing right TaskFragment
+ *         • Reparent or start the secondary activity into it
+ *
+ * 2. onTransactionReady(...)
+ *    Callback from system when TaskFragment changes occur.
+ *    Dispatches events such as:
+ *         • TaskFragment appeared
+ *         • Info changed
+ *         • Vanished
+ *         • Parent config changed
+ *
+ * 3. updateContainersInTask(...)
+ *    Keeps left/right TaskFragments in sync with Task bounds.
+ *    Typically triggered when Task size/configuration changes.
+ *
+ * 4. onTaskFragmentVanished(...)
+ *    Handles cleanup when a fragment is removed:
+ *         • If right fragment disappears → shrink Task back to original size
+ *         • If left fragment disappears → finish all activities in right fragment
+ *
+ * 5. contractTaskFragment(...)
+ *    Restores Task size when exiting split mode.
+ *
+ * 6. pauseLeftIfNeed(...)
+ *    Optional behavior:
+ *         • Pause the left (primary) activity when right side becomes active
+ *         • Used for app-specific compatibility (e.g., WeChat)
+ *
+ *
+ * Important design notes:
+ *
+ * - Fragment tokens (IBinder) are NOT the real WindowContainerToken.
+ *   Always use TaskFragmentInfo.getToken() when applying WCT operations.
+ *
+ * - TaskFragmentInfo is asynchronous:
+ *   It is only available after callbacks like TYPE_TASK_FRAGMENT_APPEARED.
+ *
+ * - Reparenting rules:
+ *   An Activity must NOT be reparented into the same TaskFragment it already belongs to,
+ *   otherwise an IllegalArgumentException will be thrown.
+ *
+ * - Task expansion model:
+ *   This implementation does NOT split the original bounds evenly.
+ *   Instead, it expands the Task and places the secondary fragment in the new region.
+ *
+ * - Surface/layout timing:
+ *   Task resize and TaskFragment creation are intentionally separated (via Handler post)
+ *   to ensure correct configuration propagation and avoid initial rendering issues.
+ *
+ */
 public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     private static final String TAG = "SystemTaskFragmentOrganizer";
     private final ActivityTaskManagerService mAtmService;
 
-    // 用于记录某个 Task 对应的左、右 TaskFragment 的 Binder Token
     private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
@@ -67,49 +138,12 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     boolean mIsExpandedMode = false;
 
     public SystemTaskFragmentOrganizer(ActivityTaskManagerService atmService) {
-        // 使用主线程的 Executor 或者 ATM 的 Handler
         super(atmService.mH::post);
         mAtmService = atmService;
     }
 
     public void register() {
-        // 注册到系统的 WindowOrganizerController
         super.registerOrganizer();
-    }
-
-    public void createParallelTaskFragments(Task task) {
-        if (mLeftFragments.containsKey(task.mTaskId)) {
-            return; // 已经创建过了
-        }
-
-        WindowContainerTransaction wct = new WindowContainerTransaction();
-
-        Rect taskBounds = task.getBounds();
-        int midX = taskBounds.left + taskBounds.width() / 2;
-
-        Rect leftBounds = new Rect(taskBounds.left, taskBounds.top, midX, taskBounds.bottom);
-        Rect rightBounds = new Rect(midX, taskBounds.top, taskBounds.right, taskBounds.bottom);
-
-        IBinder leftToken = new Binder();
-        TaskFragmentCreationParams leftParams = new TaskFragmentCreationParams.Builder(
-                this.getOrganizerToken(), leftToken, task.mRemoteToken.asBinder())
-                .setInitialRelativeBounds(leftBounds)
-                .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
-                .build();
-        wct.createTaskFragment(leftParams);
-
-        IBinder rightToken = new Binder();
-        TaskFragmentCreationParams rightParams = new TaskFragmentCreationParams.Builder(
-                this.getOrganizerToken(), rightToken, task.mRemoteToken.asBinder())
-                .setInitialRelativeBounds(rightBounds)
-                .setWindowingMode(WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW)
-                .build();
-        wct.createTaskFragment(rightParams);
-
-        mLeftFragments.put(task.mTaskId, leftToken);
-        mRightFragments.put(task.mTaskId, rightToken);
-
-        mAtmService.mWindowOrganizerController.applyTransaction(wct);
     }
 
     void startSplit(Task task, ActivityRecord primary,

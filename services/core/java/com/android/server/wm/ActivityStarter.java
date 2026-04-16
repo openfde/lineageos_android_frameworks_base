@@ -1475,7 +1475,6 @@ class ActivityStarter {
 
     void postStartActivityProcessing(ActivityRecord source, ActivityRecord r, int result,
             Task startedActivityRootTask) {
-        Slog.e(TAG,  "postStartActivityProcessing() called with: r = [" + r + "], source = [" + source + "], startedActivityRootTask = [" + startedActivityRootTask + "]");
         if (!ActivityManager.isStartResultSuccessful(result)) {
             if (mFrozeTaskList) {
                 // If we specifically froze the task list as part of starting an activity, then
@@ -1532,8 +1531,7 @@ class ActivityStarter {
         if (r.intent != null) {
             split = r.intent.getBooleanExtra(KEY_SPLIT, false);
         }
-        if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name)
-                != MAGIC_MAIN_WINDOW) {
+        if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name) != MAGIC_MAIN_WINDOW) {
             split = false;
         }
 
@@ -1553,10 +1551,8 @@ class ActivityStarter {
 
     private void triggerSplit(Task task, ActivityRecord primary, ActivityRecord target, Intent secondaryIntent) {
         if (task == null || primary == null) return;
-        Slog.d(TAG, "triggerSplit() task = [" + task + "], primary = [" + primary + "], target = [" + target + "], secondaryIntent = [" + secondaryIntent + "]");
         SystemTaskFragmentOrganizer organizer =
                 mService.mParallelVisionOrganizer;
-
         if (organizer == null) {
             Slog.e(TAG, "SystemTaskFragmentOrganizer is null");
             return;

@@ -575,7 +575,7 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
 
 
     public int getMagicWindowType(String packageName, String activity) {
-         Slog.e(TAG, " package:" + packageName + " activity:" + activity);
+//         Slog.e(TAG, " package:" + packageName + " activity:" + activity);
         if(TextUtils.isEmpty(packageName) || TextUtils.isEmpty(activity)){
             return NOT_MAGIC_WINDOW; //not magic window
         } else if(!mMagicWindowConfig.containsKey(packageName)) {
