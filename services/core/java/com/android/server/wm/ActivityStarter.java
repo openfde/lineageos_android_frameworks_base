@@ -1536,7 +1536,10 @@ class ActivityStarter {
             if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name) != MAGIC_MAIN_WINDOW) {
                 split = false;
             }
+        }else {
+            split = false;
         }
+
         if (result == START_DELIVERED_TO_TOP
                 || result == START_TASK_TO_FRONT) {
             return;
