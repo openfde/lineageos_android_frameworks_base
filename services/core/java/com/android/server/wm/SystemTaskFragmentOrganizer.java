@@ -132,7 +132,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             } else if (secondaryIntent != null) {
                 wct.startActivityInTaskFragment(existingRight, primary.token, secondaryIntent, null);
             }
-            wct.setFocusable(secondary.token, true);
             mSplitingActivityRecords.put(taskId, secondary);
             try {
                 mAtmService.getWindowOrganizerController().applyTransaction(wct);
@@ -167,7 +166,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 } else if (secondaryIntent != null) {
                     wct.startActivityInTaskFragment(secondaryTfToken, ownerToken, secondaryIntent, null);
                 }
-                wct.setFocusable(secondaryTfToken, true);
                 WindowContainerTransaction.TaskFragmentAdjacentParams adjacentParams =
                         new WindowContainerTransaction.TaskFragmentAdjacentParams();
                 wct.setAdjacentTaskFragments(primaryTfToken, secondaryTfToken, adjacentParams);
@@ -291,6 +289,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (token.equals(mRightFragments.get(taskId))) {
             final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
             Slog.d(TAG, "taskBounds = [" + taskBounds + "]");
+            wct.setFocusable(taskFragmentInfo.getToken(), true);
         }
     }
 
