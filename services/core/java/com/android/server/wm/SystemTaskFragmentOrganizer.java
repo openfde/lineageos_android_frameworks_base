@@ -115,8 +115,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     void startSplit(Task task, ActivityRecord primary,
                     ActivityRecord secondary, Intent secondaryIntent) {
         if (task == null || primary == null) return;
-        if (secondary.intent != null && intent.getComponent() != null
-            && intent.getComponent().getClassName().contains("LoginSelectUI")){
+        if (secondary.intent != null && secondary.intent.getComponent() != null
+            && secondary.intent.getComponent().getClassName().contains("LoginSelectUI")){
            return;
         }
         if (mSplitingActivityRecords.get(task.mTaskId) == secondary) {
