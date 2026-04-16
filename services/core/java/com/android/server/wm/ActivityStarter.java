@@ -1526,17 +1526,14 @@ class ActivityStarter {
     }
     // fde start: MAGIC WINDOW -> parallel world
     private void handleCustomSplitIfNeeded(ActivityRecord source, ActivityRecord r, Task task, int result) {
-        if (r == null || task == null) return;
-
+        if (r == null || task == null || source == null || source.info == null) return;
+        Slog.d(TAG, "handleCustomSplitIfNeeded() source = [" + source + "], r = [" + r + "], task = [" + task + "], result = [" + result + "]");
         boolean split = false;
         if (r.intent != null) {
             split = r.intent.getBooleanExtra(KEY_SPLIT, false);
         }
-        if (source != null && isMagicPackage && source.info != null) {
-            if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name) != MAGIC_MAIN_WINDOW) {
-                split = false;
-            }
-        }else {
+        if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name)
+                != MAGIC_MAIN_WINDOW) {
             split = false;
         }
 
@@ -1556,6 +1553,7 @@ class ActivityStarter {
 
     private void triggerSplit(Task task, ActivityRecord primary, ActivityRecord target, Intent secondaryIntent) {
         if (task == null || primary == null) return;
+        Slog.d(TAG, "triggerSplit() task = [" + task + "], primary = [" + primary + "], target = [" + target + "], secondaryIntent = [" + secondaryIntent + "]");
         SystemTaskFragmentOrganizer organizer =
                 mService.mParallelVisionOrganizer;
 
