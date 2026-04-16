@@ -289,7 +289,30 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (token.equals(mRightFragments.get(taskId))) {
             final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
             Slog.d(TAG, "taskBounds = [" + taskBounds + "]");
-            wct.setFocusable(taskFragmentInfo.getToken(), true);
+            IBinder leftToken = mLeftFragments.get(taskId);
+            TaskFragmentInfo leftInfo = mFragmentInfos.get(leftToken);
+            if (leftInfo == null) {
+                Slog.w(TAG, "leftInfo is null");
+                return;
+            }
+            List<IBinder> activities = leftInfo.getActivities();
+
+            if (activities == null || activities.isEmpty()) {
+                Slog.w(TAG, "left TF has no activities");
+                return;
+            }
+            IBinder topToken = activities.get(activities.size() - 1);
+            ActivityRecord topActivity =
+                    ActivityRecord.forTokenLocked(topToken);
+            if (topActivity != null) {
+                String pkg = topActivity.packageName;
+                if ("com.tencent.mm".equals(pkg)) {
+                    Slog.d(TAG, "left top activity is tencent wx");
+                    topActivity.pauseActivityLockedOnly();
+                }
+            }
+
+            Slog.d(TAG, "Top Activity in left TF: " + topActivity);
         }
     }
 
