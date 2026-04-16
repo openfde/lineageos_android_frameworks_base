@@ -138,7 +138,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             } catch (RemoteException e) {
                 throw e.rethrowFromSystemServer();
             }
-            pauseLeftIfNeedmFragmentInfos.get(existingRight), taskId);
+            pauseLeftIfNeed(mFragmentInfos.get(existingRight), taskId);
         } else {
             final Rect taskBounds = task.getBounds();
             final Rect newTaskBounds = new Rect(taskBounds.left, taskBounds.top, taskBounds.right + taskBounds.width(), taskBounds.bottom);
