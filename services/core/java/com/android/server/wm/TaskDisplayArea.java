@@ -715,8 +715,8 @@ final class TaskDisplayArea extends DisplayArea<WindowContainer> {
             }
         }
 
-        // fde start MAGIC WINDOW
-        recheckStackOrdering();
+        // fde start MAGIC WINDOW -> parallel world never reorder stach
+        // recheckStackOrdering();
         // fde end
 
         int layer = 0;

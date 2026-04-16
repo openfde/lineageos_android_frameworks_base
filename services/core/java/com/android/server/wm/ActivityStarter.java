@@ -143,7 +143,7 @@ import com.android.server.wm.TaskFragment.EmbeddingCheckResult;
 import static com.android.server.wm.Task.NOT_MAGIC_WINDOW;
 import static com.android.server.wm.Task.MAGIC_MAIN_WINDOW;
 import static com.android.server.wm.Task.MAGIC_ADDITIONAL_WINDOW;
-
+import android.util.ArraySet;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -162,7 +162,7 @@ class ActivityStarter {
     private static final String TAG_FOCUS = TAG + POSTFIX_FOCUS;
     private static final String TAG_CONFIGURATION = TAG + POSTFIX_CONFIGURATION;
     private static final String TAG_USER_LEAVING = TAG + POSTFIX_USER_LEAVING;
-
+    private static final String KEY_SPLIT = "should_split";
     private static final int INVALID_LAUNCH_MODE = -1;
 
     /**
@@ -208,6 +208,7 @@ class ActivityStarter {
     private boolean mLaunchTaskBehind;
     private int mLaunchFlags;
     private boolean mMagicLaunch = false;
+    private boolean isMagicPackage = false;
     private String mWindowAffinity = null;
 
     private LaunchParams mLaunchParams = new LaunchParams();
@@ -970,32 +971,23 @@ class ActivityStarter {
         final int startFlags = request.startFlags;
         final SafeActivityOptions options = request.activityOptions;
         Task inTask = request.inTask;
-        // fde start: MAGIC WINDOW
-        // int magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
+        // fde start: MAGIC WINDOW -> parallel world
         Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
-        boolean isMagicPackage = false;
         String extraFDE = request.extraFDE;
-        if(intent != null && extraFDE != null){
+        if (intent != null && extraFDE != null) {
             isMagicPackage = TextUtils.equals(extraFDE, "true");
-            Slog.d(TAG, "query isMagicPackage:" + isMagicPackage  + "  extraFDE:"
+            Slog.d(TAG, "query isMagicPackage:" + isMagicPackage + "  extraFDE:"
                     + extraFDE);
             mSupervisor.updateMagicFromCompatibleConfig(aInfo.packageName, isMagicPackage);
         }
         int magicType = 0;
-        if(isMagicPackage) {
+        if (isMagicPackage) {
             magicType = mSupervisor.getMagicWindowType(aInfo.packageName, aInfo.name);
         }
-        // mSupervisor.loadMagicWindowConfig(); for debug
-        if( isMagicPackage
-                &&  magicType == MAGIC_ADDITIONAL_WINDOW) {
-            Task task = mRootWindowContainer.findMagicTask(aInfo.packageName, MAGIC_MAIN_WINDOW);
-            if(task != null){
-                mMagicLaunch = true;
-                aInfo.documentLaunchMode = DOCUMENT_LAUNCH_ALWAYS;
+        if (isMagicPackage && magicType == MAGIC_ADDITIONAL_WINDOW) {
+            if (intent != null) {
+                intent.putExtra(KEY_SPLIT, true);
             }
-            mWindowAffinity = aInfo.packageName;
-        } else {
-            mMagicLaunch = false;
         }
         Slog.d(TAG, "isMagicPackage:" + isMagicPackage + " magicType:" + magicType);
         // fde end
@@ -1481,7 +1473,7 @@ class ActivityStarter {
                 auxiliaryResponse == null ? null : auxiliaryResponse.filters);
     }
 
-    void postStartActivityProcessing(ActivityRecord r, int result,
+    void postStartActivityProcessing(ActivityRecord source, ActivityRecord r, int result,
             Task startedActivityRootTask) {
         if (!ActivityManager.isStartResultSuccessful(result)) {
             if (mFrozeTaskList) {
@@ -1524,8 +1516,50 @@ class ActivityStarter {
 
         if (ActivityManager.isStartResultSuccessful(result)) {
             mInterceptor.onActivityLaunched(targetTask.getTaskInfo(), r);
+            try {
+                handleCustomSplitIfNeeded(mSourceRecord, r, targetTask, result);
+            } catch (Exception e) {
+                Slog.e(TAG, "Custom split failed", e);
+            }
         }
     }
+    // fde start: MAGIC WINDOW -> parallel world
+    private void handleCustomSplitIfNeeded(ActivityRecord source, ActivityRecord r, Task task, int result) {
+        if (r == null || task == null || source == null || source.info == null) return;
+        Slog.d(TAG, "handleCustomSplitIfNeeded() source = [" + source + "], r = [" + r + "], task = [" + task + "], result = [" + result + "]");
+        boolean split = false;
+        if (r.intent != null) {
+            split = r.intent.getBooleanExtra(KEY_SPLIT, false);
+        }
+        if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name) != MAGIC_MAIN_WINDOW) {
+            split = false;
+        }
+
+        if (result == START_DELIVERED_TO_TOP
+                || result == START_TASK_TO_FRONT) {
+            return;
+        }
+        if (!split) return;
+        mService.mH.post(() -> {
+            try {
+                triggerSplit(task, source, r, r.intent);
+            } catch (Exception e) {
+                Slog.e(TAG, "triggerSplit error", e);
+            }
+        });
+    }
+
+    private void triggerSplit(Task task, ActivityRecord primary, ActivityRecord target, Intent secondaryIntent) {
+        if (task == null || primary == null) return;
+        SystemTaskFragmentOrganizer organizer =
+                mService.mParallelVisionOrganizer;
+        if (organizer == null) {
+            Slog.e(TAG, "SystemTaskFragmentOrganizer is null");
+            return;
+        }
+        organizer.startSplit(task, primary, target, secondaryIntent);
+    }
+    // fde end
 
     /**
      * Compute the logical UID based on which the package manager would filter
@@ -1596,7 +1630,7 @@ class ActivityStarter {
         } finally {
             mService.continueWindowLayout();
         }
-        postStartActivityProcessing(r, result, startedActivityRootTask);
+        postStartActivityProcessing(sourceRecord, r, result, startedActivityRootTask);
 
         return result;
     }

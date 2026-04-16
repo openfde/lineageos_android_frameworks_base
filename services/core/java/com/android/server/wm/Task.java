@@ -281,6 +281,7 @@ class Task extends TaskFragment {
 
     private static final String FINISH_LOAD_DESKTOP = "1";
 
+    @Deprecated // MAGIC WINDOW -> parallel world never use this type
     public int type = NOT_MAGIC_WINDOW; // main magic window: 1  additional main window: 2
     public static final int NOT_MAGIC_WINDOW = 0 , MAGIC_MAIN_WINDOW = 1, MAGIC_ADDITIONAL_WINDOW = 2;
     public static final int ADDITIONAL_WINDOW_ACTIVITY_LIMIT = 5;
@@ -968,18 +969,19 @@ class Task extends TaskFragment {
      */
     void setIntent(ActivityRecord r, @Nullable Intent intent, @Nullable ActivityInfo info) {
         boolean updateIdentity = false;
-        // fde start MAGIC WINDOW
+        // fde start MAGIC WINDOW -> parallel world
+        // never use type
         if(info != null){
-            type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
+//            type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
             mWindowLayoutAffinity = info.packageName;
         } else {
-            type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
+//            type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().getClassName());
             // never update type in main window because it will insert a additional window in this task
             if (type != MAGIC_MAIN_WINDOW) {
                 if (info != null) {
-                    type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
+//                    type = mTaskSupervisor.getMagicWindowType(info.packageName, info.name);
                 } else {
-                    type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().flattenToShortString());
+//                    type = mTaskSupervisor.getMagicWindowType(r.intent.getComponent().getPackageName(), r.intent.getComponent().flattenToShortString());
                 }
             }
         }
@@ -1152,6 +1154,11 @@ class Task extends TaskFragment {
 
     @Override
     void onParentChanged(ConfigurationContainer rawNewParent, ConfigurationContainer rawOldParent) {
+        try {
+            throw new Exception("onParentChanged");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         final WindowContainer<?> newParent = (WindowContainer<?>) rawNewParent;
         final WindowContainer<?> oldParent = (WindowContainer<?>) rawOldParent;
         final DisplayContent display = newParent != null ? newParent.getDisplayContent() : null;
