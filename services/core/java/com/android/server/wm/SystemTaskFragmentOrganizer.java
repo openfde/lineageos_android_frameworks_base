@@ -127,7 +127,9 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         final WindowContainerTransaction wct = new WindowContainerTransaction();
         if (alreadySplit) {
             Slog.d(TAG, "startSplit: already split, reuse right TF");
-            pauseLeftIfNeed(primary);
+            mAtmService.mH.postDelayed(() -> {
+                pauseLeftIfNeed(primary);
+            }, 1000);
             if (secondary != null) {
                 TaskFragment currentTf = secondary.getTaskFragment();
                 if (currentTf != null) {
