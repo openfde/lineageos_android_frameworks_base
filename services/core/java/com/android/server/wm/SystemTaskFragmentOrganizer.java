@@ -127,18 +127,25 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         final WindowContainerTransaction wct = new WindowContainerTransaction();
         if (alreadySplit) {
             Slog.d(TAG, "startSplit: already split, reuse right TF");
+            pauseLeftIfNeed(primary);
             if (secondary != null) {
+                TaskFragment currentTf = secondary.getTaskFragment();
+                if (currentTf != null
+                        && currentTf.getFragmentToken().equals(targetTf)) {
+                    mSplitingActivityRecords.put(taskId, secondary);
+                    mIsExpandedMode = true;
+                    Slog.d(TAG, "Activity already in target TF, skip reparent");
+                    return;
+                }
                 wct.reparentActivityToTaskFragment(existingRight, secondary.token);
             } else if (secondaryIntent != null) {
                 wct.startActivityInTaskFragment(existingRight, primary.token, secondaryIntent, null);
             }
-            mSplitingActivityRecords.put(taskId, secondary);
             try {
                 mAtmService.getWindowOrganizerController().applyTransaction(wct);
             } catch (RemoteException e) {
                 throw e.rethrowFromSystemServer();
             }
-            pauseLeftIfNeed(primary);
         } else {
             final Rect taskBounds = task.getBounds();
             final Rect newTaskBounds = new Rect(taskBounds.left, taskBounds.top, taskBounds.right + taskBounds.width(), taskBounds.bottom);
@@ -327,12 +334,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             String pkg = topActivity.packageName;
             if ("com.tencent.mm".equals(pkg)) {
                 Slog.d(TAG, "left top activity is tencent wx");
-                if (topActivity.isVisibleRequested()
-                        && topActivity.isVisible()
-                        && topActivity.isState(ActivityRecord.State.RESUMED)) {
-                    topActivity.pauseActivityLockedOnly();
-                    Slog.d(TAG, "Activity is foreground");
-                }
+                topActivity.pauseActivityLockedOnly();
+                Slog.d(TAG, "Activity is foreground");
             }
         }
     }
