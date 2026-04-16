@@ -2245,15 +2245,15 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
         }
         // The ownerActivity has to belong to the same app as the target Task.
         final Task ownerTask = ownerActivity.getTask();
-        if (ownerTask.effectiveUid != ownerActivity.getUid()
-                || ownerTask.effectiveUid != caller.mUid) {
-            final Throwable exception =
-                    new SecurityException("Not allowed to operate with the ownerToken while "
-                            + "the root activity of the target task belong to the different app");
-            sendTaskFragmentOperationFailure(organizer, errorCallbackToken, null /* taskFragment */,
-                    OP_TYPE_CREATE_TASK_FRAGMENT, exception);
-            return;
-        }
+//        if (ownerTask.effectiveUid != ownerActivity.getUid()
+//                || ownerTask.effectiveUid != caller.mUid) {
+//            final Throwable exception =
+//                    new SecurityException("Not allowed to operate with the ownerToken while "
+//                            + "the root activity of the target task belong to the different app");
+//            sendTaskFragmentOperationFailure(organizer, errorCallbackToken, null /* taskFragment */,
+//                    OP_TYPE_CREATE_TASK_FRAGMENT, exception);
+//            return;
+//        }
         if (ownerTask.inPinnedWindowingMode()) {
             final Throwable exception = new IllegalArgumentException(
                     "Not allowed to create TaskFragment in PIP Task");
