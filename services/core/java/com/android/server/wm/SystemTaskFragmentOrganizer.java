@@ -130,8 +130,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             pauseLeftIfNeed(primary);
             if (secondary != null) {
                 TaskFragment currentTf = secondary.getTaskFragment();
-                if (currentTf != null
-                        && currentTf.getFragmentToken().equals(targetTf)) {
+                if (currentTf != null) {
                     mSplitingActivityRecords.put(taskId, secondary);
                     mIsExpandedMode = true;
                     Slog.d(TAG, "Activity already in target TF, skip reparent");
