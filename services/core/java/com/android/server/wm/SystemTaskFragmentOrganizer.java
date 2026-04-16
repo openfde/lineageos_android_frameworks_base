@@ -138,6 +138,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             } catch (RemoteException e) {
                 throw e.rethrowFromSystemServer();
             }
+            pauseLeftIfNeedmFragmentInfos.get(existingRight), taskId);
         } else {
             final Rect taskBounds = task.getBounds();
             final Rect newTaskBounds = new Rect(taskBounds.left, taskBounds.top, taskBounds.right + taskBounds.width(), taskBounds.bottom);
@@ -298,38 +299,42 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             deleteTaskFragment(wct, taskFragmentInfo);
             removeTaskFragmentInfo(taskFragmentInfo);
         } else {
-            IBinder token = taskFragmentInfo.getFragmentToken();
-            if (token.equals(mRightFragments.get(taskId))) {
-                IBinder leftToken = mLeftFragments.get(taskId);
-                TaskFragmentInfo leftInfo = mFragmentInfos.get(leftToken);
-                if (leftInfo == null) {
-                    Slog.w(TAG, "leftInfo is null");
-                    return;
-                }
-                List<IBinder> activities = leftInfo.getActivities();
-                if (activities == null || activities.isEmpty()) {
-                    Slog.w(TAG, "left TF has no activities");
-                    return;
-                }
-                IBinder topToken = activities.get(activities.size() - 1);
-                ActivityRecord topActivity =
-                        ActivityRecord.forTokenLocked(topToken);
-                if (topActivity != null) {
-                    String pkg = topActivity.packageName;
-                    if ("com.tencent.mm".equals(pkg)) {
-                        Slog.d(TAG, "left top activity is tencent wx");
-                        if (topActivity.isVisibleRequested()
-                                && topActivity.isVisible()
-                                && topActivity.isState(ActivityRecord.State.RESUMED)) {
-                            topActivity.pauseActivityLockedOnly();
-                            Slog.d(TAG, "Activity is foreground");
-                        }
-                    }
-                }
-                Slog.d(TAG, "Top Activity in left TF: " + topActivity);
-            }
+            pauseLeftIfNeed(taskFragmentInfo, taskId);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
+    }
+
+    void pauseLeftIfNeed(TaskFragmentInfo taskFragmentInfo, int taskId){
+        IBinder token = taskFragmentInfo.getFragmentToken();
+        if (token.equals(mRightFragments.get(taskId))) {
+            IBinder leftToken = mLeftFragments.get(taskId);
+            TaskFragmentInfo leftInfo = mFragmentInfos.get(leftToken);
+            if (leftInfo == null) {
+                Slog.w(TAG, "leftInfo is null");
+                return;
+            }
+            List<IBinder> activities = leftInfo.getActivities();
+            if (activities == null || activities.isEmpty()) {
+                Slog.w(TAG, "left TF has no activities");
+                return;
+            }
+            IBinder topToken = activities.get(activities.size() - 1);
+            ActivityRecord topActivity =
+                    ActivityRecord.forTokenLocked(topToken);
+            if (topActivity != null) {
+                String pkg = topActivity.packageName;
+                if ("com.tencent.mm".equals(pkg)) {
+                    Slog.d(TAG, "left top activity is tencent wx");
+                    if (topActivity.isVisibleRequested()
+                            && topActivity.isVisible()
+                            && topActivity.isState(ActivityRecord.State.RESUMED)) {
+                        topActivity.pauseActivityLockedOnly();
+                        Slog.d(TAG, "Activity is foreground");
+                    }
+                }
+            }
+            Slog.d(TAG, "Top Activity in left TF: " + topActivity);
+        }
     }
 
     void deleteTaskFragment(WindowContainerTransaction wct, TaskFragmentInfo taskFragmentInfo) {
