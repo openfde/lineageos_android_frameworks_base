@@ -158,7 +158,7 @@ public class ActivityStartController {
             return;
         }
 
-        mLastStarter.postStartActivityProcessing(r, result, targetRootTask);
+        mLastStarter.postStartActivityProcessing(null, r, result, targetRootTask);
     }
 
     void startHomeActivity(Intent intent, ActivityInfo aInfo, String reason,
