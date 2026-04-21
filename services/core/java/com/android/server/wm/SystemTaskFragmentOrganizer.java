@@ -282,7 +282,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     void updateWindowingMode(@NonNull WindowContainerTransaction wct,
-                             @NonNull IBinder fragmentToken, @WindowingMode int windowingMode) {
+                             @NonNull IBinder fragmentToken, int windowingMode) {
         Log.d(TAG, "updateWindowingMode: 更新窗口模式，token=" + fragmentToken + ", mode="
                 + windowingMode);
         if (!mFragmentInfos.containsKey(fragmentToken)) {
