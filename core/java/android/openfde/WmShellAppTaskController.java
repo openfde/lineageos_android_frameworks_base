@@ -379,19 +379,12 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
     private boolean isParallelWorld(String packageName, Context who) {
         String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-        String[] selectionArgsWithoutActivity = {packageName, "enableMagicWindow", ""};
-        String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "enableMagicWindow", packageName);
-        Log.d(TAG, "enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
+        String[] selectionArgsWithoutActivity = {packageName, "configMagicWindow", ""};
+        String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "configMagicWindow", packageName);
+        Log.d(TAG, "configMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
         if(!TextUtils.isEmpty(resultStrWithoutActivity)){
-            try {
-                float ratio = Float.parseFloat(resultStrWithoutActivity);
-                if(ratio >= 0 && ratio < 1){
-                    Log.d(TAG, packageName + " is ParallelWorld");
-                    return true;
-                }
-            } catch (NumberFormatException e) {
-                Log.w(TAG, "Pare Num exception " + resultStrWithoutActivity);
-            }
+            Log.d(TAG, packageName + " is ParallelWorld");
+            return true;
         }
         return false;
     }

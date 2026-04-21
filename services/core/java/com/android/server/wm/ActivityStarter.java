@@ -976,13 +976,9 @@ class ActivityStarter {
         Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
         String extraFDE = request.extraFDE;
         if(extraFDE != null){
-            try {
-                mSplitRatio = Float.parseFloat(extraFDE);
-            } catch (NumberFormatException e) {
-                Slog.w(TAG, "Pare Num exception " + extraFDE);
-            }
+            mSplitRatio = parseRatio(extraFDE);
         }
-        if (intent != null && mSplitRatio <= 0.8f && mSplitRatio > 0) {
+        if (intent != null && mSplitRatio < 1.0f && mSplitRatio > 0f) {
             isMagicPackage = true;
             Slog.d(TAG, "query isMagicPackage:" + isMagicPackage + "  extraFDE:"
                     + extraFDE);
@@ -1409,6 +1405,26 @@ class ActivityStarter {
         }
 
         return mLastStartActivityResult;
+    }
+
+    private float parseRatio(String ratioText) {
+        if (ratioText == null || !ratioText.contains(":")) {
+            return 0.5f;
+        }
+        String[] parts = ratioText.split(":");
+        if (parts.length != 2) {
+            return 0.5f;
+        }
+        try {
+            int main = Integer.parseInt(parts[0].trim());
+            int secondary = Integer.parseInt(parts[1].trim());
+            if (main <= 0 || secondary <= 0) {
+                return 0.5f;
+            }
+            return (float) secondary / (main + secondary);
+        } catch (NumberFormatException e) {
+            return 0.5f;
+        }
     }
 
     /**
