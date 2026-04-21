@@ -21,7 +21,7 @@ import com.android.internal.policy.DecorWindowInsetsCallback;
 import com.android.internal.policy.TaskRemoteServiceWrapper;
 import com.android.internal.policy.SystemBarController;
 import android.content.res.Configuration;
-
+import com.android.internal.util.CompatibleConfig;
 /**
  * WmShellAppTaskController - Implementation of AppTaskController interface.
  * Manages task operations and system bar controls for windowed applications.
@@ -377,6 +377,18 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         callTaskOperation(TASK_CAPTION_OPERATION_BACK);
     }
 
+    private boolean isParallelWorld(String packageName, Context who) {
+        String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
+        String[] selectionArgsWithoutActivity = {packageName, "enableMagicWindow", ""};
+        String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "enableMagicWindow", packageName);
+        Log.d(TAG, "enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
+        if (TextUtils.equals(resultStrWithoutActivity, "true")) {
+            Log.d(TAG, packageName + " is ParallelWorld");
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void enterOrExitFullscreen() {
         Log.i(TAG, "Enter/Exit fullscreen");
@@ -386,6 +398,10 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         if (mTaskInfo != null && mTaskInfo.baseActivity != null
                 && mTaskInfo.baseActivity.getPackageName() != null) {
             if (TextUtils.equals(mTaskInfo.baseActivity.getPackageName(), "com.android.settings")) {
+                Toast.makeText(mActivity.get(), R.string.forbid_exit_fullscreen_tips, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(getContext() != null && isParallelWorld(mTaskInfo.baseActivity.getPackageName(), getContext())){
                 Toast.makeText(mActivity.get(), R.string.forbid_exit_fullscreen_tips, Toast.LENGTH_SHORT).show();
                 return;
             }
