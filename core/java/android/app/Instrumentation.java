@@ -2027,7 +2027,7 @@ public class Instrumentation {
             String[] selectionArgsWithoutActivity = {packageName,"enableMagicWindow", ""};
             String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "enableMagicWindow", packageName);
             Log.d(TAG,"enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
-            if(TextUtils.equals(resultStrWithoutActivity, "true")){
+            if(!TextUtils.isEmpty(resultStrWithoutActivity)){
                 Log.d(TAG,  "put extra fde_magic_window true");
                 intent.setExtraFDE(resultStrWithoutActivity);
                 return true;

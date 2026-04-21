@@ -304,34 +304,34 @@
         key_code="enableMagicWindow"
         update_date="2025-12-3">
         <package name="com.jingdong.app.mall">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.ss.android.article.news">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.zhihu.android">
-            <activity name="">true</activity>
+            <activity name="">0.7</activity>
         </package>
         <package name="com.xingin.xhs">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.sina.weibo">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.kuaishou.nebula">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="ctrip.android.view">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.Qunar">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.tencent.mm">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
         <package name="com.lite.ceclanxin">
-            <activity name="">true</activity>
+            <activity name="">0.6</activity>
         </package>
 
     </item>
