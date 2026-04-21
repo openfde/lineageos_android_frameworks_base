@@ -49,6 +49,9 @@ import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_PARENT_I
 import static android.window.TaskFragmentTransaction.TYPE_TASK_FRAGMENT_VANISHED;
 import static android.app.WindowConfiguration.WINDOWING_MODE_PINNED;
 import static android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -249,7 +252,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Binder.restoreCallingIdentity(origId);
     }
 
-    void updateContainersInTask(WindowContainerTransaction wct, int taskId, Rect taskBounds) {
+    void updateContainersInTask(WindowContainerTransaction wct, int taskId, Rect taskBounds,
+                                Configuration configuration) {
         if (mRightFragments.get(taskId) == null) {
             Slog.d(TAG, "updateContainersInTask one activity taskId:" + taskId + " bounds:" + taskBounds);
             return;
@@ -262,12 +266,31 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             final Rect right = new Rect(mid, 0, taskBounds.width(), taskBounds.height());
             resizeTaskFragment(wct, primaryTfToken, left);
             resizeTaskFragment(wct, secondaryTfToken, right);
+            if(configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_FULLSCREEN){
+                updateWindowingMode(wct, primaryTfToken, WINDOWING_MODE_MULTI_WINDOW);
+                updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_MULTI_WINDOW);
+            } else if(configuration.windowConfiguration.getWindowingMode() == WINDOWING_MODE_FREEFORM){
+                updateWindowingMode(wct, primaryTfToken, WINDOWING_MODE_FREEFORM);
+                updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_FREEFORM);
+            }
             try {
                 mAtmService.getWindowOrganizerController().applyTransaction(wct);
             } catch (RemoteException e) {
                 throw e.rethrowFromSystemServer();
             }
         }
+    }
+
+    void updateWindowingMode(@NonNull WindowContainerTransaction wct,
+                             @NonNull IBinder fragmentToken, @WindowingMode int windowingMode) {
+        Log.d(TAG, "updateWindowingMode: 更新窗口模式，token=" + fragmentToken + ", mode="
+                + windowingMode);
+        if (!mFragmentInfos.containsKey(fragmentToken)) {
+            Log.e(TAG, "updateWindowingMode: 未找到 TaskFragment，token=" + fragmentToken);
+            throw new IllegalArgumentException(
+                    "Can't find an existing TaskFragment with fragmentToken=" + fragmentToken);
+        }
+        wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), windowingMode);
     }
 
     void resizeTaskFragment(@NonNull WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
@@ -423,7 +446,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         wct.deleteTaskFragment(token);
     }
 
-    //    @Override
     public void onTaskFragmentVanished(WindowContainerTransaction wct,
                                        TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
@@ -462,7 +484,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if (shouldUpdateContainer(taskFragmentInfo)) {
-            updateContainersInTask(wct, taskId, taskBounds);
+            updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
         }
         mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
