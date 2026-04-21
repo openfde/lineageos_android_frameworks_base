@@ -302,7 +302,7 @@
     <item
         isdel="true"
         key_code="enableMagicWindow"
-        update_date="2026-04-21">
+        update_date="2026-04-22">
         <package name="com.jingdong.app.mall">
             <activity name="">0.6</activity>
         </package>
@@ -339,7 +339,7 @@
     <item
         isdel="false"
         key_code="configMagicWindow"
-        update_date="2026-04-21">
+        update_date="2026-04-22">
         <package name="com.jingdong.app.mall">
             <activity name="">{"4:5"}</activity>
         </package>
