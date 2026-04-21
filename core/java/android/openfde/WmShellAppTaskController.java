@@ -382,9 +382,16 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         String[] selectionArgsWithoutActivity = {packageName, "enableMagicWindow", ""};
         String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "enableMagicWindow", packageName);
         Log.d(TAG, "enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
-        if (TextUtils.equals(resultStrWithoutActivity, "true")) {
-            Log.d(TAG, packageName + " is ParallelWorld");
-            return true;
+        if(!TextUtils.isEmpty(resultStrWithoutActivity)){
+            try {
+                float ratio = Float.parseFloat(resultStrWithoutActivity);
+                if(ratio >= 0 && ratio < 1){
+                    Log.d(TAG, packageName + " is ParallelWorld");
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                Slog.w(TAG, "Pare Num exception " + extraFDE);
+            }
         }
         return false;
     }

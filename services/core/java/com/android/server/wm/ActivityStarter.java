@@ -975,10 +975,12 @@ class ActivityStarter {
         // fde start: MAGIC WINDOW -> parallel world
         Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
         String extraFDE = request.extraFDE;
-        try {
-            mSplitRatio = Float.parseFloat(extraFDE);
-        } catch (NumberFormatException e) {
-            Slog.w(TAG, "Pare Num exception " + extraFDE);
+        if(extraFDE != null){
+            try {
+                mSplitRatio = Float.parseFloat(extraFDE);
+            } catch (NumberFormatException e) {
+                Slog.w(TAG, "Pare Num exception " + extraFDE);
+            }
         }
         if (intent != null && mSplitRatio <= 0.8f && mSplitRatio > 0) {
             isMagicPackage = true;
