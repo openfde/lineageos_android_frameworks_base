@@ -266,7 +266,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             return;
         } else {
             Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
-            float ratio = mSplitRatios.get(task.mTaskId);
+            float ratio = mSplitRatios.get(taskId);
             final IBinder primaryTfToken = mLeftFragments.get(taskId);
             final IBinder secondaryTfToken = mRightFragments.get(taskId);
             final int totalWidth = taskBounds.width();
