@@ -285,11 +285,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                              @NonNull IBinder fragmentToken, int windowingMode) {
         Slog.d(TAG, "updateWindowingMode: 更新窗口模式，token=" + fragmentToken + ", mode="
                 + windowingMode);
-        if (!mFragmentInfos.containsKey(fragmentToken)) {
-            Slog.e(TAG, "updateWindowingMode: 未找到 TaskFragment，token=" + fragmentToken);
-            throw new IllegalArgumentException(
-                    "Can't find an existing TaskFragment with fragmentToken=" + fragmentToken);
-        }
+//        if (!mFragmentInfos.containsKey(fragmentToken)) {
+//            Slog.e(TAG, "updateWindowingMode: 未找到 TaskFragment，token=" + fragmentToken);
+//            throw new IllegalArgumentException(
+//                    "Can't find an existing TaskFragment with fragmentToken=" + fragmentToken);
+//        }
         wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), windowingMode);
     }
 
