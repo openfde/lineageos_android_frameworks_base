@@ -283,19 +283,19 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     void updateWindowingMode(@NonNull WindowContainerTransaction wct,
                              @NonNull IBinder fragmentToken, int windowingMode) {
+        if (fragmentToken == null || mFragmentInfos.get(fragmentToken) == null) {
+            Slog.w(TAG, "Not yet get the fragment to update mode");
+            return;
+        }
         Slog.d(TAG, "updateWindowingMode: 更新窗口模式，token=" + fragmentToken + ", mode="
                 + windowingMode);
-//        if (!mFragmentInfos.containsKey(fragmentToken)) {
-//            Slog.e(TAG, "updateWindowingMode: 未找到 TaskFragment，token=" + fragmentToken);
-//            throw new IllegalArgumentException(
-//                    "Can't find an existing TaskFragment with fragmentToken=" + fragmentToken);
-//        }
         wct.setWindowingMode(mFragmentInfos.get(fragmentToken).getToken(), windowingMode);
     }
 
     void resizeTaskFragment(@NonNull WindowContainerTransaction wct, @NonNull IBinder fragmentToken,
                             @Nullable Rect relBounds) {
         if (fragmentToken == null || mFragmentInfos.get(fragmentToken) == null) {
+            Slog.w(TAG, "Not yet get the fragment to resize");
             return;
         }
         if (relBounds == null) {
