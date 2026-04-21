@@ -390,7 +390,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
                     return true;
                 }
             } catch (NumberFormatException e) {
-                Slog.w(TAG, "Pare Num exception " + resultStrWithoutActivity);
+                Log.w(TAG, "Pare Num exception " + resultStrWithoutActivity);
             }
         }
         return false;
