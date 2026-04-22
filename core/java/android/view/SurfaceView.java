@@ -1566,6 +1566,7 @@ public class SurfaceView extends View implements ViewRootImpl.SurfaceChangedCall
 
     private final Rect mRTLastReportedPosition = new Rect();
     private final Rect mRTLastSetCrop = new Rect();
+    private Runnable mPendingTencentRefreshRunnable = null;
 
     private class SurfaceViewPositionUpdateListener implements RenderNode.PositionUpdateListener {
         private final int mRtSurfaceWidth;
@@ -1599,7 +1600,20 @@ public class SurfaceView extends View implements ViewRootImpl.SurfaceChangedCall
                                     / (float) mRtSurfaceWidth /*postScaleX*/,
                             mRTLastReportedPosition.height()
                                     / (float) mRtSurfaceHeight /*postScaleY*/);
-
+                    String packageName = getContext().getPackageName();
+                    boolean isTencentVideo = "com.tencent.qqlive".equals(packageName);
+                    if (isTencentVideo) {
+                        if (mPendingTencentRefreshRunnable != null) {
+                            removeCallbacks(mPendingTencentRefreshRunnable);
+                            mPendingTencentRefreshRunnable = null;
+                        }
+                        mPendingTencentRefreshRunnable = () -> {
+                            requestUpdateSurfacePositionAndScale();
+                            Log.d(TAG, "Tencent Video's second refresh is complete.");
+                            mPendingTencentRefreshRunnable = null;
+                        };
+                        postDelayed(mPendingTencentRefreshRunnable, 40);
+                    }
                     mPositionChangedTransaction.show(mSurfaceControl);
                 }
                 applyOrMergeTransaction(mPositionChangedTransaction, frameNumber);
