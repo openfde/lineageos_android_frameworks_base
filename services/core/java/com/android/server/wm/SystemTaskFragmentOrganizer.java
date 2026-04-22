@@ -263,7 +263,9 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                                 Configuration configuration) {
         if (mRightFragments.get(taskId) == null) {
             Slog.d(TAG, "updateContainersInTask one activity taskId:" + taskId + " bounds:" + taskBounds);
-            return;
+            final IBinder primaryTfToken = mLeftFragments.get(taskId);
+	    resizeTaskFragment(wct, primaryTfToken, null);
+	    return;
         } else {
             Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
             float ratio = mSplitRatios.get(taskId);
@@ -283,11 +285,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 updateWindowingMode(wct, primaryTfToken, WINDOWING_MODE_FREEFORM);
                 updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_FREEFORM);
             }
-            try {
-                mAtmService.getWindowOrganizerController().applyTransaction(wct);
-            } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
-            }
+        }
+	try {
+            mAtmService.getWindowOrganizerController().applyTransaction(wct);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
         }
     }
 
