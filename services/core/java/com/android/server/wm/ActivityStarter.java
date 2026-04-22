@@ -149,6 +149,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.DateFormat;
 import java.util.Date;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 
 /**
  * Controller for interpreting how and then launching an activity.
@@ -209,6 +212,7 @@ class ActivityStarter {
     private int mLaunchFlags;
     private boolean mMagicLaunch = false;
     private boolean isMagicPackage = false;
+    private float mSplitRatio;
     private String mWindowAffinity = null;
 
     private LaunchParams mLaunchParams = new LaunchParams();
@@ -974,8 +978,11 @@ class ActivityStarter {
         // fde start: MAGIC WINDOW -> parallel world
         Slog.d(TAG, "executeRequest: packageName=" + aInfo.packageName + " name=" + aInfo.name);
         String extraFDE = request.extraFDE;
-        if (intent != null && extraFDE != null) {
-            isMagicPackage = TextUtils.equals(extraFDE, "true");
+        if(extraFDE != null){
+            mSplitRatio = parseRatio(extraFDE);
+        }
+        if (intent != null && mSplitRatio < 1.0f && mSplitRatio > 0f) {
+            isMagicPackage = true;
             Slog.d(TAG, "query isMagicPackage:" + isMagicPackage + "  extraFDE:"
                     + extraFDE);
             mSupervisor.updateMagicFromCompatibleConfig(aInfo.packageName, isMagicPackage);
@@ -1403,6 +1410,43 @@ class ActivityStarter {
         return mLastStartActivityResult;
     }
 
+    private float parseRatio(String jsonString) {
+        if (jsonString == null || jsonString.isEmpty()) {
+                return 0.5f;
+        }
+        try {
+            JSONObject obj = new JSONObject(jsonString);
+            String ratio = obj.getString("ratio");
+            if (ratio == null || ratio.isEmpty()) {
+                return 0.5f;
+            }
+            String[] parts = ratio.split(":");
+            if (parts.length != 2) {
+                return 0.5f;
+            }
+            int primary = Integer.parseInt(parts[0]);
+            int secondary = Integer.parseInt(parts[1]);
+
+            if (primary <= 0 || secondary <= 0) {
+                return 0.5f;
+            }
+
+            float total = primary + secondary;
+            return secondary / total;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return 0.5f;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0.5f;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0.5f;
+        }
+    }
+
+
     /**
      * Return true if background activity is really aborted.
      *
@@ -1557,7 +1601,7 @@ class ActivityStarter {
             Slog.e(TAG, "SystemTaskFragmentOrganizer is null");
             return;
         }
-        organizer.startSplit(task, primary, target, secondaryIntent);
+        organizer.startSplit(task, primary, target, secondaryIntent, mSplitRatio);
     }
     // fde end
 

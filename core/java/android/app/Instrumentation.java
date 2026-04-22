@@ -2024,10 +2024,10 @@ public class Instrumentation {
         if(intent != null && intent.getComponent() != null && intent.getComponent().getPackageName() != null){
             String packageName =  intent.getComponent().getPackageName();
             String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
-            String[] selectionArgsWithoutActivity = {packageName,"enableMagicWindow", ""};
-            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "enableMagicWindow", packageName);
-            Log.d(TAG,"enableMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
-            if(TextUtils.equals(resultStrWithoutActivity, "true")){
+            String[] selectionArgsWithoutActivity = {packageName,"configMagicWindow", ""};
+            String resultStrWithoutActivity = CompatibleConfig.queryStringValueData(who, "configMagicWindow", packageName);
+            Log.d(TAG,"configMagicWindow resultStrWithoutActivity: " + resultStrWithoutActivity);
+            if(!TextUtils.isEmpty(resultStrWithoutActivity)){
                 Log.d(TAG,  "put extra fde_magic_window true");
                 intent.setExtraFDE(resultStrWithoutActivity);
                 return true;
