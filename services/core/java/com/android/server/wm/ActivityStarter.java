@@ -149,6 +149,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.DateFormat;
 import java.util.Date;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 
 /**
  * Controller for interpreting how and then launching an activity.
@@ -1407,25 +1410,42 @@ class ActivityStarter {
         return mLastStartActivityResult;
     }
 
-    private float parseRatio(String ratioText) {
-        if (ratioText == null || !ratioText.contains(":")) {
-            return 0.5f;
-        }
-        String[] parts = ratioText.split(":");
-        if (parts.length != 2) {
-            return 0.5f;
+    private float parseRatio(String jsonString) {
+        if (jsonString == null || jsonString.isEmpty()) {
+                return 0.5f;
         }
         try {
-            int main = Integer.parseInt(parts[0].trim());
-            int secondary = Integer.parseInt(parts[1].trim());
-            if (main <= 0 || secondary <= 0) {
+            JSONObject obj = new JSONObject(jsonString);
+            String ratio = obj.getString("ratio");
+            if (ratio == null || ratio.isEmpty()) {
                 return 0.5f;
             }
-            return (float) secondary / (main + secondary);
+            String[] parts = ratio.split(":");
+            if (parts.length != 2) {
+                return 0.5f;
+            }
+            int primary = Integer.parseInt(parts[0]);
+            int secondary = Integer.parseInt(parts[1]);
+
+            if (primary <= 0 || secondary <= 0) {
+                return 0.5f;
+            }
+
+            float total = primary + secondary;
+            return secondary / total;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return 0.5f;
         } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return 0.5f;
+        } catch (Exception e) {
+            e.printStackTrace();
             return 0.5f;
         }
     }
+
 
     /**
      * Return true if background activity is really aborted.

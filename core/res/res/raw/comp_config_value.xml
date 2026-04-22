@@ -341,34 +341,34 @@
         key_code="configMagicWindow"
         update_date="2026-04-22">
         <package name="com.jingdong.app.mall">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.ss.android.article.news">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.zhihu.android">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.xingin.xhs">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.sina.weibo">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.kuaishou.nebula">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="ctrip.android.view">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.Qunar">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.tencent.mm">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
         <package name="com.lite.ceclanxin">
-            <activity name="">{"4:5"}</activity>
+            <activity name="">{"ratio":"4:5"}</activity>
         </package>
 
     </item>

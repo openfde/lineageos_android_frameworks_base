@@ -457,20 +457,24 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     }
 
     public void onTaskFragmentVanished(WindowContainerTransaction wct,
-                                       TaskFragmentInfo taskFragmentInfo, int taskId) {
+                                    TaskFragmentInfo taskFragmentInfo, int taskId) {
         Slog.d(TAG, "onTaskFragmentVanished() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
         if (mRightFragments.get(taskId) != null &&
                 mRightFragments.get(taskId) == taskFragmentInfo.getFragmentToken()) {
             final Rect taskBounds = mConfiguration.windowConfiguration.getBounds();
+            float ratio = mSplitRatios.get(taskId);
             Rect newTaskBounds = new Rect(
-                    taskBounds.left,
-                    taskBounds.top,
-                    taskBounds.left + taskBounds.width() / 2,
-                    taskBounds.bottom
+                taskBounds.left,
+                taskBounds.top,
+                taskBounds.left + (int)(taskBounds.width() * (1 - ratio)),
+                taskBounds.bottom
             );
-            contractTaskFragment(mLeftFragments.get(taskId), taskId, newTaskBounds);
+            mAtmService.mH.post(() -> {
+                contractTaskFragment(mLeftFragments.get(taskId), taskId, newTaskBounds);
+            });
             mSplitingActivityRecords.remove(taskId);
             mRightFragments.remove(taskId);
+
         } else if (mLeftFragments.get(taskId) != null &&
                 mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken()) {
             TaskFragmentInfo info = mFragmentInfos.get(mRightFragments.get(taskId));
