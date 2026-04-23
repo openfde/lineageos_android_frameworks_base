@@ -94,6 +94,7 @@ public class BrightnessDialog extends Activity {
         if (view != null) {
             collectFlow(view, mShadeInteractor.isQsExpanded(), this::onShadeStateChange);
         }
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
     }
 
     private void onShadeStateChange(boolean isQsExpanded) {
