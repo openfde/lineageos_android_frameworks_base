@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
+import android.os.SystemProperties;
 
 /**
  * Utility methods for working with display density.
@@ -119,7 +120,6 @@ public class DisplayDensityUtils {
         for (Display display : mDisplayManager.getDisplays(
                 DisplayManager.DISPLAY_CATEGORY_ALL_INCLUDING_DISABLED)) {
             DisplayInfo info = new DisplayInfo();
-            Log.w(LOG_TAG, "DisplayDensityUtils " + display.getDisplayId() + ",info.logicalDensityDpi "+info.logicalDensityDpi);
             if (!display.getDisplayInfo(info)) {
                 Log.w(LOG_TAG, "Cannot fetch display info for display " + display.getDisplayId());
                 continue;
@@ -131,10 +131,11 @@ public class DisplayDensityUtils {
                 }
                 continue;
             }
-
-            final int defaultDensity = DisplayDensityUtils.getDefaultDensityForDisplay(
-                    display.getDisplayId());
-            Log.w(LOG_TAG, "DisplayDensityUtils defaultDensity " + defaultDensity);        
+            // final int defaultDensity = DisplayDensityUtils.getDefaultDensityForDisplay(
+            //         display.getDisplayId());
+            final int defaultDensity  = SystemProperties.getInt("FDE_DPI_DEFAULT",
+                DisplayDensityUtils.getDefaultDensityForDisplay(
+                    display.getDisplayId()));
             if (defaultDensity <= 0) {
                 Log.w(LOG_TAG, "Cannot fetch default density for display "
                         + display.getDisplayId());
@@ -160,8 +161,8 @@ public class DisplayDensityUtils {
             final int numSmaller = (int) MathUtils.constrain((1 - minScale) / minScaleInterval,
                     0, SUMMARIES_SMALLER.length);
 
-             Log.w(LOG_TAG, "DisplayDensityUtils "
-                    + " maxDensity=" + maxDensity
+             Log.d(LOG_TAG, "DisplayDensityUtils "
+                    + " currentDensity=" + currentDensity
                     + " maxScale=" + maxScale
                     + " minScale=" + minScale
                     + " minScaleInterval=" + minScaleInterval
@@ -192,6 +193,7 @@ public class DisplayDensityUtils {
             if (currentDensity == defaultDensity) {
                 currentDensityIndex = curIndex;
             }
+
             values[curIndex] = defaultDensity;
             entries[curIndex] = res.getString(SUMMARY_DEFAULT);
             curIndex++;
@@ -216,14 +218,15 @@ public class DisplayDensityUtils {
             } else {
                 // We don't understand the current density. Must have been set by
                 // someone else. Make room for another entry...
-                int newLength = values.length + 1;
-                values = Arrays.copyOf(values, newLength);
-                values[curIndex] = currentDensity;
+                // int newLength = values.length + 1;
+                // values = Arrays.copyOf(values, newLength);
+                // values[curIndex] = currentDensity;
 
-                entries = Arrays.copyOf(entries, newLength);
-                entries[curIndex] = res.getString(SUMMARY_CUSTOM, currentDensity);
+                // entries = Arrays.copyOf(entries, newLength);
+                // entries[curIndex] = res.getString(SUMMARY_CUSTOM, currentDensity);
 
-                displayIndex = curIndex;
+                // displayIndex = curIndex;
+                 displayIndex = 2;
             }
 
             if (display.getDisplayId() == Display.DEFAULT_DISPLAY) {
