@@ -2840,7 +2840,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             int features = getLocalFeatures();
             if (((params.flags & FLAG_FULLSCREEN) == 0 || (features & (1 << FEATURE_NO_TITLE)) == 0)
                     || (params.compatibleFlags & COMPATIBLE_FLAG_SHIFT_CONTENT_BELOW_CAPTION) != 0
-                    || getContext().getPackageName().contains("com.android.launcher3")) {
+                    || getContext().getPackageName().contains("com.android.launcher3")
+                    || getContext().getPackageName().contains("com.tencent.mobileqq")) {
                 // Set up decor part of UI to ignore fitsSystemWindows if appropriate.
                 mDecor.makeFrameworkOptionalFitsSystemWindows();
             }
