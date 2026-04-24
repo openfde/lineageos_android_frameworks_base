@@ -305,10 +305,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
         boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
         Log.d(TAG, "onTaskChanging taskInfo: " + taskInfo + ", taskInfo.isFocused: " + taskInfo.isFocused + " systemBarVisibility:" + systemBarVisibility);
-        if (!shouldShowWindowDecor(taskInfo) || !systemBarVisibility) {
+        if (!shouldShowWindowDecor(taskInfo)) {
             if (decoration != null) {
-                decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
-                        false /* setTaskCropAndPosition */);
                 destroyWindowDecoration(taskInfo);
             }
             Log.d(TAG, "onTaskChanging decoration: " + decoration);
