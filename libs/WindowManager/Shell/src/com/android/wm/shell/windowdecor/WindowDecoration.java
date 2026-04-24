@@ -499,6 +499,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
      * Checks if task has entered/exited immersive mode and requires a change in caption visibility.
      */
     private void updateCaptionVisibility(View rootView, int displayId) {
+        android.util.Log.d(TAG, "updateCaptionVisibility() called with: rootView = [" + rootView + "], displayId = [" + displayId + "]");
         final InsetsState insetsState = mDisplayController.getInsetsState(displayId);
         for (int i = 0; i < insetsState.sourceSize(); i++) {
             final InsetsSource source = insetsState.sourceAt(i);
@@ -511,6 +512,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             } else {
                 mIsCaptionVisible = source.isVisible();
             }
+            android.util.Log.d(TAG, "updateCaptionVisibility mIsCaptionVisible: " + mIsCaptionVisible);
+            android.util.Log.d(TAG, "updateCaptionVisibility systembarvisible: " + mDecorViewModel.getSystemBarVisibility(mTaskInfo));
+
             mIsCaptionVisible &= !(mTaskInfo.taskDescription.getWindowDecorationStatus() == 1);
             setCaptionVisibility(rootView, mIsCaptionVisible);
 

@@ -88,6 +88,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         Log.d(TAG, "updateWindowDecoration mRunningTaskId: " + mRunningTaskId + " taskInfo:" + taskInfo);
         if(taskInfo == null) return;
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(mRunningTaskId);
+        android.util.Log.d(TAG, "updateWindowDecoration: " + decoration);
         if (decoration == null) return;
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
@@ -243,6 +244,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
             updateWindowDecorationDelay(RELAYOUT_DELAY);
+            updateWindowDecorationDelay(RELAYOUT_DELAY * 5);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
         if (decoration == null) return;
