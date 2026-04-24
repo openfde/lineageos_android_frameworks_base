@@ -339,6 +339,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     @Override
     public void destroyWindowDecoration(RunningTaskInfo taskInfo) {
+        android.util.Log.d(TAG, "destroyWindowDecoration() called with: taskInfo = [" + taskInfo + "]");
         final CaptionWindowDecoration decoration =
                 mWindowDecorByTaskId.removeReturnOld(taskInfo.taskId);
         mAppSystemBarControllers.remove(taskInfo.taskId);
