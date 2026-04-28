@@ -580,9 +580,9 @@ public class ActivityTaskSupervisor implements RecentTasks.Callbacks {
             return NOT_MAGIC_WINDOW; //not magic window
         } else if(!mMagicWindowConfig.containsKey(packageName)) {
             return NOT_MAGIC_WINDOW; // not magic window
-        } else if(!activity.contains(mMagicWindowConfig.get(packageName))){
+        } else if(!mMagicWindowConfig.get(packageName).contains(activity)){
             return MAGIC_ADDITIONAL_WINDOW; //  magic additional window
-        } else if(activity.contains(mMagicWindowConfig.get(packageName))){
+        } else if(mMagicWindowConfig.get(packageName).contains(activity)){
             return MAGIC_MAIN_WINDOW; //  magic main window
         }
         return NOT_MAGIC_WINDOW;
