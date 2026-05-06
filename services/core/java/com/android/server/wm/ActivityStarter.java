@@ -212,7 +212,7 @@ class ActivityStarter {
     private int mLaunchFlags;
     private boolean mMagicLaunch = false;
     private boolean isMagicPackage = false;
-    private float mSplitRatio;
+    private float mSplitRatio = 0;
     private String mWindowAffinity = null;
 
     private LaunchParams mLaunchParams = new LaunchParams();

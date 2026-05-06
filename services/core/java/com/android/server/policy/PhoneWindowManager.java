@@ -6688,7 +6688,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     /** {@inheritDoc} */
     @Override
     public boolean isKeyguardLocked() {
-        return keyguardOn();
+        return false;//keyguardOn();
     }
 
     /** {@inheritDoc} */

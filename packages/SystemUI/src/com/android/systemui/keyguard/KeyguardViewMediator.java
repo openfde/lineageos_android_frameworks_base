@@ -373,7 +373,7 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
     /**
      * External apps (like the phone app) can tell us to disable the keyguard.
      */
-    private boolean mExternallyEnabled = true;
+    private boolean mExternallyEnabled = false;
 
     /**
      * Remember if an external call to {@link #setKeyguardEnabled} with value

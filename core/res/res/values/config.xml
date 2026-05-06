@@ -1488,7 +1488,7 @@
     <bool name="config_disableMenuKeyInLockScreen">false</bool>
 
     <!-- Don't show lock screen before unlock screen (PIN/pattern/password) -->
-    <bool name="config_enableLockBeforeUnlockScreen">false</bool>
+    <bool name="config_enableLockBeforeUnlockScreen">true</bool>
 
     <!-- Disable lockscreen rotation by default -->
     <bool name="config_enableLockScreenRotation">false</bool>
