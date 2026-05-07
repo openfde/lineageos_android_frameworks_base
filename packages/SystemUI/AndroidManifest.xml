@@ -768,7 +768,7 @@
 
         <service
             android:name=".keyguard.KeyguardService"
-			android:enabled="true"
+			android:enabled="false"
             android:exported="true" />
 
         <service
