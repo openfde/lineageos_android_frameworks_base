@@ -776,7 +776,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mLockNowPending = false;
 
     // Timeout for showing the keyguard after the screen is on, in case no "ready" is received.
-    private int mKeyguardDrawnTimeout = 1000;
+    private int mKeyguardDrawnTimeout = 100;
 
     private final List<DeviceKeyHandler> mDeviceKeyHandlers = new ArrayList<>();
 
@@ -6459,7 +6459,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean bootCompleted =
                 LocalServices.getService(SystemServiceManager.class).isBootCompleted();
         // Set longer timeout if it has not booted yet to prevent showing empty window.
-        return bootCompleted ? mKeyguardDrawnTimeout : 5000;
+        return bootCompleted ? mKeyguardDrawnTimeout : 500;
     }
 
     @Nullable
@@ -6498,16 +6498,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mBootAnimationDismissable = false;
 
             synchronized (mLock) {
-//                if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
-//                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-//                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
-//                            getKeyguardDrawnTimeout());
-//                    mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
-//                } else {
-//                    if (DEBUG_WAKEUP) Slog.d(TAG,
-//                            "null mKeyguardDelegate: setting mKeyguardDrawComplete.");
+                if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
+                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
+                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
+                            getKeyguardDrawnTimeout());
+                    mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
+                } else {
+                    if (DEBUG_WAKEUP) Slog.d(TAG,
+                            "null mKeyguardDelegate: setting mKeyguardDrawComplete.");
                     mHandler.sendEmptyMessage(MSG_KEYGUARD_DRAWN_COMPLETE);
-//                }
+                }
             }
         } else {
             mScreenOnListeners.put(displayId, screenOnListener);

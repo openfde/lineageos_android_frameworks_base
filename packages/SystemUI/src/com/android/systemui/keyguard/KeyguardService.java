@@ -492,34 +492,34 @@ public class KeyguardService extends Service {
         public void onScreenTurningOn(IKeyguardDrawnCallback callback) {
             trace("onScreenTurningOn");
             Trace.beginSection("KeyguardService.mBinder#onScreenTurningOn");
-//            checkPermission();
-//            mPowerInteractor.onScreenPowerStateUpdated(ScreenPowerState.SCREEN_TURNING_ON);
-//            mKeyguardLifecyclesDispatcher.dispatch(KeyguardLifecyclesDispatcher.SCREEN_TURNING_ON,
-//                    callback);
-//
-//            final String onDrawWaitingTraceTag = "Waiting for KeyguardDrawnCallback#onDrawn";
-//            final int traceCookie = System.identityHashCode(callback);
-//            Trace.beginAsyncSection(onDrawWaitingTraceTag, traceCookie);
-//
-//            // Ensure the drawn callback is only ever called once
-//            mScreenOnCoordinator.onScreenTurningOn(new Runnable() {
-//                boolean mInvoked;
-//                @Override
-//                public void run() {
-//                    if (callback == null) return;
-//                    if (!mInvoked) {
-//                        mInvoked = true;
-//                        try {
-//                            Trace.endAsyncSection(onDrawWaitingTraceTag, traceCookie);
-//                            callback.onDrawn();
-//                        } catch (RemoteException e) {
-//                            Log.w(TAG, "Exception calling onDrawn():", e);
-//                        }
-//                    } else {
-//                        Log.w(TAG, "KeyguardDrawnCallback#onDrawn() invoked > 1 times");
-//                    }
-//                }
-//            });
+            checkPermission();
+            mPowerInteractor.onScreenPowerStateUpdated(ScreenPowerState.SCREEN_TURNING_ON);
+            mKeyguardLifecyclesDispatcher.dispatch(KeyguardLifecyclesDispatcher.SCREEN_TURNING_ON,
+                    callback);
+
+            final String onDrawWaitingTraceTag = "Waiting for KeyguardDrawnCallback#onDrawn";
+            final int traceCookie = System.identityHashCode(callback);
+            Trace.beginAsyncSection(onDrawWaitingTraceTag, traceCookie);
+
+            // Ensure the drawn callback is only ever called once
+            mScreenOnCoordinator.onScreenTurningOn(new Runnable() {
+                boolean mInvoked;
+                @Override
+                public void run() {
+                    if (callback == null) return;
+                    if (!mInvoked) {
+                        mInvoked = true;
+                        try {
+                            Trace.endAsyncSection(onDrawWaitingTraceTag, traceCookie);
+                            callback.onDrawn();
+                        } catch (RemoteException e) {
+                            Log.w(TAG, "Exception calling onDrawn():", e);
+                        }
+                    } else {
+                        Log.w(TAG, "KeyguardDrawnCallback#onDrawn() invoked > 1 times");
+                    }
+                }
+            });
 
             Trace.endSection();
         }
