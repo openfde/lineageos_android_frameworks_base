@@ -415,7 +415,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mKeyguardDrawnOnce;
 
     /** Amount of time (in milliseconds) to wait for windows drawn before powering on. */
-    static final int WAITING_FOR_DRAWN_TIMEOUT = 1000;
+    static final int WAITING_FOR_DRAWN_TIMEOUT = 100;
 
     /**
       * Extra time for additional SystemUI animations.
@@ -776,7 +776,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mLockNowPending = false;
 
     // Timeout for showing the keyguard after the screen is on, in case no "ready" is received.
-    private int mKeyguardDrawnTimeout = 1000;
+    private int mKeyguardDrawnTimeout = 100;
 
     private final List<DeviceKeyHandler> mDeviceKeyHandlers = new ArrayList<>();
 
@@ -6421,19 +6421,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
 
-        synchronized (mLock) {
-            if (mKeyguardDelegate != null) {
+//        synchronized (mLock) {
+//            if (mKeyguardDelegate != null) {
                 mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-            }
-        }
+//            }
+//        }
 
         // ... eventually calls finishWindowsDrawn which will finalize our screen turn on
         // as well as enabling the orientation change logic/sensor.
-        Trace.asyncTraceBegin(Trace.TRACE_TAG_WINDOW_MANAGER,
-                TRACE_WAIT_FOR_ALL_WINDOWS_DRAWN_METHOD, INVALID_DISPLAY /* cookie */);
-        mWindowManagerInternal.waitForAllWindowsDrawn(mHandler.obtainMessage(
-                MSG_WINDOW_MANAGER_DRAWN_COMPLETE, INVALID_DISPLAY, 0),
-                WAITING_FOR_DRAWN_TIMEOUT, INVALID_DISPLAY);
+//        Trace.asyncTraceBegin(Trace.TRACE_TAG_WINDOW_MANAGER,
+//                TRACE_WAIT_FOR_ALL_WINDOWS_DRAWN_METHOD, INVALID_D    ISPLAY /* cookie */);
+//        mWindowManagerInternal.waitForAllWindowsDrawn(mHandler.obtainMessage(
+//                MSG_WINDOW_MANAGER_DRAWN_COMPLETE, INVALID_DISPLAY, 0),
+//                WAITING_FOR_DRAWN_TIMEOUT, INVALID_DISPLAY);
     }
 
     // Called on the DisplayManager's DisplayPowerController thread.
@@ -6459,7 +6459,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean bootCompleted =
                 LocalServices.getService(SystemServiceManager.class).isBootCompleted();
         // Set longer timeout if it has not booted yet to prevent showing empty window.
-        return bootCompleted ? mKeyguardDrawnTimeout : 5000;
+        return bootCompleted ? mKeyguardDrawnTimeout : 500;
     }
 
     @Nullable
@@ -6498,16 +6498,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mBootAnimationDismissable = false;
 
             synchronized (mLock) {
-//                if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
-//                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-//                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
-//                            getKeyguardDrawnTimeout());
-//                    mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
-//                } else {
-//                    if (DEBUG_WAKEUP) Slog.d(TAG,
-//                            "null mKeyguardDelegate: setting mKeyguardDrawComplete.");
+                if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
+                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
+                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
+                            getKeyguardDrawnTimeout());
+                    mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
+                } else {
+                    if (DEBUG_WAKEUP) Slog.d(TAG,
+                            "null mKeyguardDelegate: setting mKeyguardDrawComplete.");
                     mHandler.sendEmptyMessage(MSG_KEYGUARD_DRAWN_COMPLETE);
-//                }
+                }
             }
         } else {
             mScreenOnListeners.put(displayId, screenOnListener);
