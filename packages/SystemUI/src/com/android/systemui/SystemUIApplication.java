@@ -34,7 +34,7 @@ import android.util.TimingsTraceLog;
 import android.view.SurfaceControl;
 import android.view.ThreadedRenderer;
 import android.view.View;
-
+import android.app.KeyguardManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
@@ -193,6 +193,14 @@ public class SystemUIApplication extends Application implements
             // start those components now for the current non-system user.
             startSecondaryUserServicesIfNeeded();
         }
+        new android.os.Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                KeyguardManager.KeyguardLock keyguardLock = km.newKeyguardLock(TAG);
+                keyguardLock.disableKeyguard();
+            }
+        });
     }
 
     /**
