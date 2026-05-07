@@ -302,6 +302,10 @@ public class SystemUIApplication extends Application implements
                 Class<? extends CoreStartable>[] deps = (dep == null ? null : dep.value());
                 if (deps == null || startedStartables.containsAll(Arrays.asList(deps))) {
                     String clsName = cls.getName();
+                    if (clsName.contains("KeyguardService")) {
+                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
+                        continue;
+                    }
                     int i = serviceIndex;  // Copied to make lambda happy.
                     timeInitialization(
                             clsName,
