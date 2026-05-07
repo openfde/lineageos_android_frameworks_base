@@ -80,17 +80,17 @@ class KeyguardDisableHandler {
     }
 
     private UserTokenWatcher watcherForCallingUid(IBinder token, int callingUid) {
-//        if (Process.isApplicationUid(callingUid)) {
-//            return mAppTokenWatcher;
-//        } else if (callingUid == Process.SYSTEM_UID && token instanceof LockTaskToken) {
+        if (Process.isApplicationUid(callingUid)) {
+            return mAppTokenWatcher;
+        } else if (callingUid == Process.SYSTEM_UID && token instanceof LockTaskToken) {
             // We allow the lock task token here as a legacy case, because it enforces its own
             // security guarantees.
             // NOTE: DO NOT add new usages of this API in system server. It is deprecated and
             // easily misused.
             return mSystemTokenWatcher;
-//        } else {
-//            throw new UnsupportedOperationException("Only apps can use the KeyguardLock API");
-//        }
+        } else {
+            throw new UnsupportedOperationException("Only apps can use the KeyguardLock API");
+        }
     }
 
     private boolean shouldKeyguardBeEnabled(int userId) {

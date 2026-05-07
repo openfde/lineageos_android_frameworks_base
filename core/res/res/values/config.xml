@@ -1728,7 +1728,7 @@
 
     <!-- Timeout (in milliseconds) after which we start the animation "Android
          is starting" -->
-    <integer name="config_progressTimeoutFallbackHome">2000</integer>
+    <integer name="config_progressTimeoutFallbackHome">100</integer>
 
     <!-- Array of output values for LCD backlight corresponding to the lux values
          in the config_autoBrightnessLevels array.  This array should have size one greater
@@ -3533,7 +3533,7 @@
 
     <!-- Determines whether recent tasks are provided to the user. Default device has recents
          property. If this is false, then the following recents config flags are ignored. -->
-    <bool name="config_hasRecents">true</bool>
+    <bool name="config_hasRecents">false</bool>
 
     <!-- Component name for the activity that will be presenting the Recents UI, which will receive
          special permissions for API related to fetching and presenting recent tasks. The default

@@ -3386,20 +3386,20 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
     }
 
     private boolean resolveNeedsSlowUnlockTransition() {
-        if (isUserUnlocked(mSelectedUserInteractor.getSelectedUserId())) {
+//        if (isUserUnlocked(mSelectedUserInteractor.getSelectedUserId())) {
             return false;
-        }
-        Intent homeIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
-        ResolveInfo resolveInfo = mPackageManager.resolveActivityAsUser(homeIntent,
-                0 /* flags */, mSelectedUserInteractor.getSelectedUserId());
-
-        if (resolveInfo == null) {
-            mLogger.w("resolveNeedsSlowUnlockTransition: returning false since activity could "
-                            + "not be resolved.");
-            return false;
-        }
-
-        return FALLBACK_HOME_COMPONENT.equals(resolveInfo.getComponentInfo().getComponentName());
+//        }
+//        Intent homeIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+//        ResolveInfo resolveInfo = mPackageManager.resolveActivityAsUser(homeIntent,
+//                0 /* flags */, mSelectedUserInteractor.getSelectedUserId());
+//
+//        if (resolveInfo == null) {
+//            mLogger.w("resolveNeedsSlowUnlockTransition: returning false since activity could "
+//                            + "not be resolved.");
+//            return false;
+//        }
+//
+//        return FALLBACK_HOME_COMPONENT.equals(resolveInfo.getComponentInfo().getComponentName());
     }
 
     /**
