@@ -6499,10 +6499,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             synchronized (mLock) {
                 if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
-                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
-                            getKeyguardDrawnTimeout());
+//                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
+//                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
+//                            getKeyguardDrawnTimeout());
                     mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
+                    finishKeyguardDrawn();
                 } else {
                     if (DEBUG_WAKEUP) Slog.d(TAG,
                             "null mKeyguardDelegate: setting mKeyguardDrawComplete.");
