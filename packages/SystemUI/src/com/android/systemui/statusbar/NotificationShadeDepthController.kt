@@ -443,13 +443,13 @@ class NotificationShadeDepthController @Inject constructor(
     }
 
     private fun scheduleUpdate() {
-//        if (updateScheduled) {
-//            return
-//        }
-//        updateScheduled = true
-//        val (blur, _) = computeBlurAndZoomOut()
-//        blurUtils.prepareBlur(root.viewRootImpl, blur)
-//        choreographer.postFrameCallback(updateBlurCallback)
+        if (updateScheduled) {
+            return
+        }
+        updateScheduled = true
+        val (blur, _) = computeBlurAndZoomOut()
+        blurUtils.prepareBlur(root.viewRootImpl, blur)
+        choreographer.postFrameCallback(updateBlurCallback)
     }
 
     /**
