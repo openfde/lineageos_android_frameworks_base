@@ -151,6 +151,9 @@ public class KeyguardServiceDelegate {
     }
 
     public void bindService(Context context) {
+        if(true){
+            return;
+        }
         Intent intent = new Intent();
         final Resources resources = context.getApplicationContext().getResources();
 
