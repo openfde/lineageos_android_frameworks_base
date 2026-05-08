@@ -154,13 +154,13 @@ public class KeyguardServiceDelegate {
 //        if(true){
 //            return;
 //        }
-//        Intent intent = new Intent();
-//        final Resources resources = context.getApplicationContext().getResources();
-//
-//        final ComponentName keyguardComponent = ComponentName.unflattenFromString(
-//                resources.getString(com.android.internal.R.string.config_keyguardComponent));
-//        intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
-//        intent.setComponent(keyguardComponent);
+        Intent intent = new Intent();
+        final Resources resources = context.getApplicationContext().getResources();
+
+        final ComponentName keyguardComponent = ComponentName.unflattenFromString(
+                resources.getString(com.android.internal.R.string.config_keyguardComponent));
+        intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
+        intent.setComponent(keyguardComponent);
 //
 //        if (!context.bindServiceAsUser(intent, mKeyguardConnection,
 //                Context.BIND_AUTO_CREATE, mHandler, UserHandle.SYSTEM)) {
