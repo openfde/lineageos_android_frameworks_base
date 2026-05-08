@@ -318,6 +318,8 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("dreams")
                             || clsName.contains("recents")
                             || clsName.contains("biometrics")
+                            || clsName.contains("taptotransfer")
+                            || clsName.contains("notification")
                             || clsName.contains("VolumeUI")
 //                            || clsName.contains("KeyguardUpdateMonitor")
                     ) {
