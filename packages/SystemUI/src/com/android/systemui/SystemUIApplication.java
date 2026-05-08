@@ -302,7 +302,19 @@ public class SystemUIApplication extends Application implements
                 Class<? extends CoreStartable>[] deps = (dep == null ? null : dep.value());
                 if (deps == null || startedStartables.containsAll(Arrays.asList(deps))) {
                     String clsName = cls.getName();
-                    if (clsName.contains("KeyguardService")) {
+                    if (clsName.contains("RingtonePlayer")
+                        || clsName.contains("PhysicalKeyboardCoreStartable")
+                        || clsName.contains("MediaOutputSwitcherDialogUI")
+                        || clsName.contains("NearbyMediaDevicesManager")
+                        || clsName.contains("StorageNotification")
+                        || clsName.contains("UserSwitcherDialogCoordinator")
+                        || clsName.contains("Keyguard")
+                            || clsName.contains("communal")
+                            || clsName.contains("dreams")
+                            || clsName.contains("recents")
+                            || clsName.contains("biometrics")
+                            || clsName.contains("VolumeUI")
+                    ) {
                         Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
                         continue;
                     }
