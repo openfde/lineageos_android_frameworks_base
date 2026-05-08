@@ -6768,13 +6768,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void bindKeyguard() {
-//        synchronized (mLock) {
-//            if (mKeyguardBound) {
-//                return;
-//            }
-//            mKeyguardBound = true;
-//        }
-//        mKeyguardDelegate.bindService(mContext);
+        synchronized (mLock) {
+            if (mKeyguardBound) {
+                return;
+            }
+            mKeyguardBound = true;
+        }
+        mKeyguardDelegate.bindService(mContext);
     }
 
     @Override
