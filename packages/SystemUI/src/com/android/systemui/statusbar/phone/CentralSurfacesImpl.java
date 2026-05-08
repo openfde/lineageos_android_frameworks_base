@@ -929,7 +929,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mBubblesOptional.ifPresent(this::initBubbles);
 
         mStatusBarSignalPolicy.init();
-        mKeyguardIndicationController.init();
+//        mKeyguardIndicationController.init();
 
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
 
