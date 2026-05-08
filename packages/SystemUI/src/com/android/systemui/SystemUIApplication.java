@@ -162,7 +162,9 @@ public class SystemUIApplication extends Application implements
                     if (mServicesStarted) {
                         final int N = mServices.length;
                         for (int i = 0; i < N; i++) {
-                            notifyBootCompleted(mServices[i]);
+                            if (mServices[i] != null) {
+                                notifyBootCompleted(mServices[i]);
+                            }
                         }
                     }
                 }
