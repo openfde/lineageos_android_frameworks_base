@@ -306,6 +306,7 @@ public class SystemUIApplication extends Application implements
                         Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
                         continue;
                     }
+                    Log.w("BootOptimize", "startStartable clsName=" + clsName);
                     int i = serviceIndex;  // Copied to make lambda happy.
                     timeInitialization(
                             clsName,
