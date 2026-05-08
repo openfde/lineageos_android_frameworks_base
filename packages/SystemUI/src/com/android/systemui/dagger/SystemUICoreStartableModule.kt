@@ -165,10 +165,10 @@ abstract class SystemUICoreStartableModule {
     abstract fun bindImmersiveModeConfirmation(sysui: ImmersiveModeConfirmation): CoreStartable
 
     /** Inject into RingtonePlayer.  */
-//    @Binds
-//    @IntoMap
-//    @ClassKey(RingtonePlayer::class)
-//    abstract fun bind(sysui: RingtonePlayer): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(RingtonePlayer::class)
+    abstract fun bind(sysui: RingtonePlayer): CoreStartable
 
     /** Inject into GesturePointerEventHandler. */
     @Binds
@@ -195,10 +195,10 @@ abstract class SystemUICoreStartableModule {
     abstract fun bindSliceBroadcastRelayHandler(sysui: SliceBroadcastRelayHandler): CoreStartable
 
     /** Inject into StorageNotification.  */
-//    @Binds
-//    @IntoMap
-//    @ClassKey(StorageNotification::class)
-//    abstract fun bindStorageNotification(sysui: StorageNotification): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(StorageNotification::class)
+    abstract fun bindStorageNotification(sysui: StorageNotification): CoreStartable
 
     /** Inject into ThemeOverlayController.  */
     @Binds
@@ -208,10 +208,10 @@ abstract class SystemUICoreStartableModule {
 
 
     /** Inject into MediaOutputSwitcherDialogUI.  */
-//    @Binds
-//    @IntoMap
-//    @ClassKey(MediaOutputSwitcherDialogUI::class)
-//    abstract fun MediaOutputSwitcherDialogUI(sysui: MediaOutputSwitcherDialogUI): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(MediaOutputSwitcherDialogUI::class)
+    abstract fun MediaOutputSwitcherDialogUI(sysui: MediaOutputSwitcherDialogUI): CoreStartable
 
     /** Inject into Magnification.  */
     @Binds
@@ -259,10 +259,10 @@ abstract class SystemUICoreStartableModule {
     @ClassKey(StylusUsiPowerStartable::class)
     abstract fun bindStylusUsiPowerStartable(sysui: StylusUsiPowerStartable): CoreStartable
 
-//    @Binds
-//    @IntoMap
-//    @ClassKey(PhysicalKeyboardCoreStartable::class)
-//    abstract fun bindKeyboardCoreStartable(listener: PhysicalKeyboardCoreStartable): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(PhysicalKeyboardCoreStartable::class)
+    abstract fun bindKeyboardCoreStartable(listener: PhysicalKeyboardCoreStartable): CoreStartable
 
     /** Inject into MuteQuickAffordanceCoreStartable*/
     @Binds
@@ -273,16 +273,16 @@ abstract class SystemUICoreStartableModule {
     ): CoreStartable
 
     /**Inject into DreamMonitor */
-//    @Binds
-//    @IntoMap
-//    @ClassKey(DreamMonitor::class)
-//    abstract fun bindDreamMonitor(sysui: DreamMonitor): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(DreamMonitor::class)
+    abstract fun bindDreamMonitor(sysui: DreamMonitor): CoreStartable
 
     /**Inject into AssistantAttentionMonitor */
-//    @Binds
-//    @IntoMap
-//    @ClassKey(AssistantAttentionMonitor::class)
-//    abstract fun bindAssistantAttentionMonitor(sysui: AssistantAttentionMonitor): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(AssistantAttentionMonitor::class)
+    abstract fun bindAssistantAttentionMonitor(sysui: AssistantAttentionMonitor): CoreStartable
 
     @Binds
     @IntoMap
@@ -316,25 +316,25 @@ abstract class SystemUICoreStartableModule {
     @ClassKey(KeyguardDismissBinder::class)
     abstract fun bindKeyguardDismissBinder(impl: KeyguardDismissBinder): CoreStartable
 
-//    @Binds
-//    @IntoMap
-//    @ClassKey(CommunalLoggerStartable::class)
-//    abstract fun bindCommunalLoggerStartable(impl: CommunalLoggerStartable): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(CommunalLoggerStartable::class)
+    abstract fun bindCommunalLoggerStartable(impl: CommunalLoggerStartable): CoreStartable
 
-//    @Binds
-//    @IntoMap
-//    @ClassKey(CommunalSceneStartable::class)
-//    abstract fun bindCommunalSceneStartable(impl: CommunalSceneStartable): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(CommunalSceneStartable::class)
+    abstract fun bindCommunalSceneStartable(impl: CommunalSceneStartable): CoreStartable
 
-//    @Binds
-//    @IntoMap
-//    @ClassKey(CommunalAppWidgetHostStartable::class)
-//    abstract fun bindCommunalAppWidgetHostStartable(
-//        impl: CommunalAppWidgetHostStartable
-//    ): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(CommunalAppWidgetHostStartable::class)
+    abstract fun bindCommunalAppWidgetHostStartable(
+        impl: CommunalAppWidgetHostStartable
+    ): CoreStartable
 
-//    @Binds
-//    @IntoMap
-//    @ClassKey(HomeControlsDreamStartable::class)
-//    abstract fun bindHomeControlsDreamStartable(impl: HomeControlsDreamStartable): CoreStartable
+    @Binds
+    @IntoMap
+    @ClassKey(HomeControlsDreamStartable::class)
+    abstract fun bindHomeControlsDreamStartable(impl: HomeControlsDreamStartable): CoreStartable
 }

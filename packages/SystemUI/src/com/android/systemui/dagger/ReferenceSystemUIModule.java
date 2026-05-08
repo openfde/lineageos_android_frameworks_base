@@ -105,7 +105,7 @@ import javax.inject.Named;
         MediaMuteAwaitConnectionCli.StartableModule.class,
         MultiUserUtilsModule.class,
         NavigationBarControllerModule.class,
-//        NearbyMediaDevicesManager.StartableModule.class,
+        NearbyMediaDevicesManager.StartableModule.class,
         PowerModule.class,
         QSModule.class,
         RearDisplayModule.class,
