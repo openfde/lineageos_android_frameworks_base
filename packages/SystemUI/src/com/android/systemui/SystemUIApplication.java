@@ -162,9 +162,7 @@ public class SystemUIApplication extends Application implements
                     if (mServicesStarted) {
                         final int N = mServices.length;
                         for (int i = 0; i < N; i++) {
-                            if (mServices[i] != null) {
-                                notifyBootCompleted(mServices[i]);
-                            }
+                            notifyBootCompleted(mServices[i]);
                         }
                     }
                 }
@@ -304,33 +302,19 @@ public class SystemUIApplication extends Application implements
                 Class<? extends CoreStartable>[] deps = (dep == null ? null : dep.value());
                 if (deps == null || startedStartables.containsAll(Arrays.asList(deps))) {
                     String clsName = cls.getName();
+                    if (clsName.contains("KeyguardService")) {
+                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
+                        continue;
+                    }
                     Log.w("BootOptimize", "startStartable clsName=" + clsName);
                     int i = serviceIndex;  // Copied to make lambda happy.
-                    if (clsName.contains("RingtonePlayer")
-//                    if (clsName.contains("biometrics")
-                            || clsName.contains("PhysicalKeyboardCoreStartable")
-                            || clsName.contains("MediaOutputSwitcherDialogUI")
-                            || clsName.contains("NearbyMediaDevicesManager")
-                            || clsName.contains("StorageNotification")
-                            || clsName.contains("UserSwitcherDialogCoordinator")
-                            || clsName.contains("Keyguard")
-                            || clsName.contains("communal")
-                            || clsName.contains("dreams")
-                            || clsName.contains("recents")
-                            || clsName.contains("biometrics")
-                            || clsName.contains("VolumeUI")
-//                            || clsName.contains("KeyguardUpdateMonitor")
-                    ) {
-                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
-                    } else {
-                        timeInitialization(
-                                clsName,
-                                () -> mServices[i] = startStartable(clsName, entry.getValue()),
-                                log,
-                                metricsPrefix);
-                        startedStartables.add(cls);
-                        startedAny = true;
-                    }
+                    timeInitialization(
+                            clsName,
+                            () -> mServices[i] = startStartable(clsName, entry.getValue()),
+                            log,
+                            metricsPrefix);
+                    startedStartables.add(cls);
+                    startedAny = true;
                     serviceIndex++;
                 } else {
                     nextQueue.add(entry);
@@ -371,10 +355,6 @@ public class SystemUIApplication extends Application implements
 
         for (serviceIndex = 0; serviceIndex < mServices.length; serviceIndex++) {
             final CoreStartable service = mServices[serviceIndex];
-            if(service == null){
-                continue;
-            }
-
             if (mBootCompleteCache.isBootComplete()) {
                 notifyBootCompleted(service);
             }
@@ -392,9 +372,6 @@ public class SystemUIApplication extends Application implements
     }
 
     private static void notifyBootCompleted(CoreStartable coreStartable) {
-        if(coreStartable == null){
-            return;
-        }
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP,
@@ -478,9 +455,7 @@ public class SystemUIApplication extends Application implements
 
             final int N = mServices.length;
             for (int i = 0; i < N; i++) {
-                if(mServices[i] != null){
-                    mServices[i].onConfigurationChange();
-                }
+                mServices[i].onConfigurationChange();
             }
 
             Trace.endSection();

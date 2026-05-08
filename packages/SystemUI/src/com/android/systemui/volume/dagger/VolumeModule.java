@@ -68,10 +68,10 @@ import dagger.multibindings.IntoSet;
 )
 public interface VolumeModule {
     /** Starts VolumeUI. */
-    @Binds
-    @IntoMap
-    @ClassKey(VolumeUI.class)
-    CoreStartable bindVolumeUIStartable(VolumeUI impl);
+//    @Binds
+//    @IntoMap
+//    @ClassKey(VolumeUI.class)
+//    CoreStartable bindVolumeUIStartable(VolumeUI impl);
 
     /** Listen to config changes for VolumeUI. */
     @Binds

@@ -26,8 +26,8 @@ import dagger.multibindings.IntoMap
 @Module
 interface UserDialogModule {
 
-    @Binds
-    @IntoMap
-    @ClassKey(UserSwitcherDialogCoordinator::class)
-    fun bindFeature(impl: UserSwitcherDialogCoordinator): CoreStartable
+//    @Binds
+//    @IntoMap
+//    @ClassKey(UserSwitcherDialogCoordinator::class)
+//    fun bindFeature(impl: UserSwitcherDialogCoordinator): CoreStartable
 }
