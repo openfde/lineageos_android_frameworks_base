@@ -260,7 +260,7 @@ public class NotificationShadeWindowViewController implements Dumpable {
                             mDisableSubpixelTextTransitionListener));
         }
 
-//        lockIconViewController.setLockIconView(mView.findViewById(R.id.lock_icon_view));
+        lockIconViewController.setLockIconView(mView.findViewById(R.id.lock_icon_view));
         dumpManager.registerDumpable(this);
     }
 
