@@ -302,13 +302,15 @@ public class SystemUIApplication extends Application implements
                 Class<? extends CoreStartable>[] deps = (dep == null ? null : dep.value());
                 if (deps == null || startedStartables.containsAll(Arrays.asList(deps))) {
                     String clsName = cls.getName();
+                    Log.w("BootOptimize", "startStartable clsName=" + clsName);
+                    int i = serviceIndex;  // Copied to make lambda happy.
                     if (clsName.contains("RingtonePlayer")
-                        || clsName.contains("PhysicalKeyboardCoreStartable")
-                        || clsName.contains("MediaOutputSwitcherDialogUI")
-                        || clsName.contains("NearbyMediaDevicesManager")
-                        || clsName.contains("StorageNotification")
-                        || clsName.contains("UserSwitcherDialogCoordinator")
-                        || clsName.contains("Keyguard")
+                            || clsName.contains("PhysicalKeyboardCoreStartable")
+                            || clsName.contains("MediaOutputSwitcherDialogUI")
+                            || clsName.contains("NearbyMediaDevicesManager")
+                            || clsName.contains("StorageNotification")
+                            || clsName.contains("UserSwitcherDialogCoordinator")
+                            || clsName.contains("Keyguard")
                             || clsName.contains("communal")
                             || clsName.contains("dreams")
                             || clsName.contains("recents")
@@ -316,17 +318,15 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("VolumeUI")
                     ) {
                         Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
-                        continue;
+                    } else {
+                        timeInitialization(
+                                clsName,
+                                () -> mServices[i] = startStartable(clsName, entry.getValue()),
+                                log,
+                                metricsPrefix);
+                        startedStartables.add(cls);
+                        startedAny = true;
                     }
-                    Log.w("BootOptimize", "startStartable clsName=" + clsName);
-                    int i = serviceIndex;  // Copied to make lambda happy.
-                    timeInitialization(
-                            clsName,
-                            () -> mServices[i] = startStartable(clsName, entry.getValue()),
-                            log,
-                            metricsPrefix);
-                    startedStartables.add(cls);
-                    startedAny = true;
                     serviceIndex++;
                 } else {
                     nextQueue.add(entry);
