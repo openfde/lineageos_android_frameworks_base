@@ -478,7 +478,9 @@ public class SystemUIApplication extends Application implements
 
             final int N = mServices.length;
             for (int i = 0; i < N; i++) {
-                mServices[i].onConfigurationChange();
+                if(mServices[i] != null){
+                    mServices[i].onConfigurationChange();
+                }
             }
 
             Trace.endSection();
