@@ -6421,19 +6421,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             return;
         }
 
-//        synchronized (mLock) {
-//            if (mKeyguardDelegate != null) {
+        synchronized (mLock) {
+            if (mKeyguardDelegate != null) {
                 mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-//            }
-//        }
+            }
+        }
 
         // ... eventually calls finishWindowsDrawn which will finalize our screen turn on
         // as well as enabling the orientation change logic/sensor.
-//        Trace.asyncTraceBegin(Trace.TRACE_TAG_WINDOW_MANAGER,
-//                TRACE_WAIT_FOR_ALL_WINDOWS_DRAWN_METHOD, INVALID_D    ISPLAY /* cookie */);
-//        mWindowManagerInternal.waitForAllWindowsDrawn(mHandler.obtainMessage(
-//                MSG_WINDOW_MANAGER_DRAWN_COMPLETE, INVALID_DISPLAY, 0),
-//                WAITING_FOR_DRAWN_TIMEOUT, INVALID_DISPLAY);
+        Trace.asyncTraceBegin(Trace.TRACE_TAG_WINDOW_MANAGER,
+                TRACE_WAIT_FOR_ALL_WINDOWS_DRAWN_METHOD, INVALID_DISPLAY /* cookie */);
+        mWindowManagerInternal.waitForAllWindowsDrawn(mHandler.obtainMessage(
+                MSG_WINDOW_MANAGER_DRAWN_COMPLETE, INVALID_DISPLAY, 0),
+                WAITING_FOR_DRAWN_TIMEOUT, INVALID_DISPLAY);
     }
 
     // Called on the DisplayManager's DisplayPowerController thread.
@@ -6499,11 +6499,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             synchronized (mLock) {
                 if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
-//                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
-//                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
-//                            getKeyguardDrawnTimeout());
+                    mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
+                    mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
+                            getKeyguardDrawnTimeout());
                     mKeyguardDelegate.onScreenTurningOn(mKeyguardDrawnCallback);
-                    finishKeyguardDrawn();
                 } else {
                     if (DEBUG_WAKEUP) Slog.d(TAG,
                             "null mKeyguardDelegate: setting mKeyguardDrawComplete.");
