@@ -371,6 +371,10 @@ public class SystemUIApplication extends Application implements
 
         for (serviceIndex = 0; serviceIndex < mServices.length; serviceIndex++) {
             final CoreStartable service = mServices[serviceIndex];
+            if(service == null){
+                continue;
+            }
+
             if (mBootCompleteCache.isBootComplete()) {
                 notifyBootCompleted(service);
             }
