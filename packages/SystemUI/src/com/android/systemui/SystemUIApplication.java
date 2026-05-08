@@ -388,6 +388,9 @@ public class SystemUIApplication extends Application implements
     }
 
     private static void notifyBootCompleted(CoreStartable coreStartable) {
+        if(coreStartable == null){
+            return;
+        }
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP,
