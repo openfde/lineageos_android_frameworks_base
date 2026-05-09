@@ -1131,21 +1131,21 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
 
-                        if (ScreenRecordTile.handler == null) {
-                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
-                            Message msg = Message.obtain();
-                            msg.what = MSG_PLUGIN_SETUP;
-                            msg.obj = plugin;
-                            msg.arg1 = 1;
-                            mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
-                        } else {
-                            mStatusBarView.setTag(ScreenRecordTile.handler);
-                            mMainExecutor.execute(
-                                    () -> plugin.setup(
-                                            mStatusBarView,
-                                            getNavigationBarView(),
-                                            new Callback(plugin), mDozeParameters));
-                        }
+//                        if (ScreenRecordTile.handler == null) {
+//                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
+//                            Message msg = Message.obtain();
+//                            msg.what = MSG_PLUGIN_SETUP;
+//                            msg.obj = plugin;
+//                            msg.arg1 = 1;
+//                            mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
+//                        } else {
+//                            mStatusBarView.setTag(ScreenRecordTile.handler);
+//                            mMainExecutor.execute(
+//                                    () -> plugin.setup(
+//                                            mStatusBarView,
+//                                            getNavigationBarView(),
+//                                            new Callback(plugin), mDozeParameters));
+//                        }
 
                     }
 
