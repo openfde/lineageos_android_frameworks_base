@@ -57,6 +57,7 @@ import com.android.internal.policy.IAppSystemBarController;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.openfde.WmShellCaller;
+import android.provider.Settings;
 /**
  * View model for the window decoration with a caption and shadows. Works with
  * {@link CaptionWindowDecoration}.
@@ -460,6 +461,17 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 closeTaskWithMagicWindow(taskInfo);
             } else if (id == R.id.back_button) {
                 Log.d(TAG, "onClick back_button");
+                RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mTaskId);
+                if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
+                    String packageName = taskInfo.topActivity.getPackageName();
+                    Log.d(TAG, "Skip onTaskOpening ops for Settings app: " + packageName);
+                    if ("com.android.settings".equals(packageName) || "com.android.wallpaper".equals(packageName) || "com.android.permissioncontroller".equals(packageName) ) {
+                        Settings.System.putString(mContext.getContentResolver(), "KEY_TIME",packageName + "_"+System.currentTimeMillis());
+                        // mTaskOperations.injectKey(mDisplayId,KeyEvent.KEYCODE_DEL);
+                        return ;
+                    }
+                    Settings.System.putString(mContext.getContentResolver(), "KEY_PACKAGE",packageName);
+                }    
                 mTaskOperations.injectBackKey(mDisplayId);
             } else if (id == R.id.fullscreen_window) {
                 Log.d(TAG, "onClick fullscreen_window");

@@ -93,6 +93,7 @@ public class BrightnessDialog extends Activity {
         View view = findViewById(R.id.brightness_mirror_container);
         if (view != null) {
             collectFlow(view, mShadeInteractor.isQsExpanded(), this::onShadeStateChange);
+            view.requestFocus();
         }
         setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
     }
@@ -101,6 +102,12 @@ public class BrightnessDialog extends Activity {
         if (isQsExpanded) {
             requestFinish();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // super.onBackPressed();
+        // finish();
     }
 
     private void setWindowAttributes() {
