@@ -72,8 +72,8 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
 
         if (listener == null && hideRawCaption) {
             Log.e(TAG, "Both listener and hideRawCaption cannot be null when hiding caption");
-            throw new IllegalArgumentException(
-                    "listener and hideRawCaption cannot be both null, custom caption need listen to task status.");
+//            throw new IllegalArgumentException(
+//                    "listener and hideRawCaption cannot be both null, custom caption need listen to task status.");
         }
 
         if (activity == null || activity.get() == null) {
