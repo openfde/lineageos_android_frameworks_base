@@ -981,11 +981,13 @@ class ActivityStarter {
         if(extraFDE != null){
             mSplitRatio = parseRatio(extraFDE);
         }
-        if (intent != null && mSplitRatio < 1.0f && mSplitRatio > 0f) {
+        if (extraFDE != null && intent != null && mSplitRatio < 1.0f && mSplitRatio > 0f) {
             isMagicPackage = true;
             Slog.d(TAG, "query isMagicPackage:" + isMagicPackage + "  extraFDE:"
                     + extraFDE);
             mSupervisor.updateMagicFromCompatibleConfig(aInfo.packageName, isMagicPackage);
+        } else {
+            isMagicPackage = false;
         }
         int magicType = 0;
         if (isMagicPackage) {
@@ -1575,7 +1577,7 @@ class ActivityStarter {
         if (r.intent != null) {
             split = r.intent.getBooleanExtra(KEY_SPLIT, false);
         }
-        if (mSupervisor.getMagicWindowType(source.info.packageName, source.info.name) != MAGIC_MAIN_WINDOW) {
+        if (mSupervisor.getMagicWindowType(source.info.packageName, getSimpleClassName(source.info.name)) != MAGIC_MAIN_WINDOW) {
             split = false;
         }
 
@@ -1591,6 +1593,17 @@ class ActivityStarter {
                 Slog.e(TAG, "triggerSplit error", e);
             }
         });
+    }
+
+    public static String getSimpleClassName(String fullName) {
+        if (TextUtils.isEmpty(fullName)) {
+            return null;
+        }
+        int lastDot = fullName.lastIndexOf('.');
+        if (lastDot != -1) {
+            return fullName.substring(lastDot + 1);
+        }
+        return fullName;
     }
 
     private void triggerSplit(Task task, ActivityRecord primary, ActivityRecord target, Intent secondaryIntent) {
