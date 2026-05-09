@@ -468,7 +468,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                     String packageName = taskInfo.topActivity.getPackageName();
                     Log.d(TAG, "Skip onTaskOpening ops for Settings app: " + packageName);
                     if ("com.android.settings".equals(packageName) || "com.android.wallpaper".equals(packageName) || "com.android.permissioncontroller".equals(packageName) ) {
-                        Settings.System.putLong(mContext.getContentResolver(), "KEY_TIME",System.currentTimeMillis());
+                        Settings.System.putString(mContext.getContentResolver(), "KEY_TIME",packageName + "_"+System.currentTimeMillis());
                         // mTaskOperations.injectKey(mDisplayId,KeyEvent.KEYCODE_DEL);
                         return ;
                     }
