@@ -259,7 +259,7 @@ class LaunchParamsPersister {
 
         if (changed) {
             LaunchParamsWriteQueueItem item = new LaunchParamsWriteQueueItem(userId, name, params);
-//            Slog.e(TAG, "saveTask item:" + params);
+            Slog.e(TAG, "saveTask item:" + params);
             mPersisterQueue.updateLastOrAddItem( item,  /* flush */ false);
         }
 
@@ -292,6 +292,9 @@ class LaunchParamsPersister {
 
     private boolean saveTaskToLaunchParam(
             Task task, DisplayContent display, PersistableLaunchParams params) {
+        if(task.type == Task.IN_PARALLEL_WINDOW){
+            return false;
+        }
         final DisplayInfo info = new DisplayInfo();
         display.mDisplay.getDisplayInfo(info);
 

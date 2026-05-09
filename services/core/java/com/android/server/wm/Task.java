@@ -284,6 +284,7 @@ class Task extends TaskFragment {
     @Deprecated // MAGIC WINDOW -> parallel world never use this type
     public int type = NOT_MAGIC_WINDOW; // main magic window: 1  additional main window: 2
     public static final int NOT_MAGIC_WINDOW = 0 , MAGIC_MAIN_WINDOW = 1, MAGIC_ADDITIONAL_WINDOW = 2;
+    public static final int IN_PARALLEL_WINDOW = 3;
     public static final int ADDITIONAL_WINDOW_ACTIVITY_LIMIT = 5;
 
 

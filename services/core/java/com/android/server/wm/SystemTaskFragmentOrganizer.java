@@ -255,6 +255,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 }
             });
         }
+        task.type = Task.IN_PARALLEL_WINDOW;
         mIsExpandedMode = true;
         Binder.restoreCallingIdentity(origId);
     }
@@ -264,8 +265,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (mRightFragments.get(taskId) == null) {
             Slog.d(TAG, "updateContainersInTask one activity taskId:" + taskId + " bounds:" + taskBounds);
             final IBinder primaryTfToken = mLeftFragments.get(taskId);
-	    resizeTaskFragment(wct, primaryTfToken, null);
-	    return;
+            resizeTaskFragment(wct, primaryTfToken, null);
+            return;
         } else {
             Slog.d(TAG, "updateContainersInTask  taskId:" + taskId + " bounds:" + taskBounds);
             float ratio = mSplitRatios.get(taskId);
@@ -476,7 +477,10 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             });
             mSplitingActivityRecords.remove(taskId);
             mRightFragments.remove(taskId);
-
+            final Task task = mAtmService.mRootWindowContainer.anyTaskForId(taskId);
+            if(task != null){
+                task.type = Task.NOT_MAGIC_WINDOW;
+            }
         } else if (mLeftFragments.get(taskId) != null &&
                 mLeftFragments.get(taskId) == taskFragmentInfo.getFragmentToken()) {
             TaskFragmentInfo info = mFragmentInfos.get(mRightFragments.get(taskId));
