@@ -5100,13 +5100,13 @@ public class ActivityManagerService extends IActivityManager.Stub
 
         // Send LOCKED_BOOT_COMPLETED, if necessary
         if (app.getApplicationInfo().isEncryptionAware()) {
-            sendBootBroadcastToAppLocked(app, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED),
-                    REASON_LOCKED_BOOT_COMPLETED);
+//            sendBootBroadcastToAppLocked(app, new Intent(Intent.ACTION_LOCKED_BOOT_COMPLETED),
+//                    REASON_LOCKED_BOOT_COMPLETED);
         }
         // Send BOOT_COMPLETED if the user is unlocked
         if (StorageManager.isCeStorageUnlocked(app.userId)) {
-            sendBootBroadcastToAppLocked(app, new Intent(Intent.ACTION_BOOT_COMPLETED),
-                    REASON_BOOT_COMPLETED);
+//            sendBootBroadcastToAppLocked(app, new Intent(Intent.ACTION_BOOT_COMPLETED),
+//                    REASON_BOOT_COMPLETED);
         }
         app.setWasForceStopped(false);
     }

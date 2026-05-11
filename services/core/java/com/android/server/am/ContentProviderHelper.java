@@ -168,6 +168,36 @@ public class ContentProviderHelper {
                 true, userId);
     }
 
+    private boolean shouldBlockAutoLaunch(int callingUid, String callingPackage,
+                                          ProviderInfo cpi, int userId) {
+        Slog.w(TAG, "shouldBlockAutoLaunch() called with: callingUid = [" + callingUid + "], callingPackage = [" + callingPackage + "], cpi = [" + cpi + "], userId = [" + userId + "]");
+
+        // 1. 放行系统核心 UID（如 SystemUI, Settings 等）
+        if (UserHandle.isCore(callingUid) || "android".equals(callingPackage)) {
+            return false;
+        }
+
+        // 2. 如果目标是系统应用，通常允许拉起以保证基础功能正常
+        if ((cpi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
+            return false;
+        }
+
+        // 3. 通用策略：禁止后台应用拉起第三方应用的进程
+        // 获取发起者的进程状态 (需要 mService 的支持)
+        int callerState = mService.getUidProcessState(callingUid);
+        if (callerState > ActivityManager.PROCESS_STATE_IMPORTANT_FOREGROUND) {
+            // 如果发起者不在前台，且目标是第三方应用，则拦截
+            return true;
+        }
+
+        // 4. 特殊权限校验：例如只有拥有特定权限的应用才能通过 Provider 唤醒别人
+        // if (mService.checkPermission(Manifest.permission.START_ANY_ACTIVITY, callingPid, callingUid) != PERMISSION_GRANTED) {
+        //    return true;
+        // }
+
+        return false;
+    }
+
     private ContentProviderHolder getContentProviderImpl(IApplicationThread caller,
             String name, IBinder token, int callingUid, String callingPackage, String callingTag,
             boolean stable, int userId) {
@@ -548,6 +578,15 @@ public class ContentProviderHelper {
                                     cpi.packageName, callingPackage,
                                     callingProcessState, proc.mState.getCurProcState());
                         } else {
+                            if (proc == null || thread == null) {
+                                if (shouldBlockAutoLaunch(callingUid, callingPackage, cpi, userId)) {
+                                    Slog.w(TAG, "Blocking auto-launch: Provider " + name
+                                            + " (pkg: " + cpi.packageName + ") requested by " + callingPackage);
+
+                                    return null;
+                                }
+                            }
+
                             final int packageState =
                                     ((cpr.appInfo.flags & ApplicationInfo.FLAG_STOPPED) != 0)
                                     ? PROVIDER_ACQUISITION_EVENT_REPORTED__PACKAGE_STOPPED_STATE__PACKAGE_STATE_STOPPED
