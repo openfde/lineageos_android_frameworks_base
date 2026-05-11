@@ -169,7 +169,7 @@ public class ContentProviderHelper {
     }
 
     private boolean shouldBlockAutoLaunch(int callingUid, String callingPackage,
-                                                  ContentProviderInfo cpi, int userId) {
+                                          ProviderInfo cpi, int userId) {
 
         Slog.w(TAG, "shouldBlockAutoLaunch() called with: callingUid = [" + callingUid + "], callingPackage = [" + callingPackage + "], cpi = [" + cpi + "], userId = [" + userId + "]");
 
