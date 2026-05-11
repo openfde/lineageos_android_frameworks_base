@@ -5370,7 +5370,7 @@ public class AccountManagerService
 //                // Perform unbind as per documentation at Context.bindServiceAsUser
 //                mContext.unbindService(this);
 //                return false;
-            }
+//            }
 
             return false;
         }
