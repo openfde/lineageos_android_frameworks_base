@@ -580,7 +580,7 @@ public class ContentProviderHelper {
                                     cpi.packageName, callingPackage,
                                     callingProcessState, proc.mState.getCurProcState());
                         } else {
-                            if (proc == null || thread == null) {
+                            if (proc == null || proc.getThread() == null) {
                                 if (shouldBlockAutoLaunch(callingUid, callingPackage, cpi, userId)) {
                                     Slog.w(TAG, "Blocking auto-launch: Provider " + name
                                             + " (pkg: " + cpi.packageName + ") requested by " + callingPackage);
