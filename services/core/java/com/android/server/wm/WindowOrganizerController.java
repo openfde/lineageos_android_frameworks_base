@@ -2341,7 +2341,7 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
         try {
             throw new Throwable("A failing test!");
         } catch (java.lang.Exception e) {
-            Slog.w(TAG, e.printStackTrace());
+            e.printStackTrace();
         }
         if (organizer == null) {
             Slog.w(TAG, "organizer is null");
