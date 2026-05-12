@@ -249,11 +249,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 mLeftFragments.put(taskId, primaryTfToken);
                 mRightFragments.put(taskId, secondaryTfToken);
                 mSplitingActivityRecords.put(taskId, secondary);
-                try {
-                    mAtmService.getWindowOrganizerController().applyTransaction(wct);
-                } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
-                }
+                applyTransaction(wct, 0, true);
             });
         }
         task.type = Task.IN_PARALLEL_WINDOW;
@@ -288,11 +284,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_FREEFORM);
             }
         }
-	try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+        applyTransaction(wct, 0, true);
     }
 
     void updateWindowingMode(@NonNull WindowContainerTransaction wct,
@@ -357,11 +349,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             }
 
         }
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            Slog.e(TAG, e.getMessage());
-        }
+        applyTransaction(wct, 0, true);
     }
 
     void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
