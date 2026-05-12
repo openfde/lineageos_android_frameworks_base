@@ -2338,8 +2338,15 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
     void sendTaskFragmentOperationFailure(@NonNull ITaskFragmentOrganizer organizer,
             @Nullable IBinder errorCallbackToken, @Nullable TaskFragment taskFragment,
             @TaskFragmentOperation.OperationType int opType, @NonNull Throwable exception) {
+        try {
+            throw new Throwable("A failing test!");
+        } catch (java.lang.Exception e) {
+            Slog.w(TAG, e.printStackTrace());
+        }
         if (organizer == null) {
-            throw new IllegalArgumentException("Not allowed to operate with invalid organizer");
+            Slog.w(TAG, "organizer is null");
+            return;
+//            throw new IllegalArgumentException("Not allowed to operate with invalid organizer");
         }
         mService.mTaskFragmentOrganizerController
                 .onTaskFragmentError(organizer, errorCallbackToken, taskFragment, opType,
