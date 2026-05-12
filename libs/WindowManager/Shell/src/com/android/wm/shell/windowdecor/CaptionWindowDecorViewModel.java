@@ -78,6 +78,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private IStatusBarService mBarService;
     private ITaskCaptionOperationService.Stub mTaskCaptionOperationService;
     private static final long RELAYOUT_DELAY = 200;
+    private static final long RELAYOUT_DELAY_500MS = 500;
 
     private final SparseArray<IAppSystemBarController> mAppSystemBarControllers = new SparseArray<>();
     private final SparseArray<CaptionWindowDecoration> mWindowDecorByTaskId = new SparseArray<>();
@@ -243,7 +244,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         Log.d(TAG, "onTaskInfoChanged taskInfo: " + taskInfo);
         if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
-            updateWindowDecorationDelay(RELAYOUT_DELAY);
+            updateWindowDecorationDelay(RELAYOUT_DELAY_500MS);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
         if (decoration == null) return;
