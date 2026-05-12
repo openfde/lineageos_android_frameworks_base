@@ -60,7 +60,7 @@ import com.android.wm.shell.windowdecor.extension.TaskInfoKt;
 import com.android.wm.shell.windowdecor.viewholder.DesktopModeAppControlsWindowDecorationViewHolder;
 import com.android.wm.shell.windowdecor.viewholder.DesktopModeFocusedWindowDecorationViewHolder;
 import com.android.wm.shell.windowdecor.viewholder.DesktopModeWindowDecorationViewHolder;
-
+import android.widget.ImageView;
 import kotlin.Unit;
 
 import java.util.function.Supplier;
@@ -397,7 +397,7 @@ public class DesktopModeWindowDecoration extends WindowDecoration<WindowDecorLin
         final int displayHeight = displayLayout.height();
         final int captionHeight = getCaptionHeight(mTaskInfo.getWindowingMode());
 
-        final ImageButton maximizeWindowButton =
+        final ImageView maximizeWindowButton =
                 mResult.mRootView.findViewById(R.id.maximize_window);
         final int[] maximizeButtonLocation = new int[2];
         maximizeWindowButton.getLocationInWindow(maximizeButtonLocation);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- 按下 -->
+  <item android:state_pressed="true">
+    <shape android:shape="rectangle">
+      <solid android:color="#ccc"/>
+      <corners android:radius="2dp"/>
+    </shape>
+  </item>
+  <!-- 鼠标悬停 -->
+  <item android:state_hovered="true">
+    <shape android:shape="rectangle">
+      <solid android:color="#eee"/>
+      <corners android:radius="2dp"/>
+    </shape>
+  </item>
+  <!-- 默认 -->
+  <item>
+    <shape android:shape="rectangle">
+      <solid android:color="#00000000"/>
+      <corners android:radius="2dp"/>
+    </shape>
+  </item>
+</selector>

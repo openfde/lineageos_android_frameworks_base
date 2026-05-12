@@ -21,17 +21,23 @@
     android:layout_height="wrap_content"
     android:gravity="end"
     android:background="@drawable/caption_decor_title">
-	<LinearLayout
+
+
+
+<LinearLayout
 		android:id="@+id/caption_sub"
 		android:layout_width="match_parent"
 		android:layout_height="44dp"
 		android:gravity="end"
 		android:duplicateParentState="true"
 		>
+        
+
     <Button
-        style="@style/CaptionButtonStyle"
+        style="@style/CaptionButtonOldStyle"
         android:id="@+id/back_button"
         android:layout_gravity="center_vertical|end"
+        android:layout_marginLeft="@dimen/title_icon_margin"
         android:contentDescription="@string/back_button_text"
         android:background="@drawable/decor_back_button_dark"
         android:duplicateParentState="true"/>
@@ -49,31 +55,28 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:elevation="2dp"/>
-    <Button
+    <ImageView
         style="@style/CaptionButtonStyle"
         android:id="@+id/fullscreen_window"
-        android:layout_gravity="center_vertical|end"
-        android:background="@drawable/decor_fullscreen_button_dark"
-        android:duplicateParentState="true"/>
-    <Button
+        android:src="@drawable/icon_fullscreen"/>
+    <ImageView
         style="@style/CaptionButtonStyle"
         android:id="@+id/minimize_window"
-        android:layout_gravity="center_vertical|end"
         android:contentDescription="@string/minimize_button_text"
-        android:background="@drawable/decor_minimize_button_dark"
-        android:duplicateParentState="true"/>
-    <Button
+        android:src="@drawable/icon_minimize" />
+    <ImageView
         style="@style/CaptionButtonStyle"
         android:id="@+id/maximize_window"
-        android:layout_gravity="center_vertical|end"
-        android:contentDescription="@string/maximize_button_text"
-        android:background="@drawable/decor_maximize_button_dark"
-        android:duplicateParentState="true"/>
-    <Button
+        android:contentDescription="@string/minimize_button_text"
+        android:src="@drawable/icon_maximize" />
+    <ImageView
         style="@style/CaptionButtonStyle"
         android:id="@+id/close_window"
-        android:contentDescription="@string/close_button_text"
-        android:background="@drawable/decor_close_button_dark"
-        android:duplicateParentState="true"/>
+        android:contentDescription="@string/minimize_button_text"
+        android:src="@drawable/icon_close" />    
+   
+ 
     </LinearLayout>
+    
+	
 </com.android.wm.shell.windowdecor.WindowDecorLinearLayout>
