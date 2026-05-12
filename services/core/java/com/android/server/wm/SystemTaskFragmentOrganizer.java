@@ -202,12 +202,12 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             } else if (secondaryIntent != null) {
                 wct.startActivityInTaskFragment(existingRight, primary.token, secondaryIntent, null);
             }
-            try {
+//            try {
                 applyTransaction(wct, 0, true);
 //                mAtmService.getWindowOrganizerController().applyTransaction(wct);
-            } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
-            }
+//            } catch (RemoteException e) {
+//                throw e.rethrowFromSystemServer();
+//            }
         } else {
             mSplitRatios.put(task.mTaskId, ratio);
             final Rect taskBounds = task.getBounds();
