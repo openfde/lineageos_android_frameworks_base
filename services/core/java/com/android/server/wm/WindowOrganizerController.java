@@ -2339,7 +2339,7 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
             @Nullable IBinder errorCallbackToken, @Nullable TaskFragment taskFragment,
             @TaskFragmentOperation.OperationType int opType, @NonNull Throwable exception) {
         try {
-            throw new Throwable("A failing test!");
+            throw new Exception("sendTaskFragmentOperationFailure");
         } catch (java.lang.Exception e) {
             e.printStackTrace();
         }
