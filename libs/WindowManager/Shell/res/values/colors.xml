@@ -73,4 +73,7 @@
     <color name="desktop_mode_caption_button_on_hover_light">#11000000</color>
     <color name="desktop_mode_caption_button_on_hover_dark">#11FFFFFF</color>
     <color name="desktop_mode_caption_button">#00000000</color>
+
+    <color name="title_icon">#262626</color>
+    <color name="title_icon_light">#C3C0C0</color>
 </resources>

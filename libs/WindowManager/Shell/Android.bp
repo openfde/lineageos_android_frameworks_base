@@ -201,6 +201,7 @@ android_library {
         "perfetto_trace_java_protos",
         "dagger2",
         "jsr330",
+        "baselib",
         "org.lineageos.platform.internal",
     ],
     libs: [

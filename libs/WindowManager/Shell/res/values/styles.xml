@@ -52,6 +52,16 @@
     </style>
 
     <style name="CaptionButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginRight">@dimen/title_icon_margin</item>
+        <item name="android:padding">@dimen/title_icon_padding</item>
+        <item name="android:pointerIcon">hand</item>
+        <item name="android:background">@drawable/img_bg</item>
+        <item name="android:layout_gravity">center_vertical|end</item>
+    </style>
+
+    <style name="CaptionButtonOldStyle">
         <item name="android:layout_width">32dp</item>
         <item name="android:layout_height">32dp</item>
         <item name="android:layout_margin">5dp</item>

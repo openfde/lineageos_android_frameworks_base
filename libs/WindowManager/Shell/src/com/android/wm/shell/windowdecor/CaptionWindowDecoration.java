@@ -36,6 +36,9 @@ import android.view.ViewConfiguration;
 import android.window.WindowContainerTransaction;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ImageButton;
+
 
 import com.android.wm.shell.R;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -320,16 +323,16 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private void setupRootView() {
         final View caption = mResult.mRootView.findViewById(R.id.caption);
         caption.setOnTouchListener(mOnCaptionTouchListener);
-        final View close = caption.findViewById(R.id.close_window);
+        final ImageView close = caption.findViewById(R.id.close_window);
         close.setOnClickListener(mOnCaptionButtonClickListener);
-        final View back = caption.findViewById(R.id.back_button);
+        final Button back = caption.findViewById(R.id.back_button);
         back.setOnClickListener(mOnCaptionButtonClickListener);
-        final View fullscreen = caption.findViewById(R.id.fullscreen_window);
+        final ImageView fullscreen = caption.findViewById(R.id.fullscreen_window);
         fullscreen.setOnClickListener(mOnCaptionButtonClickListener);
         fullscreen.setOnTouchListener(mOnCaptionTouchListener);
-        final View minimize = caption.findViewById(R.id.minimize_window);
+        final ImageView minimize = caption.findViewById(R.id.minimize_window);
         minimize.setOnClickListener(mOnCaptionButtonClickListener);
-        final View maximize = caption.findViewById(R.id.maximize_window);
+        final ImageView maximize = caption.findViewById(R.id.maximize_window);
         maximize.setOnClickListener(mOnCaptionButtonClickListener);
         maximize.setOnTouchListener(mOnCaptionTouchListener);
         PackageManager pm = mContext.getApplicationContext().getPackageManager();
@@ -348,9 +351,9 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
     private void bindData(View rootView, RunningTaskInfo taskInfo) {
         final boolean isFullscreen =
                 taskInfo.getWindowingMode() == WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
-        rootView.findViewById(R.id.maximize_window)
-                .setBackgroundResource(isFullscreen ? R.drawable.decor_restore_button_dark
-                        : R.drawable.decor_maximize_button_dark);
+        ImageView maximize = rootView.findViewById(R.id.maximize_window);
+                maximize.setImageResource(isFullscreen ? R.drawable.icon_exitmaximize
+                        : R.drawable.icon_maximize);
     }
 
     void setCaptionColor(int captionColor, RunningTaskInfo taskInfo) {
@@ -380,27 +383,27 @@ public class CaptionWindowDecoration extends WindowDecoration<WindowDecorLinearL
         final ColorStateList buttonTintColor =
                 caption.getResources().getColorStateList(buttonTintColorRes, null /* theme */);
 
-        final View back = caption.findViewById(R.id.back_button);
-        final VectorDrawable backBackground = (VectorDrawable) back.getBackground();
+        final Button back = caption.findViewById(R.id.back_button);
+        final Drawable backBackground = back.getBackground();
         backBackground.setTintList(buttonTintColor);
 
         final TextView applicationLable = caption.findViewById(R.id.application_lable);
         applicationLable.setTextColor(buttonTintColor);
-        final View fullscreen = caption.findViewById(R.id.fullscreen_window);
-        final VectorDrawable fullscreenBackground = (VectorDrawable) fullscreen.getBackground();
-        fullscreenBackground.setTintList(buttonTintColor);
+        // final ImageView fullscreen = caption.findViewById(R.id.fullscreen_window);
+        // final Drawable fullscreenBackground = fullscreen.getBackground();
+        // fullscreenBackground.setTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.title_icon_light)));
 
-        final View minimize = caption.findViewById(R.id.minimize_window);
-        final VectorDrawable minimizeBackground = (VectorDrawable) minimize.getBackground();
-        minimizeBackground.setTintList(buttonTintColor);
+        // final ImageView minimize = caption.findViewById(R.id.minimize_window);
+        // final Drawable minimizeBackground =  minimize.getBackground();
+        // minimizeBackground.setTintList(ColorStateList.valueOf(mContext.getResources().getColor(R.color.title_icon)));
 
-        final View maximize = caption.findViewById(R.id.maximize_window);
-        final VectorDrawable maximizeBackground = (VectorDrawable) maximize.getBackground();
-        maximizeBackground.setTintList(buttonTintColor);
+        // final ImageButton maximize = caption.findViewById(R.id.maximize_window);
+        // final Drawable maximizeBackground = maximize.getBackground();
+        // maximizeBackground.setTintList(buttonTintColor);
 
-        final View close = caption.findViewById(R.id.close_window);
-        final VectorDrawable closeBackground = (VectorDrawable) close.getBackground();
-        closeBackground.setTintList(buttonTintColor);
+        // final ImageButton close = caption.findViewById(R.id.close_window);
+        // final Drawable closeBackground = close.getBackground();
+        // closeBackground.setTintList(buttonTintColor);
     }
 
     public void setBackgroundBlurRadius(View view, int radius, float cornerRadius) {

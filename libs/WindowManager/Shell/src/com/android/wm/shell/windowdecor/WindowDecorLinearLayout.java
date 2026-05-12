@@ -23,7 +23,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 
 import com.android.wm.shell.R;
-
+import android.util.Log;
 /**
  * A {@link LinearLayout} that takes an additional task focused drawable state. The new state is
  * used to select the correct background color for views in the window decoration.
@@ -55,7 +55,6 @@ public class WindowDecorLinearLayout extends LinearLayout implements TaskFocusSt
     @Override
     public void setTaskFocusState(boolean focused) {
         mIsTaskFocused = focused;
-
         refreshDrawableState();
     }
 

@@ -538,5 +538,6 @@
     <!-- The vertical margin that needs to be preserved between the scaled window bounds and the
     original window bounds (once the surface is scaled enough to do so) -->
     <dimen name="cross_task_back_vertical_margin">8dp</dimen>
-
+    <dimen name="title_icon_padding">8dp</dimen>
+    <dimen name="title_icon_margin">6dp</dimen>
 </resources>

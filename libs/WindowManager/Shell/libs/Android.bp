@@ -1,0 +1,6 @@
+
+android_library_import {
+    name: "baselib",
+    aars: ["baselib.aar"],
+    sdk_version: "current",
+}
