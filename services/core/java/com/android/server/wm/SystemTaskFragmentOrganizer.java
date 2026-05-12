@@ -203,7 +203,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 wct.startActivityInTaskFragment(existingRight, primary.token, secondaryIntent, null);
             }
             try {
-                mAtmService.getWindowOrganizerController().applyTransaction(wct);
+                applyTransaction(wct, 0, true);
+//                mAtmService.getWindowOrganizerController().applyTransaction(wct);
             } catch (RemoteException e) {
                 throw e.rethrowFromSystemServer();
             }

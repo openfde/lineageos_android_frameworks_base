@@ -2345,8 +2345,8 @@ class WindowOrganizerController extends IWindowOrganizerController.Stub
         }
         if (organizer == null) {
             Slog.w(TAG, "organizer is null");
-            return;
-//            throw new IllegalArgumentException("Not allowed to operate with invalid organizer");
+//            return;
+            throw new IllegalArgumentException("Not allowed to operate with invalid organizer");
         }
         mService.mTaskFragmentOrganizerController
                 .onTaskFragmentError(organizer, errorCallbackToken, taskFragment, opType,
