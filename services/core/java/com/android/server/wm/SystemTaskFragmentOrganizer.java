@@ -202,11 +202,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             } else if (secondaryIntent != null) {
                 wct.startActivityInTaskFragment(existingRight, primary.token, secondaryIntent, null);
             }
-            try {
-                mAtmService.getWindowOrganizerController().applyTransaction(wct);
-            } catch (RemoteException e) {
-                throw e.rethrowFromSystemServer();
-            }
+            applyTransaction(wct, 0, false);
         } else {
             mSplitRatios.put(task.mTaskId, ratio);
             final Rect taskBounds = task.getBounds();
@@ -248,11 +244,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 mLeftFragments.put(taskId, primaryTfToken);
                 mRightFragments.put(taskId, secondaryTfToken);
                 mSplitingActivityRecords.put(taskId, secondary);
-                try {
-                    mAtmService.getWindowOrganizerController().applyTransaction(wct);
-                } catch (RemoteException e) {
-                    throw e.rethrowFromSystemServer();
-                }
+                applyTransaction(wct, 0, false);
             });
         }
         task.type = Task.IN_PARALLEL_WINDOW;
@@ -287,11 +279,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 updateWindowingMode(wct, secondaryTfToken, WINDOWING_MODE_FREEFORM);
             }
         }
-	try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            throw e.rethrowFromSystemServer();
-        }
+        applyTransaction(wct, 0, false);
     }
 
     void updateWindowingMode(@NonNull WindowContainerTransaction wct,
@@ -356,11 +344,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             }
 
         }
-        try {
-            mAtmService.getWindowOrganizerController().applyTransaction(wct);
-        } catch (RemoteException e) {
-            Slog.e(TAG, e.getMessage());
-        }
+        applyTransaction(wct, 0, false);
     }
 
     void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
