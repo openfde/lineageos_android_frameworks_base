@@ -144,13 +144,16 @@
 	<item
         isdel="false"
         key_code="isAllowRealDisplaySize"
-        update_date="2025-04-21">
-		<package name="com.taobao.idlefish">
-            <activity name="">true</activity>
-        </package>
-		<package name="com.tencent.android.qqdownloader">
-            <activity name="">true</activity>
-        </package>
+        update_date="2026-05-13">
+	<package name="com.taobao.idlefish">
+	    <activity name="">true</activity>
+	</package>
+	<package name="com.tencent.android.qqdownloader">
+	    <activity name="">true</activity>
+	</package>
+        <package name="ctrip.android.view">
+	    <activity name="">true</activity>
+	</package>
     </item>
 
 	<item
