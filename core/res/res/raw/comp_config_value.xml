@@ -147,13 +147,13 @@
         update_date="2026-05-13">
         <package name="com.taobao.idlefish">
             <activity name="">true</activity>
-	</package>
+        </package>
         <package name="com.tencent.android.qqdownloader">
             <activity name="">true</activity>
-	</package>
+        </package>
         <package name="ctrip.android.view">
             <activity name="">true</activity>
-	</package>
+        </package>
     </item>
 
 	<item
