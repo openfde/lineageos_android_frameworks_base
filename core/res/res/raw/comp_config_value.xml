@@ -87,16 +87,16 @@
         key_code="minBoundsVisibleWidth"
         update_date="2026-05-13">
         <package name="com.autonavi.minimap">
-             <activity name="">960</activity>
+            <activity name="">960</activity>
         </package>
         <package name="com.android.wallpaper">
-             <activity name="">1000</activity>
+            <activity name="">1000</activity>
         </package>
         <package name="com.sdu.didi.psnger">
-             <activity name="">1400</activity>
+            <activity name="">1400</activity>
         </package>
         <package name="com.tencent.qqmusic">
-             <activity name="">638</activity>
+            <activity name="">638</activity>
         </package>
     </item>
 
@@ -145,14 +145,14 @@
         isdel="false"
         key_code="isAllowRealDisplaySize"
         update_date="2026-05-13">
-	<package name="com.taobao.idlefish">
-	    <activity name="">true</activity>
+        <package name="com.taobao.idlefish">
+            <activity name="">true</activity>
 	</package>
-	<package name="com.tencent.android.qqdownloader">
-	    <activity name="">true</activity>
+        <package name="com.tencent.android.qqdownloader">
+            <activity name="">true</activity>
 	</package>
         <package name="ctrip.android.view">
-	    <activity name="">true</activity>
+            <activity name="">true</activity>
 	</package>
     </item>
 
