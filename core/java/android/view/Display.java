@@ -1698,10 +1698,10 @@ public final class Display {
                 String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
                 String resultStr = CompatibleConfig.queryStringValueData(mContext, "isAllowRealDisplaySize", mContext.getPackageName());
                 if(TextUtils.equals(resultStr, "true")){
-		    final Rect bounds = mResources.getConfiguration().windowConfiguration.getAppBounds();
-		    outSize.x = bounds.width();
-		    outSize.y = bounds.height();
-		    return;
+                    final Rect bounds = mResources.getConfiguration().windowConfiguration.getAppBounds();
+                    outSize.x = bounds.width();
+                    outSize.y = bounds.height();
+                    return;
                 }
             }
             updateDisplayInfoLocked();
