@@ -1698,14 +1698,16 @@ public final class Display {
                 String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
                 String resultStr = CompatibleConfig.queryStringValueData(mContext, "isAllowRealDisplaySize", mContext.getPackageName());
                 if(TextUtils.equals(resultStr, "true")){
-                    getSize(outSize);
+                    final Rect bounds = mResources.getConfiguration().windowConfiguration.getAppBounds();
+                    outSize.x = bounds.width();
+                    outSize.y = bounds.height();
                     return;
                 }
             }
             updateDisplayInfoLocked();
             if (shouldReportMaxBounds()) {
                 final Rect bounds = mResources.getConfiguration()
-                        .windowConfiguration.getAppBounds();
+                        .windowConfiguration.getMaxBounds();
                 outSize.x = bounds.width();
                 outSize.y = bounds.height();
                 if (DEBUG) {
