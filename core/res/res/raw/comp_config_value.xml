@@ -86,17 +86,17 @@
         isdel="false"
         key_code="minBoundsVisibleWidth"
         update_date="2026-05-13">
-	 <package name="com.autonavi.minimap">
-            <activity name="">960</activity>
+        <package name="com.autonavi.minimap">
+             <activity name="">960</activity>
         </package>
         <package name="com.android.wallpaper">
-            <activity name="">1000</activity>
+             <activity name="">1000</activity>
         </package>
         <package name="com.sdu.didi.psnger">
-            <activity name="">1400</activity>
+             <activity name="">1400</activity>
         </package>
         <package name="com.tencent.qqmusic">
-            <activity name="">638</activity>
+             <activity name="">638</activity>
         </package>
     </item>
 
