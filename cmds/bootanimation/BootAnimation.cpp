@@ -212,7 +212,7 @@ BootAnimation::BootAnimation(sp<Callbacks> callbacks)
     } else {
         mShuttingDown = true;
     }
-    ALOGD("%sAnimationStartTiming start time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
+    ALOGW("%sAnimationStartTiming start time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
             elapsedRealtime());
 }
 
@@ -222,7 +222,7 @@ BootAnimation::~BootAnimation() {
         releaseAnimation(mAnimation);
         mAnimation = nullptr;
     }
-    ALOGD("%sAnimationStopTiming start time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
+    ALOGW("%sAnimationStopTiming start time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
             elapsedRealtime());
 }
 
@@ -233,10 +233,10 @@ void BootAnimation::onFirstRef() {
     if (err == NO_ERROR) {
         // Load the animation content -- this can be slow (eg 200ms)
         // called before waitForSurfaceFlinger() in main() to avoid wait
-        ALOGD("%sAnimationPreloadTiming start time: %" PRId64 "ms",
+        ALOGW("%sAnimationPreloadTiming start time: %" PRId64 "ms",
                 mShuttingDown ? "Shutdown" : "Boot", elapsedRealtime());
         preloadAnimation();
-        ALOGD("%sAnimationPreloadStopTiming start time: %" PRId64 "ms",
+        ALOGW("%sAnimationPreloadStopTiming start time: %" PRId64 "ms",
                 mShuttingDown ? "Shutdown" : "Boot", elapsedRealtime());
     }
 }
@@ -864,7 +864,7 @@ bool BootAnimation::threadLoop() {
     // We have no bootanimation file, so we use the stock android logo
     // animation.
     if (mZipFileName.empty()) {
-        ALOGD("No animation file");
+        ALOGW("No animation file");
         result = android();
     } else {
         result = movie();
@@ -1626,7 +1626,7 @@ bool BootAnimation::playAnimation(const Animation& animation) {
                     part.backgroundColor[2],
                     1.0f);
 
-            ALOGD("Playing files = %s/%s, Requested repeat = %d, playUntilComplete = %s",
+            ALOGW("Playing files = %s/%s, Requested repeat = %d, playUntilComplete = %s",
                     animation.fileName.c_str(), part.path.c_str(), part.count,
                     part.playUntilComplete ? "true" : "false");
 
@@ -1780,7 +1780,7 @@ bool BootAnimation::playAnimation(const Animation& animation) {
         }
     }
 
-    ALOGD("%sAnimationShownTiming End time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
+    ALOGW("%sAnimationShownTiming End time: %" PRId64 "ms", mShuttingDown ? "Shutdown" : "Boot",
             elapsedRealtime());
 
     return true;
@@ -1862,7 +1862,7 @@ BootAnimation::Animation* BootAnimation::loadAnimation(const String8& fn) {
         return nullptr;
     }
 
-    ALOGD("%s is loaded successfully", fn.c_str());
+    ALOGW("%s is loaded successfully", fn.c_str());
 
     Animation *animation =  new Animation;
     animation->fileName = fn;
