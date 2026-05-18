@@ -28,52 +28,32 @@ public class ZygoteConfig {
 
     /** If {@code true}, enables the unspecialized app process (USAP) pool feature */
     public static final String USAP_POOL_ENABLED = "usap_pool_enabled";
-
-    /**
-     * The default value for enabling the unspecialized app process (USAP) pool.  This value will
-     * not be used if the devices has a DeviceConfig profile pushed to it that contains a value for
-     * this key or if the System Property dalvik.vm.usap_pool_enabled is set.
-     */
+    // 1. 开启功能
     public static final boolean USAP_POOL_ENABLED_DEFAULT = true;
-
-
 
     /** The threshold used to determine if the pool should be refilled */
     public static final String USAP_POOL_REFILL_THRESHOLD = "usap_refill_threshold";
-
-    public static final int USAP_POOL_REFILL_THRESHOLD_DEFAULT = 1;
-
-
+    // 4. 提高补充灵敏度
+    public static final int USAP_POOL_REFILL_THRESHOLD_DEFAULT = 2;
 
     /** The maximum number of processes to keep in the USAP pool */
     public static final String USAP_POOL_SIZE_MAX = "usap_pool_size_max";
+    // 2. 扩大最大容量
+    public static final int USAP_POOL_SIZE_MAX_DEFAULT = 7;
 
-    public static final int USAP_POOL_SIZE_MAX_DEFAULT = 10;
-
-    /**
-     * The maximim value that will be accepted from the USAP_POOL_SIZE_MAX device property.
-     * is a mirror of USAP_POOL_MAX_LIMIT found in com_android_internal_os_Zygote.cpp.
-     */
     public static final int USAP_POOL_SIZE_MAX_LIMIT = 100;
-
-
 
     /** The minimum number of processes to keep in the USAP pool */
     public static final String USAP_POOL_SIZE_MIN = "usap_pool_size_min";
-
+    // 3. 提高常驻最小容量
     public static final int USAP_POOL_SIZE_MIN_DEFAULT = 3;
 
-    /**
-     * The minimum value that will be accepted from the USAP_POOL_SIZE_MIN device property.
-     */
     public static final int USAP_POOL_SIZE_MIN_LIMIT = 1;
-
-
 
     /** The number of milliseconds to delay before refilling the USAP pool */
     public static final String USAP_POOL_REFILL_DELAY_MS = "usap_pool_refill_delay_ms";
-
-    public static final int USAP_POOL_REFILL_DELAY_MS_DEFAULT = 3000;
+    // 5. 缩短再填充延迟
+    public static final int USAP_POOL_REFILL_DELAY_MS_DEFAULT = 500;
 
     public static final String PROPERTY_PREFIX_DEVICE_CONFIG = "persist.device_config";
     public static final String PROPERTY_PREFIX_SYSTEM = "dalvik.vm.";
