@@ -34,7 +34,7 @@ public class ZygoteConfig {
      * not be used if the devices has a DeviceConfig profile pushed to it that contains a value for
      * this key or if the System Property dalvik.vm.usap_pool_enabled is set.
      */
-    public static final boolean USAP_POOL_ENABLED_DEFAULT = false;
+    public static final boolean USAP_POOL_ENABLED_DEFAULT = true;
 
 
 
@@ -48,7 +48,7 @@ public class ZygoteConfig {
     /** The maximum number of processes to keep in the USAP pool */
     public static final String USAP_POOL_SIZE_MAX = "usap_pool_size_max";
 
-    public static final int USAP_POOL_SIZE_MAX_DEFAULT = 3;
+    public static final int USAP_POOL_SIZE_MAX_DEFAULT = 10;
 
     /**
      * The maximim value that will be accepted from the USAP_POOL_SIZE_MAX device property.
@@ -61,7 +61,7 @@ public class ZygoteConfig {
     /** The minimum number of processes to keep in the USAP pool */
     public static final String USAP_POOL_SIZE_MIN = "usap_pool_size_min";
 
-    public static final int USAP_POOL_SIZE_MIN_DEFAULT = 1;
+    public static final int USAP_POOL_SIZE_MIN_DEFAULT = 3;
 
     /**
      * The minimum value that will be accepted from the USAP_POOL_SIZE_MIN device property.
