@@ -85,7 +85,7 @@
     <item
         isdel="false"
         key_code="minBoundsVisibleWidth"
-        update_date="2026-05-13">
+        update_date="2026-05-19">
 	 <package name="com.autonavi.minimap">
             <activity name="">960</activity>
         </package>
@@ -97,6 +97,9 @@
         </package>
         <package name="com.tencent.qqmusic">
             <activity name="">638</activity>
+        </package>
+        <package name="com.youku.phone">
+            <activity name="">800</activity>
         </package>
     </item>
 
