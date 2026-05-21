@@ -382,7 +382,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         mSyncQueue,
                         this);
         mWindowDecorByTaskId.put(taskInfo.taskId, windowDecoration);
-
+        Log.w(TAG, "createWindowDecoration: put " + taskInfo.taskId + " is windowDecoration:" + windowDecoration);
         final FluidResizeTaskPositioner taskPositioner =
                 new FluidResizeTaskPositioner(mTaskOrganizer, mTransitions, windowDecoration,
                         mDisplayController, 0 /* disallowedAreaForEndBoundsHeight */, mTaskOperations, mWindowDecorByTaskId);

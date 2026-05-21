@@ -171,6 +171,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         mDisplayController = displayController;
         mTaskOrganizer = taskOrganizer;
         mTaskInfo = taskInfo;
+        Log.w(TAG, "relayout: mTaskInfo:" + mTaskInfo);
         mTaskSurface = cloneSurfaceControl(taskSurface, surfaceControlSupplier);
         mSurfaceControlBuilderSupplier = surfaceControlBuilderSupplier;
         mSurfaceControlTransactionSupplier = surfaceControlTransactionSupplier;
@@ -206,6 +207,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         params.mCornerRadius = 10;
         if (params.mRunningTaskInfo != null) {
             mTaskInfo = params.mRunningTaskInfo;
+            Log.w(TAG, "relayout: mTaskInfo:" + mTaskInfo);
         }
         final int oldLayoutResId = mLayoutResId;
         mLayoutResId = params.mLayoutResId;
