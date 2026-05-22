@@ -893,7 +893,6 @@ public class PackageInstallerActivity extends Activity {
                                     final Uri packageUri = Uri.parse("package:" + argument);
                                     settingsIntent.setData(packageUri);
                                     settingsIntent.setFlags(FLAG_ACTIVITY_NO_HISTORY);
-                                    settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     try {
                                         activity.register(activity.new UnknownSourcesListener());
                                         activity.startActivityForResult(settingsIntent,
