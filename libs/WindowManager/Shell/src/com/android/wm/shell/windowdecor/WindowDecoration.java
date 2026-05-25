@@ -260,8 +260,12 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
         boolean isTopTransparent = mTaskInfo.isTopActivityTransparent;
         boolean hasOtherActivities = mTaskInfo.numActivities > 1;
-        if (isTopTransparent && hasOtherActivities) {
-            Log.w(TAG, " Transparent activity should never change background caption visiblity");
+        String pkg = null;
+        if(mTaskInfo.topActivity != null){
+            pkg = mTaskInfo.topActivity.getPackageName();
+        }
+        if (isTopTransparent && hasOtherActivities && (pkg !=null && !pkg.equals("com.android.packageinstaller"))) {
+            Log.d(TAG, " Transparent activity should never change background caption visiblity");
         } else {
             updateCaptionVisibility(outResult.mRootView, mTaskInfo.displayId);
         }
