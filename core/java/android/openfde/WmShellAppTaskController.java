@@ -94,8 +94,8 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
         if(userSetCaptionStatus){
             Log.i(TAG, "User set window decoration");
             mIsRawCaptionHidden = activity.get().getWindowDecorationStatus() == Window.WINDOW_DECORATION_FORCE_HIDE;
-            activity.get().setWindowDecorationStatus(activity.get().getWindowDecorationStatus());
-            updateDecoration();
+//            activity.get().setWindowDecorationStatus(activity.get().getWindowDecorationStatus());
+//            updateDecoration();
         } else {
             if (hideRawCaption) {
                 Log.i(TAG, "Hiding raw window decoration");
