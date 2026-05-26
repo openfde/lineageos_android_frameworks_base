@@ -68,7 +68,7 @@ public class WmShellAppTaskController implements AppTaskController, DecorWindowI
     public void initCustomCaption(WeakReference<Activity> activity,
                                   AppTaskStatusListener listener,
                                   boolean hideRawCaption) {
-        Log.d(TAG, "Initializing custom caption");
+        Log.d(TAG, "Initializing custom caption:" + activity.get() + " getWindowDecorationStatus:" + activity.get().getWindowDecorationStatus());
 
         if (listener == null && hideRawCaption) {
             Log.e(TAG, "Both listener and hideRawCaption cannot be null when hiding caption");

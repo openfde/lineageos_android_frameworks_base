@@ -7778,7 +7778,7 @@ public class Activity extends ContextThemeWrapper
         mWindowDecoraitonStatus = status;
         mTaskDescription.setWindowDecorationStatus(status);
         setTaskDescription(mTaskDescription);
-        Log.d(TAG, "setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
+        Log.d(TAG, "#"+ this +" setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
     }
 
     /**
