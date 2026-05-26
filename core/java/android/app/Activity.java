@@ -7765,6 +7765,64 @@ public class Activity extends ContextThemeWrapper
         }
     }
 
+    // some transent/system activity should not change decoration status when
+    // there is a root activity in the task
+    private boolean shouldUpdateDecorationStatus() {
+        ActivityTaskManager atm = (ActivityTaskManager) getSystemService(Context.ACTIVITY_TASK_SERVICE);
+        if (atm == null) return true;
+        ActivityManager.RunningTaskInfo taskInfo = null;
+        if (atm != null) {
+            List<ActivityManager.RunningTaskInfo> tasks = atm.getTasks(Integer.MAX_VALUE);
+            for (ActivityManager.RunningTaskInfo task : tasks) {
+                if (task.taskId == getTaskId()) {
+                    taskInfo = task;
+                    break;
+                }
+            }
+        }
+        Log.d(TAG, "shouldUpdateDecorationStatus taskInfo:" + taskInfo);
+        if (taskInfo != null) {
+            boolean hasOtherActivities = taskInfo.numActivities > 1;
+            boolean isTransparent = checkThemeTranslucent();
+            boolean isSystemApp = isCurrentActivitySystemApp();
+
+            Log.d(TAG, "#"+ this +" taskid:" + taskInfo.taskId + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
+                + " isTransparent:" + isTransparent + " isSystemApp:" + isSystemApp);
+            if (isTransparent && hasOtherActivities && isSystemApp) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isCurrentActivitySystemApp() {
+        String packageName = getPackageName();
+        try {
+            PackageManager pm = getPackageManager();
+            ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+            if(appInfo == null){
+                return false;
+            }
+            return appInfo.isSystemApp();
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    private boolean checkThemeTranslucent() {
+        int[] attrs = new int[] {
+                android.R.attr.windowIsTranslucent,
+                android.R.attr.windowIsFloating
+        };
+
+        TypedArray typedArray = obtainStyledAttributes(attrs);
+        boolean isTranslucent = typedArray.getBoolean(0, false);
+        boolean isFloating = typedArray.getBoolean(1, false);
+        typedArray.recycle();
+
+        return isTranslucent || isFloating;
+    }
+
     /**
      * Used to forcibly hide captionbar
      * Optional parameter values
@@ -7774,11 +7832,14 @@ public class Activity extends ContextThemeWrapper
      * if you use it, it better before WmShellAppTaskController init
      */
     @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
-    public void setWindowDecorationStatus(int status) {
+    public void setWindowDecorationStatus(final int status) {
+        if (!shouldUpdateDecorationStatus()) {
+            return;
+        }
         mWindowDecoraitonStatus = status;
         mTaskDescription.setWindowDecorationStatus(status);
         setTaskDescription(mTaskDescription);
-        Log.d(TAG, "setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
+        Log.d(TAG, "#" + this + " setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
     }
 
     /**

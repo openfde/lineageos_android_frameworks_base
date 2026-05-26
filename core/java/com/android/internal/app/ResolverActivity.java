@@ -399,16 +399,8 @@ public class ResolverActivity extends Activity implements
         setSafeForwardingMode(true);
 
         onCreate(savedInstanceState, intent, null, 0, null, null, true);
-        Uri referrer = getReferrer();
-        String referrerPackage = "";
-        if (referrer != null) {
-            referrerPackage = referrer.toString();
-            Log.d(TAG,"referrerPackage: "+referrerPackage);
-        }
-        if(referrerPackage !=null && (referrerPackage.contains(LAUNCHER_APP) || referrerPackage.contains(DOCUMENTSUI_APP ))){
-            setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
-        }
-        
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
+
         
     }
 
