@@ -7765,6 +7765,29 @@ public class Activity extends ContextThemeWrapper
         }
     }
 
+    private boolean shouldUpdateDecorationStatus() {
+        // 在 Android 14 中，管理 Task 核心推荐使用 ActivityTaskManager (ATM)
+        ActivityTaskManager atm = (ActivityTaskManager) context.getSystemService(Context.ACTIVITY_TASK_SERVICE);
+        if (atm == null) return true;
+        ActivityManager.RunningTaskInfo taskInfo = null;
+        List<ActivityManager.RunningTaskInfo> tasks = atm.getTasks(1);
+        if (tasks != null && !tasks.isEmpty()) {
+            taskInfo = tasks.get(0);
+        }
+
+        if (mTaskInfo != null) {
+            boolean hasOtherActivities = taskInfo.numActivities > 1;
+            boolean isTopTransparent = mTaskInfo.isTopActivityTransparent;
+
+            Log.d(TAG, "#"+ this + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
+                + " isTopTransparent:" + isTopTransparent);
+            if (isTopTransparent && hasOtherActivities) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Used to forcibly hide captionbar
      * Optional parameter values
@@ -7775,6 +7798,9 @@ public class Activity extends ContextThemeWrapper
      */
     @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
     public void setWindowDecorationStatus(int status) {
+        if(!shouldUpdateDecorationStatus()){
+            return;
+        }
         mWindowDecoraitonStatus = status;
         mTaskDescription.setWindowDecorationStatus(status);
         setTaskDescription(mTaskDescription);
