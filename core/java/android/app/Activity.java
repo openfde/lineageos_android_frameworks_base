@@ -7767,7 +7767,7 @@ public class Activity extends ContextThemeWrapper
 
     private boolean shouldUpdateDecorationStatus() {
         // 在 Android 14 中，管理 Task 核心推荐使用 ActivityTaskManager (ATM)
-        ActivityTaskManager atm = (ActivityTaskManager) context.getSystemService(Context.ACTIVITY_TASK_SERVICE);
+        ActivityTaskManager atm = (ActivityTaskManager) getSystemService(Context.ACTIVITY_TASK_SERVICE);
         if (atm == null) return true;
         ActivityManager.RunningTaskInfo taskInfo = null;
         List<ActivityManager.RunningTaskInfo> tasks = atm.getTasks(1);
