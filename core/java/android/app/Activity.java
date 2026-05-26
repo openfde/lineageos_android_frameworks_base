@@ -7773,7 +7773,7 @@ public class Activity extends ContextThemeWrapper
             List<ActivityManager.RunningTaskInfo> tasks = atm.getTasks(Integer.MAX_VALUE);
             for (ActivityManager.RunningTaskInfo task : tasks) {
                 if (task.taskId == getTaskId()) {
-                    taskInfo = task
+                    taskInfo = task;
                     break;
                 }
             }
