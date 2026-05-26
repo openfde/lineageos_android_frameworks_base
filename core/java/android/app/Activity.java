@@ -7776,15 +7776,30 @@ public class Activity extends ContextThemeWrapper
 
         if (taskInfo != null) {
             boolean hasOtherActivities = taskInfo.numActivities > 1;
-            boolean isTopTransparent = checkThemeTranslucent();
+            boolean isTransparent = checkThemeTranslucent();
+            boolean isSystemApp = isCurrentActivitySystemApp();
 
             Log.d(TAG, "#"+ this +" taskid:" + taskInfo.taskId + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
-                + " isTopTransparent:" + isTopTransparent);
-            if (isTopTransparent && hasOtherActivities) {
+                + " isTransparent:" + isTransparent);
+            if (isTransparent && hasOtherActivities && !isSystemApp) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean isCurrentActivitySystemApp() {
+        String packageName = getPackageName();
+        try {
+            PackageManager pm = getPackageManager();
+            ApplicationInfo appInfo = pm.getApplicationInfo(packageName, 0);
+            if(appInfo == null){
+                return false;
+            }
+            return appInfo.isSystemApp();
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     private boolean checkThemeTranslucent() {
