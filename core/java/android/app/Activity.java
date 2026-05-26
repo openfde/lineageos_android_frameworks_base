@@ -7766,7 +7766,6 @@ public class Activity extends ContextThemeWrapper
     }
 
     private boolean shouldUpdateDecorationStatus() {
-        // 在 Android 14 中，管理 Task 核心推荐使用 ActivityTaskManager (ATM)
         ActivityTaskManager atm = (ActivityTaskManager) getSystemService(Context.ACTIVITY_TASK_SERVICE);
         if (atm == null) return true;
         ActivityManager.RunningTaskInfo taskInfo = null;
@@ -7798,15 +7797,13 @@ public class Activity extends ContextThemeWrapper
      */
     @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
     public void setWindowDecorationStatus(final int status) {
-        getWindow().getDecorView().post(() -> {
-            if (!shouldUpdateDecorationStatus()) {
-                return;
-            }
-            mWindowDecoraitonStatus = status;
-            mTaskDescription.setWindowDecorationStatus(status);
-            setTaskDescription(mTaskDescription);
-            Log.d(TAG, "#" + this + " setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
-        });
+        if (!shouldUpdateDecorationStatus()) {
+            return;
+        }
+        mWindowDecoraitonStatus = status;
+        mTaskDescription.setWindowDecorationStatus(status);
+        setTaskDescription(mTaskDescription);
+        Log.d(TAG, "#" + this + " setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
     }
 
     /**
