@@ -7769,12 +7769,16 @@ public class Activity extends ContextThemeWrapper
         ActivityTaskManager atm = (ActivityTaskManager) getSystemService(Context.ACTIVITY_TASK_SERVICE);
         if (atm == null) return true;
         ActivityManager.RunningTaskInfo taskInfo = null;
-        List<ActivityManager.RunningTaskInfo> tasks = atm.getTasks(1);
-        if (tasks != null && !tasks.isEmpty()) {
-            taskInfo = tasks.get(0);
+        if (atm != null) {
+            List<ActivityManager.RunningTaskInfo> tasks = atm.getTasks(Integer.MAX_VALUE);
+            for (ActivityManager.RunningTaskInfo task : tasks) {
+                if (task.taskId == getTaskId()) {
+                    taskInfo = task
+                    break;
+                }
+            }
         }
         Log.d(TAG, "shouldUpdateDecorationStatus taskInfo:" + taskInfo);
-
         if (taskInfo != null) {
             boolean hasOtherActivities = taskInfo.numActivities > 1;
             boolean isTransparent = checkThemeTranslucent();
