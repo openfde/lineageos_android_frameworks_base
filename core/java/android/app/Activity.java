@@ -7797,14 +7797,16 @@ public class Activity extends ContextThemeWrapper
      * if you use it, it better before WmShellAppTaskController init
      */
     @FlaggedApi(android.app.Flags.FLAG_ENABLE_FORCE_HIDE_WINDOW_DECORATION)
-    public void setWindowDecorationStatus(int status) {
-        if(!shouldUpdateDecorationStatus()){
-            return;
-        }
-        mWindowDecoraitonStatus = status;
-        mTaskDescription.setWindowDecorationStatus(status);
-        setTaskDescription(mTaskDescription);
-        Log.d(TAG, "#"+ this +" setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
+    public void setWindowDecorationStatus(final int status) {
+        getWindow().getDecorView().post(() -> {
+            if (!shouldUpdateDecorationStatus()) {
+                return;
+            }
+            mWindowDecoraitonStatus = status;
+            mTaskDescription.setWindowDecorationStatus(status);
+            setTaskDescription(mTaskDescription);
+            Log.d(TAG, "#" + this + " setWindowDecorationStatus mTaskDescription: " + mTaskDescription.toString());
+        });
     }
 
     /**
