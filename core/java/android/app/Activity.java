@@ -7780,7 +7780,7 @@ public class Activity extends ContextThemeWrapper
             boolean isSystemApp = isCurrentActivitySystemApp();
 
             Log.d(TAG, "#"+ this +" taskid:" + taskInfo.taskId + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
-                + " isTransparent:" + isTransparent + " isSystemApp:" = isSystemApp);
+                + " isTransparent:" + isTransparent + " isSystemApp:" + isSystemApp);
             if (isTransparent && hasOtherActivities && isSystemApp) {
                 return false;
             }
