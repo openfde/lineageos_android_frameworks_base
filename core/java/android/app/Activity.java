@@ -7775,9 +7775,9 @@ public class Activity extends ContextThemeWrapper
             taskInfo = tasks.get(0);
         }
 
-        if (mTaskInfo != null) {
+        if (taskInfo != null) {
             boolean hasOtherActivities = taskInfo.numActivities > 1;
-            boolean isTopTransparent = mTaskInfo.isTopActivityTransparent;
+            boolean isTopTransparent = taskInfo.isTopActivityTransparent;
 
             Log.d(TAG, "#"+ this + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
                 + " isTopTransparent:" + isTopTransparent);
