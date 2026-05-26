@@ -7776,15 +7776,29 @@ public class Activity extends ContextThemeWrapper
 
         if (taskInfo != null) {
             boolean hasOtherActivities = taskInfo.numActivities > 1;
-            boolean isTopTransparent = taskInfo.isTopActivityTransparent;
+            boolean isTopTransparent = checkThemeTranslucent();
 
-            Log.d(TAG, "#"+ this + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
+            Log.d(TAG, "#"+ this +" taskid:" + taskInfo.taskId + " shouldUpdateDecorationStatus: hasOtherActivities:" + hasOtherActivities
                 + " isTopTransparent:" + isTopTransparent);
             if (isTopTransparent && hasOtherActivities) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean checkThemeTranslucent() {
+        int[] attrs = new int[] {
+                android.R.attr.windowIsTranslucent,
+                android.R.attr.windowIsFloating
+        };
+
+        TypedArray typedArray = obtainStyledAttributes(attrs);
+        boolean isTranslucent = typedArray.getBoolean(0, false);
+        boolean isFloating = typedArray.getBoolean(1, false);
+        typedArray.recycle();
+
+        return isTranslucent || isFloating;
     }
 
     /**
