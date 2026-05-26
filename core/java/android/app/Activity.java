@@ -7773,6 +7773,7 @@ public class Activity extends ContextThemeWrapper
         if (tasks != null && !tasks.isEmpty()) {
             taskInfo = tasks.get(0);
         }
+        Log.d(TAG, "shouldUpdateDecorationStatus taskInfo:" + taskInfo);
 
         if (taskInfo != null) {
             boolean hasOtherActivities = taskInfo.numActivities > 1;
