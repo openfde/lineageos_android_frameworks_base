@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.android.internal.util.FrameworkStatsLog;
 
@@ -875,7 +876,8 @@ public class GestureDetector {
         }
 
         final long deltaTime = secondDown.getEventTime() - firstUp.getEventTime();
-        if (deltaTime > DOUBLE_TAP_TIMEOUT || (deltaTime < DOUBLE_TAP_MIN_TIME &&  deltaTime != 0)) {
+        Log.d(TAG, "isConsideredDoubleTap: deltaTime=" + deltaTime + " firstDown=" + firstUp.getEventTime()  + " secondDown=" + secondDown.getEventTime());
+        if (deltaTime > DOUBLE_TAP_TIMEOUT || (deltaTime < DOUBLE_TAP_MIN_TIME &&  deltaTime > 5)) {
             return false;
         }
 
