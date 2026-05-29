@@ -30,7 +30,12 @@
 #include "renderthread/RenderThread.h"
 #include "renderthread/VulkanManager.h"
 
+#include <ui/GraphicBuffer.h>
+#include <android/AHardwareBufferHelpers.h>
+
 using namespace android::uirenderer::renderthread;
+
+#define ALIGN_M(value, base) (((value) + ((base)-1)) & ~((base)-1))
 
 namespace android {
 namespace uirenderer {
@@ -131,6 +136,56 @@ status_t DeferredLayerUpdater::fenceWait(int fence, void* handle) {
     return err;
 }
 
+void yv12_to_bgra(const unsigned char* yv12_data, int width, int height, int y_stride,
+                    unsigned char* rgb_output) {
+    int uv_stride = y_stride / 2;
+
+    size_t y_size = y_stride * height;
+    size_t uv_size = uv_stride * (height / 2);
+
+    const uint8_t* y_plane = yv12_data;
+    const uint8_t* v_plane = yv12_data + y_size;
+    const uint8_t* u_plane = v_plane + uv_size;
+
+    const int coef_rv = 359;   // 1.402 * 256
+    const int coef_gu = 88;    // 0.344 * 256
+    const int coef_gv = 183;   // 0.714 * 256
+    const int coef_bu = 454;   // 1.773 * 256
+
+    for (int y = 0; y < height; y++) {
+        const uint8_t* src_y = y_plane + y * y_stride;
+        uint8_t* dst = rgb_output + y * width * 4;
+
+        int uv_y = y / 2;
+        const uint8_t* src_v = v_plane + uv_y * uv_stride;
+        const uint8_t* src_u = u_plane + uv_y * uv_stride;
+
+        for (int x = 0; x < width; x++) {
+            int uv_x = x / 2;
+            int Y = src_y[x];
+            int V = src_v[uv_x];
+            int U = src_u[uv_x];
+
+            int C = Y;
+            int D = U - 128;
+            int E = V - 128;
+
+            int R = (C * 298 + coef_rv * E + 128) >> 8;
+            int G = (C * 298 - coef_gu * D - coef_gv * E + 128) >> 8;
+            int B = (C * 298 + coef_bu * D + 128) >> 8;
+
+            if (R < 0) R = 0; else if (R > 255) R = 255;
+            if (G < 0) G = 0; else if (G > 255) G = 255;
+            if (B < 0) B = 0; else if (B > 255) B = 255;
+
+            dst[4*x + 0] = (uint8_t)B;
+            dst[4*x + 1] = (uint8_t)G;
+            dst[4*x + 2] = (uint8_t)R;
+            dst[4*x + 3] = 0xFF;   // Alpha
+        }
+    }
+}
+
 void DeferredLayerUpdater::apply() {
     if (!mLayer) {
         mLayer = new Layer(mRenderState, mColorFilter, mAlpha, mMode);
@@ -165,9 +220,50 @@ void DeferredLayerUpdater::apply() {
                     fenceWait, this, &currentCrop);
 
             if (hardwareBuffer) {
+                int srcWidth = 0;
+                int srcHeight = 0;
+                sp<GraphicBuffer> dst_gb;
+                sp<GraphicBuffer> graphicBuffer = AHardwareBuffer_to_GraphicBuffer(hardwareBuffer);
+                if (graphicBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_YV12) {
+                    if (graphicBuffer->needConvertFormat()) {
+                        void* data = nullptr;
+                        int result = graphicBuffer->lock(GRALLOC_USAGE_SW_READ_OFTEN, &data);
+                        if (result == 0 && data != nullptr) {
+                            unsigned char* yuv_data = (unsigned char*)data;
+                            int width = graphicBuffer->getWidth();
+                            int height = graphicBuffer->getHeight();
+                            int stride = graphicBuffer->getStride();
+
+                            srcWidth = width;
+                            srcHeight = height;
+                            width = ALIGN_M(width,64);
+
+                            dst_gb = new GraphicBuffer(
+                                    width, height, HAL_PIXEL_FORMAT_BGRA_8888,
+                                    GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER
+                                        | GRALLOC_USAGE_PRIVATE_0);
+
+                            void* dst_data = nullptr;
+                            int dst_result = dst_gb->lock(GRALLOC_USAGE_SW_WRITE_OFTEN, &dst_data);
+                            if (dst_result == 0 && dst_data != nullptr) {
+                                unsigned char* bgra = (unsigned char*) dst_data;
+                                yv12_to_bgra(yuv_data, width, height, stride, bgra);
+                            }
+                            if (dst_gb != NULL) {
+                                dst_gb->unlock();
+                            }
+                            graphicBuffer->unlock();
+                        }
+                    }
+                }
+                AHardwareBuffer* new_hardwareBuffer = hardwareBuffer;
+                if (dst_gb != NULL) {
+                    new_hardwareBuffer = AHardwareBuffer_from_GraphicBuffer(dst_gb.get());
+                }
+
                 mCurrentSlot = slot;
                 sk_sp<SkImage> layerImage = mImageSlots[slot].createIfNeeded(
-                        hardwareBuffer, dataspace, newContent,
+                        new_hardwareBuffer, dataspace, newContent,
                         mRenderState.getRenderThread().getGrContext());
                 AHardwareBuffer_Desc bufferDesc;
                 AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
@@ -178,6 +274,14 @@ void DeferredLayerUpdater::apply() {
                     // force filtration if buffer size != layer size
                     bool forceFilter =
                             mWidth != layerImage->width() || mHeight != layerImage->height();
+                    if (dst_gb != NULL) {
+                        if (dst_gb->getUsage() & GRALLOC_USAGE_PRIVATE_0) {
+                            if (srcWidth != layerImage->width() || srcHeight != layerImage->height()) {
+                                currentCrop.right = srcWidth;
+                                currentCrop.bottom = srcHeight;
+                            }
+                        }
+                    }
                     SkRect currentCropRect =
                             SkRect::MakeLTRB(currentCrop.left, currentCrop.top, currentCrop.right,
                                              currentCrop.bottom);
