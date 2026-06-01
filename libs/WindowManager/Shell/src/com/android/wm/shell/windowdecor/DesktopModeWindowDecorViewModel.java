@@ -280,6 +280,11 @@ public class DesktopModeWindowDecorViewModel implements WindowDecorViewModel {
         });
     }
 
+    @override
+    public boolean hasWindowDecor(int taskId){
+        return false;
+    }
+
     @Override
     public boolean onTaskOpening(
             ActivityManager.RunningTaskInfo taskInfo,

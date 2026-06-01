@@ -184,6 +184,11 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     @Override
     public void setSplitScreenController(SplitScreenController splitScreenController) {}
 
+    @override
+    public boolean hasWindowDecor(int taskId){
+        return mWindowDecorByTaskId.get(taskId) != null;
+    }
+
     private String queryStringValueData(String packageName,String keyCode,String activityName){
               String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
               String[] selectionArgs= {packageName,keyCode, activityName};
