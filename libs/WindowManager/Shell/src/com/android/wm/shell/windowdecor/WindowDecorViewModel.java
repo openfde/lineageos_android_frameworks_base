@@ -42,6 +42,8 @@ public interface WindowDecorViewModel {
      */
     void setSplitScreenController(SplitScreenController splitScreenController);
 
+    boolean hasWindowDecor(int taskId);
+
     /**
      * Creates a window decoration for the given task. Can be {@code null} for Fullscreen tasks but
      * not Freeform ones.
