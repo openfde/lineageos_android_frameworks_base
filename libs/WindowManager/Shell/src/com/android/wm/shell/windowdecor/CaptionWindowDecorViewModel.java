@@ -184,7 +184,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     @Override
     public void setSplitScreenController(SplitScreenController splitScreenController) {}
 
-    @Override
+    @override
     public boolean hasWindowDecor(int taskId){
         return mWindowDecorByTaskId.get(taskId) != null;
     }
@@ -204,7 +204,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if(taskInfo.isFocused){
             mRunningTaskId = taskInfo.taskId;
             Log.d(TAG,"onTaskOpening mRunningTaskId: " + mRunningTaskId);
-            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
+            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null && taskInfo.taskId ！= 1) {
                 String packageName = taskInfo.topActivity.getPackageName();
                 String resultStrWithoutActivity = queryStringValueData(packageName, "forcedMaximizeStart", "");
                 Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity);
