@@ -204,7 +204,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if(taskInfo.isFocused){
             mRunningTaskId = taskInfo.taskId;
             Log.d(TAG,"onTaskOpening mRunningTaskId: " + mRunningTaskId);
-            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null && taskInfo.taskId ！= 1) {
+            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null && taskInfo.taskId != 1) {
                 String packageName = taskInfo.topActivity.getPackageName();
                 String resultStrWithoutActivity = queryStringValueData(packageName, "forcedMaximizeStart", "");
                 Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity);
