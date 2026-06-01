@@ -277,7 +277,7 @@ import android.app.PendingIntent;
 import android.app.PictureInPictureParams;
 import android.app.ResultInfo;
 import android.app.WaitResult;
-import android.app.UiThread;
+import com.android.server.UiThread;
 import android.app.WindowConfiguration;
 import android.app.admin.DevicePolicyManager;
 import android.widget.Toast;
