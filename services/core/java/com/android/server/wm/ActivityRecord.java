@@ -3399,6 +3399,10 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
             return false;
         }
 
+        if (inFreeformWindowingMode()) {
+            return false;
+        }
+
         // Check to see if we are in VR mode, and disallow PiP if so
         if (mAtmService.shouldDisableNonVrUiLocked()) {
             return false;
