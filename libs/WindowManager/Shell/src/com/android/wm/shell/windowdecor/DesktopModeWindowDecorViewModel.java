@@ -280,7 +280,7 @@ public class DesktopModeWindowDecorViewModel implements WindowDecorViewModel {
         });
     }
 
-    @override
+    @Override
     public boolean hasWindowDecor(int taskId){
         return false;
     }

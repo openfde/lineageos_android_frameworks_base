@@ -184,7 +184,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     @Override
     public void setSplitScreenController(SplitScreenController splitScreenController) {}
 
-    @override
+    @Override
     public boolean hasWindowDecor(int taskId){
         return mWindowDecorByTaskId.get(taskId) != null;
     }
