@@ -332,7 +332,7 @@ public class SystemUIApplication extends Application implements
                                 metricsPrefix);
                         startedStartables.add(cls);
                         startedAny = true;
-//                    }
+                    }
                     serviceIndex++;
                 } else {
                     nextQueue.add(entry);
