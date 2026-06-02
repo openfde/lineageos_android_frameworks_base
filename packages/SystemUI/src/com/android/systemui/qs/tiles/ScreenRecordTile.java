@@ -103,6 +103,7 @@ public class ScreenRecordTile extends QSTileImpl<QSTile.BooleanState>
         mController = controller;
         mController.observe(this, mCallback);
         handler = mHandler;
+        Log.w(TAG, "ScreenRecordTile: " + mHandler);
         mFlags = flags;
         mKeyguardDismissUtil = keyguardDismissUtil;
         mKeyguardStateController = keyguardStateController;
