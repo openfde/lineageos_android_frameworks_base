@@ -151,9 +151,6 @@ public class KeyguardServiceDelegate {
     }
 
     public void bindService(Context context) {
-//        if(true){
-//            return;
-//        }
         Intent intent = new Intent();
         final Resources resources = context.getApplicationContext().getResources();
 
@@ -161,9 +158,9 @@ public class KeyguardServiceDelegate {
                 resources.getString(com.android.internal.R.string.config_keyguardComponent));
         intent.addFlags(Intent.FLAG_DEBUG_TRIAGED_MISSING);
         intent.setComponent(keyguardComponent);
-//
-//        if (!context.bindServiceAsUser(intent, mKeyguardConnection,
-//                Context.BIND_AUTO_CREATE, mHandler, UserHandle.SYSTEM)) {
+
+        if (!context.bindServiceAsUser(intent, mKeyguardConnection,
+                Context.BIND_AUTO_CREATE, mHandler, UserHandle.SYSTEM)) {
             Log.v(TAG, "*** Keyguard: can't bind to " + keyguardComponent);
             mKeyguardState.showing = false;
             mKeyguardState.secure = false;
@@ -173,9 +170,9 @@ public class KeyguardServiceDelegate {
                 // stuck on keyguard-less devices.
                 mKeyguardState.deviceHasKeyguard = false;
             }
-//        } else {
-//            if (DEBUG) Log.v(TAG, "*** Keyguard started");
-//        }
+        } else {
+            if (DEBUG) Log.v(TAG, "*** Keyguard started");
+        }
 
         final DreamManagerInternal dreamManager =
                 LocalServices.getService(DreamManagerInternal.class);
