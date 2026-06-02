@@ -103,7 +103,7 @@ public class FullscreenTaskListener implements ShellTaskOrganizer.TaskListener {
         }
         updateRecentsForVisibleFullscreenTask(taskInfo);
         boolean createdWindowDecor = false;
-        if (mWindowDecorViewModelOptional.isPresent() ) {
+        if (mWindowDecorViewModelOptional.isPresent()) {
             SurfaceControl.Transaction t = new SurfaceControl.Transaction();
             createdWindowDecor = mWindowDecorViewModelOptional.get()
                     .onTaskOpening(taskInfo, leash, t, t);
