@@ -95,6 +95,7 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
     protected final Context mContext;
     // @NonFinalForTesting
     protected final H mHandler;
+    public static Handler handler;
     protected final Handler mUiHandler;
     private final ArraySet<Object> mListeners = new ArraySet<>();
     private final MetricsLogger mMetricsLogger;
@@ -195,6 +196,7 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
         mUiHandler = mainHandler;
         mHandler = new H(backgroundLooper);
         Log.w(TAG, "QSTileImpl: " + mHandler);
+        handler = mHandler;
         mFalsingManager = falsingManager;
         mQSLogger = qsLogger;
         mMetricsLogger = metricsLogger;

@@ -254,6 +254,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import com.android.systemui.qs.tiles.ScreenRecordTile;
+import com.android.systemui.qs.tileimpl.QSTileImpl;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -896,7 +897,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             switch (msg.what) {
                 case MSG_PLUGIN_SETUP:
                 {
-                    if (ScreenRecordTile.handler == null) {
+                    if (QSTileImpl.handler == null) {
                         removeMessages(MSG_PLUGIN_SETUP);
                         Message newMsg = Message.obtain(msg);
                         newMsg.arg1 ++;
@@ -904,11 +905,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         if (newMsg.arg1 < 50) {
                             sendMessageDelayed(newMsg, MSG_DELAY_TIMES);
                         } else {
-                            Log.w(TAG, "abandon ScreenRecordTile setup");
+                            Log.w(TAG, "abandon QSTileImpl setup");
                         }
                     } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
-                        mStatusBarView.setTag(ScreenRecordTile.handler);
+                        mStatusBarView.setTag(QSTileImpl.handler);
                         mMainExecutor.execute(
                                     () -> plugin.setup(
                                             mStatusBarView,
@@ -1130,8 +1131,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
-                        Log.w(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], ScreenRecordTile.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
-                        if (ScreenRecordTile.handler == null) {
+                        Log.w(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], QSTileImpl.handler = [" + QSTileImpl.handler + "]", new Throwable());
+                        if (QSTileImpl.handler == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
                             msg.what = MSG_PLUGIN_SETUP;
@@ -1139,7 +1140,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
-                            mStatusBarView.setTag(ScreenRecordTile.handler);
+                            mStatusBarView.setTag(QSTileImpl.handler);
                             mMainExecutor.execute(
                                     () -> plugin.setup(
                                             mStatusBarView,
