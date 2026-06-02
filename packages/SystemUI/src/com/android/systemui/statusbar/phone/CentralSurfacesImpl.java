@@ -1130,7 +1130,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
-                        Log.d(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], pluginContext = [" + pluginContext + "]", new Throwable());
+                        Log.w(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], pluginContext = [" + pluginContext + "]", new Throwable());
                         if (ScreenRecordTile.handler == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
