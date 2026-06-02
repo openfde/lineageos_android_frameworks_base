@@ -1578,6 +1578,7 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
         mJavaAdapter.alwaysCollectFlow(
                 mWallpaperRepository.getWallpaperSupportsAmbientMode(),
                 this::setWallpaperSupportsAmbientMode);
+        mLockPatternUtils.setLockScreenDisabled(true, 0);
     }
 
     @Override
