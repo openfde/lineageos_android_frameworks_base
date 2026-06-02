@@ -2231,12 +2231,12 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
      */
     private void doKeyguardLocked(Bundle options) {
         // if another app is disabling us, don't show
-        if (true){
-//                && !mLockPatternUtils.isUserInLockdown(
-//                        mSelectedUserInteractor.getSelectedUserId())) {
-//            if (DEBUG) Log.d(TAG, "doKeyguard: not showing because externally disabled");
+        if (!mExternallyEnabled
+                && !mLockPatternUtils.isUserInLockdown(
+                        mSelectedUserInteractor.getSelectedUserId())) {
+            if (DEBUG) Log.d(TAG, "doKeyguard: not showing because externally disabled");
 
-//            mNeedToReshowWhenReenabled = true;
+            mNeedToReshowWhenReenabled = true;
             return;
         }
 
