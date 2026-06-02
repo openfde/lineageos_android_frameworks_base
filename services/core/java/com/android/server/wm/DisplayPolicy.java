@@ -922,14 +922,14 @@ public class DisplayPolicy {
 
     /** Return false if we are not awake yet or we have already informed of this event. */
     public boolean finishKeyguardDrawn() {
-        synchronized (mLock) {
-            if (!mScreenOnEarly || mKeyguardDrawComplete) {
-                return false;
-            }
+//        synchronized (mLock) {
+//            if (!mScreenOnEarly || mKeyguardDrawComplete) {
+//                return false;
+//            }
 
             mKeyguardDrawComplete = true;
             mWindowManagerDrawComplete = false;
-        }
+//        }
         return true;
     }
 
