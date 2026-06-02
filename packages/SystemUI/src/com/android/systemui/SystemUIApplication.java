@@ -306,25 +306,25 @@ public class SystemUIApplication extends Application implements
                     String clsName = cls.getName();
                     Log.w("BootOptimize", "startStartable clsName=" + clsName);
                     int i = serviceIndex;  // Copied to make lambda happy.
-//                    if (clsName.contains("RingtonePlayer")
-////                    if (clsName.contains("biometrics")
-//                            || clsName.contains("PhysicalKeyboardCoreStartable")
-//                            || clsName.contains("MediaOutputSwitcherDialogUI")
-//                            || clsName.contains("NearbyMediaDevicesManager")
-//                            || clsName.contains("StorageNotification")
-//                            || clsName.contains("UserSwitcherDialogCoordinator")
-//                            || clsName.contains("Keyguard")
-//                            || clsName.contains("communal")
-//                            || clsName.contains("dreams")
-//                            || clsName.contains("recents")
-//                            || clsName.contains("biometrics")
-//                            || clsName.contains("taptotransfer")
+                    if (clsName.contains("RingtonePlayer")
+//                    if (clsName.contains("biometrics")
+                            || clsName.contains("PhysicalKeyboardCoreStartable")
+                            || clsName.contains("MediaOutputSwitcherDialogUI")
+                            || clsName.contains("NearbyMediaDevicesManager")
+                            || clsName.contains("StorageNotification")
+                            || clsName.contains("UserSwitcherDialogCoordinator")
+                            || clsName.contains("Keyguard")
+                            || clsName.contains("communal")
+                            || clsName.contains("dreams")
+                            || clsName.contains("recents")
+                            || clsName.contains("biometrics")
+                            || clsName.contains("taptotransfer")
 //                            || clsName.contains("notification")
-//                            || clsName.contains("VolumeUI")
-////                            || clsName.contains("KeyguardUpdateMonitor")
-//                    ) {
-//                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
-//                    } else {
+                            || clsName.contains("VolumeUI")
+//                            || clsName.contains("KeyguardUpdateMonitor")
+                    ) {
+                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
+                    } else {
                         timeInitialization(
                                 clsName,
                                 () -> mServices[i] = startStartable(clsName, entry.getValue()),
