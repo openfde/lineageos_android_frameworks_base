@@ -1509,7 +1509,7 @@
     <bool name="config_enable_emergency_call_while_sim_locked">true</bool>
 
     <!-- Is the lock-screen disabled for new users by default -->
-    <bool name="config_disableLockscreenByDefault">true</bool>
+    <bool name="config_disableLockscreenByDefault">false</bool>
 
     <!-- Provides default value for double line clock in lock screen setting:
          0 - Don't show double line clock
