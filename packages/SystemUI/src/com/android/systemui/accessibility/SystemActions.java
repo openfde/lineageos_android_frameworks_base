@@ -233,16 +233,7 @@ public class SystemActions implements CoreStartable, ConfigurationController.Con
                 PERMISSION_SELF,
                 null,
                 Context.RECEIVER_EXPORTED);
-        getExecutor().execute(this::registerActions);
-    }
-
-    private Executor getExecutor() {
-        return new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        };
+        new Thread(this::registerActions, "SystemActions").start();
     }
 
     @Override
