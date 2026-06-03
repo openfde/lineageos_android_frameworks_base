@@ -313,7 +313,7 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("NearbyMediaDevicesManager")
                             || clsName.contains("StorageNotification")
                             || clsName.contains("UserSwitcherDialogCoordinator")
-//                            || clsName.contains("Keyguard")
+                            || clsName.contains("keyguard")
                             || clsName.contains("KeyguardViewConfigurator")
                             || clsName.contains("communal")
                             || clsName.contains("dreams")
