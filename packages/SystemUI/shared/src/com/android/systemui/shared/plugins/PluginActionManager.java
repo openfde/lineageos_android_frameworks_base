@@ -108,13 +108,13 @@ public class PluginActionManager<T extends Plugin> {
 
     /** Load all plugins matching this instance's action. */
     public void loadAll() {
-        if (DEBUG) Log.d(TAG, "startListening");
+        if (DEBUG) Log.w(TAG, "startListening");
         mBgExecutor.execute(() -> queryAll());
     }
 
     /** Unload all plugins managed by this instance. */
     public void destroy() {
-        if (DEBUG) Log.d(TAG, "stopListening");
+        if (DEBUG) Log.w(TAG, "stopListening");
         ArrayList<PluginInstance<T>> plugins = new ArrayList<>(mPluginInstances);
         for (PluginInstance<T> plugInstance : plugins) {
             mMainExecutor.execute(() -> onPluginDisconnected(plugInstance));
@@ -208,18 +208,18 @@ public class PluginActionManager<T extends Plugin> {
     }
 
     private void onPluginConnected(PluginInstance<T> pluginInstance) {
-        if (DEBUG) Log.d(TAG, "onPluginConnected");
+        if (DEBUG) Log.w(TAG, "onPluginConnected");
         PluginPrefs.setHasPlugins(mContext);
         pluginInstance.onCreate();
     }
 
     private void onPluginDisconnected(PluginInstance<T> pluginInstance) {
-        if (DEBUG) Log.d(TAG, "onPluginDisconnected");
+        if (DEBUG) Log.w(TAG, "onPluginDisconnected");
         pluginInstance.onDestroy();
     }
 
     private void queryAll() {
-        if (DEBUG) Log.d(TAG, "queryAll " + mAction);
+        if (DEBUG) Log.w(TAG, "queryAll " + mAction);
         for (int i = mPluginInstances.size() - 1; i >= 0; i--) {
             PluginInstance<T> pluginInstance = mPluginInstances.get(i);
             mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
@@ -239,11 +239,11 @@ public class PluginActionManager<T extends Plugin> {
     }
 
     private void queryPkg(String pkg) {
-        if (DEBUG) Log.d(TAG, "queryPkg " + pkg + " " + mAction);
+        if (DEBUG) Log.w(TAG, "queryPkg " + pkg + " " + mAction);
         if (mAllowMultiple || (mPluginInstances.size() == 0)) {
             handleQueryPlugins(pkg);
         } else {
-            if (DEBUG) Log.d(TAG, "Too many of " + mAction);
+            if (DEBUG) Log.w(TAG, "Too many of " + mAction);
         }
     }
 
@@ -256,11 +256,11 @@ public class PluginActionManager<T extends Plugin> {
 //        }
         List<ResolveInfo> result = mPm.queryIntentServices(intent, 0);
         if (DEBUG) {
-            Log.d(TAG, "Found " + result.size() + " plugins");
+            Log.w(TAG, "Found " + result.size() + " plugins");
             for (ResolveInfo info : result) {
                 ComponentName name = new ComponentName(info.serviceInfo.packageName,
                         info.serviceInfo.name);
-                Log.d(TAG, "  " + name);
+                Log.w(TAG, "  " + name);
             }
         }
 
@@ -291,7 +291,7 @@ public class PluginActionManager<T extends Plugin> {
         }
         if (!mPluginEnabler.isEnabled(component)) {
             if (DEBUG) {
-                Log.d(TAG, "Plugin is not enabled, aborting load: " + component);
+                Log.w(TAG, "Plugin is not enabled, aborting load: " + component);
             }
             return null;
         }
@@ -300,7 +300,7 @@ public class PluginActionManager<T extends Plugin> {
             // TODO: This probably isn't needed given that we don't have IGNORE_SECURITY on
             if (mPm.checkPermission(PLUGIN_PERMISSION, packageName)
                     != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Plugin doesn't have permission: " + packageName);
+                Log.w(TAG, "Plugin doesn't have permission: " + packageName);
                 return null;
             }
 
@@ -308,7 +308,7 @@ public class PluginActionManager<T extends Plugin> {
             // TODO: Only create the plugin before version check if we need it for
             // legacy version check.
             if (DEBUG) {
-                Log.d(TAG, "createPlugin: " + component);
+                Log.w(TAG, "createPlugin: " + component);
             }
             try {
                 return mPluginInstanceFactory.create(
