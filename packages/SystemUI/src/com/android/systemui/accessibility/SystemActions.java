@@ -233,7 +233,9 @@ public class SystemActions implements CoreStartable, ConfigurationController.Con
                 PERMISSION_SELF,
                 null,
                 Context.RECEIVER_EXPORTED);
-        new Thread(this::registerActions, "SystemActions").start();
+        // registerActions() 不需要在 start() 时调用：
+        // 1. registerSystemAction IPC 已注释，无实际效果
+        // 2. registerOrUnregisterDismissNotificationShadeAction 已通过 mNotificationShadeCallback 回调触发
     }
 
     @Override
