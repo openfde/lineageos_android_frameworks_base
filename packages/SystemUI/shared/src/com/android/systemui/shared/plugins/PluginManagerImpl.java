@@ -104,8 +104,8 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                                                      Class<T> cls, boolean allowMultiple) {
         if(action == null && listener == null && cls == null){
             for (PluginActionManager<?> actionManager : mPluginMap.values()) {
-                actionManager.reloadPackage("com.android.settings");
-                actionManager.reloadPackage("com.boringdroid.systemui");
+//                actionManager.reloadPackage("com.android.settings");
+//                actionManager.reloadPackage("com.boringdroid.systemui");
             }
             return;
         }
