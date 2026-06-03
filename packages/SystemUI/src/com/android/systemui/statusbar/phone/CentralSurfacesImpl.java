@@ -254,6 +254,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import com.android.systemui.qs.tiles.ScreenRecordTile;
+import com.android.systemui.qs.tileimpl.QSTileImpl;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -397,7 +398,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     private final PhoneStatusBarPolicy mIconPolicy;
 
-    private final VolumeComponent mVolumeComponent;
+    private final Lazy<VolumeComponent> mVolumeComponent;
     private BrightnessMirrorController mBrightnessMirrorController;
     private boolean mBrightnessMirrorVisible;
     private BiometricUnlockController mBiometricUnlockController;
@@ -481,7 +482,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     private View mReportRejectedTouch;
 
-    private final NotificationGutsManager mGutsManager;
+    private final Lazy<NotificationGutsManager> mGutsManager;
     private final ShadeExpansionStateManager mShadeExpansionStateManager;
     private final KeyguardViewMediator mKeyguardViewMediator;
     private final BrightnessSliderController.Factory mBrightnessSliderFactory;
@@ -658,7 +659,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             FalsingManager falsingManager,
             FalsingCollector falsingCollector,
             BroadcastDispatcher broadcastDispatcher,
-            NotificationGutsManager notificationGutsManager,
+            Lazy<NotificationGutsManager> notificationGutsManager,
             ShadeExpansionStateManager shadeExpansionStateManager,
             KeyguardViewMediator keyguardViewMediator,
             DisplayMetrics displayMetrics,
@@ -700,7 +701,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             BackActionInteractor backActionInteractor,
             PowerManager powerManager,
             DozeScrimController dozeScrimController,
-            VolumeComponent volumeComponent,
+            Lazy<VolumeComponent> volumeComponent,
             CommandQueue commandQueue,
             Lazy<CentralSurfacesCommandQueueCallbacks> commandQueueCallbacksLazy,
             PluginManager pluginManager,
@@ -743,6 +744,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             ActivityStarter activityStarter,
             SceneContainerFlags sceneContainerFlags
     ) {
+        Log.w(TAG, "CentralSurfacesImpl construct START");
         mContext = context;
         mNotificationsController = notificationsController;
         mFragmentService = fragmentService;
@@ -876,6 +878,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         if (predictiveBackSysui()) {
             mContext.getApplicationInfo().setEnableOnBackInvokedCallback(true);
         }
+        Log.w(TAG, "CentralSurfacesImpl construct END");
     }
 
     private void initBubbles(Bubbles bubbles) {
@@ -896,7 +899,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             switch (msg.what) {
                 case MSG_PLUGIN_SETUP:
                 {
-                    if (ScreenRecordTile.handler == null) {
+                    if (QSTileImpl.handler == null) {
                         removeMessages(MSG_PLUGIN_SETUP);
                         Message newMsg = Message.obtain(msg);
                         newMsg.arg1 ++;
@@ -904,11 +907,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         if (newMsg.arg1 < 50) {
                             sendMessageDelayed(newMsg, MSG_DELAY_TIMES);
                         } else {
-                            Log.w(TAG, "abandon ScreenRecordTile setup");
+                            Log.w(TAG, "abandon QSTileImpl setup");
                         }
                     } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
-                        mStatusBarView.setTag(ScreenRecordTile.handler);
+                        mStatusBarView.setTag(QSTileImpl.handler);
                         mMainExecutor.execute(
                                     () -> plugin.setup(
                                             mStatusBarView,
@@ -923,6 +926,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     @Override
     public void start() {
+        long t0 = System.currentTimeMillis();
         mScreenLifecycle.addObserver(mScreenObserver);
         mWakefulnessLifecycle.addObserver(mWakefulnessObserver);
         mUiModeManager = mContext.getSystemService(UiModeManager.class);
@@ -932,7 +936,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mKeyguardIndicationController.init();
 
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
+        Log.w(TAG, "start phase1: " + (System.currentTimeMillis() - t0) + "ms");
 
+        long t1 = System.currentTimeMillis();
         mNeedsNavigationBar = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_showNavigationBar);
         // Allow a system property to override this. Used by the emulator.
@@ -1002,12 +1008,18 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         } catch (RemoteException ex) {
             ex.rethrowFromSystemServer();
         }
+        Log.w(TAG, "start phase2 registerStatusBar: " + (System.currentTimeMillis() - t1) + "ms");
 
+        long t3 = System.currentTimeMillis();
         createAndAddWindows(result);
+        Log.w(TAG, "start phase3 createAndAddWindows: " + (System.currentTimeMillis() - t3) + "ms");
 
+        long t4 = System.currentTimeMillis();
         // Set up the initial notification state. This needs to happen before CommandQueue.disable()
         setUpPresenter();
+        Log.w(TAG, "start phase4 setUpPresenter: " + (System.currentTimeMillis() - t4) + "ms");
 
+        long t5 = System.currentTimeMillis();
         if ((result.mTransientBarTypes & WindowInsets.Type.statusBars()) != 0) {
             mStatusBarModeRepository.getDefaultDisplay().showTransient();
         }
@@ -1024,6 +1036,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         for (int i = 0; i < numIcons; i++) {
             mCommandQueue.setIcon(result.mIcons.keyAt(i), result.mIcons.valueAt(i));
         }
+        Log.w(TAG, "start phase5 systemBar+icons: " + (System.currentTimeMillis() - t5) + "ms");
 
         if (DEBUG) {
             Log.d(TAG, String.format(
@@ -1052,8 +1065,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         // end old BaseStatusBar.start().
 
+        long t6 = System.currentTimeMillis();
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy.init();
+        Log.w(TAG, "start phase6 iconPolicy: " + (System.currentTimeMillis() - t6) + "ms");
 
         mKeyguardStateController.addCallback(new KeyguardStateController.Callback() {
             @Override
@@ -1084,8 +1099,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 }
             }
         });
+        long t7 = System.currentTimeMillis();
         startKeyguard();
+        Log.w(TAG, "start phase7 startKeyguard: " + (System.currentTimeMillis() - t7) + "ms");
 
+        long t8 = System.currentTimeMillis();
         mKeyguardUpdateMonitor.registerCallback(mUpdateCallback);
         mDozeServiceHost.initialize(
                 this,
@@ -1100,6 +1118,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mLifecycle.setCurrentState(RESUMED);
 
         mAccessibilityFloatingMenuController.init();
+        Log.w(TAG, "start phase8 keyguardMonitor+doze+battery: " + (System.currentTimeMillis() - t8) + "ms");
 
         // set the initial view visibility
         int disabledFlags1 = result.mDisabledFlags1;
@@ -1130,8 +1149,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
-
-                        if (ScreenRecordTile.handler == null) {
+                        if (QSTileImpl.handler == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
                             msg.what = MSG_PLUGIN_SETUP;
@@ -1139,7 +1157,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
-                            mStatusBarView.setTag(ScreenRecordTile.handler);
+                            mStatusBarView.setTag(QSTileImpl.handler);
                             mMainExecutor.execute(
                                     () -> plugin.setup(
                                             mStatusBarView,
@@ -1182,11 +1200,13 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         }
                     }
                 }, OverlayPlugin.class, true /* Allow multiple plugins */);
+        Log.w(TAG, "start phase9 addPluginListener: " + (System.currentTimeMillis() - t9) + "ms");
 
         mStartingSurfaceOptional.ifPresent(startingSurface -> startingSurface.setSysuiProxy(
                 (requestTopUi, componentTag) -> mMainExecutor.execute(() ->
                         mNotificationShadeWindowController.setRequestTopUi(
                                 requestTopUi, componentTag))));
+        Log.w(TAG, "start total: " + (System.currentTimeMillis() - t0) + "ms");
     }
 
     @VisibleForTesting
@@ -1559,7 +1579,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mRemoteInputManager.addControllerCallback(mNotificationShadeWindowController);
         mStackScrollerController.setNotificationActivityStarter(
                 mNotificationActivityStarterLazy.get());
-        mGutsManager.setNotificationActivityStarter(mNotificationActivityStarterLazy.get());
+        mGutsManager.get().setNotificationActivityStarter(mNotificationActivityStarterLazy.get());
         mShadeController.setNotificationPresenter(mPresenterLazy.get());
         mNotificationsController.initialize(
                 mPresenterLazy.get(),
@@ -1843,8 +1863,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     }
 
     private void dismissVolumeDialog() {
-        if (mVolumeComponent != null) {
-            mVolumeComponent.dismissNow();
+        if (mVolumeComponent.get() != null) {
+            mVolumeComponent.get().dismissNow();
         }
     }
 
