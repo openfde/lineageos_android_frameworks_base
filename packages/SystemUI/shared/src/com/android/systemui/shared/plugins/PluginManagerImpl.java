@@ -163,7 +163,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
             synchronized (this) {
                 for (PluginActionManager<?> manager : mPluginMap.values()) {
                     Log.w(TAG, "manager:" + manager);
-                    manager.loadAll();
+//                    manager.loadAll();
                 }
             }
             Log.w(TAG, "action: ACTION_USER_UNLOCKED end");
