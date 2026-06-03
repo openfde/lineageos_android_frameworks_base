@@ -102,6 +102,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
 
     public <T extends Plugin> void addPluginListener(String action, PluginListener<T> listener,
                                                      Class<T> cls, boolean allowMultiple) {
+        Log.w(TAG, "addPluginListener() called with: action = [" + action + "], listener = [" + listener + "], cls = [" + cls + "], allowMultiple = [" + allowMultiple + "]", new Throwable());
         if(action == null && listener == null && cls == null){
             for (PluginActionManager<?> actionManager : mPluginMap.values()) {
 //                actionManager.reloadPackage("com.android.settings");
