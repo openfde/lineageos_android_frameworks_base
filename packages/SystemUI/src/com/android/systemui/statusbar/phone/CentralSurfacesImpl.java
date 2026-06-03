@@ -1150,6 +1150,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
+                        Log.w(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], QSTileImpl.handler = [" + QSTileImpl.handler + "]", new Throwable());
                         if (QSTileImpl.handler == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
