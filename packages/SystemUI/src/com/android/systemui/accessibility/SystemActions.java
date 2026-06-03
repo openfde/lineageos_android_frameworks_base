@@ -232,7 +232,7 @@ public class SystemActions implements CoreStartable, ConfigurationController.Con
                 PERMISSION_SELF,
                 null,
                 Context.RECEIVER_EXPORTED);
-        registerActions();
+//        registerActions();
     }
 
     @Override
