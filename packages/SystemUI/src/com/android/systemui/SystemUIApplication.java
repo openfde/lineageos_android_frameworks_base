@@ -314,6 +314,7 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("StorageNotification")
                             || clsName.contains("UserSwitcherDialogCoordinator")
                             || clsName.contains("Keyguard")
+                            || clsName.contains("keyguard")
                             || clsName.contains("communal")
                             || clsName.contains("dreams")
                             || clsName.contains("recents")
