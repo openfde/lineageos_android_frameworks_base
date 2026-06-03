@@ -157,12 +157,16 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.w(TAG, "action: " + intent.getAction());
         if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction())) {
+            Log.w(TAG, "action: ACTION_USER_UNLOCKED start");
             synchronized (this) {
                 for (PluginActionManager<?> manager : mPluginMap.values()) {
+                    Log.w(TAG, "manager:" + manager);
                     manager.loadAll();
                 }
             }
+            Log.w(TAG, "action: ACTION_USER_UNLOCKED end");
         } else if (DISABLE_PLUGIN.equals(intent.getAction())) {
             Uri uri = intent.getData();
             ComponentName component = ComponentName.unflattenFromString(
@@ -182,7 +186,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                 if (Build.IS_ENG) {
                     Toast.makeText(mContext, "Reloading " + pkg, Toast.LENGTH_LONG).show();
                 } else {
-                    Log.v(TAG, "Reloading " + pkg);
+                    Log.w(TAG, "Reloading " + pkg);
                 }
             }
             if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
@@ -192,7 +196,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                 if (disableReason == PluginEnabler.DISABLED_FROM_EXPLICIT_CRASH
                         || disableReason == PluginEnabler.DISABLED_FROM_SYSTEM_CRASH
                         || disableReason == PluginEnabler.DISABLED_INVALID_VERSION) {
-                    Log.i(TAG, "Re-enabling previously disabled plugin that has been "
+                    Log.w(TAG, "Re-enabling previously disabled plugin that has been "
                             + "updated: " + componentName.flattenToShortString());
                     mPluginEnabler.setEnabled(componentName);
                 }
