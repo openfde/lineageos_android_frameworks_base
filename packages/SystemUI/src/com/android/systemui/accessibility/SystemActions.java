@@ -232,7 +232,16 @@ public class SystemActions implements CoreStartable, ConfigurationController.Con
                 PERMISSION_SELF,
                 null,
                 Context.RECEIVER_EXPORTED);
-        registerActions();
+        getExecutor().execute(this::registerActions);
+    }
+
+    private Executor getExecutor() {
+        return new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
+        };
     }
 
     @Override
@@ -305,25 +314,25 @@ public class SystemActions implements CoreStartable, ConfigurationController.Con
                 R.string.accessibility_system_action_dpad_center_label,
                 SystemActionsBroadcastReceiver.INTENT_ACTION_DPAD_CENTER);
 
-        mA11yManager.registerSystemAction(actionBack, SYSTEM_ACTION_ID_BACK);
-        mA11yManager.registerSystemAction(actionHome, SYSTEM_ACTION_ID_HOME);
-        mA11yManager.registerSystemAction(actionRecents, SYSTEM_ACTION_ID_RECENTS);
-        if (mShadeController.isShadeEnabled()) {
-            // These two actions require the shade to be enabled.
-            mA11yManager.registerSystemAction(actionNotifications, SYSTEM_ACTION_ID_NOTIFICATIONS);
-            mA11yManager.registerSystemAction(actionQuickSettings, SYSTEM_ACTION_ID_QUICK_SETTINGS);
-        }
-        mA11yManager.registerSystemAction(actionPowerDialog, SYSTEM_ACTION_ID_POWER_DIALOG);
-        mA11yManager.registerSystemAction(actionLockScreen, SYSTEM_ACTION_ID_LOCK_SCREEN);
-        mA11yManager.registerSystemAction(actionTakeScreenshot, SYSTEM_ACTION_ID_TAKE_SCREENSHOT);
-        mA11yManager.registerSystemAction(actionHeadsetHook, SYSTEM_ACTION_ID_KEYCODE_HEADSETHOOK);
-        mA11yManager.registerSystemAction(
-                actionAccessibilityShortcut, SYSTEM_ACTION_ID_ACCESSIBILITY_SHORTCUT);
-        mA11yManager.registerSystemAction(actionDpadUp, SYSTEM_ACTION_ID_DPAD_UP);
-        mA11yManager.registerSystemAction(actionDpadDown, SYSTEM_ACTION_ID_DPAD_DOWN);
-        mA11yManager.registerSystemAction(actionDpadLeft, SYSTEM_ACTION_ID_DPAD_LEFT);
-        mA11yManager.registerSystemAction(actionDpadRight, SYSTEM_ACTION_ID_DPAD_RIGHT);
-        mA11yManager.registerSystemAction(actionDpadCenter, SYSTEM_ACTION_ID_DPAD_CENTER);
+//        mA11yManager.registerSystemAction(actionBack, SYSTEM_ACTION_ID_BACK);
+//        mA11yManager.registerSystemAction(actionHome, SYSTEM_ACTION_ID_HOME);
+//        mA11yManager.registerSystemAction(actionRecents, SYSTEM_ACTION_ID_RECENTS);
+//        if (mShadeController.isShadeEnabled()) {
+//            // These two actions require the shade to be enabled.
+//            mA11yManager.registerSystemAction(actionNotifications, SYSTEM_ACTION_ID_NOTIFICATIONS);
+//            mA11yManager.registerSystemAction(actionQuickSettings, SYSTEM_ACTION_ID_QUICK_SETTINGS);
+//        }
+//        mA11yManager.registerSystemAction(actionPowerDialog, SYSTEM_ACTION_ID_POWER_DIALOG);
+//        mA11yManager.registerSystemAction(actionLockScreen, SYSTEM_ACTION_ID_LOCK_SCREEN);
+//        mA11yManager.registerSystemAction(actionTakeScreenshot, SYSTEM_ACTION_ID_TAKE_SCREENSHOT);
+//        mA11yManager.registerSystemAction(actionHeadsetHook, SYSTEM_ACTION_ID_KEYCODE_HEADSETHOOK);
+//        mA11yManager.registerSystemAction(
+//                actionAccessibilityShortcut, SYSTEM_ACTION_ID_ACCESSIBILITY_SHORTCUT);
+//        mA11yManager.registerSystemAction(actionDpadUp, SYSTEM_ACTION_ID_DPAD_UP);
+//        mA11yManager.registerSystemAction(actionDpadDown, SYSTEM_ACTION_ID_DPAD_DOWN);
+//        mA11yManager.registerSystemAction(actionDpadLeft, SYSTEM_ACTION_ID_DPAD_LEFT);
+//        mA11yManager.registerSystemAction(actionDpadRight, SYSTEM_ACTION_ID_DPAD_RIGHT);
+//        mA11yManager.registerSystemAction(actionDpadCenter, SYSTEM_ACTION_ID_DPAD_CENTER);
         registerOrUnregisterDismissNotificationShadeAction();
     }
 
