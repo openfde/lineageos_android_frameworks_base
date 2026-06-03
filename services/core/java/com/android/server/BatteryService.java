@@ -120,6 +120,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * </p>
  */
 public final class BatteryService extends SystemService {
+	// 你的硬编码参数 (注意：电流电压单位通常为微安/微伏)
+    private static final int FAKE_MAX_CHARGING_CURRENT = 3000000; // 3A
+    private static final int FAKE_MAX_CHARGING_VOLTAGE = 5000000; // 5V
+    private static final int FAKE_CHARGE_COUNTER = 58021;
+    private static final int FAKE_VOLTAGE = 4154;
+    private static final int FAKE_TEMPERATURE = 260; // 26.0°C
+    private static final int FAKE_CAPACITY_LEVEL = 2; // BatteryManager.BATTERY_PROPERTY_CAPACITY_LEVEL_HIGH
+    private int mFakeLevel = 100; // 初始电量
+    private boolean mIsFakeCharging = false; // 是否处于模拟充电状态
+    private long mLastUpdateTime = 0;
+    private static final long UPDATE_INTERVAL = 10*60000; // 每10分钟更新一次 (10*60000ms)
+						       //
     private static final String TAG = BatteryService.class.getSimpleName();
 
     private static final boolean DEBUG = false;
@@ -246,6 +258,28 @@ public final class BatteryService extends SystemService {
     private int mLastModStatus;
     private int mLastModType;
 
+    private void updateFakeBatteryLevelLocked() {
+        long currentTime = SystemClock.elapsedRealtime();
+        if (currentTime - mLastUpdateTime < UPDATE_INTERVAL) return;
+            mLastUpdateTime = currentTime;
+
+        if (!mIsFakeCharging) {
+            // 模式：消耗电量
+            mFakeLevel--;
+            if (mFakeLevel <= 25) {
+            	mFakeLevel = 25;
+            	mIsFakeCharging = true; // 触发充电状态
+            }
+        } else {
+            // 模式：充电
+            mFakeLevel++;
+            if (mFakeLevel >= 90) {
+            	mFakeLevel = 90;
+            	mIsFakeCharging = false; // 停止充电状态，开始下一轮循环
+            }
+        } 
+    }
+
     public BatteryService(Context context) {
         super(context);
 
@@ -270,6 +304,16 @@ public final class BatteryService extends SystemService {
 
         mBatteryLevelsEventQueue = new ArrayDeque<>();
         mMetricsLogger = new MetricsLogger();
+	// 在 BatteryService 某处
+	mHandler.postDelayed(new Runnable() {
+    		@Override
+    		public void run() {
+        		synchronized (mLock) {
+            			processValuesLocked(true); // 强制触发逻辑
+			}
+        	mHandler.postDelayed(this, UPDATE_INTERVAL);
+    		}
+	}, UPDATE_INTERVAL);
 
         // watch for invalid charger messages if the invalid_charger switch exists
         if (new File("/sys/devices/virtual/switch/invalid_charger/state").exists()) {
@@ -773,6 +817,40 @@ public final class BatteryService extends SystemService {
                                 mBatteryOptions);
                     }
                 });
+            }
+
+            int fdeBatteryProp = SystemProperties.getInt("fde.battery", 1);
+            // 如果读取出的值为 0，则打印 "fake"
+            if (fdeBatteryProp == 0) {
+                updateFakeBatteryLevelLocked();
+                // mHealthInfo which saved the turely infomation 
+                if (mHealthInfo != null) {
+                    mHealthInfo.batteryLevel = mFakeLevel; // 
+                    mHealthInfo.batteryPresent = true;    // present: true
+                    mHealthInfo.batteryStatus = android.os.BatteryManager.BATTERY_STATUS_CHARGING; // Charging state: 2 (对应你给的1,通常指正在充电)
+                    mHealthInfo.batteryHealth = android.os.BatteryManager.BATTERY_HEALTH_GOOD;
+                    mHealthInfo.batteryVoltageMillivolts = FAKE_VOLTAGE; // 4154
+                    mHealthInfo.batteryTemperatureTenthsCelsius = FAKE_TEMPERATURE; // 260
+                    mHealthInfo.batteryTechnology = "Li-ion";
+
+                    mHealthInfo.maxChargingCurrentMicroamps = FAKE_MAX_CHARGING_CURRENT;
+                    mHealthInfo.maxChargingVoltageMicrovolts = FAKE_MAX_CHARGING_VOLTAGE;
+                    mHealthInfo.batteryChargeCounterUah = FAKE_CHARGE_COUNTER;
+
+                    mHealthInfo.batteryCapacityLevel = FAKE_CAPACITY_LEVEL;
+                    mHealthInfo.batteryFullChargeDesignCapacityUah = 7108000; // Design capacity
+                    mHealthInfo.batteryFullChargeUah = 6958000;
+                    mHealthInfo.chargingState = 1;
+                    mHealthInfo.chargingPolicy = 1;
+
+                    if (mIsFakeCharging) {
+                        mHealthInfo.batteryStatus = BatteryManager.BATTERY_STATUS_CHARGING;
+                        mHealthInfo.chargerAcOnline = true; // 模拟 AC 充电连接
+                    } else {
+                        mHealthInfo.batteryStatus = BatteryManager.BATTERY_STATUS_DISCHARGING;
+                        mHealthInfo.chargerAcOnline = false;
+                    }
+                }
             }
 
             // We are doing this after sending the above broadcasts, so anything processing
@@ -1366,6 +1444,9 @@ public final class BatteryService extends SystemService {
                 pw.println("  technology: " + mHealthInfo.batteryTechnology);
                 pw.println("  Charging state: " + mHealthInfo.chargingState);
                 pw.println("  Charging policy: " + mHealthInfo.chargingPolicy);
+                pw.println("  Capacity level: " + mHealthInfo.batteryCapacityLevel);
+                pw.println("  Maximum capacity: " + mHealthInfo.batteryFullChargeUah);
+                pw.println("  Design capacity: " + mHealthInfo.batteryFullChargeDesignCapacityUah);
             } else {
                 Shell shell = new Shell();
                 shell.exec(mBinderService, null, fd, null, args, null, new ResultReceiver(null));
