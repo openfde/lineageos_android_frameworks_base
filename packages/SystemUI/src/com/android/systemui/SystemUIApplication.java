@@ -326,13 +326,21 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("ShadeController")
 //                            || clsName.contains("KeyguardUpdateMonitor")
                     ) {
-                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
+                        Log.w("BootOptimize", "Skipping " + clsName + " creation to save time!");
                     } else {
+                        long start = SystemClock.uptimeMillis();
+
                         timeInitialization(
                                 clsName,
                                 () -> mServices[i] = startStartable(clsName, entry.getValue()),
                                 log,
                                 metricsPrefix);
+
+                        long cost = SystemClock.uptimeMillis() - start;
+
+                        Log.i("BootOptimize",
+                                "Startable " + clsName + " cost " + cost + " ms");
+
                         startedStartables.add(cls);
                         startedAny = true;
                     }
