@@ -105,8 +105,8 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
         Log.w(TAG, "addPluginListener() called with: action = [" + action + "], listener = [" + listener + "], cls = [" + cls + "], allowMultiple = [" + allowMultiple + "]", new Throwable());
         if(action == null && listener == null && cls == null){
             for (PluginActionManager<?> actionManager : mPluginMap.values()) {
-//                actionManager.reloadPackage("com.android.settings");
-//                actionManager.reloadPackage("com.boringdroid.systemui");
+                actionManager.reloadPackage("com.android.settings");
+                actionManager.reloadPackage("com.boringdroid.systemui");
             }
             return;
         }
@@ -158,10 +158,11 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.w(TAG, "onReceive action: " + intent.getAction());
         if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction())) {
             synchronized (this) {
                 for (PluginActionManager<?> manager : mPluginMap.values()) {
-//                    manager.loadAll();
+                    manager.loadAll();
                 }
             }
         } else if (DISABLE_PLUGIN.equals(intent.getAction())) {
@@ -204,6 +205,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                         || Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
                     for (PluginActionManager<?> actionManager : mPluginMap.values()) {
                         actionManager.reloadPackage(pkg);
+                        Log.w(TAG, "reloadPackage pkg: " + pkg );
                     }
                 } else {
                     for (PluginActionManager<?> manager : mPluginMap.values()) {
