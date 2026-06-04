@@ -397,7 +397,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     private final PhoneStatusBarPolicy mIconPolicy;
 
-    private final VolumeComponent mVolumeComponent;
+    private final Lazy<VolumeComponent> mVolumeComponent;
     private BrightnessMirrorController mBrightnessMirrorController;
     private boolean mBrightnessMirrorVisible;
     private BiometricUnlockController mBiometricUnlockController;
@@ -481,7 +481,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     private View mReportRejectedTouch;
 
-    private final NotificationGutsManager mGutsManager;
+    private final Lazy<NotificationGutsManager> mGutsManager;
     private final ShadeExpansionStateManager mShadeExpansionStateManager;
     private final KeyguardViewMediator mKeyguardViewMediator;
     private final BrightnessSliderController.Factory mBrightnessSliderFactory;
@@ -658,7 +658,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             FalsingManager falsingManager,
             FalsingCollector falsingCollector,
             BroadcastDispatcher broadcastDispatcher,
-            NotificationGutsManager notificationGutsManager,
+            Lazy<NotificationGutsManager> notificationGutsManager,
             ShadeExpansionStateManager shadeExpansionStateManager,
             KeyguardViewMediator keyguardViewMediator,
             DisplayMetrics displayMetrics,
@@ -700,7 +700,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             BackActionInteractor backActionInteractor,
             PowerManager powerManager,
             DozeScrimController dozeScrimController,
-            VolumeComponent volumeComponent,
+            Lazy<VolumeComponent> volumeComponent,
             CommandQueue commandQueue,
             Lazy<CentralSurfacesCommandQueueCallbacks> commandQueueCallbacksLazy,
             PluginManager pluginManager,
@@ -1580,7 +1580,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mRemoteInputManager.addControllerCallback(mNotificationShadeWindowController);
         mStackScrollerController.setNotificationActivityStarter(
                 mNotificationActivityStarterLazy.get());
-        mGutsManager.setNotificationActivityStarter(mNotificationActivityStarterLazy.get());
+        mGutsManager.get().setNotificationActivityStarter(mNotificationActivityStarterLazy.get());
         mShadeController.setNotificationPresenter(mPresenterLazy.get());
         mNotificationsController.initialize(
                 mPresenterLazy.get(),
@@ -1864,8 +1864,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     }
 
     private void dismissVolumeDialog() {
-        if (mVolumeComponent != null) {
-            mVolumeComponent.dismissNow();
+        if (mVolumeComponent.get() != null) {
+            mVolumeComponent.get().dismissNow();
         }
     }
 
