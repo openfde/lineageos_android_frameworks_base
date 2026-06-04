@@ -67,7 +67,7 @@ public class SystemUIApplication extends Application implements
         SystemUIAppComponentFactoryBase.ContextInitializer {
 
     public static final String TAG = "SystemUIService";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     private BootCompleteCacheImpl mBootCompleteCache;
 
@@ -434,7 +434,7 @@ public class SystemUIApplication extends Application implements
 
     private static CoreStartable startAdditionalStartable(String clsName) {
         CoreStartable startable;
-        if (DEBUG) Log.d(TAG, "loading: " + clsName);
+        if (DEBUG) Log.w(TAG, "loading: " + clsName);
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP, clsName + ".newInstance()");
@@ -457,7 +457,7 @@ public class SystemUIApplication extends Application implements
     }
 
     private static CoreStartable startStartable(String clsName, Provider<CoreStartable> provider) {
-        if (DEBUG) Log.d(TAG, "loading: " + clsName);
+        if (DEBUG) Log.w(TAG, "loading: " + clsName);
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP, "Provider<" + clsName + ">.get()");
@@ -468,7 +468,7 @@ public class SystemUIApplication extends Application implements
     }
 
     private static CoreStartable startStartable(CoreStartable startable) {
-        if (DEBUG) Log.d(TAG, "running: " + startable);
+        if (DEBUG) Log.w(TAG, "running: " + startable);
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP, startable.getClass().getSimpleName() + ".start()");
