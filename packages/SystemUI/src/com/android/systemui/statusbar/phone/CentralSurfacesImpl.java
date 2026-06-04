@@ -923,6 +923,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     @Override
     public void start() {
+        long t0 = System.currentTimeMillis();
         mScreenLifecycle.addObserver(mScreenObserver);
         mWakefulnessLifecycle.addObserver(mWakefulnessObserver);
         mUiModeManager = mContext.getSystemService(UiModeManager.class);
@@ -932,7 +933,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mKeyguardIndicationController.init();
 
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
+        Log.w(TAG, "start phase1: " + (System.currentTimeMillis() - t0) + "ms");
 
+        long t1 = System.currentTimeMillis();
         mNeedsNavigationBar = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_showNavigationBar);
         // Allow a system property to override this. Used by the emulator.
@@ -1002,12 +1005,18 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         } catch (RemoteException ex) {
             ex.rethrowFromSystemServer();
         }
+        Log.w(TAG, "start phase2 registerStatusBar: " + (System.currentTimeMillis() - t1) + "ms");
 
+        long t3 = System.currentTimeMillis();
         createAndAddWindows(result);
+        Log.w(TAG, "start phase3 createAndAddWindows: " + (System.currentTimeMillis() - t3) + "ms");
 
+        long t4 = System.currentTimeMillis();
         // Set up the initial notification state. This needs to happen before CommandQueue.disable()
         setUpPresenter();
+        Log.w(TAG, "start phase4 setUpPresenter: " + (System.currentTimeMillis() - t4) + "ms");
 
+        long t5 = System.currentTimeMillis();
         if ((result.mTransientBarTypes & WindowInsets.Type.statusBars()) != 0) {
             mStatusBarModeRepository.getDefaultDisplay().showTransient();
         }
@@ -1024,6 +1033,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         for (int i = 0; i < numIcons; i++) {
             mCommandQueue.setIcon(result.mIcons.keyAt(i), result.mIcons.valueAt(i));
         }
+        Log.w(TAG, "start phase5 systemBar+icons: " + (System.currentTimeMillis() - t5) + "ms");
 
         if (DEBUG) {
             Log.d(TAG, String.format(
@@ -1052,8 +1062,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         // end old BaseStatusBar.start().
 
+        long t6 = System.currentTimeMillis();
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy.init();
+        Log.w(TAG, "start phase6 iconPolicy: " + (System.currentTimeMillis() - t6) + "ms");
 
         mKeyguardStateController.addCallback(new KeyguardStateController.Callback() {
             @Override
@@ -1084,8 +1096,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 }
             }
         });
+        long t7 = System.currentTimeMillis();
         startKeyguard();
+        Log.w(TAG, "start phase7 startKeyguard: " + (System.currentTimeMillis() - t7) + "ms");
 
+        long t8 = System.currentTimeMillis();
         mKeyguardUpdateMonitor.registerCallback(mUpdateCallback);
         mDozeServiceHost.initialize(
                 this,
@@ -1100,6 +1115,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mLifecycle.setCurrentState(RESUMED);
 
         mAccessibilityFloatingMenuController.init();
+        Log.w(TAG, "start phase8 keyguardMonitor+doze+battery: " + (System.currentTimeMillis() - t8) + "ms");
 
         // set the initial view visibility
         int disabledFlags1 = result.mDisabledFlags1;
@@ -1124,6 +1140,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         mFalsingManager.addFalsingBeliefListener(mFalsingBeliefListener);
 
+        long t9 = System.currentTimeMillis();
         mPluginManager.addPluginListener(
                 new PluginListener<OverlayPlugin>() {
                     private final ArraySet<OverlayPlugin> mOverlays = new ArraySet<>();
@@ -1182,11 +1199,13 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         }
                     }
                 }, OverlayPlugin.class, true /* Allow multiple plugins */);
+        Log.w(TAG, "start phase9 addPluginListener: " + (System.currentTimeMillis() - t9) + "ms");
 
         mStartingSurfaceOptional.ifPresent(startingSurface -> startingSurface.setSysuiProxy(
                 (requestTopUi, componentTag) -> mMainExecutor.execute(() ->
                         mNotificationShadeWindowController.setRequestTopUi(
                                 requestTopUi, componentTag))));
+        Log.w(TAG, "start total: " + (System.currentTimeMillis() - t0) + "ms");
     }
 
     @VisibleForTesting
