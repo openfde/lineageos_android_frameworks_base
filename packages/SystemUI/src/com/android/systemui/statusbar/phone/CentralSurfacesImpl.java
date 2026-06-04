@@ -743,6 +743,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             ActivityStarter activityStarter,
             SceneContainerFlags sceneContainerFlags
     ) {
+        Log.w(TAG, "CentralSurfacesImpl construct START");
         mContext = context;
         mNotificationsController = notificationsController;
         mFragmentService = fragmentService;
@@ -876,6 +877,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         if (predictiveBackSysui()) {
             mContext.getApplicationInfo().setEnableOnBackInvokedCallback(true);
         }
+        Log.w(TAG, "CentralSurfacesImpl construct END");
     }
 
     private void initBubbles(Bubbles bubbles) {
