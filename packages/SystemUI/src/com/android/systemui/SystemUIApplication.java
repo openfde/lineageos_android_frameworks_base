@@ -323,6 +323,7 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("notification")
                             || clsName.contains("VolumeUI")
                             || clsName.contains("domain")
+                            || clsName.contains("ShadeController")
 //                            || clsName.contains("KeyguardUpdateMonitor")
                     ) {
                         Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
