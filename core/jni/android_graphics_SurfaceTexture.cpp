@@ -27,6 +27,7 @@
 #include <gui/Surface.h>
 #include <nativehelper/JNIHelp.h>
 #include <nativehelper/ScopedLocalRef.h>
+#include <nativehelper/ScopedUtfChars.h>
 #include <stdio.h>
 #include <surfacetexture/SurfaceTexture.h>
 #include <surfacetexture/surface_texture_platform.h>
@@ -311,6 +312,13 @@ static void SurfaceTexture_init(JNIEnv* env, jobject thiz, jboolean isDetached,
     }
 }
 
+static void SurfaceTexture_setPackageName(JNIEnv *env, jobject thiz, jstring opPackageName)
+{
+    sp<SurfaceTexture> surfaceTexture(SurfaceTexture_getSurfaceTexture(env, thiz));
+    ScopedUtfChars opPackageNameUtf(env, opPackageName);
+    surfaceTexture->setPackageName(String8(opPackageNameUtf.c_str()));
+}
+
 static void SurfaceTexture_finalize(JNIEnv* env, jobject thiz)
 {
     sp<SurfaceTexture> surfaceTexture(SurfaceTexture_getSurfaceTexture(env, thiz));
@@ -402,6 +410,7 @@ static jboolean SurfaceTexture_isReleased(JNIEnv* env, jobject thiz)
 
 static const JNINativeMethod gSurfaceTextureMethods[] = {
         {"nativeInit", "(ZIZLjava/lang/ref/WeakReference;)V", (void*)SurfaceTexture_init},
+        {"nativeSetPackageName", "(Ljava/lang/String;)V", (void *)SurfaceTexture_setPackageName},
         {"nativeFinalize", "()V", (void*)SurfaceTexture_finalize},
         {"nativeSetDefaultBufferSize", "(II)V", (void*)SurfaceTexture_setDefaultBufferSize},
         {"nativeUpdateTexImage", "()V", (void*)SurfaceTexture_updateTexImage},

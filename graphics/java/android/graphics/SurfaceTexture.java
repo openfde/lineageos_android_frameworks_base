@@ -19,6 +19,7 @@ package android.graphics;
 import android.annotation.FloatRange;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
+import android.app.ActivityThread;
 import android.compat.annotation.UnsupportedAppUsage;
 import android.hardware.DataSpace.NamedDataSpace;
 import android.os.Build;
@@ -166,6 +167,8 @@ public class SurfaceTexture {
         mCreatorLooper = Looper.myLooper();
         mIsSingleBuffered = singleBufferMode;
         nativeInit(false, texName, singleBufferMode, new WeakReference<SurfaceTexture>(this));
+        String packageName = ActivityThread.currentPackageName();
+        nativeSetPackageName(packageName);
     }
 
     /**
@@ -193,6 +196,8 @@ public class SurfaceTexture {
         mCreatorLooper = Looper.myLooper();
         mIsSingleBuffered = singleBufferMode;
         nativeInit(true, 0, singleBufferMode, new WeakReference<SurfaceTexture>(this));
+        String packageName = ActivityThread.currentPackageName();
+        nativeSetPackageName(packageName);
     }
 
     /**
@@ -518,6 +523,7 @@ public class SurfaceTexture {
     private native void nativeInit(boolean isDetached, int texName,
             boolean singleBufferMode, WeakReference<SurfaceTexture> weakSelf)
             throws Surface.OutOfResourcesException;
+    private native void nativeSetPackageName(String packageName);
     private native void nativeFinalize();
     private native void nativeGetTransformMatrix(float[] mtx);
     private native long nativeGetTimestamp();
