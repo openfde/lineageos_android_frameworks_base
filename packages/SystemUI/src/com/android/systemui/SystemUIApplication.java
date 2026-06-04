@@ -339,7 +339,7 @@ public class SystemUIApplication extends Application implements
 
                         long cost = SystemClock.uptimeMillis() - start;
 
-                        Log.i("BootOptimize",
+                        Log.w("BootOptimize",
                                 "Startable " + clsName + " cost " + cost + " ms");
 
                         startedStartables.add(cls);
