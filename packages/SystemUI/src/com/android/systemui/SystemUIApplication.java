@@ -322,6 +322,7 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("taptotransfer")
                             || clsName.contains("notification")
                             || clsName.contains("VolumeUI")
+                            || clsName.contains("domain")
 //                            || clsName.contains("KeyguardUpdateMonitor")
                     ) {
                         Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
