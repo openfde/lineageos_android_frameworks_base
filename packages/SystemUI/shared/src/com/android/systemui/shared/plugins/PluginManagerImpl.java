@@ -102,7 +102,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
 
     public <T extends Plugin> void addPluginListener(String action, PluginListener<T> listener,
                                                      Class<T> cls, boolean allowMultiple) {
-        Log.w(TAG, "addPluginListener() called with: action = [" + action + "], listener = [" + listener + "], cls = [" + cls + "], allowMultiple = [" + allowMultiple + "]", new Throwable());
+        if (mIsDebuggable) Log.d(TAG, "addPluginListener() called with: action = [" + action + "], listener = [" + listener + "], cls = [" + cls + "], allowMultiple = [" + allowMultiple + "]");
         if(action == null && listener == null && cls == null){
             for (PluginActionManager<?> actionManager : mPluginMap.values()) {
 //                actionManager.reloadPackage("com.android.settings");
@@ -199,10 +199,11 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                 }
             }
             synchronized (this) {
-                if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
-                        || Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction())
-                        || Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
-                    for (PluginActionManager<?> actionManager : mPluginMap.values()) {
+            if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
+                    || Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction())
+                    || Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
+                PluginActionManager.invalidatePackage(pkg);
+                for (PluginActionManager<?> actionManager : mPluginMap.values()) {
                         actionManager.reloadPackage(pkg);
                     }
                 } else {

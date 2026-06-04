@@ -42,7 +42,9 @@ import com.android.systemui.plugins.PluginManager;
 import com.android.systemui.shared.plugins.VersionInfo.InvalidVersionException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -59,6 +61,16 @@ public class PluginActionManager<T extends Plugin> {
 
     private static final String TAG = "PluginActionManager";
     public static final String PLUGIN_PERMISSION = "com.android.systemui.permission.PLUGIN";
+
+    /** Cache of PKMS query results per action string to avoid repeated IPC calls. */
+    private static final Map<String, List<ResolveInfo>> sQueryCache = new HashMap<>();
+
+    /** Clear the cache entry for a specific package (called on package add/remove). */
+    public static void invalidatePackage(String pkg) {
+        synchronized (sQueryCache) {
+            sQueryCache.clear();
+        }
+    }
 
     private final Context mContext;
     private final PluginListener<T> mListener;
@@ -245,11 +257,20 @@ public class PluginActionManager<T extends Plugin> {
     private void handleQueryPlugins(String pkgName) {
         // This isn't actually a service and shouldn't ever be started, but is
         // a convenient PM based way to manage our plugins.
-        Intent intent = new Intent(mAction);
-//        if (pkgName != null) {
-//            intent.setPackage(pkgName);
-//        }
-        List<ResolveInfo> result = mPm.queryIntentServices(intent, 0);
+        List<ResolveInfo> result;
+        if (pkgName == null) {
+            synchronized (sQueryCache) {
+                result = sQueryCache.get(mAction);
+                if (result == null) {
+                    result = mPm.queryIntentServices(new Intent(mAction), 0);
+                    sQueryCache.put(mAction, result);
+                }
+            }
+        } else {
+            Intent intent = new Intent(mAction);
+            intent.setPackage(pkgName);
+            result = mPm.queryIntentServices(intent, 0);
+        }
         if (DEBUG) {
             Log.w(TAG, "Found " + result.size() + " plugins");
             for (ResolveInfo info : result) {
