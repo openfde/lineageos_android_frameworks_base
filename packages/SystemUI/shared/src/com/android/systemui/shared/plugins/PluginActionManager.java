@@ -220,11 +220,6 @@ public class PluginActionManager<T extends Plugin> {
 
     private void queryAll() {
         if (DEBUG) Log.w(TAG, "queryAll " + mAction);
-        for (int i = mPluginInstances.size() - 1; i >= 0; i--) {
-            PluginInstance<T> pluginInstance = mPluginInstances.get(i);
-            mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
-        }
-        mPluginInstances.clear();
         handleQueryPlugins(null);
     }
 
@@ -272,6 +267,10 @@ public class PluginActionManager<T extends Plugin> {
         for (ResolveInfo info : result) {
             ComponentName name = new ComponentName(info.serviceInfo.packageName,
                     info.serviceInfo.name);
+            if (hasActiveInstance(name)) {
+                if (DEBUG) Log.w(TAG, "  " + name + " already active, skipping");
+                continue;
+            }
             PluginInstance<T> pluginInstance = loadPluginComponent(name);
             if (pluginInstance != null) {
                 // add plugin before sending PLUGIN_CONNECTED message
@@ -279,6 +278,16 @@ public class PluginActionManager<T extends Plugin> {
                 mMainExecutor.execute(() -> onPluginConnected(pluginInstance));
             }
         }
+    }
+
+    private boolean hasActiveInstance(ComponentName component) {
+        for (PluginInstance<T> instance : mPluginInstances) {
+            if (component.equals(instance.getComponentName())
+                    && instance.getPlugin() != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private PluginInstance<T> loadPluginComponent(ComponentName component) {
