@@ -210,7 +210,7 @@ public class SystemUIApplication extends Application implements
             Log.wtf(TAG, "Tried starting SystemUser services on non-SystemUser");
             return;  // Per-user startables are handled in #startSystemUserServicesIfNeeded.
         }
-        final String vendorComponent = null;//mInitializer.getVendorComponent(getResources());
+        final String vendorComponent = mInitializer.getVendorComponent(getResources());
 
         // Sort the startables so that we get a deterministic ordering.
         // TODO: make #start idempotent and require users of CoreStartable to call it.

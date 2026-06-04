@@ -458,12 +458,12 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final WindowRootViewVisibilityInteractor mWindowRootViewVisibilityInteractor;
     private final InitController mInitController;
     private final Lazy<CameraLauncher> mCameraLauncherLazy;
-    private final Lazy<AlternateBouncerInteractor> mAlternateBouncerInteractorLazy;
+    private final AlternateBouncerInteractor mAlternateBouncerInteractor;
 
     private final PluginDependencyProvider mPluginDependencyProvider;
     private final ExtensionController mExtensionController;
     private final UserInfoControllerImpl mUserInfoControllerImpl;
-    private final Lazy<DemoModeController> mDemoModeControllerLazy;
+    private final DemoModeController mDemoModeController;
     private final NotificationsController mNotificationsController;
     private final StatusBarSignalPolicy mStatusBarSignalPolicy;
     private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
@@ -612,8 +612,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private boolean mNoAnimationOnNextBarModeChange;
     private final SysuiStatusBarStateController mStatusBarStateController;
 
-    private final Lazy<ActivityTransitionAnimator> mActivityTransitionAnimatorLazy;
-    private final Lazy<NotificationLaunchAnimatorControllerProvider> mNotificationAnimationProviderLazy;
+    private final ActivityTransitionAnimator mActivityTransitionAnimator;
+    private final NotificationLaunchAnimatorControllerProvider mNotificationAnimationProvider;
     private final Lazy<NotificationPresenter> mPresenterLazy;
     private final Lazy<NotificationActivityStarter> mNotificationActivityStarterLazy;
     private final Lazy<NotificationShadeDepthController> mNotificationShadeDepthControllerLazy;
@@ -691,7 +691,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             // Lazys due to b/298099682.
             Lazy<NotificationPresenter> notificationPresenterLazy,
             Lazy<NotificationActivityStarter> notificationActivityStarterLazy,
-            Lazy<NotificationLaunchAnimatorControllerProvider> notifTransitionAnimatorControllerProvider,
+            NotificationLaunchAnimatorControllerProvider notifTransitionAnimatorControllerProvider,
             DozeParameters dozeParameters,
             ScrimController scrimController,
             Lazy<BiometricUnlockController> biometricUnlockControllerLazy,
@@ -715,7 +715,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             UserInfoControllerImpl userInfoControllerImpl,
             PhoneStatusBarPolicy phoneStatusBarPolicy,
             KeyguardIndicationController keyguardIndicationController,
-            Lazy<DemoModeController> demoModeController,
+            DemoModeController demoModeController,
             Lazy<NotificationShadeDepthController> notificationShadeDepthControllerLazy,
             StatusBarTouchableRegionManager statusBarTouchableRegionManager,
             NotificationIconAreaController notificationIconAreaController,
@@ -730,14 +730,14 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             @Main MessageRouter messageRouter,
             WallpaperManager wallpaperManager,
             Optional<StartingSurface> startingSurfaceOptional,
-            Lazy<ActivityTransitionAnimator> activityTransitionAnimator,
+            ActivityTransitionAnimator activityTransitionAnimator,
             DeviceStateManager deviceStateManager,
             WiredChargingRippleController wiredChargingRippleController,
             IDreamManager dreamManager,
             Lazy<CameraLauncher> cameraLauncherLazy,
             Lazy<LightRevealScrimViewModel> lightRevealScrimViewModelLazy,
             LightRevealScrim lightRevealScrim,
-            Lazy<AlternateBouncerInteractor> alternateBouncerInteractor,
+            AlternateBouncerInteractor alternateBouncerInteractor,
             UserTracker userTracker,
             Provider<FingerprintManager> fingerprintManager,
             ActivityStarter activityStarter,
@@ -798,7 +798,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mNotifListContainer = mStackScrollerController.getNotificationListContainer();
         mPresenterLazy = notificationPresenterLazy;
         mNotificationActivityStarterLazy = notificationActivityStarterLazy;
-        mNotificationAnimationProviderLazy = notifTransitionAnimatorControllerProvider;
+        mNotificationAnimationProvider = notifTransitionAnimatorControllerProvider;
         mDozeServiceHost = dozeServiceHost;
         mPowerManager = powerManager;
         mDozeParameters = dozeParameters;
@@ -820,7 +820,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mExtensionController = extensionController;
         mUserInfoControllerImpl = userInfoControllerImpl;
         mIconPolicy = phoneStatusBarPolicy;
-        mDemoModeControllerLazy = demoModeController;
+        mDemoModeController = demoModeController;
         mNotificationIconAreaController = notificationIconAreaController;
         mBrightnessSliderFactory = brightnessSliderFactory;
         mWallpaperController = wallpaperController;
@@ -833,7 +833,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mMessageRouter = messageRouter;
         mWallpaperManager = wallpaperManager;
         mCameraLauncherLazy = cameraLauncherLazy;
-        mAlternateBouncerInteractorLazy = alternateBouncerInteractor;
+        mAlternateBouncerInteractor = alternateBouncerInteractor;
         mUserTracker = userTracker;
         mFingerprintManager = fingerprintManager;
         mActivityStarter = activityStarter;
@@ -853,7 +853,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         shadeExpansionListener.onPanelExpansionChanged(currentState);
 
         mActivityIntentHelper = new ActivityIntentHelper(mContext);
-        mActivityTransitionAnimatorLazy = activityTransitionAnimator;
+        mActivityTransitionAnimator = activityTransitionAnimator;
 
         // TODO(b/190746471): Find a better home for this.
         DateTimeView.setReceiverHandler(timeTickHandler);
@@ -1290,7 +1290,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         getNotificationShadeWindowView().setOnTouchListener(getStatusBarWindowTouchListener());
         mWallpaperController.setRootView(getNotificationShadeWindowView());
 
-        mDemoModeControllerLazy.get().addCallback(mDemoModeCallback);
+        mDemoModeController.addCallback(mDemoModeCallback);
         mJavaAdapter.alwaysCollectFlow(
                 mStatusBarModeRepository.getDefaultDisplay().isTransientShown(),
                 this::onTransientShownChanged);
@@ -1575,8 +1575,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     private void setUpPresenter() {
         // Set up the initial notification state.
-        mActivityTransitionAnimatorLazy.get().setCallback(mActivityTransitionAnimatorCallback);
-        mActivityTransitionAnimatorLazy.get().addListener(mActivityTransitionAnimatorListener);
+        mActivityTransitionAnimator.setCallback(mActivityTransitionAnimatorCallback);
+        mActivityTransitionAnimator.addListener(mActivityTransitionAnimatorListener);
         mRemoteInputManager.addControllerCallback(mNotificationShadeWindowController);
         mStackScrollerController.setNotificationActivityStarter(
                 mNotificationActivityStarterLazy.get());
@@ -1810,7 +1810,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     @Override
     public void checkBarModes() {
-        if (mDemoModeControllerLazy.get().isInDemoMode()) return;
+        if (mDemoModeController.isInDemoMode()) return;
         if (mStatusBarTransitions != null) {
             checkBarMode(
                     mStatusBarModeRepository.getDefaultDisplay().getStatusBarMode().getValue(),
@@ -2950,7 +2950,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         mScrimController.setExpansionAffectsAlpha(!unlocking);
 
-        if (mAlternateBouncerInteractorLazy.get().isVisibleState()) {
+        if (mAlternateBouncerInteractor.isVisibleState()) {
             if (!DeviceEntryUdfpsRefactor.isEnabled()) {
                 if ((!mKeyguardStateController.isOccluded() || mShadeSurface.isPanelExpanded())
                         && (mState == StatusBarState.SHADE || mState == StatusBarState.SHADE_LOCKED
@@ -3436,6 +3436,6 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     @Override
     public ActivityTransitionAnimator.Controller getAnimatorControllerFromNotification(
             ExpandableNotificationRow associatedView) {
-        return mNotificationAnimationProviderLazy.get().getAnimatorController(associatedView);
+        return mNotificationAnimationProvider.getAnimatorController(associatedView);
     }
 }
