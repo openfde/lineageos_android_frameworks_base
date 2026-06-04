@@ -58,6 +58,7 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 
 import javax.inject.Provider;
+import android.os.SystemClock;
 
 /**
  * Application class for SystemUI.
