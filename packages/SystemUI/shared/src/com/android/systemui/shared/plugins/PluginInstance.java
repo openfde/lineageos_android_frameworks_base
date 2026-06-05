@@ -371,7 +371,7 @@ public class PluginInstance<T extends Plugin> implements PluginLifecycleManager 
                 Class<T> instanceClass = (Class<T>) Class.forName(
                         mComponentName.getClassName(), true, loader);
                 T result = (T) mInstanceFactory.create(instanceClass);
-                Log.v(TAG, "Created plugin: " + result);
+                Log.w(TAG, "Created plugin: " + result + " classname:" + mComponentName.getClassName());
                 return result;
             } catch (ClassNotFoundException ex) {
                 Log.e(TAG, "Failed to load plugin", ex);

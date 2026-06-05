@@ -105,19 +105,23 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
         Log.w(TAG, "addPluginListener() called with: action = [" + action + "], listener = [" + listener + "], cls = [" + cls + "], allowMultiple = [" + allowMultiple + "]", new Throwable());
         if(action == null && listener == null && cls == null){
             for (PluginActionManager<?> actionManager : mPluginMap.values()) {
-                actionManager.reloadPackage("com.android.settings");
-                actionManager.reloadPackage("com.boringdroid.systemui");
+//                actionManager.reloadPackage("com.android.settings");
+//                actionManager.reloadPackage("com.boringdroid.systemui");
             }
             return;
+        } else {
+            if(!"com.android.systemui.action.PLUGIN_OVERLAY".equals(action)){
+                return;
+            }
+            mPluginPrefs.addAction(action);
+            PluginActionManager<T> p = mActionManagerFactory.create(action, listener, cls,
+                    allowMultiple, isDebuggable());
+            p.loadAll();
+            synchronized (this) {
+                mPluginMap.put(listener, p);
+            }
+            startListening();
         }
-        mPluginPrefs.addAction(action);
-        PluginActionManager<T> p = mActionManagerFactory.create(action, listener, cls,
-                allowMultiple, isDebuggable());
-        p.loadAll();
-        synchronized (this) {
-            mPluginMap.put(listener, p);
-        }
-        startListening();
     }
 
     public void removePluginListener(PluginListener<?> listener) {

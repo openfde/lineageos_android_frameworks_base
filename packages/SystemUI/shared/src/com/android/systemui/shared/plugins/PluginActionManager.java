@@ -235,6 +235,9 @@ public class PluginActionManager<T extends Plugin> {
 
     private void queryPkg(String pkg) {
         if (DEBUG) Log.w(TAG, "queryPkg " + pkg + " " + mAction);
+        if("com.android.systemui.action.PLUGIN_OVERLAY".equals(mAction)){
+            return;
+        }
         if (mAllowMultiple || (mPluginInstances.size() == 0)) {
             handleQueryPlugins(pkg);
         } else {
