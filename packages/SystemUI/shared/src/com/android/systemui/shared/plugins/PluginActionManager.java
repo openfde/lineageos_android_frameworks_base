@@ -279,7 +279,8 @@ public class PluginActionManager<T extends Plugin> {
             if (pluginInstance != null) {
                 // add plugin before sending PLUGIN_CONNECTED message
                 mPluginInstances.add(pluginInstance);
-                mMainExecutor.execute(() -> onPluginConnected(pluginInstance));
+                onPluginConnected(pluginInstance);
+//                mMainExecutor.execute(() -> onPluginConnected(pluginInstance));
             }
         }
     }
