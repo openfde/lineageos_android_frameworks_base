@@ -3550,18 +3550,18 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
         Assert.isMainThread();
         mLogger.logRegisterCallback(callback);
         // Prevent adding duplicate callbacks
+
+        for (int i = 0; i < mCallbacks.size(); i++) {
+            if (mCallbacks.get(i).get() == callback) {
+                mLogger.logException(
+                        new Exception("Called by"),
+                        "Object tried to add another callback");
+                return;
+            }
+        }
         mCallbacks.add(new WeakReference<>(callback));
-//        for (int i = 0; i < mCallbacks.size(); i++) {
-//            if (mCallbacks.get(i).get() == callback) {
-//                mLogger.logException(
-//                        new Exception("Called by"),
-//                        "Object tried to add another callback");
-//                return;
-//            }
-//        }
-//        mCallbacks.add(new WeakReference<>(callback));
-//        removeCallback(null); // remove unused references
-//        sendUpdates(callback);
+        removeCallback(null); // remove unused references
+        sendUpdates(callback);
     }
 
     public void setKeyguardBypassController(KeyguardBypassController keyguardBypassController) {

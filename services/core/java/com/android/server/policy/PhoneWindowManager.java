@@ -415,7 +415,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mKeyguardDrawnOnce;
 
     /** Amount of time (in milliseconds) to wait for windows drawn before powering on. */
-    static final int WAITING_FOR_DRAWN_TIMEOUT = 100;
+    static final int WAITING_FOR_DRAWN_TIMEOUT = 1000;
 
     /**
       * Extra time for additional SystemUI animations.
@@ -776,7 +776,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mLockNowPending = false;
 
     // Timeout for showing the keyguard after the screen is on, in case no "ready" is received.
-    private int mKeyguardDrawnTimeout = 100;
+    private int mKeyguardDrawnTimeout = 1000;
 
     private final List<DeviceKeyHandler> mDeviceKeyHandlers = new ArrayList<>();
 
@@ -6459,7 +6459,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean bootCompleted =
                 LocalServices.getService(SystemServiceManager.class).isBootCompleted();
         // Set longer timeout if it has not booted yet to prevent showing empty window.
-        return bootCompleted ? mKeyguardDrawnTimeout : 500;
+        return bootCompleted ? mKeyguardDrawnTimeout : 5000;
     }
 
     @Nullable
