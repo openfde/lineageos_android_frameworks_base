@@ -252,7 +252,8 @@ public class PluginActionManager<T extends Plugin> {
 //        if (pkgName != null) {
 //            intent.setPackage(pkgName);
 //        }
-        List<ResolveInfo> result = mPm.queryIntentServices(intent, 0);
+        List<ResolveInfo> result = mPm.queryIntentServices(intent, PackageManager.MATCH_DIRECT_BOOT_AWARE
+                | PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
         if (DEBUG) {
             Log.w(TAG, "Found " + result.size() + " plugins");
             for (ResolveInfo info : result) {
