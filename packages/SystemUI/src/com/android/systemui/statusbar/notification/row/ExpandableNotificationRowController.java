@@ -322,8 +322,8 @@ public class ExpandableNotificationRowController implements NotifViewController 
             @Override
             public void onViewAttachedToWindow(View v) {
                 mView.getEntry().setInitializationTime(mClock.elapsedRealtime());
-                mPluginManager.addPluginListener(mView,
-                        NotificationMenuRowPlugin.class, false /* Allow multiple */);
+//                mPluginManager.addPluginListener(mView,
+//                        NotificationMenuRowPlugin.class, false /* Allow multiple */);
                 mView.setOnKeyguard(mStatusBarStateController.getState() == KEYGUARD);
                 mStatusBarStateController.addCallback(mStatusBarStateListener);
                 mSettingsController.addCallback(BUBBLES_SETTING_URI, mSettingsListener);

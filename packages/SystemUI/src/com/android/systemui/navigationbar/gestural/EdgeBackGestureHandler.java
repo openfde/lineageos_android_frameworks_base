@@ -705,8 +705,8 @@ public class EdgeBackGestureHandler implements PluginListener<NavigationEdgeBack
                 mIsNewBackAffordanceEnabled = mFeatureFlags.isEnabled(Flags.NEW_BACK_AFFORDANCE);
                 resetEdgeBackPlugin();
                 updateLongSwipeWidth();
-                mPluginManager.addPluginListener(
-                        this, NavigationEdgeBackPlugin.class, /*allowMultiple=*/ false);
+//                mPluginManager.addPluginListener(
+//                        this, NavigationEdgeBackPlugin.class, /*allowMultiple=*/ false);
             }
             // Update the ML model resources.
             updateMLModelState();

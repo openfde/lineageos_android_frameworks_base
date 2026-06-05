@@ -49,20 +49,20 @@ public class ToastFactory implements Dumpable {
             DumpManager dumpManager) {
         mLayoutInflater = layoutInflater;
         dumpManager.registerDumpable("ToastFactory", this);
-        pluginManager.addPluginListener(
-                new PluginListener<ToastPlugin>() {
-                    @Override
-                    public void onPluginConnected(ToastPlugin plugin, Context pluginContext) {
-                        mPlugin = plugin;
-                    }
-
-                    @Override
-                    public void onPluginDisconnected(ToastPlugin plugin) {
-                        if (plugin.equals(mPlugin)) {
-                            mPlugin = null;
-                        }
-                    }
-                }, ToastPlugin.class, false /* Allow multiple plugins */);
+//        pluginManager.addPluginListener(
+//                new PluginListener<ToastPlugin>() {
+//                    @Override
+//                    public void onPluginConnected(ToastPlugin plugin, Context pluginContext) {
+//                        mPlugin = plugin;
+//                    }
+//
+//                    @Override
+//                    public void onPluginDisconnected(ToastPlugin plugin) {
+//                        if (plugin.equals(mPlugin)) {
+//                            mPlugin = null;
+//                        }
+//                    }
+//                }, ToastPlugin.class, false /* Allow multiple plugins */);
     }
 
     /**

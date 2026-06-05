@@ -109,7 +109,8 @@ public class PluginActionManager<T extends Plugin> {
     /** Load all plugins matching this instance's action. */
     public void loadAll() {
         if (DEBUG) Log.d(TAG, "startListening");
-        mBgExecutor.execute(() -> queryAll());
+        queryAll();
+//        mBgExecutor.execute(() -> queryAll());
     }
 
     /** Unload all plugins managed by this instance. */
@@ -117,21 +118,23 @@ public class PluginActionManager<T extends Plugin> {
         if (DEBUG) Log.d(TAG, "stopListening");
         ArrayList<PluginInstance<T>> plugins = new ArrayList<>(mPluginInstances);
         for (PluginInstance<T> plugInstance : plugins) {
-            mMainExecutor.execute(() -> onPluginDisconnected(plugInstance));
+            onPluginDisconnected(plugInstance);
+//            mMainExecutor.execute(() -> onPluginDisconnected(plugInstance));
         }
     }
 
     /** Unload all matching plugins managed by this instance. */
     public void onPackageRemoved(String pkg) {
-        mBgExecutor.execute(() -> removePkg(pkg));
+        removePkg(pkg);
+//        mBgExecutor.execute(() -> removePkg(pkg));
     }
 
     /** Unload and then reload all matching plugins managed by this instance. */
     public void reloadPackage(String pkg) {
-        mBgExecutor.execute(() -> {
+//        mBgExecutor.execute(() -> {
             removePkg(pkg);
             queryPkg(pkg);
-        });
+//        });
     }
 
     /** Disable a specific plugin managed by this instance. */
@@ -222,7 +225,8 @@ public class PluginActionManager<T extends Plugin> {
         if (DEBUG) Log.d(TAG, "queryAll " + mAction);
         for (int i = mPluginInstances.size() - 1; i >= 0; i--) {
             PluginInstance<T> pluginInstance = mPluginInstances.get(i);
-            mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
+            onPluginDisconnected(pluginInstance);
+//            mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
         }
         mPluginInstances.clear();
         handleQueryPlugins(null);
@@ -232,7 +236,8 @@ public class PluginActionManager<T extends Plugin> {
         for (int i = mPluginInstances.size() - 1; i >= 0; i--) {
             final PluginInstance<T> pluginInstance = mPluginInstances.get(i);
             if (pluginInstance.getPackage().equals(pkg)) {
-                mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
+                onPluginDisconnected(pluginInstance);
+//                mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
                 mPluginInstances.remove(i);
             }
         }
@@ -240,6 +245,9 @@ public class PluginActionManager<T extends Plugin> {
 
     private void queryPkg(String pkg) {
         if (DEBUG) Log.d(TAG, "queryPkg " + pkg + " " + mAction);
+        if(!"com.android.systemui.action.PLUGIN_OVERLAY".equals(mAction)){
+            return;
+        }
         if (mAllowMultiple || (mPluginInstances.size() == 0)) {
             handleQueryPlugins(pkg);
         } else {
@@ -254,7 +262,8 @@ public class PluginActionManager<T extends Plugin> {
 //        if (pkgName != null) {
 //            intent.setPackage(pkgName);
 //        }
-        List<ResolveInfo> result = mPm.queryIntentServices(intent, 0);
+        List<ResolveInfo> result = mPm.queryIntentServices(intent, PackageManager.MATCH_DIRECT_BOOT_AWARE
+                | PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
         if (DEBUG) {
             Log.d(TAG, "Found " + result.size() + " plugins");
             for (ResolveInfo info : result) {
@@ -276,7 +285,8 @@ public class PluginActionManager<T extends Plugin> {
             if (pluginInstance != null) {
                 // add plugin before sending PLUGIN_CONNECTED message
                 mPluginInstances.add(pluginInstance);
-                mMainExecutor.execute(() -> onPluginConnected(pluginInstance));
+                onPluginConnected(pluginInstance);
+//                mMainExecutor.execute(() -> onPluginConnected(pluginInstance));
             }
         }
     }

@@ -228,7 +228,7 @@ public class ResourcesImpl {
             mMetrics.heightPixels = mCachedFakeResourceHeight;
         } else if(mCachedFakeResourceWidth < 0 || mCachedFakeResourceHeight < 0 ){
             Context context = getContext();
-            if(context != null){
+            if(context != null && !"com.android.systemui".equals(context.getPackageName())){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {context.getPackageName(),"enabledResourceFixedLayout", ""};
                 String resultStr = CompatibleConfig.queryStringValueData(context, "enabledResourceFixedLayout", context.getPackageName());
