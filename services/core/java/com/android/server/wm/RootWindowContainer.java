@@ -105,6 +105,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.UserProperties;
 import android.content.res.Configuration;
@@ -1508,7 +1509,9 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
      */
     @VisibleForTesting
     ActivityInfo resolveHomeActivity(int userId, Intent homeIntent) {
-        final int flags = ActivityManagerService.STOCK_PM_FLAGS;
+        final int flags = ActivityManagerService.STOCK_PM_FLAGS
+                | PackageManager.MATCH_DIRECT_BOOT_AWARE
+                | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
         final ComponentName comp = homeIntent.getComponent();
         ActivityInfo aInfo = null;
         try {
