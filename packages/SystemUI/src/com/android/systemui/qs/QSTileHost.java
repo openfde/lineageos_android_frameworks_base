@@ -155,7 +155,7 @@ public class QSTileHost implements QSHost, Tunable, PluginListener<QSFactory>, P
             mQsFactories.add(newQsTileFactoryProvider.get());
         }
         mQsFactories.add(defaultFactory);
-        pluginManager.addPluginListener(this, QSFactory.class, true);
+//        pluginManager.addPluginListener(this, QSFactory.class, true);
         mUserTracker = userTracker;
         mCurrentUser = userTracker.getUserId();
         mSecureSettings = secureSettings;

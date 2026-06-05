@@ -228,7 +228,7 @@ public class ExtensionControllerImpl implements ExtensionController {
 
             public PluginItem(String action, Class<P> cls, PluginConverter<T, P> converter) {
                 mConverter = converter;
-                mPluginManager.addPluginListener(action, this, cls);
+//                mPluginManager.addPluginListener(action, this, cls);
             }
 
             @Override
