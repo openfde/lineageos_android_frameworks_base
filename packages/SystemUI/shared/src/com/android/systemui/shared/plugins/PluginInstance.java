@@ -378,6 +378,8 @@ public class PluginInstance<T extends Plugin> implements PluginLifecycleManager 
                 Log.e(TAG, "Failed to load plugin", ex);
             } catch (InstantiationException ex) {
                 Log.e(TAG, "Failed to load plugin", ex);
+            } catch (Exception ex) {
+                Log.e(TAG, "Failed to load plugin", ex);
             }
             return null;
         }
