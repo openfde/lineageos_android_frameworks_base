@@ -418,11 +418,11 @@ open class ClockRegistry(
 
         isRegistered = true
 
-        pluginManager.addPluginListener(
-            pluginListener,
-            ClockProviderPlugin::class.java,
-            /*allowMultiple=*/ true
-        )
+//        pluginManager.addPluginListener(
+//            pluginListener,
+//            ClockProviderPlugin::class.java,
+//            /*allowMultiple=*/ true
+//        )
 
         scope.launch(bgDispatcher) { querySettings() }
         if (handleAllUsers) {

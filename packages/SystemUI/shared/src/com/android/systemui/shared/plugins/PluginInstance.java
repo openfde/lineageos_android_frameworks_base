@@ -92,6 +92,7 @@ public class PluginInstance<T extends Plugin> implements PluginLifecycleManager 
     }
 
     private void log(String message) {
+        Log.w(TAG, message);
         if (mLogConsumer != null) {
             mLogConsumer.accept(mTag, message);
         }
