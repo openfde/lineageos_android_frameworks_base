@@ -1179,7 +1179,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginDisconnected(OverlayPlugin plugin) {
                         mMainExecutor.execute(() -> {
-                            mPluginLoaded = false
+                            mPluginLoaded = false;
                             mOverlays.remove(plugin);
                             mNotificationShadeWindowController
                                     .setForcePluginOpen(mOverlays.size() != 0, this);
