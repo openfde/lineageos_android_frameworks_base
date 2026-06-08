@@ -1152,19 +1152,21 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
                         Log.w(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], QSTileImpl.handler = [" + QSTileImpl.handler + "]", new Throwable());
                         if (QSTileImpl.handler == null) {
-                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
-                            Message msg = Message.obtain();
-                            msg.what = MSG_PLUGIN_SETUP;
-                            msg.obj = plugin;
-                            msg.arg1 = 1;
-                            mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
-                        } else {
+//                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
+//                            Message msg = Message.obtain();
+//                            msg.what = MSG_PLUGIN_SETUP;
+//                            msg.obj = plugin;
+//                            msg.arg1 = 1;
+//                            mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
+//                        } else {
                             mStatusBarView.setTag(QSTileImpl.handler);
-                            mMainExecutor.execute(
-                                    () -> plugin.setup(
+//                            mMainExecutor.execute(
+//                                    () ->
+                                            plugin.setup(
                                             mStatusBarView,
                                             getNavigationBarView(),
-                                            new Callback(plugin), mDozeParameters));
+                                            new Callback(plugin), mDozeParameters);
+//                        );
                         }
 
                     }

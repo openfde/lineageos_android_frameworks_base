@@ -196,6 +196,7 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
         mUiHandler = mainHandler;
         mHandler = new H(backgroundLooper);
         handler = mHandler;
+        Log.w(TAG, "QSTileImpl: ", new Throwable());
         mFalsingManager = falsingManager;
         mQSLogger = qsLogger;
         mMetricsLogger = metricsLogger;
