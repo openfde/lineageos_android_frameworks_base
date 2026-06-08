@@ -910,6 +910,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             Log.w(TAG, "abandon QSTileImpl setup");
                         }
                     } else {
+                        removeMessages(null);
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
                         mStatusBarView.setTag(QSTileImpl.handler);
                         mMainExecutor.execute(
@@ -1159,6 +1160,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
+                            mHandler.removeMessages(null);
                             mStatusBarView.setTag(QSTileImpl.handler);
 //                            mMainExecutor.execute(
 //                                    () ->
