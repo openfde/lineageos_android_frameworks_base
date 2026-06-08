@@ -498,6 +498,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final ActivityStarter mActivityStarter;
 
     private final DisplayMetrics mDisplayMetrics;
+    private boolean mPluginLoaded;
 
     // XXX: gesture research
     private final GestureRecorder mGestureRec = DEBUG_GESTURES
@@ -909,7 +910,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         } else {
                             Log.w(TAG, "abandon QSTileImpl setup");
                         }
-                    } else {
+                    } else if(!mPluginLoaded){
+                        mPluginLoaded = true;
                         removeMessages(MSG_PLUGIN_SETUP);
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
                         mStatusBarView.setTag(QSTileImpl.handler);
@@ -1159,7 +1161,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.obj = plugin;
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
-                        } else {
+                        } else if (!mPluginLoaded) {
+                            mPluginLoaded = true;
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             mStatusBarView.setTag(QSTileImpl.handler);
 //                            mMainExecutor.execute(
