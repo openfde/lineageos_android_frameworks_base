@@ -902,7 +902,6 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 {
                     if (mStatusBarView != null && !mPluginLoaded) {
                         mPluginLoaded = true;
-                        mPluginLoaded = ScreenRecordTile.handler != null;
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
                         mStatusBarView.setTag(ScreenRecordTile.handler);
                         mMainExecutor.execute(
@@ -1163,7 +1162,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
-                            mPluginLoaded = ScreenRecordTile.handler != null;
+                            mPluginLoaded = true;
                             mStatusBarView.setTag(ScreenRecordTile.handler);
                             mMainExecutor.execute(
                                     () ->
@@ -2513,7 +2512,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
      */
     @Override
     public void showBouncerWithDimissAndCancelIfKeyguard(OnDismissAction performAction,
-            Runnable cancelAction) {
+                                                         Runnable cancelAction) {
         if ((mState == StatusBarState.KEYGUARD || mState == StatusBarState.SHADE_LOCKED)
                 && !mKeyguardViewMediator.isHiding()) {
             mStatusBarKeyguardViewManager.dismissWithAction(performAction, cancelAction,
@@ -2717,7 +2716,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 mShouldDelayLockscreenTransitionFromAod = mDozeParameters.getAlwaysOn()
                         && !mDozeParameters.getDisplayNeedsBlanking()
                         && mFeatureFlags.isEnabled(
-                                Flags.ZJ_285570694_LOCKSCREEN_TRANSITION_FROM_AOD);
+                        Flags.ZJ_285570694_LOCKSCREEN_TRANSITION_FROM_AOD);
                 if (!mShouldDelayLockscreenTransitionFromAod) {
                     startLockscreenTransitionFromAod();
                 }
