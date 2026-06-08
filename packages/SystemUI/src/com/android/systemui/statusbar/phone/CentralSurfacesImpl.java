@@ -910,8 +910,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         } else {
                             Log.w(TAG, "abandon QSTileImpl setup");
                         }
-                    } else if(!mPluginLoaded){
-                        mPluginLoaded = true;
+                    } else {
                         removeMessages(MSG_PLUGIN_SETUP);
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
                         mStatusBarView.setTag(QSTileImpl.handler);
@@ -1161,8 +1160,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.obj = plugin;
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
-                        } else if (!mPluginLoaded) {
-                            mPluginLoaded = true;
+                        } else {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             mStatusBarView.setTag(QSTileImpl.handler);
 //                            mMainExecutor.execute(
@@ -1179,7 +1177,6 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginDisconnected(OverlayPlugin plugin) {
                         mMainExecutor.execute(() -> {
-                            mPluginLoaded = false;
                             mOverlays.remove(plugin);
                             mNotificationShadeWindowController
                                     .setForcePluginOpen(mOverlays.size() != 0, this);
