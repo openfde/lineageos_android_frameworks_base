@@ -891,7 +891,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     }
 
     private static final int MSG_PLUGIN_SETUP = 1;
-    private static final int MSG_DELAY_TIMES = 100;
+    private static final int MSG_DELAY_TIMES = 50;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -1152,13 +1152,13 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
                         Log.w(TAG, "onPluginConnected() called with: plugin = [" + plugin + "], QSTileImpl.handler = [" + QSTileImpl.handler + "]", new Throwable());
                         if (QSTileImpl.handler == null && mStatusBarView != null) {
-//                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
-//                            Message msg = Message.obtain();
-//                            msg.what = MSG_PLUGIN_SETUP;
-//                            msg.obj = plugin;
-//                            msg.arg1 = 1;
-//                            mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
-//                        } else {
+                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
+                            Message msg = Message.obtain();
+                            msg.what = MSG_PLUGIN_SETUP;
+                            msg.obj = plugin;
+                            msg.arg1 = 1;
+                            mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
+                        } else {
                             mStatusBarView.setTag(QSTileImpl.handler);
 //                            mMainExecutor.execute(
 //                                    () ->
