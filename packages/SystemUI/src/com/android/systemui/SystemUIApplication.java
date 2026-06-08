@@ -490,7 +490,7 @@ public class SystemUIApplication extends Application implements
             }
             configController.onConfigurationChanged(newConfig);
 
-            final int N = mServices.length;dfs
+            final int N = mServices.length;
             for (int i = 0; i < N; i++) {
                 if(mServices[i] != null){
                     mServices[i].onConfigurationChange();
