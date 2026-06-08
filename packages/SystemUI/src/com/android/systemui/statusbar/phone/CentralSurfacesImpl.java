@@ -1163,13 +1163,12 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         } else {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             mStatusBarView.setTag(QSTileImpl.handler);
-//                            mMainExecutor.execute(
-//                                    () ->
+                            mMainExecutor.execute(
+                                    () ->
                                             plugin.setup(
-                                            mStatusBarView,
-                                            getNavigationBarView(),
-                                            new Callback(plugin), mDozeParameters);
-//                        );
+                                                    mStatusBarView,
+                                                    getNavigationBarView(),
+                                                    new Callback(plugin), mDozeParameters));
                         }
 
                     }
