@@ -1155,7 +1155,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
                         Log.w(TAG, "onPluginConnected() called with: mStatusBarView = [" + mStatusBarView + "], QSTileImpl.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
-                        if (mStatusBarView == null ) {
+                        if (mStatusBarView == null || ScreenRecordTile.handler == null) {
                             Message msg = Message.obtain();
                             msg.what = MSG_PLUGIN_SETUP;
                             msg.obj = plugin;
