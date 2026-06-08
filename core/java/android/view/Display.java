@@ -1693,7 +1693,7 @@ public final class Display {
     @Deprecated
     public void getRealSize(Point outSize) {
         synchronized (mLock) {
-            if(mContext != null && !"com.android.systemui".equals(context.getPackageName())){
+            if(mContext != null && !"com.android.systemui".equals(mContext.getPackageName())){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
                 String resultStr = CompatibleConfig.queryStringValueData(mContext, "isAllowRealDisplaySize", mContext.getPackageName());
@@ -1775,7 +1775,7 @@ public final class Display {
     @Deprecated
     public void getRealMetrics(DisplayMetrics outMetrics) {
         synchronized (mLock) {
-            if(mContext != null && !"com.android.systemui".equals(context.getPackageName())){
+            if(mContext != null && !"com.android.systemui".equals(mContext.getPackageName())){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {mContext.getPackageName(),"isAllowRealDisplaySize", ""};
                 String resultStr = CompatibleConfig.queryStringValueData(mContext, "isAllowRealDisplaySize", mContext.getPackageName());
@@ -1784,7 +1784,7 @@ public final class Display {
                     return;
                 }
             }
-            if(mContext != null && !"com.android.systemui".equals(context.getPackageName())){
+            if(mContext != null && !"com.android.systemui".equals(mContext.getPackageName())){
                 String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
                 String[] selectionArgs = {mContext.getPackageName(),"enabledVirtualDisplaySize", ""};
                 String resultStr = CompatibleConfig.queryStringValueData(mContext, "enabledVirtualDisplaySize", mContext.getPackageName());
