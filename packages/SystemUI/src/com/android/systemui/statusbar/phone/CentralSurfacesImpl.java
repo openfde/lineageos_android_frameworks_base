@@ -1142,6 +1142,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         registerCallbacks();
 
         mFalsingManager.addFalsingBeliefListener(mFalsingBeliefListener);
+        long t9 = System.currentTimeMillis();
 
         mPluginManager.addPluginListener(
                 new PluginListener<OverlayPlugin>() {
