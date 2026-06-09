@@ -4081,13 +4081,13 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
 
         if(newFocus != null){
             String packageName = newFocus.getPackageName();
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
+//            Thread thread = new Thread(new Runnable() {
+//                @Override
+//                public void run() {
                     ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName);
-                }
-            });
-            thread.start();
+//                }
+//            });
+//            thread.start();
         }
 
         ProtoLog.i(WM_DEBUG_FOCUS_LIGHT, "setFocusedApp %s displayId=%d Callers=%s",
@@ -4120,9 +4120,9 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
             isTurnOffSimulatedTouch = true;
         }
         if(isTurnOffSimulatedTouch){
-//            SystemProperties.set("fde.click_as_touch", "false");
+            SystemProperties.set("fde.click_as_touch", "false");
         }else{
-//            SystemProperties.set("fde.click_as_touch", "true");
+            SystemProperties.set("fde.click_as_touch", "true");
         }
         Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch: " + !isTurnOffSimulatedTouch);
     }
