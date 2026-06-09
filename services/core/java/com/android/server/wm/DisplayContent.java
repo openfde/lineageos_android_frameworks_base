@@ -4120,9 +4120,9 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
             isTurnOffSimulatedTouch = true;
         }
         if(isTurnOffSimulatedTouch){
-            SystemProperties.set("fde.click_as_touch", "false");
+//            SystemProperties.set("fde.click_as_touch", "false");
         }else{
-            SystemProperties.set("fde.click_as_touch", "true");
+//            SystemProperties.set("fde.click_as_touch", "true");
         }
         Slog.d(TAG,"setFocusedApp: " + packageName + ", set click_as_touch: " + !isTurnOffSimulatedTouch);
     }
