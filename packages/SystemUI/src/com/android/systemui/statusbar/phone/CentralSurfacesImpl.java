@@ -891,7 +891,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     }
 
     private static final int MSG_PLUGIN_SETUP = 1;
-    private static final int MSG_DELAY_TIMES = 100;
+    private static final int MSG_DELAY_TIMES = 50;
+    private boolean ismPluginLoaded = false;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -900,7 +901,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 case MSG_PLUGIN_SETUP:
                 {
                     Log.d(TAG, "handleMessage: handler is " + ScreenRecordTile.handler);
-                    if (ScreenRecordTile.handler == null) {
+                    if (ScreenRecordTile.handler == null ) {
                         removeMessages(MSG_PLUGIN_SETUP);
                         Message newMsg = Message.obtain(msg);
                         newMsg.arg1 ++;
@@ -909,6 +910,16 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             sendMessageDelayed(newMsg, MSG_DELAY_TIMES);
                         } else {
                             Log.d(TAG, "abandon ScreenRecordTile setup");
+                        }
+                        OverlayPlugin plugin = (OverlayPlugin) msg.obj;
+                        if(!ismPluginLoaded && mStatusBarView != null){
+                            ismPluginLoaded = true;
+                            getNavigationBarView().setTag(ScreenRecordTile.handler);
+                            mMainExecutor.execute(
+                                    () -> plugin.setup(
+                                            mStatusBarView,
+                                            getNavigationBarView(),
+                                            new Callback(plugin), mDozeParameters));
                         }
                     } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
@@ -1152,12 +1163,13 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
 //                        Log.d(TAG, "onPluginConnected() called with: mStatusBarView = [" + mStatusBarView + "], QSTileImpl.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
-                            getNavigationBarView().setTag(ScreenRecordTile.handler);
-                            mMainExecutor.execute(
-                                    () -> plugin.setup(
-                                            mStatusBarView,
-                                            getNavigationBarView(),
-                                            new Callback(plugin), mDozeParameters));
+                        ismPluginLoaded = mStatusBarView != null;
+                        getNavigationBarView().setTag(ScreenRecordTile.handler);
+                        mMainExecutor.execute(
+                                () -> plugin.setup(
+                                        mStatusBarView,
+                                        getNavigationBarView(),
+                                        new Callback(plugin), mDozeParameters));
                         if (ScreenRecordTile.handler == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
