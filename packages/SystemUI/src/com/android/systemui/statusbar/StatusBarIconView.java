@@ -444,7 +444,7 @@ public class StatusBarIconView extends AnimatedImageView implements StatusIconDi
         if (mIcon == null) {
             return false;
         }
-        Drawable drawable;
+        Drawable drawable == null;
         try {
             Trace.beginSection("StatusBarIconView#updateDrawable()");
 //            drawable = getIcon(mIcon);
