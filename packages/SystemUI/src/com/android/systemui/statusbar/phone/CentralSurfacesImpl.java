@@ -899,7 +899,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             switch (msg.what) {
                 case MSG_PLUGIN_SETUP:
                 {
-                    Log.d(TAG, "handleMessage: handler is " + ScreenRecordTile.handler);
+                    Log.d(TAG, "handleMessage: handler is " + ScreenRecordTile.handler + " mStatusBarView:" + mStatusBarView);
                     if (ScreenRecordTile.handler == null) {
                         removeMessages(MSG_PLUGIN_SETUP);
                         Message newMsg = Message.obtain(msg);
