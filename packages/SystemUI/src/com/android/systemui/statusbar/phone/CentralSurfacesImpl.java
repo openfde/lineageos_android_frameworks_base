@@ -913,7 +913,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         }
                     } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
-                        mStatusBarView.setTag(ScreenRecordTile.handler);
+                        getNavigationBarView().setTag(ScreenRecordTile.handler);
                         mMainExecutor.execute(
                                 () -> plugin.setup(
                                         mStatusBarView,
@@ -1161,7 +1161,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
-                            mStatusBarView.setTag(ScreenRecordTile.handler);
+                            getNavigationBarView().setTag(ScreenRecordTile.handler);
                             mMainExecutor.execute(
                                     () -> plugin.setup(
                                             mStatusBarView,
