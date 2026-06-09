@@ -308,6 +308,7 @@ public class SystemUIApplication extends Application implements
                     int i = serviceIndex;  // Copied to make lambda happy.
                     if (clsName.contains("RingtonePlayer")
 //                    if (clsName.contains("biometrics")
+                            || clsName.contains("accessibility")
 //                            || clsName.contains("PhysicalKeyboardCoreStartable")
 //                            || clsName.contains("MediaOutputSwitcherDialogUI")
 //                            || clsName.contains("NearbyMediaDevicesManager")
@@ -407,7 +408,7 @@ public class SystemUIApplication extends Application implements
     }
 
     private static void timeInitialization(String clsName, Runnable init, TimingsTraceLog log,
-            String metricsPrefix) {
+                                           String metricsPrefix) {
         long ti = System.currentTimeMillis();
         log.traceBegin(metricsPrefix + " " + clsName);
         init.run();
@@ -501,7 +502,7 @@ public class SystemUIApplication extends Application implements
 
     /** Update a notifications application name. */
     public static void overrideNotificationAppName(Context context, Notification.Builder n,
-            boolean system) {
+                                                   boolean system) {
         final Bundle extras = new Bundle();
         String appName = system
                 ? context.getString(com.android.internal.R.string.notification_app_name_system)
