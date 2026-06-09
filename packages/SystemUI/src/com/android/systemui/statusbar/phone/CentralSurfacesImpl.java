@@ -919,7 +919,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                                     () -> plugin.setup(
                                             mStatusBarView,
                                             getNavigationBarView(),
-                                            new Callback(plugin), mDozeParameters));
+                                            null, mDozeParameters));
                         }
                     } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
