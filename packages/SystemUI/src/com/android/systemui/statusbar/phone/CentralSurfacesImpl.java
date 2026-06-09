@@ -892,7 +892,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     }
 
     private static final int MSG_PLUGIN_SETUP = 1;
-    private int MSG_DELAY_TIMES = 50;
+    private static final int MSG_DELAY_TIMES = 100;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -900,8 +900,18 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             switch (msg.what) {
                 case MSG_PLUGIN_SETUP:
                 {
-                    if (mStatusBarView != null && !mPluginLoaded) {
-                        mPluginLoaded = true;
+                    Log.w(TAG, "handleMessage: handler is " + ScreenRecordTile.handler);
+                    if (ScreenRecordTile.handler == null) {
+                        removeMessages(MSG_PLUGIN_SETUP);
+                        Message newMsg = Message.obtain(msg);
+                        newMsg.arg1 ++;
+                        // wait 5S for ScreenRecordTile Handler
+                        if (newMsg.arg1 < 80) {
+                            sendMessageDelayed(newMsg, MSG_DELAY_TIMES);
+                        } else {
+                            Log.w(TAG, "abandon ScreenRecordTile setup");
+                        }
+                    } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
                         mStatusBarView.setTag(ScreenRecordTile.handler);
                         mMainExecutor.execute(
@@ -910,18 +920,6 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                                         getNavigationBarView(),
                                         null, mDozeParameters));
                     }
-                    if (ScreenRecordTile.handler == null || !mPluginLoaded) {
-                        removeMessages(MSG_PLUGIN_SETUP);
-                        Message newMsg = Message.obtain(msg);
-                        newMsg.arg1++;
-                        // wait 5S for ScreenRecordTile Handler
-                        if (newMsg.arg1 < 50) {
-                            sendMessageDelayed(newMsg, MSG_DELAY_TIMES);
-                        } else {
-                            Log.w(TAG, "abandon ScreenRecordTile setup");
-                        }
-                    }
-
                     break;
                 }
             }
@@ -1155,23 +1153,23 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
                         Log.w(TAG, "onPluginConnected() called with: mStatusBarView = [" + mStatusBarView + "], QSTileImpl.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
-                        if (mStatusBarView == null || ScreenRecordTile.handler == null) {
+                        if (ScreenRecordTile.handler == null) {
+                            mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
                             msg.what = MSG_PLUGIN_SETUP;
                             msg.obj = plugin;
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
-                            mPluginLoaded = true;
                             mStatusBarView.setTag(ScreenRecordTile.handler);
                             mMainExecutor.execute(
-                                    () ->
-                                            plugin.setup(
-                                                    mStatusBarView,
-                                                    getNavigationBarView(),
-                                                    new Callback(plugin), mDozeParameters));
+                                    () -> plugin.setup(
+                                            mStatusBarView,
+                                            getNavigationBarView(),
+                                            new Callback(plugin), mDozeParameters));
                         }
-                     }
+
+                    }
 
                     @Override
                     public void onPluginDisconnected(OverlayPlugin plugin) {
