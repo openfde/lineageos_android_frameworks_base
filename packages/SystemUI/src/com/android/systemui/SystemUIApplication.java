@@ -316,6 +316,7 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("UserSwitcherDialogCoordinator")
                             || clsName.contains("Keyguard")
                             || clsName.contains("keyguard")
+                            || clsName.contains("domain")
                             || clsName.contains("communal")
                             || clsName.contains("dreams")
                             || clsName.contains("recents")
