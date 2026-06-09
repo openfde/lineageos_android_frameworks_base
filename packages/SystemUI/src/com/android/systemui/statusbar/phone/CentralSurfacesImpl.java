@@ -915,9 +915,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         getNavigationBarView().setTag(ScreenRecordTile.handler);
                         mMainExecutor.execute(
                                 () -> plugin.setup(
-                                        mStatusBarView,
+                                        null,
                                         getNavigationBarView(),
-                                        null, mDozeParameters));
+                                        null, null));
                     }
                     break;
                 }
@@ -1152,6 +1152,12 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
 //                        Log.d(TAG, "onPluginConnected() called with: mStatusBarView = [" + mStatusBarView + "], QSTileImpl.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
+                            getNavigationBarView().setTag(ScreenRecordTile.handler);
+                            mMainExecutor.execute(
+                                    () -> plugin.setup(
+                                            mStatusBarView,
+                                            getNavigationBarView(),
+                                            new Callback(plugin), mDozeParameters));
                         if (ScreenRecordTile.handler == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
@@ -1159,15 +1165,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.obj = plugin;
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
-                        } else {
-                            getNavigationBarView().setTag(ScreenRecordTile.handler);
-                            mMainExecutor.execute(
-                                    () -> plugin.setup(
-                                            mStatusBarView,
-                                            getNavigationBarView(),
-                                            new Callback(plugin), mDozeParameters));
                         }
-
                     }
 
                     @Override
