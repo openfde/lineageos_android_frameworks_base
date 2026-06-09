@@ -88,7 +88,7 @@ public class FalsingManagerProxy implements FalsingManager, Dumpable {
             }
         };
 
-        mPluginManager.addPluginListener(mPluginListener, FalsingPlugin.class);
+//        mPluginManager.addPluginListener(mPluginListener, FalsingPlugin.class);
 
         mDumpManager.registerDumpable(DUMPABLE_TAG, this);
     }
