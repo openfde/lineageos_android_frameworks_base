@@ -58,7 +58,6 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 
 import javax.inject.Provider;
-import android.os.SystemClock;
 
 /**
  * Application class for SystemUI.
@@ -67,7 +66,7 @@ public class SystemUIApplication extends Application implements
         SystemUIAppComponentFactoryBase.ContextInitializer {
 
     public static final String TAG = "SystemUIService";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private BootCompleteCacheImpl mBootCompleteCache;
 
@@ -210,7 +209,7 @@ public class SystemUIApplication extends Application implements
             Log.wtf(TAG, "Tried starting SystemUser services on non-SystemUser");
             return;  // Per-user startables are handled in #startSystemUserServicesIfNeeded.
         }
-        final String vendorComponent = null;//mInitializer.getVendorComponent(getResources());
+        final String vendorComponent = mInitializer.getVendorComponent(getResources());
 
         // Sort the startables so that we get a deterministic ordering.
         // TODO: make #start idempotent and require users of CoreStartable to call it.
@@ -315,7 +314,6 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("StorageNotification")
                             || clsName.contains("UserSwitcherDialogCoordinator")
                             || clsName.contains("Keyguard")
-                            || clsName.contains("keyguard")
                             || clsName.contains("communal")
                             || clsName.contains("dreams")
                             || clsName.contains("recents")
@@ -323,25 +321,15 @@ public class SystemUIApplication extends Application implements
                             || clsName.contains("taptotransfer")
                             || clsName.contains("notification")
                             || clsName.contains("VolumeUI")
-                            || clsName.contains("domain")
-                            || clsName.contains("ShadeController")
 //                            || clsName.contains("KeyguardUpdateMonitor")
                     ) {
-                        Log.w("BootOptimize", "Skipping " + clsName + " creation to save time!");
+                        Log.w("BootOptimize", "Skipping KeyguardService creation to save time!");
                     } else {
-                        long start = SystemClock.uptimeMillis();
-
                         timeInitialization(
                                 clsName,
                                 () -> mServices[i] = startStartable(clsName, entry.getValue()),
                                 log,
                                 metricsPrefix);
-
-                        long cost = SystemClock.uptimeMillis() - start;
-
-                        Log.w("BootOptimize",
-                                "Startable " + clsName + " cost " + cost + " ms");
-
                         startedStartables.add(cls);
                         startedAny = true;
                     }
@@ -419,7 +407,7 @@ public class SystemUIApplication extends Application implements
     }
 
     private static void timeInitialization(String clsName, Runnable init, TimingsTraceLog log,
-                                           String metricsPrefix) {
+            String metricsPrefix) {
         long ti = System.currentTimeMillis();
         log.traceBegin(metricsPrefix + " " + clsName);
         init.run();
@@ -434,7 +422,7 @@ public class SystemUIApplication extends Application implements
 
     private static CoreStartable startAdditionalStartable(String clsName) {
         CoreStartable startable;
-        if (DEBUG) Log.w(TAG, "loading: " + clsName);
+        if (DEBUG) Log.d(TAG, "loading: " + clsName);
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP, clsName + ".newInstance()");
@@ -457,7 +445,7 @@ public class SystemUIApplication extends Application implements
     }
 
     private static CoreStartable startStartable(String clsName, Provider<CoreStartable> provider) {
-        if (DEBUG) Log.w(TAG, "loading: " + clsName);
+        if (DEBUG) Log.d(TAG, "loading: " + clsName);
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP, "Provider<" + clsName + ">.get()");
@@ -468,7 +456,7 @@ public class SystemUIApplication extends Application implements
     }
 
     private static CoreStartable startStartable(CoreStartable startable) {
-        if (DEBUG) Log.w(TAG, "running: " + startable);
+        if (DEBUG) Log.d(TAG, "running: " + startable);
         if (Trace.isEnabled()) {
             Trace.traceBegin(
                     Trace.TRACE_TAG_APP, startable.getClass().getSimpleName() + ".start()");
@@ -513,7 +501,7 @@ public class SystemUIApplication extends Application implements
 
     /** Update a notifications application name. */
     public static void overrideNotificationAppName(Context context, Notification.Builder n,
-                                                   boolean system) {
+            boolean system) {
         final Bundle extras = new Bundle();
         String appName = system
                 ? context.getString(com.android.internal.R.string.notification_app_name_system)
