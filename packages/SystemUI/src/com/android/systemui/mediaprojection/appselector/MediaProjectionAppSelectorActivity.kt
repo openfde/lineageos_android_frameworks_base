@@ -53,7 +53,7 @@ import com.android.systemui.res.R
 import com.android.systemui.statusbar.policy.ConfigurationController
 import com.android.systemui.util.AsyncActivityLauncher
 import javax.inject.Inject
-
+import android.view.Window
 import android.os.SystemProperties
 
 class MediaProjectionAppSelectorActivity(
@@ -117,6 +117,7 @@ class MediaProjectionAppSelectorActivity(
             intent.getBooleanExtra(EXTRA_USER_REVIEW_GRANTED_CONSENT, false)
 
         super.onCreate(savedInstanceState)
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE)
         controller.init()
         // we override AppList's AccessibilityDelegate set in ResolverActivity.onCreate because in
         // our case this delegate must extend RecyclerViewAccessibilityDelegate, otherwise
