@@ -899,8 +899,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             switch (msg.what) {
                 case MSG_PLUGIN_SETUP:
                 {
-                    Log.d(TAG, "handleMessage: handler is " + ScreenRecordTile.handler);
-                    if (ScreenRecordTile.handler == null) {
+                    Log.d(TAG, "handleMessage: handler is " + ScreenRecordTile.handler + " mStatusBarView:" + mStatusBarView);
+                    if (mStatusBarView == null) {
                         removeMessages(MSG_PLUGIN_SETUP);
                         Message newMsg = Message.obtain(msg);
                         newMsg.arg1 ++;
@@ -912,7 +912,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                         }
                     } else {
                         OverlayPlugin plugin = (OverlayPlugin) msg.obj;
-                        getNavigationBarView().setTag(ScreenRecordTile.handler);
+                        mStatusBarView.setTag(ScreenRecordTile.handler);
                         mMainExecutor.execute(
                                 () -> plugin.setup(
                                         mStatusBarView,
@@ -1151,8 +1151,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
                     @Override
                     public void onPluginConnected(OverlayPlugin plugin, Context pluginContext) {
-//                        Log.d(TAG, "onPluginConnected() called with: mStatusBarView = [" + mStatusBarView + "], QSTileImpl.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
-                        if (ScreenRecordTile.handler == null) {
+                        Log.d(TAG, "onPluginConnected() called with: mStatusBarView = [" + mStatusBarView + "], ScreenRecordTile.handler = [" + ScreenRecordTile.handler + "]", new Throwable());
+                        if (mStatusBarView == null) {
                             mHandler.removeMessages(MSG_PLUGIN_SETUP);
                             Message msg = Message.obtain();
                             msg.what = MSG_PLUGIN_SETUP;
@@ -1160,7 +1160,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                             msg.arg1 = 1;
                             mHandler.sendMessageDelayed(msg, MSG_DELAY_TIMES);
                         } else {
-                            getNavigationBarView().setTag(ScreenRecordTile.handler);
+                            mStatusBarView.setTag(ScreenRecordTile.handler);
                             mMainExecutor.execute(
                                     () -> plugin.setup(
                                             mStatusBarView,
