@@ -4080,14 +4080,9 @@ class DisplayContent extends RootDisplayArea implements WindowManagerPolicy.Disp
         }
 
         if(newFocus != null){
-            String packageName = newFocus.getPackageName();
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName);
-                }
-            });
-            thread.start();
+            final String packageName = newFocus.getPackageName();
+            final Handler handler = mWmService.mH;
+            handler.post(()->  ConfigCompatibilityFeaturesTurnOffSimulatedTouch(getDisplayUiContext(), packageName));
         }
 
         ProtoLog.i(WM_DEBUG_FOCUS_LIGHT, "setFocusedApp %s displayId=%d Callers=%s",
