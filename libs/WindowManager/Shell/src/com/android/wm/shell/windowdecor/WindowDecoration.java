@@ -79,6 +79,23 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
     private static final String TAG = "WindowDecoration";
 
+    private static String formatTaskForLog(RunningTaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return "taskInfo=null";
+        }
+        final Rect bounds = taskInfo.getConfiguration().windowConfiguration.getBounds();
+        final String topActivity = taskInfo.topActivity != null
+                ? taskInfo.topActivity.flattenToShortString() : "null";
+        return "taskId=" + taskInfo.taskId
+                + ", windowingMode=" + taskInfo.getWindowingMode()
+                + ", visible=" + taskInfo.isVisible
+                + ", focused=" + taskInfo.isFocused
+                + ", isResizeable=" + taskInfo.isResizeable
+                + ", positionInParent=" + taskInfo.positionInParent
+                + ", bounds=" + bounds
+                + ", topActivity=" + topActivity;
+    }
+
     /**
      * The Z-order of {@link #mCaptionContainerSurface}.
      * <p>
@@ -211,6 +228,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         mLayoutResId = params.mLayoutResId;
 
         if (!mTaskInfo.isVisible) {
+            Log.w(TAG, "[窗口装饰排查] relayout 发现任务不可见，准备移除 caption inset 并隐藏 taskSurface，"
+                    + formatTaskForLog(mTaskInfo));
             wct.removeInsetsSource(mTaskInfo.token, mOwner, 0 /* index */,
                     WindowInsets.Type.captionBar());
             wct.removeInsetsSource(mTaskInfo.token, mOwner, 0 /* index */,
@@ -239,9 +258,16 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                 || mDisplay.getDisplayId() != mTaskInfo.displayId
                 || oldLayoutResId != mLayoutResId
                 || oldNightMode != newNightMode) {
+            Log.w(TAG, "[窗口装饰排查] relayout 触发重建 DecorView，上下文或布局资源发生变化，oldLayoutResId="
+                    + oldLayoutResId + ", newLayoutResId=" + mLayoutResId
+                    + ", oldDensityDpi=" + oldDensityDpi + ", newDensityDpi=" + newDensityDpi
+                    + ", oldNightMode=" + oldNightMode + ", newNightMode=" + newNightMode
+                    + ", display=" + mDisplay + ", " + formatTaskForLog(mTaskInfo));
             releaseViews();
 
             if (!obtainDisplayOrRegisterListener()) {
+                Log.w(TAG, "[窗口装饰排查] relayout 未拿到 Display，已注册监听等待 display 就绪，"
+                        + formatTaskForLog(mTaskInfo));
                 outResult.mRootView = null;
                 return;
             }
@@ -267,6 +293,13 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         final boolean isFullscreen = taskConfig.windowConfiguration.getWindowingMode()
                 == WINDOWING_MODE_FULLSCREEN;
         Rect taskBounds = taskConfig.windowConfiguration.getBounds();
+
+        Log.w(TAG, "[窗口装饰排查] relayout 开始计算窗口装饰，isFullscreen=" + isFullscreen
+                + ", isTopTransparent=" + isTopTransparent
+                + ", hasOtherActivities=" + hasOtherActivities
+                + ", taskBounds=" + taskBounds
+                + ", captionVisible=" + mIsCaptionVisible
+                + ", " + formatTaskForLog(mTaskInfo));
 
         if(isFullscreen){
             mWindowDecorConfig.windowConfiguration.getAppBounds().top = SystemBarUtils.getStatusBarHeight(mContext);;
@@ -302,6 +335,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
                     .setContainerLayer()
                     .setParent(mDecorationContainerSurface)
                     .build();
+            Log.w(TAG, "[窗口装饰排查] 首次创建 CaptionContainerSurface，taskId="
+                    + mTaskInfo.taskId + ", taskBounds=" + taskBounds);
         }
 
         int offsety = 0;
@@ -334,9 +369,20 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             }
         }
         if (mNewCaptionWidth > 0) {
+            Log.w(TAG, "[窗口装饰排查] 使用外部属性覆盖 caption 宽度，原始宽度="
+                    + outResult.mCaptionWidth + ", 新宽度=" + mNewCaptionWidth
+                    + ", " + formatTaskForLog(mTaskInfo));
             outResult.mCaptionWidth = mNewCaptionWidth;
         }
         // [openfde end]
+
+        Log.w(TAG, "[窗口装饰排查] Caption 几何信息：captionX=" + outResult.mCaptionX
+                + ", captionWidth=" + outResult.mCaptionWidth
+                + ", captionHeight=" + outResult.mCaptionHeight
+                + ", taskWidth=" + outResult.mWidth
+                + ", taskHeight=" + outResult.mHeight
+                + ", offsetY=" + offsety
+                + ", " + formatTaskForLog(mTaskInfo));
 
         startT.setWindowCrop(mCaptionContainerSurface, outResult.mCaptionWidth,
                         outResult.mCaptionHeight)
@@ -400,6 +446,11 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             startT.hide(mCaptionContainerSurface);
         }
 
+        Log.w(TAG, "[窗口装饰排查] Caption 可见性结果：captionOnShell=" + ViewRootImpl.CAPTION_ON_SHELL
+                + ", mIsCaptionVisible=" + mIsCaptionVisible
+                + ", captionInsetsRect=" + mCaptionInsetsRect
+                + ", " + formatTaskForLog(mTaskInfo));
+
         // Task surface itself
         float shadowRadius;
         final Point taskPosition = mTaskInfo.positionInParent;
@@ -422,6 +473,12 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             }
 
         }
+
+        Log.w(TAG, "[窗口装饰排查] Task surface 几何与视觉参数：setTaskPositionAndCrop="
+                + params.mSetTaskPositionAndCrop + ", taskPosition=" + taskPosition
+                + ", shadowRadius=" + shadowRadius + ", cornerRadius=" + params.mCornerRadius
+                + ", windowingMode=" + mTaskInfo.getWindowingMode()
+                + ", " + formatTaskForLog(mTaskInfo));
 
         startT.setShadowRadius(mTaskSurface, shadowRadius)
                 .show(mTaskSurface);
@@ -447,6 +504,8 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             mCaptionWindowManager = new WindowlessWindowManager(
                     mTaskInfo.getConfiguration(), mCaptionContainerSurface,
                     null /* hostInputToken */);
+            Log.w(TAG, "[窗口装饰排查] 首次创建 WindowlessWindowManager，准备承载 caption view，"
+                    + formatTaskForLog(mTaskInfo));
         }
 
         // Caption view
@@ -462,6 +521,10 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         } else {
             lp.inputFeatures &= ~WindowManager.LayoutParams.INPUT_FEATURE_SPY;
         }
+        Log.w(TAG, "[窗口装饰排查] Caption WindowManager.LayoutParams：w=" + lp.width
+                + ", h=" + lp.height + ", type=" + lp.type + ", flags=" + lp.flags
+                + ", inputFeatures=" + lp.inputFeatures + ", title=" + lp.getTitle()
+                + ", allowFallthrough=" + params.mAllowCaptionInputFallthrough);
         if (mViewHost == null) {
             mViewHost = mSurfaceControlViewHostFactory.create(mDecorWindowContext, mDisplay,
                     mCaptionWindowManager);
@@ -513,11 +576,19 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             } else {
                 mIsCaptionVisible = source.isVisible();
             }
-            mIsCaptionVisible &= !(mTaskInfo.taskDescription.getWindowDecorationStatus() == 1);
+            final int decorationStatus = mTaskInfo.taskDescription.getWindowDecorationStatus();
+            mIsCaptionVisible &= !(decorationStatus == 1);
+            Log.w(TAG, "[窗口装饰排查] updateCaptionVisibility：statusBarSourceVisible="
+                    + source.isVisible() + ", decorationStatus=" + decorationStatus
+                    + ", resultCaptionVisible=" + mIsCaptionVisible + ", displayId=" + displayId
+                    + ", " + formatTaskForLog(mTaskInfo));
             setCaptionVisibility(rootView, mIsCaptionVisible);
 
             return;
         }
+        Log.w(TAG, "[窗口装饰排查] updateCaptionVisibility 未找到 statusBars source，caption 可见性保持原值="
+                + mIsCaptionVisible + ", displayId=" + displayId + ", "
+                + formatTaskForLog(mTaskInfo));
     }
 
     void setTaskDragResizer(TaskDragResizer taskDragResizer) {

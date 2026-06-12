@@ -64,6 +64,26 @@ import android.provider.Settings;
  */
 public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private static final String TAG = "CaptionWindowDecorViewModel";
+
+    private static String formatTaskForLog(RunningTaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return "taskInfo=null";
+        }
+        final String topActivity = taskInfo.topActivity != null
+                ? taskInfo.topActivity.flattenToShortString() : "null";
+        final String bounds = String.valueOf(taskInfo.configuration.windowConfiguration.getBounds());
+        final String position = String.valueOf(taskInfo.positionInParent);
+        return "taskId=" + taskInfo.taskId
+                + ", windowingMode=" + taskInfo.getWindowingMode()
+                + ", displayWindowingMode="
+                + taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
+                + ", visible=" + taskInfo.isVisible
+                + ", focused=" + taskInfo.isFocused
+                + ", resizeable=" + taskInfo.isResizeable
+                + ", positionInParent=" + position
+                + ", bounds=" + bounds
+                + ", topActivity=" + topActivity;
+    }
     private final ShellTaskOrganizer mTaskOrganizer;
     private final Context mContext;
     private final Handler mMainHandler;
@@ -88,9 +108,17 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     private void updateWindowDecoration(){
         RunningTaskInfo taskInfo = mTaskOrganizer.getRunningTaskInfo(mRunningTaskId);
         Log.d(TAG, "updateWindowDecoration mRunningTaskId: " + mRunningTaskId + " taskInfo:" + taskInfo);
-        if(taskInfo == null) return;
+        if (taskInfo == null) {
+            Log.w(TAG, "[窗口装饰排查] updateWindowDecoration 未拿到 taskInfo，可能任务已销毁或未同步完成，taskId="
+                    + mRunningTaskId);
+            return;
+        }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(mRunningTaskId);
-        if (decoration == null) return;
+        if (decoration == null) {
+            Log.w(TAG, "[窗口装饰排查] updateWindowDecoration 未找到 decoration，无法刷新标题栏/圆角/阴影，"
+                    + formatTaskForLog(taskInfo));
+            return;
+        }
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
         setCaptionLable(decoration);
@@ -124,6 +152,10 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             DisplayController displayController,
             SyncTransactionQueue syncQueue,
             Transitions transitions) {
+        Log.w(TAG, "[窗口装饰排查] CaptionWindowDecorViewModel 实例创建，instance="
+                + Integer.toHexString(System.identityHashCode(this))
+                + ", taskOrganizer=" + taskOrganizer + ", displayController=" + displayController
+                + ", transitions=" + transitions);
         android.util.Log.d(TAG, "CaptionWindowDecorViewModel() called with: context = [" + context + "], mainHandler = [" + mainHandler + "], mainChoreographer = [" + mainChoreographer + "], taskOrganizer = [" + taskOrganizer + "], displayController = [" + displayController + "], syncQueue = [" + syncQueue + "], transitions = [" + transitions + "]");
         mContext = context;
         mMainHandler = mainHandler;
@@ -201,40 +233,58 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl taskSurface,
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
-        if(taskInfo.isFocused){
+        Log.w(TAG, "[窗口装饰排查] onTaskOpening: " + formatTaskForLog(taskInfo)
+                + ", taskSurface=" + taskSurface
+                + ", hasWindowDecorBefore=" + hasWindowDecor(taskInfo.taskId)
+                + ", decorCacheSizeBefore=" + mWindowDecorByTaskId.size());
+        if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
-            Log.d(TAG,"onTaskOpening mRunningTaskId: " + mRunningTaskId);
-            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
+            Log.w(TAG, "[窗口装饰排查] 任务获得焦点，准备刷新装饰，mRunningTaskId=" + mRunningTaskId);
+            if (taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
                     && !TextUtils.equals(taskInfo.topActivity.getPackageName(), "com.android.launcher3")
                     && mTaskOperations != null) {
                 String packageName = taskInfo.topActivity.getPackageName();
-                String resultStrWithoutActivity = queryStringValueData(packageName, "forcedMaximizeStart", "");
-                Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity);
+                String resultStrWithoutActivity = queryStringValueData(packageName,
+                        "forcedMaximizeStart", "");
+                Log.w(TAG, "[窗口装饰排查] forcedMaximizeStart(按包名) 查询结果="
+                        + resultStrWithoutActivity + ", packageName=" + packageName);
                 boolean forcedMaximizeStart = false;
-                if(TextUtils.equals(resultStrWithoutActivity, "true")){
+                if (TextUtils.equals(resultStrWithoutActivity, "true")) {
                     forcedMaximizeStart = true;
-                    Log.d(TAG,"onTaskOpening packageName: " + packageName + ", forcedMaximizeStart: " + forcedMaximizeStart);
-                }else{
+                    Log.w(TAG, "[窗口装饰排查] 命中按包名强制最大化配置，packageName=" + packageName);
+                } else {
                     String activityName = extractActivityName(taskInfo.topActivity.getClassName());
-                    String resultStr = queryStringValueData(packageName, "forcedMaximizeStart", activityName);
-                    Log.d(TAG,"forcedMaximizeStart resultStr: " + resultStr);
-                    if(TextUtils.equals(resultStr, "true")){
+                    String resultStr = queryStringValueData(packageName, "forcedMaximizeStart",
+                            activityName);
+                    Log.w(TAG, "[窗口装饰排查] forcedMaximizeStart(按 Activity) 查询结果=" + resultStr
+                            + ", activityName=" + activityName);
+                    if (TextUtils.equals(resultStr, "true")) {
                         forcedMaximizeStart = true;
-                        Log.d(TAG,"onTaskOpening className: " + taskInfo.topActivity.getClassName() + ", forcedMaximizeStart: " + forcedMaximizeStart);
+                        Log.w(TAG, "[窗口装饰排查] 命中按 Activity 强制最大化配置，className="
+                                + taskInfo.topActivity.getClassName());
                     }
                 }
-                if(!mTaskOperations.isTaskMaximized(taskInfo) && forcedMaximizeStart){
-                    Log.d(TAG, "onTaskOpening forcedMaximizeStart for " + taskInfo.topActivity.getClassName());
+                if (!mTaskOperations.isTaskMaximized(taskInfo) && forcedMaximizeStart) {
+                    Log.w(TAG, "[窗口装饰排查] 当前未处于最大化，但配置要求启动即最大化，开始执行 maximizeTask，"
+                            + formatTaskForLog(taskInfo));
                     mTaskOperations.maximizeTask(taskInfo);
                 }
             }
             updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
-        if (!shouldShowWindowDecor(taskInfo)) return false;
+        final boolean shouldShow = shouldShowWindowDecor(taskInfo);
+        if (!shouldShow) {
+            Log.w(TAG, "[窗口装饰排查] 不满足展示窗口装饰条件，直接返回 false，"
+                    + formatTaskForLog(taskInfo));
+            return false;
+        }
+        Log.w(TAG, "[窗口装饰排查] 满足展示条件，开始创建窗口装饰，"
+                + formatTaskForLog(taskInfo));
         createWindowDecoration(taskInfo, taskSurface, startT, finishT);
+        Log.w(TAG, "[窗口装饰排查] onTaskOpening 结束，hasWindowDecorAfter="
+                + hasWindowDecor(taskInfo.taskId) + ", decorCacheSizeAfter=" + mWindowDecorByTaskId.size());
         return true;
     }
-
     private String extractActivityName(String fullClassName) {
         if (fullClassName == null || fullClassName.isEmpty()) {
             return "";
@@ -248,13 +298,17 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
 
     @Override
     public void onTaskInfoChanged(RunningTaskInfo taskInfo) {
-        Log.d(TAG, "onTaskInfoChanged taskInfo: " + taskInfo);
+        Log.w(TAG, "[窗口装饰排查] onTaskInfoChanged: " + formatTaskForLog(taskInfo));
         if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
             updateWindowDecorationDelay(RELAYOUT_DELAY_500MS);
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
-        if (decoration == null) return;
+        if (decoration == null) {
+            Log.w(TAG, "[窗口装饰排查] onTaskInfoChanged 未找到 decoration，taskInfo 已更新但装饰对象不存在，"
+                    + formatTaskForLog(taskInfo));
+            return;
+        }
         decoration.relayout(taskInfo);
         setupCaptionColor(taskInfo, decoration);
         setCaptionLable(decoration);
@@ -311,20 +365,26 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         }
         final CaptionWindowDecoration decoration = mWindowDecorByTaskId.get(taskInfo.taskId);
         boolean systemBarVisibility = getSystemBarVisibility(taskInfo);
-        Log.d(TAG, "onTaskChanging taskInfo: " + taskInfo + ", taskInfo.isFocused: " + taskInfo.isFocused + " systemBarVisibility:" + systemBarVisibility);
+        Log.w(TAG, "[窗口装饰排查] onTaskChanging: " + formatTaskForLog(taskInfo)
+                + ", systemBarVisibility=" + systemBarVisibility
+                + ", hasDecoration=" + (decoration != null)
+                + ", shouldShowWindowDecor=" + shouldShowWindowDecor(taskInfo));
         if (!shouldShowWindowDecor(taskInfo)) {
             if (decoration != null) {
+                Log.w(TAG, "[窗口装饰排查] 当前任务已不满足装饰显示条件，准备销毁 decoration，"
+                        + formatTaskForLog(taskInfo));
                 destroyWindowDecoration(taskInfo);
             }
-            Log.d(TAG, "onTaskChanging decoration: " + decoration);
+            Log.w(TAG, "[窗口装饰排查] onTaskChanging 提前返回，decoration=" + decoration);
             return;
         }
-
         if (decoration == null) {
+            Log.w(TAG, "[窗口装饰排查] onTaskChanging 发现应该显示装饰，但 decoration 为空，准备重新创建，"
+                    + formatTaskForLog(taskInfo));
             createWindowDecoration(taskInfo, taskSurface, startT, finishT);
         } else {
             decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
-                    false /* setTaskCropAndPosition */);
+                    true);
         }
     }
 
@@ -339,17 +399,30 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if (decoration == null) return;
 
         decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
-                false /* setTaskCropAndPosition */);
+                true);
     }
 
     @Override
     public void destroyWindowDecoration(RunningTaskInfo taskInfo) {
+        Log.w(TAG, "[窗口装饰排查] destroyWindowDecoration: " + formatTaskForLog(taskInfo));
         final CaptionWindowDecoration decoration =
                 mWindowDecorByTaskId.removeReturnOld(taskInfo.taskId);
         mAppSystemBarControllers.remove(taskInfo.taskId);
-        if (decoration == null) return;
+        if (decoration == null) {
+            Log.w(TAG, "[窗口装饰排查] destroyWindowDecoration 时 decoration 已为空，taskId="
+                    + taskInfo.taskId);
+            return;
+        }
+
+        Log.w(TAG, "[窗口装饰排查] destroyWindowDecoration 关闭前缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + decoration + ", decorCacheSize=" + mWindowDecorByTaskId.size());
 
         decoration.close();
+        Log.w(TAG, "[窗口装饰排查] destroyWindowDecoration 关闭后缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId)
+                + ", decorCacheSize=" + mWindowDecorByTaskId.size());
     }
 
     private void setupCaptionColor(RunningTaskInfo taskInfo, CaptionWindowDecoration decoration) {
@@ -362,10 +435,17 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     }
 
     private boolean shouldShowWindowDecor(RunningTaskInfo taskInfo) {
-        return taskInfo.getWindowingMode() == WINDOWING_MODE_FREEFORM
-                ||  (taskInfo.getActivityType() == ACTIVITY_TYPE_STANDARD
-                        && taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
-                        == WINDOWING_MODE_FREEFORM);
+        final boolean isFreeformWindowingMode = taskInfo.getWindowingMode() == WINDOWING_MODE_FREEFORM;
+        final boolean isStandardOnFreeformDisplay = taskInfo.getActivityType() == ACTIVITY_TYPE_STANDARD
+                && taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
+                == WINDOWING_MODE_FREEFORM;
+        final boolean result = isFreeformWindowingMode || isStandardOnFreeformDisplay;
+        Log.w(TAG, "[窗口装饰排查] shouldShowWindowDecor=" + result
+                + ", isFreeformWindowingMode=" + isFreeformWindowingMode
+                + ", isStandardOnFreeformDisplay=" + isStandardOnFreeformDisplay
+                + ", activityType=" + taskInfo.getActivityType()
+                + ", " + formatTaskForLog(taskInfo));
+        return result;
     }
 
     private void createWindowDecoration(
@@ -375,9 +455,13 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl.Transaction finishT) {
         final CaptionWindowDecoration oldDecoration = mWindowDecorByTaskId.get(taskInfo.taskId);
         if (oldDecoration != null) {
+            Log.w(TAG, "[窗口装饰排查] createWindowDecoration 发现旧 decoration 未释放，先 close 后重建，"
+                    + formatTaskForLog(taskInfo));
             // close the old decoration if it exists to avoid two window decorations being added
             oldDecoration.close();
         }
+        Log.w(TAG, "[窗口装饰排查] 开始创建 CaptionWindowDecoration，"
+                + formatTaskForLog(taskInfo) + ", taskSurface=" + taskSurface);
         final CaptionWindowDecoration windowDecoration =
                 new CaptionWindowDecoration(
                         mContext,
@@ -390,6 +474,12 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         mSyncQueue,
                         this);
         mWindowDecorByTaskId.put(taskInfo.taskId, windowDecoration);
+        Log.w(TAG, "[窗口装饰排查] createWindowDecoration 已放入缓存，taskId="
+                + taskInfo.taskId + ", decoration=" + windowDecoration
+                + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId)
+                + ", decorCacheSize=" + mWindowDecorByTaskId.size());
+
 
         final FluidResizeTaskPositioner taskPositioner =
                 new FluidResizeTaskPositioner(mTaskOrganizer, mTransitions, windowDecoration,
@@ -400,8 +490,14 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         windowDecoration.setDragPositioningCallback(taskPositioner);
         windowDecoration.setDragDetector(touchEventListener.mDragDetector);
         windowDecoration.setTaskDragResizer(taskPositioner);
+        Log.w(TAG, "[窗口装饰排查] createWindowDecoration relayout 前缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId));
         windowDecoration.relayout(taskInfo, startT, finishT,
-                false /* applyStartTransactionOnDraw */, false /* setTaskCropAndPosition */);
+                false /* applyStartTransactionOnDraw */, true);
+        Log.w(TAG, "[窗口装饰排查] createWindowDecoration relayout 后缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId));
         setupCaptionColor(taskInfo, windowDecoration);
     }
 

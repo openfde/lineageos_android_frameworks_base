@@ -19,7 +19,7 @@ package com.android.wm.shell.freeform;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.IBinder;
-import android.view.SurfaceControl;
+import android.util.Log;
 import android.view.WindowManager;
 import android.window.TransitionInfo;
 import android.window.WindowContainerToken;
@@ -36,13 +36,31 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import android.view.SurfaceControl;
 /**
  * The {@link Transitions.TransitionHandler} that handles freeform task launches, closes,
  * maximizing and restoring transitions. It also reports transitions so that window decorations can
  * be a part of transitions.
  */
 public class FreeformTaskTransitionObserver implements Transitions.TransitionObserver {
+    private static final String TAG = "FreeformTaskTransitionObserver";
+
+    private static String formatTaskForLog(ActivityManager.RunningTaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return "taskInfo=null";
+        }
+        final String topActivity = taskInfo.topActivity != null
+                ? taskInfo.topActivity.flattenToShortString() : "null";
+        return "taskId=" + taskInfo.taskId
+                + ", windowingMode=" + taskInfo.getWindowingMode()
+                + ", visible=" + taskInfo.isVisible
+                + ", focused=" + taskInfo.isFocused
+                + ", isResizeable=" + taskInfo.isResizeable
+                + ", positionInParent=" + taskInfo.positionInParent
+                + ", bounds=" + taskInfo.configuration.windowConfiguration.getBounds()
+                + ", topActivity=" + topActivity;
+    }
+
     private final Transitions mTransitions;
     private final WindowDecorViewModel mWindowDecorViewModel;
 
@@ -61,8 +79,12 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
         }
     }
 
+    @Override
+    public void onTransitionStarting(@NonNull IBinder transition) {}
+
     @VisibleForTesting
     void onInit() {
+        Log.w(TAG, "[窗口装饰过渡] FreeformTaskTransitionObserver 注册为 transition observer");
         mTransitions.registerObserver(this);
     }
 
@@ -72,15 +94,23 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
             @NonNull TransitionInfo info,
             @NonNull SurfaceControl.Transaction startT,
             @NonNull SurfaceControl.Transaction finishT) {
+        Log.w(TAG, "[窗口装饰过渡] onTransitionReady: transition=" + transition
+                + ", changeCount=" + info.getChanges().size());
         final ArrayList<ActivityManager.RunningTaskInfo> taskInfoList = new ArrayList<>();
         final ArrayList<WindowContainerToken> taskParents = new ArrayList<>();
         for (TransitionInfo.Change change : info.getChanges()) {
+            final ActivityManager.RunningTaskInfo taskInfo = change.getTaskInfo();
+            Log.w(TAG, "[窗口装饰过渡] 检查 change: mode=" + change.getMode()
+                    + ", flags=" + change.getFlags() + ", parent=" + change.getParent()
+                    + ", container=" + change.getContainer() + ", leash=" + change.getLeash()
+                    + ", " + formatTaskForLog(taskInfo));
             if ((change.getFlags() & TransitionInfo.FLAG_IS_WALLPAPER) != 0) {
+                Log.w(TAG, "[窗口装饰过渡] 跳过 change，原因=FLAG_IS_WALLPAPER");
                 continue;
             }
 
-            final ActivityManager.RunningTaskInfo taskInfo = change.getTaskInfo();
             if (taskInfo == null || taskInfo.taskId == -1) {
+                Log.w(TAG, "[窗口装饰过渡] 跳过 change，原因=taskInfo 为空或 taskId 无效");
                 continue;
             }
             // Filter out non-leaf tasks. Freeform/fullscreen don't nest tasks, but split-screen
@@ -91,25 +121,42 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
                 // parents (due to how z-order works). 2 is that no non-tasks are interleaved
                 // between tasks (hierarchically).
                 taskParents.add(change.getParent());
+                Log.w(TAG, "[窗口装饰过渡] 记录父 task 容器，后续可能过滤 parent，parent="
+                        + change.getParent());
             }
             if (taskParents.contains(change.getContainer())) {
+                Log.w(TAG, "[窗口装饰过渡] 跳过 change，原因=当前 container 被识别为 parent task，container="
+                        + change.getContainer() + ", " + formatTaskForLog(taskInfo));
                 continue;
             }
 
             switch (change.getMode()) {
                 case WindowManager.TRANSIT_OPEN:
+                    Log.w(TAG, "[窗口装饰过渡] 命中 TRANSIT_OPEN，准备调用 onTaskOpening，"
+                            + formatTaskForLog(taskInfo));
                     onOpenTransitionReady(change, startT, finishT);
                     break;
                 case WindowManager.TRANSIT_TO_FRONT:
+                    Log.w(TAG, "[窗口装饰过渡] 命中 TRANSIT_TO_FRONT，准备调用 onTaskChanging，"
+                            + formatTaskForLog(taskInfo));
                     onToFrontTransitionReady(change, startT, finishT);
                     break;
                 case WindowManager.TRANSIT_CLOSE: {
+                    Log.w(TAG, "[窗口装饰过渡] 命中 TRANSIT_CLOSE，准备调用 onTaskClosing，"
+                            + formatTaskForLog(taskInfo));
                     taskInfoList.add(change.getTaskInfo());
                     onCloseTransitionReady(change, startT, finishT);
                     break;
                 }
                 case WindowManager.TRANSIT_CHANGE:
+                    Log.w(TAG, "[窗口装饰过渡] 命中 TRANSIT_CHANGE，准备调用 onTaskChanging，"
+                            + formatTaskForLog(taskInfo));
                     onChangeTransitionReady(change, startT, finishT);
+                    break;
+                default:
+                    Log.w(TAG, "[窗口装饰过渡] 未处理的 transition mode=" + change.getMode()
+                            + "，不会为该 change 创建/更新 decoration，"
+                            + formatTaskForLog(taskInfo));
                     break;
             }
         }
@@ -146,9 +193,6 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
         mWindowDecorViewModel.onTaskChanging(
                 change.getTaskInfo(), change.getLeash(), startT, finishT);
     }
-
-    @Override
-    public void onTransitionStarting(@NonNull IBinder transition) {}
 
     @Override
     public void onTransitionMerged(@NonNull IBinder merged, @NonNull IBinder playing) {
