@@ -4272,8 +4272,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         logKeyboardSystemsEvent(event, KeyboardLogEvent.TOGGLE_CAPS_LOCK);
                     } else if (mPendingMetaAction) {
                         if (!canceled) {
-                            launchAllAppsViaA11y();
-                            logKeyboardSystemsEvent(event, KeyboardLogEvent.ACCESSIBILITY_ALL_APPS);
+                            //FDE remove key Windows cause ALL_APPS action in launcher
+//                            launchAllAppsViaA11y();
+//                            logKeyboardSystemsEvent(event, KeyboardLogEvent.ACCESSIBILITY_ALL_APPS);
                         }
                         mPendingMetaAction = false;
                     }
