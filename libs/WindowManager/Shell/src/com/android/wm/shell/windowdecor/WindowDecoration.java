@@ -371,7 +371,6 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
         if (mNewCaptionWidth > 0) {
             Log.w(TAG, "[窗口装饰排查] 使用外部属性覆盖 caption 宽度，原始宽度="
                     + outResult.mCaptionWidth + ", 新宽度=" + mNewCaptionWidth
-                    + ", packageWithCaption=" + mPackageNameWithCaption
                     + ", " + formatTaskForLog(mTaskInfo));
             outResult.mCaptionWidth = mNewCaptionWidth;
         }
