@@ -79,6 +79,9 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
         }
     }
 
+    @Override
+    public void onTransitionStarting(@NonNull IBinder transition) {}
+
     @VisibleForTesting
     void onInit() {
         Log.w(TAG, "[窗口装饰过渡] FreeformTaskTransitionObserver 注册为 transition observer");
