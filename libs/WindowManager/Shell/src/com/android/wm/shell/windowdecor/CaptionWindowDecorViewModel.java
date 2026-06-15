@@ -384,7 +384,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             createWindowDecoration(taskInfo, taskSurface, startT, finishT);
         } else {
             decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
-                    false /* setTaskCropAndPosition */);
+                    true);
         }
     }
 
@@ -399,7 +399,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if (decoration == null) return;
 
         decoration.relayout(taskInfo, startT, finishT, false /* applyStartTransactionOnDraw */,
-                false /* setTaskCropAndPosition */);
+                true);
     }
 
     @Override
@@ -494,7 +494,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
                 + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId));
         windowDecoration.relayout(taskInfo, startT, finishT,
-                false /* applyStartTransactionOnDraw */, false /* setTaskCropAndPosition */);
+                false /* applyStartTransactionOnDraw */, true);
         Log.w(TAG, "[窗口装饰排查] createWindowDecoration relayout 后缓存状态，taskId="
                 + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
                 + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId));
