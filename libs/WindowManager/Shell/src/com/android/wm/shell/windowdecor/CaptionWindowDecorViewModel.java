@@ -230,7 +230,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             SurfaceControl.Transaction startT,
             SurfaceControl.Transaction finishT) {
         Log.w(TAG, "[窗口装饰排查] onTaskOpening: " + formatTaskForLog(taskInfo)
-                + ", taskSurface=" + taskSurface);
+                + ", taskSurface=" + taskSurface
+                + ", hasWindowDecorBefore=" + hasWindowDecor(taskInfo.taskId)
+                + ", decorCacheSizeBefore=" + mWindowDecorByTaskId.size());
         if (taskInfo.isFocused) {
             mRunningTaskId = taskInfo.taskId;
             Log.w(TAG, "[窗口装饰排查] 任务获得焦点，准备刷新装饰，mRunningTaskId=" + mRunningTaskId);
@@ -266,7 +268,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             }
             updateWindowDecorationDelay(RELAYOUT_DELAY);
         }
-        if (!shouldShowWindowDecor(taskInfo)) {
+        final boolean shouldShow = shouldShowWindowDecor(taskInfo);
+        if (!shouldShow) {
             Log.w(TAG, "[窗口装饰排查] 不满足展示窗口装饰条件，直接返回 false，"
                     + formatTaskForLog(taskInfo));
             return false;
@@ -274,6 +277,8 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         Log.w(TAG, "[窗口装饰排查] 满足展示条件，开始创建窗口装饰，"
                 + formatTaskForLog(taskInfo));
         createWindowDecoration(taskInfo, taskSurface, startT, finishT);
+        Log.w(TAG, "[窗口装饰排查] onTaskOpening 结束，hasWindowDecorAfter="
+                + hasWindowDecor(taskInfo.taskId) + ", decorCacheSizeAfter=" + mWindowDecorByTaskId.size());
         return true;
     }
     private String extractActivityName(String fullClassName) {
@@ -418,10 +423,17 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     }
 
     private boolean shouldShowWindowDecor(RunningTaskInfo taskInfo) {
-        return taskInfo.getWindowingMode() == WINDOWING_MODE_FREEFORM
-                ||  (taskInfo.getActivityType() == ACTIVITY_TYPE_STANDARD
-                        && taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
-                        == WINDOWING_MODE_FREEFORM);
+        final boolean isFreeformWindowingMode = taskInfo.getWindowingMode() == WINDOWING_MODE_FREEFORM;
+        final boolean isStandardOnFreeformDisplay = taskInfo.getActivityType() == ACTIVITY_TYPE_STANDARD
+                && taskInfo.configuration.windowConfiguration.getDisplayWindowingMode()
+                == WINDOWING_MODE_FREEFORM;
+        final boolean result = isFreeformWindowingMode || isStandardOnFreeformDisplay;
+        Log.w(TAG, "[窗口装饰排查] shouldShowWindowDecor=" + result
+                + ", isFreeformWindowingMode=" + isFreeformWindowingMode
+                + ", isStandardOnFreeformDisplay=" + isStandardOnFreeformDisplay
+                + ", activityType=" + taskInfo.getActivityType()
+                + ", " + formatTaskForLog(taskInfo));
+        return result;
     }
 
     private void createWindowDecoration(
@@ -449,7 +461,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         mMainChoreographer,
                         mSyncQueue,
                         this);
-        mWindowDecorByTaskId.put(taskInfo.taskId, windowDecoration);
+        Log.w(TAG, "[窗口装饰排查] createWindowDecoration 已放入缓存，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", decorCacheSize=" + mWindowDecorByTaskId.size());
 
         final FluidResizeTaskPositioner taskPositioner =
                 new FluidResizeTaskPositioner(mTaskOrganizer, mTransitions, windowDecoration,
