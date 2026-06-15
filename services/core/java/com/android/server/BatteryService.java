@@ -123,14 +123,19 @@ public final class BatteryService extends SystemService {
 	// 你的硬编码参数 (注意：电流电压单位通常为微安/微伏)
     private static final int FAKE_MAX_CHARGING_CURRENT = 3000000; // 3A
     private static final int FAKE_MAX_CHARGING_VOLTAGE = 5000000; // 5V
-    private static final int FAKE_CHARGE_COUNTER = 58021;
+    private static final int FAKE_CHARGE_COUNTER = 5188000; // 5188mA
     private static final int FAKE_VOLTAGE = 4154;
     private static final int FAKE_TEMPERATURE = 260; // 26.0°C
-    private static final int FAKE_CAPACITY_LEVEL = 2; // BatteryManager.BATTERY_PROPERTY_CAPACITY_LEVEL_HIGH
-    private int mFakeLevel = 100; // 初始电量
+    private static final int FAKE_BATTERY_FULL_CHARGE_UAH = 6958000; // current capacity
+    private static final int FAKE_BATTERY_FULL_CHARGE_DESIGN_CAPACITY_UAH = 7108000; // Design capacity
+    private int mFakeLevel = 85; // 初始电量
+    private int mFakeTemp = FAKE_TEMPERATURE; 
+    private int mFakeChargeCounter =  FAKE_CHARGE_COUNTER;
+    private int mFakeMaxCapacity = FAKE_BATTERY_FULL_CHARGE_UAH; 
+    private int mFakeVoltage = FAKE_VOLTAGE; // 初始电量
     private boolean mIsFakeCharging = false; // 是否处于模拟充电状态
     private long mLastUpdateTime = 0;
-    private static final long UPDATE_INTERVAL = 10*60000; // 每10分钟更新一次 (10*60000ms)
+    private static final long UPDATE_INTERVAL = 1*60000; // 每10分钟更新一次 (10*60000ms)
 						       //
     private static final String TAG = BatteryService.class.getSimpleName();
 
@@ -266,18 +271,43 @@ public final class BatteryService extends SystemService {
         if (!mIsFakeCharging) {
             // 模式：消耗电量
             mFakeLevel--;
-            if (mFakeLevel <= 25) {
-            	mFakeLevel = 25;
+            mFakeVoltage-=10;
+            // 2. 最大容量缓慢下降：每 10 分钟下降 10 个单位
+            mFakeMaxCapacity -= 10;
+            // 1. 放电时温度：在 25-27 度附近随机变化 (单位 0.1度，即 250-270)
+            // 模拟真实波动，使用当前时间作为随机扰动因子
+            mFakeTemp = 250 + (int)(Math.random() * 21); 
+            if (mFakeLevel <= 35) {
+            	mFakeLevel = 35;
             	mIsFakeCharging = true; // 触发充电状态
             }
         } else {
             // 模式：充电
             mFakeLevel++;
+            mFakeVoltage+=10;
+
+            // 1. 充电时温度：慢慢提高，到 90% 时设置为 32度 (320)
+            // 假设从当前温度向 320 逼近，或者根据 level 线性插值
+            // 这里采用线性插值，让温度随 level 从当前值平滑过渡到 320
+            if (mFakeLevel <= 90) {
+                float progress = (mFakeLevel - 25f) / (90f - 25f);
+                mFakeTemp = (int) (260 + (progress * (320 - 260))); // 从 26度升到 32度
+            }
+
             if (mFakeLevel >= 90) {
-            	mFakeLevel = 90;
-            	mIsFakeCharging = false; // 停止充电状态，开始下一轮循环
+                mFakeLevel = 90;
+                mFakeTemp = 320; 
+                mIsFakeCharging = false; // 停止充电状态，开始下一轮循环
             }
         } 
+    // --- 3. 电量计数器 (Charge Counter) 逻辑 ---
+    // 根据 level 对应关系进行线性映射
+    // 对应关系：85% -> 5,188,000 | 87% -> 5,550,000
+    // 斜率 (Slope) = (5550000 - 5188000) / (87 - 85) = 362000 / 2 = 181,000 单位/每1%电量
+    mFakeChargeCounter = FAKE_CHARGE_COUNTER + mFakeLevel - 85 * 181000;
+    
+    // 限制一下最小值，防止 level 过低时出现负数或极小值
+    if (mFakeChargeCounter < 0) mFakeChargeCounter = 0;
     }
 
     public BatteryService(Context context) {
@@ -827,19 +857,28 @@ public final class BatteryService extends SystemService {
                 if (mHealthInfo != null) {
                     mHealthInfo.batteryLevel = mFakeLevel; // 
                     mHealthInfo.batteryPresent = true;    // present: true
-                    mHealthInfo.batteryStatus = android.os.BatteryManager.BATTERY_STATUS_CHARGING; // Charging state: 2 (对应你给的1,通常指正在充电)
-                    mHealthInfo.batteryHealth = android.os.BatteryManager.BATTERY_HEALTH_GOOD;
-                    mHealthInfo.batteryVoltageMillivolts = FAKE_VOLTAGE; // 4154
-                    mHealthInfo.batteryTemperatureTenthsCelsius = FAKE_TEMPERATURE; // 260
+                    mHealthInfo.batteryHealth = BatteryManager.BATTERY_HEALTH_GOOD;
+                    mHealthInfo.batteryVoltageMillivolts = mFakeVoltage; // 4154
+                    mHealthInfo.batteryTemperatureTenthsCelsius = mFakeTemp; // 260
                     mHealthInfo.batteryTechnology = "Li-ion";
 
                     mHealthInfo.maxChargingCurrentMicroamps = FAKE_MAX_CHARGING_CURRENT;
                     mHealthInfo.maxChargingVoltageMicrovolts = FAKE_MAX_CHARGING_VOLTAGE;
-                    mHealthInfo.batteryChargeCounterUah = FAKE_CHARGE_COUNTER;
+                    mHealthInfo.batteryChargeCounterUah = mFakeChargeCounter;
 
-                    mHealthInfo.batteryCapacityLevel = FAKE_CAPACITY_LEVEL;
-                    mHealthInfo.batteryFullChargeDesignCapacityUah = 7108000; // Design capacity
-                    mHealthInfo.batteryFullChargeUah = 6958000;
+                    if (mFakeLevel >= 100) {
+                        mHealthInfo.batteryCapacityLevel = 5; //FULL
+                    } else if (mFakeLevel >= 80) {
+                        mHealthInfo.batteryCapacityLevel = 4; //HIGH
+                    } else if (mFakeLevel >= 15) {
+                        mHealthInfo.batteryCapacityLevel = 3; // NORMAL
+                    } else if (mFakeLevel >= 5) {
+                        mHealthInfo.batteryCapacityLevel = 2; // LOW
+                    } else {
+                        mHealthInfo.batteryCapacityLevel = 1; // CRITICAL
+                    }
+                    mHealthInfo.batteryFullChargeDesignCapacityUah = FAKE_BATTERY_FULL_CHARGE_DESIGN_CAPACITY_UAH; // Design capacity
+                    mHealthInfo.batteryFullChargeUah = mFakeMaxCapacity;
                     mHealthInfo.chargingState = 1;
                     mHealthInfo.chargingPolicy = 1;
 
