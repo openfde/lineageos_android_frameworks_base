@@ -20,6 +20,7 @@ import static android.app.WindowConfiguration.WINDOWING_MODE_FREEFORM;
 
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FREEFORM;
 
+import android.graphics.Rect;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.util.Log;
 import android.view.SurfaceControl;
@@ -92,6 +93,26 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
         }
     }
 
+    private void forceTaskPositionAndCrop(
+            RunningTaskInfo taskInfo, SurfaceControl leash, SurfaceControl.Transaction t) {
+        if (taskInfo == null || leash == null) {
+            return;
+        }
+        final Rect bounds = taskInfo.configuration.windowConfiguration.getBounds();
+        if (bounds == null || bounds.isEmpty()) {
+            Log.w(TAG, "[窗口装饰兜底] forceTaskPositionAndCrop 跳过，原因=bounds 无效，"
+                    + formatTaskForLog(taskInfo));
+            return;
+        }
+        final int width = bounds.width();
+        final int height = bounds.height();
+        t.setWindowCrop(leash, width, height)
+                .setPosition(leash, taskInfo.positionInParent.x, taskInfo.positionInParent.y);
+        Log.w(TAG, "[窗口装饰兜底] 直接对 task leash 执行 setWindowCrop/setPosition，width="
+                + width + ", height=" + height + ", position=" + taskInfo.positionInParent
+                + ", leash=" + leash + ", " + formatTaskForLog(taskInfo));
+    }
+
     @Override
     public void onTaskAppeared(RunningTaskInfo taskInfo, SurfaceControl leash) {
         if (mTasks.get(taskInfo.taskId) != null) {
@@ -115,6 +136,10 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
             mWindowDecorationViewModel.onTaskOpening(taskInfo, leash, t, t);
             Log.w(TAG, "[窗口装饰上游] onTaskOpening 返回后，hasWindowDecor="
                     + mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId));
+            t.apply();
+        } else if (leash != null) {
+            SurfaceControl.Transaction t = new SurfaceControl.Transaction();
+            forceTaskPositionAndCrop(taskInfo, leash, t);
             t.apply();
         }
 
