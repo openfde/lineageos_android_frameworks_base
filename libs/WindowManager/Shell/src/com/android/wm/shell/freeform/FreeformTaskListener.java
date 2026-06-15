@@ -35,6 +35,7 @@ import com.android.wm.shell.windowdecor.WindowDecorViewModel;
 
 import java.io.PrintWriter;
 import java.util.Optional;
+import android.util.SparseArray;
 
 /**
  * {@link ShellTaskOrganizer.TaskListener} for {@link
