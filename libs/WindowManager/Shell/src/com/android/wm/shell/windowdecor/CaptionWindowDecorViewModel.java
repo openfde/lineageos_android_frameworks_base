@@ -423,6 +423,7 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                 + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
                 + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId)
                 + ", decorCacheSize=" + mWindowDecorByTaskId.size());
+    }
 
     private void setupCaptionColor(RunningTaskInfo taskInfo, CaptionWindowDecoration decoration) {
         final int statusBarColor = taskInfo.taskDescription.getStatusBarColor();
