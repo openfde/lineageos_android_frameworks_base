@@ -180,12 +180,23 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
                     && state.mLeash != null
                     && !mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId)) {
                 Log.w(TAG, "[窗口装饰兜底] transitions 模式下未收到 decoration 创建回调，"
-                        + "在 onTaskInfoChanged 中主动补建，taskId=" + taskInfo.taskId
+                        + "先在 onTaskInfoChanged 中主动补建 decoration，taskId=" + taskInfo.taskId
                         + ", leash=" + state.mLeash + ", " + formatTaskForLog(taskInfo));
                 SurfaceControl.Transaction t = new SurfaceControl.Transaction();
                 mWindowDecorationViewModel.onTaskOpening(taskInfo, state.mLeash, t, t);
-                Log.w(TAG, "[窗口装饰兜底] 补建调用结束，hasWindowDecor="
+                Log.w(TAG, "[窗口装饰兜底] 第一次补建结束，hasWindowDecor="
                         + mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId));
+                t.apply();
+            }
+            if (Transitions.ENABLE_SHELL_TRANSITIONS
+                    && taskInfo.isVisible
+                    && state.mLeash != null
+                    && mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId)) {
+                Log.w(TAG, "[窗口装饰兜底] decoration 已存在，继续补一次 onTaskChanging，"
+                        + "确保 task leash 执行 crop/position，taskId=" + taskInfo.taskId
+                        + ", leash=" + state.mLeash + ", " + formatTaskForLog(taskInfo));
+                SurfaceControl.Transaction t = new SurfaceControl.Transaction();
+                mWindowDecorationViewModel.onTaskChanging(taskInfo, state.mLeash, t, t);
                 t.apply();
             }
         }
