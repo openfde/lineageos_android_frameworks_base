@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import android.view.SurfaceControl;
 /**
  * The {@link Transitions.TransitionHandler} that handles freeform task launches, closes,
  * maximizing and restoring transitions. It also reports transitions so that window decorations can
