@@ -66,10 +66,10 @@ public class AsyncSensorManager extends SensorManager
         mExecutor = threadFactory.buildExecutorOnNewThread("async_sensor");
         mSensorCache = mInner.getSensorList(Sensor.TYPE_ALL);
         mPlugins = new ArrayList<>();
-        if (pluginManager != null) {
-            pluginManager.addPluginListener(this, SensorManagerPlugin.class,
-                    true /* allowMultiple */);
-        }
+//        if (pluginManager != null) {
+//            pluginManager.addPluginListener(this, SensorManagerPlugin.class,
+//                    true /* allowMultiple */);
+//        }
     }
 
     @Override

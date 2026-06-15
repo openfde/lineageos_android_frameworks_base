@@ -184,6 +184,11 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
     @Override
     public void setSplitScreenController(SplitScreenController splitScreenController) {}
 
+    @Override
+    public boolean hasWindowDecor(int taskId){
+        return mWindowDecorByTaskId.get(taskId) != null;
+    }
+
     private String queryStringValueData(String packageName,String keyCode,String activityName){
               String selection = "PACKAGE_NAME = ? AND KEY_CODE = ? AND ACTIVITY_NAME = ?";
               String[] selectionArgs= {packageName,keyCode, activityName};
@@ -199,7 +204,9 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         if(taskInfo.isFocused){
             mRunningTaskId = taskInfo.taskId;
             Log.d(TAG,"onTaskOpening mRunningTaskId: " + mRunningTaskId);
-            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null) {
+            if(taskInfo.topActivity != null && taskInfo.topActivity.getPackageName() != null
+                    && !TextUtils.equals(taskInfo.topActivity.getPackageName(), "com.android.launcher3")
+                    && mTaskOperations != null) {
                 String packageName = taskInfo.topActivity.getPackageName();
                 String resultStrWithoutActivity = queryStringValueData(packageName, "forcedMaximizeStart", "");
                 Log.d(TAG,"forcedMaximizeStart resultStrWithoutActivity: " + resultStrWithoutActivity);

@@ -109,6 +109,7 @@ public class PluginActionManager<T extends Plugin> {
     /** Load all plugins matching this instance's action. */
     public void loadAll() {
         if (DEBUG) Log.d(TAG, "startListening");
+//        queryAll();
         mBgExecutor.execute(() -> queryAll());
     }
 
@@ -117,12 +118,14 @@ public class PluginActionManager<T extends Plugin> {
         if (DEBUG) Log.d(TAG, "stopListening");
         ArrayList<PluginInstance<T>> plugins = new ArrayList<>(mPluginInstances);
         for (PluginInstance<T> plugInstance : plugins) {
+//            onPluginDisconnected(plugInstance);
             mMainExecutor.execute(() -> onPluginDisconnected(plugInstance));
         }
     }
 
     /** Unload all matching plugins managed by this instance. */
     public void onPackageRemoved(String pkg) {
+        removePkg(pkg);
         mBgExecutor.execute(() -> removePkg(pkg));
     }
 
@@ -222,6 +225,7 @@ public class PluginActionManager<T extends Plugin> {
         if (DEBUG) Log.d(TAG, "queryAll " + mAction);
         for (int i = mPluginInstances.size() - 1; i >= 0; i--) {
             PluginInstance<T> pluginInstance = mPluginInstances.get(i);
+//            onPluginDisconnected(pluginInstance);
             mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
         }
         mPluginInstances.clear();
@@ -232,6 +236,7 @@ public class PluginActionManager<T extends Plugin> {
         for (int i = mPluginInstances.size() - 1; i >= 0; i--) {
             final PluginInstance<T> pluginInstance = mPluginInstances.get(i);
             if (pluginInstance.getPackage().equals(pkg)) {
+//                onPluginDisconnected(pluginInstance);
                 mMainExecutor.execute(() -> onPluginDisconnected(pluginInstance));
                 mPluginInstances.remove(i);
             }
@@ -240,6 +245,9 @@ public class PluginActionManager<T extends Plugin> {
 
     private void queryPkg(String pkg) {
         if (DEBUG) Log.d(TAG, "queryPkg " + pkg + " " + mAction);
+        if(!"com.android.systemui.action.PLUGIN_OVERLAY".equals(mAction)){
+            return;
+        }
         if (mAllowMultiple || (mPluginInstances.size() == 0)) {
             handleQueryPlugins(pkg);
         } else {
@@ -254,7 +262,8 @@ public class PluginActionManager<T extends Plugin> {
 //        if (pkgName != null) {
 //            intent.setPackage(pkgName);
 //        }
-        List<ResolveInfo> result = mPm.queryIntentServices(intent, 0);
+        List<ResolveInfo> result = mPm.queryIntentServices(intent, PackageManager.MATCH_DIRECT_BOOT_AWARE
+                | PackageManager.MATCH_DIRECT_BOOT_UNAWARE);
         if (DEBUG) {
             Log.d(TAG, "Found " + result.size() + " plugins");
             for (ResolveInfo info : result) {
@@ -276,6 +285,7 @@ public class PluginActionManager<T extends Plugin> {
             if (pluginInstance != null) {
                 // add plugin before sending PLUGIN_CONNECTED message
                 mPluginInstances.add(pluginInstance);
+//                onPluginConnected(pluginInstance);
                 mMainExecutor.execute(() -> onPluginConnected(pluginInstance));
             }
         }

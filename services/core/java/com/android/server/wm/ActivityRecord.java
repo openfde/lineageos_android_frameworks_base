@@ -277,8 +277,10 @@ import android.app.PendingIntent;
 import android.app.PictureInPictureParams;
 import android.app.ResultInfo;
 import android.app.WaitResult;
+import com.android.server.UiThread;
 import android.app.WindowConfiguration;
 import android.app.admin.DevicePolicyManager;
+import android.widget.Toast;
 import android.app.assist.ActivityId;
 import android.app.servertransaction.ActivityConfigurationChangeItem;
 import android.app.servertransaction.ActivityLifecycleItem;
@@ -3390,7 +3392,21 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
      * @return whether this activity is currently allowed to enter PIP.
      */
     boolean checkEnterPictureInPictureState(String caller, boolean beforeStopping) {
+
+        // fde start ban pip window mode
+        if (!beforeStopping) {
+            UiThread.getHandler().post(() -> Toast.makeText(mAtmService.mContext,
+                    "Picture-in-picture is not supported",
+                    Toast.LENGTH_SHORT).show());
+        }
+        return false;
+        /**
         if (!supportsPictureInPicture()) {
+            return false;
+        }
+
+        // Check app-ops and see if PiP is supported for this package
+        if (!checkEnterPictureInPictureAppOpsState()) {
             return false;
         }
 
@@ -3448,6 +3464,8 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
             default:
                 return false;
         }
+      */
+     // fde end
     }
 
     /**
