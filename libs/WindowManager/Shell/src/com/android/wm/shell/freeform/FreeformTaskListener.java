@@ -169,35 +169,40 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
                 + ", cachedState=" + (state != null));
         ProtoLog.v(ShellProtoLogGroup.WM_SHELL_TASK_ORG, "Freeform Task Info Changed: #%d",
                 taskInfo.taskId);
-        mWindowDecorationViewModel.onTaskInfoChanged(taskInfo);
         if (state == null) {
+            mWindowDecorationViewModel.onTaskInfoChanged(taskInfo);
             Log.w(TAG, "[窗口装饰上游] onTaskInfoChanged 时 Freeform 缓存中没有该 task，可能 appeared 丢失或 listener 切换，taskId="
                     + taskInfo.taskId);
         } else {
             state.mTaskInfo = taskInfo;
-            if (Transitions.ENABLE_SHELL_TRANSITIONS
+            final boolean needFallbackCreate = Transitions.ENABLE_SHELL_TRANSITIONS
                     && taskInfo.isVisible
                     && state.mLeash != null
-                    && !mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId)) {
+                    && !mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId);
+            if (needFallbackCreate) {
                 Log.w(TAG, "[窗口装饰兜底] transitions 模式下未收到 decoration 创建回调，"
-                        + "先在 onTaskInfoChanged 中主动补建 decoration，taskId=" + taskInfo.taskId
-                        + ", leash=" + state.mLeash + ", " + formatTaskForLog(taskInfo));
+                        + "本次 onTaskInfoChanged 将同步补建并立即补一次 changing，taskId="
+                        + taskInfo.taskId + ", leash=" + state.mLeash + ", "
+                        + formatTaskForLog(taskInfo));
                 SurfaceControl.Transaction t = new SurfaceControl.Transaction();
                 mWindowDecorationViewModel.onTaskOpening(taskInfo, state.mLeash, t, t);
-                Log.w(TAG, "[窗口装饰兜底] 第一次补建结束，hasWindowDecor="
+                mWindowDecorationViewModel.onTaskChanging(taskInfo, state.mLeash, t, t);
+                Log.w(TAG, "[窗口装饰兜底] 同步补建+changing 结束，hasWindowDecor="
                         + mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId));
                 t.apply();
-            }
-            if (Transitions.ENABLE_SHELL_TRANSITIONS
-                    && taskInfo.isVisible
-                    && state.mLeash != null
-                    && mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId)) {
-                Log.w(TAG, "[窗口装饰兜底] decoration 已存在，继续补一次 onTaskChanging，"
-                        + "确保 task leash 执行 crop/position，taskId=" + taskInfo.taskId
-                        + ", leash=" + state.mLeash + ", " + formatTaskForLog(taskInfo));
-                SurfaceControl.Transaction t = new SurfaceControl.Transaction();
-                mWindowDecorationViewModel.onTaskChanging(taskInfo, state.mLeash, t, t);
-                t.apply();
+            } else {
+                mWindowDecorationViewModel.onTaskInfoChanged(taskInfo);
+                if (Transitions.ENABLE_SHELL_TRANSITIONS
+                        && taskInfo.isVisible
+                        && state.mLeash != null
+                        && mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId)) {
+                    Log.w(TAG, "[窗口装饰兜底] decoration 已存在，继续补一次 onTaskChanging，"
+                            + "确保 task leash 执行 crop/position，taskId=" + taskInfo.taskId
+                            + ", leash=" + state.mLeash + ", " + formatTaskForLog(taskInfo));
+                    SurfaceControl.Transaction t = new SurfaceControl.Transaction();
+                    mWindowDecorationViewModel.onTaskChanging(taskInfo, state.mLeash, t, t);
+                    t.apply();
+                }
             }
         }
         if (DesktopModeStatus.isEnabled()) {
