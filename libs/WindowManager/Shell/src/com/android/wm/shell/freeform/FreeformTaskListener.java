@@ -61,6 +61,7 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
                 + ", topActivity=" + topActivity;
     }
 
+    private final ShellTaskOrganizer mShellTaskOrganizer;
     private final Optional<DesktopModeTaskRepository> mDesktopModeTaskRepository;
     private final WindowDecorViewModel mWindowDecorationViewModel;
 
