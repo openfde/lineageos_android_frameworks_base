@@ -152,6 +152,10 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             DisplayController displayController,
             SyncTransactionQueue syncQueue,
             Transitions transitions) {
+        Log.w(TAG, "[窗口装饰排查] CaptionWindowDecorViewModel 实例创建，instance="
+                + Integer.toHexString(System.identityHashCode(this))
+                + ", taskOrganizer=" + taskOrganizer + ", displayController=" + displayController
+                + ", transitions=" + transitions);
         android.util.Log.d(TAG, "CaptionWindowDecorViewModel() called with: context = [" + context + "], mainHandler = [" + mainHandler + "], mainChoreographer = [" + mainChoreographer + "], taskOrganizer = [" + taskOrganizer + "], displayController = [" + displayController + "], syncQueue = [" + syncQueue + "], transitions = [" + transitions + "]");
         mContext = context;
         mMainHandler = mainHandler;
@@ -410,8 +414,15 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
             return;
         }
 
+        Log.w(TAG, "[窗口装饰排查] destroyWindowDecoration 关闭前缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + decoration + ", decorCacheSize=" + mWindowDecorByTaskId.size());
+
         decoration.close();
-    }
+        Log.w(TAG, "[窗口装饰排查] destroyWindowDecoration 关闭后缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId)
+                + ", decorCacheSize=" + mWindowDecorByTaskId.size());
 
     private void setupCaptionColor(RunningTaskInfo taskInfo, CaptionWindowDecoration decoration) {
         final int statusBarColor = taskInfo.taskDescription.getStatusBarColor();
@@ -461,9 +472,13 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
                         mMainChoreographer,
                         mSyncQueue,
                         this);
+        mWindowDecorByTaskId.put(taskInfo.taskId, windowDecoration);
         Log.w(TAG, "[窗口装饰排查] createWindowDecoration 已放入缓存，taskId="
-                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + taskInfo.taskId + ", decoration=" + windowDecoration
+                + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId)
                 + ", decorCacheSize=" + mWindowDecorByTaskId.size());
+
 
         final FluidResizeTaskPositioner taskPositioner =
                 new FluidResizeTaskPositioner(mTaskOrganizer, mTransitions, windowDecoration,
@@ -474,8 +489,14 @@ public class CaptionWindowDecorViewModel implements WindowDecorViewModel {
         windowDecoration.setDragPositioningCallback(taskPositioner);
         windowDecoration.setDragDetector(touchEventListener.mDragDetector);
         windowDecoration.setTaskDragResizer(taskPositioner);
+        Log.w(TAG, "[窗口装饰排查] createWindowDecoration relayout 前缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId));
         windowDecoration.relayout(taskInfo, startT, finishT,
                 false /* applyStartTransactionOnDraw */, false /* setTaskCropAndPosition */);
+        Log.w(TAG, "[窗口装饰排查] createWindowDecoration relayout 后缓存状态，taskId="
+                + taskInfo.taskId + ", hasWindowDecor=" + hasWindowDecor(taskInfo.taskId)
+                + ", cachedObject=" + mWindowDecorByTaskId.get(taskInfo.taskId));
         setupCaptionColor(taskInfo, windowDecoration);
     }
 
