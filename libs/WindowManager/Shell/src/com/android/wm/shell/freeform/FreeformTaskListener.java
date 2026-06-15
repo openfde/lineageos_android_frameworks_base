@@ -175,6 +175,19 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
                     + taskInfo.taskId);
         } else {
             state.mTaskInfo = taskInfo;
+            if (Transitions.ENABLE_SHELL_TRANSITIONS
+                    && taskInfo.isVisible
+                    && state.mLeash != null
+                    && !mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId)) {
+                Log.w(TAG, "[窗口装饰兜底] transitions 模式下未收到 decoration 创建回调，"
+                        + "在 onTaskInfoChanged 中主动补建，taskId=" + taskInfo.taskId
+                        + ", leash=" + state.mLeash + ", " + formatTaskForLog(taskInfo));
+                SurfaceControl.Transaction t = new SurfaceControl.Transaction();
+                mWindowDecorationViewModel.onTaskOpening(taskInfo, state.mLeash, t, t);
+                Log.w(TAG, "[窗口装饰兜底] 补建调用结束，hasWindowDecor="
+                        + mWindowDecorationViewModel.hasWindowDecor(taskInfo.taskId));
+                t.apply();
+            }
         }
         if (DesktopModeStatus.isEnabled()) {
             mDesktopModeTaskRepository.ifPresent(repository -> {
