@@ -3164,6 +3164,7 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
                     + " | movedToTop=" + movedToTop);
 
             return result;
+        }
 
         @TransitionInfo.TransitionMode
         int getTransitMode(@NonNull WindowContainer wc) {
