@@ -794,7 +794,10 @@ class TransitionController {
 
     /** @see Transition#collectExistenceChange  */
     void collectExistenceChange(@NonNull WindowContainer wc) {
-        if (mCollectingTransition == null) return;
+        if (mCollectingTransition == null) {
+            Slog.w(TAG, "[YZD] collectExistenceChange SKIPPED (mCollectingTransition null) wc=" + wc);
+            return;
+        }
         mCollectingTransition.collectExistenceChange(wc);
     }
 
@@ -1424,32 +1427,34 @@ class TransitionController {
     @NonNull
     Transition createAndStartCollecting(int type) {
         if (mTransitionPlayer == null) {
+            Slog.w(TAG, "[YZD] createAndStartCollecting: null (mTransitionPlayer null) type=" + type);
             return null;
         }
         if (!mQueuedTransitions.isEmpty()) {
-            // There is a queue, so it's not possible to start immediately
+            Slog.w(TAG, "[YZD] createAndStartCollecting: null (mQueuedTransitions not empty) type=" + type);
             return null;
         }
         if (mSyncEngine.hasActiveSync()) {
             if (isCollecting()) {
-                // Check if we can run in parallel here.
                 if (canStartCollectingNow(null /* transit */)) {
-                    // create and collect in parallel.
                     ProtoLog.v(ProtoLogGroup.WM_DEBUG_WINDOW_TRANSITIONS_MIN, "Moving #%d from"
                             + " collecting to waiting.", mCollectingTransition.getSyncId());
                     mWaitingTransitions.add(mCollectingTransition);
                     mCollectingTransition = null;
                     Transition transit = new Transition(type, 0 /* flags */, this, mSyncEngine);
                     moveToCollecting(transit);
+                    Slog.w(TAG, "[YZD] createAndStartCollecting: created (parallel) syncId=" + transit.getSyncId() + " type=" + type);
                     return transit;
                 }
+                Slog.w(TAG, "[YZD] createAndStartCollecting: null (canStartCollectingNow=false) type=" + type);
             } else {
-                Slog.w(TAG, "Ongoing Sync outside of transition.");
+                Slog.w(TAG, "[YZD] createAndStartCollecting: null (hasActiveSync but NOT collecting) type=" + type);
             }
             return null;
         }
         Transition transit = new Transition(type, 0 /* flags */, this, mSyncEngine);
         moveToCollecting(transit);
+        Slog.w(TAG, "[YZD] createAndStartCollecting: created syncId=" + transit.getSyncId() + " type=" + type);
         return transit;
     }
 
