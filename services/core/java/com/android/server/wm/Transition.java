@@ -3124,13 +3124,17 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
             // the task including transient launch must promote to root task
             if ((mFlags & ChangeInfo.FLAG_TRANSIENT_LAUNCH) != 0
                     || (mFlags & ChangeInfo.FLAG_ABOVE_TRANSIENT_LAUNCH) != 0) {
+                Slog.w(TAG, "[YZD] hasChanged=true (TRANSIENT_LAUNCH flags=0x" + Integer.toHexString(mFlags) + ") container=" + mContainer);
                 return true;
             }
             // If it's invisible and hasn't changed visibility, always return false since even if
             // something changed, it wouldn't be a visible change.
             final boolean currVisible = mContainer.isVisibleRequested();
             final boolean stayInvisible = (currVisible == mVisible && !mVisible);
-            if (stayInvisible) return false;
+            if (stayInvisible) {
+                Slog.w(TAG, "[YZD] hasChanged=false (stayInvisible) container=" + mContainer + " currVisible=" + currVisible + " mVisible=" + mVisible);
+                return false;
+            }
 
             final boolean visibilityChanged = currVisible != mVisible;
             final boolean configChanged = mKnownConfigChanges != 0;
