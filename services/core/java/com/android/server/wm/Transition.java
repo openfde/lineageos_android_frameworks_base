@@ -3129,17 +3129,41 @@ class Transition implements BLASTSyncEngine.TransactionReadyListener {
             // If it's invisible and hasn't changed visibility, always return false since even if
             // something changed, it wouldn't be a visible change.
             final boolean currVisible = mContainer.isVisibleRequested();
-            if (currVisible == mVisible && !mVisible) return false;
-            return currVisible != mVisible
-                    || mKnownConfigChanges != 0
-                    // if mWindowingMode is 0, this container wasn't attached at collect time, so
-                    // assume no change in windowing-mode.
-                    || (mWindowingMode != 0 && mContainer.getWindowingMode() != mWindowingMode)
-                    || !mContainer.getBounds().equals(mAbsoluteBounds)
-                    || mRotation != mContainer.getWindowConfiguration().getRotation()
-                    || mDisplayId != getDisplayId(mContainer)
-                    || (mFlags & ChangeInfo.FLAG_CHANGE_MOVED_TO_TOP) != 0;
-        }
+            final boolean stayInvisible = (currVisible == mVisible && !mVisible);
+            if (stayInvisible) return false;
+
+            final boolean visibilityChanged = currVisible != mVisible;
+            final boolean configChanged = mKnownConfigChanges != 0;
+            final boolean windowingModeChanged = (mWindowingMode != 0
+                    && mContainer.getWindowingMode() != mWindowingMode);
+            final boolean boundsChanged = !mContainer.getBounds().equals(mAbsoluteBounds);
+            final boolean rotationChanged =
+                    mRotation != mContainer.getWindowConfiguration().getRotation();
+            final boolean displayChanged = mDisplayId != getDisplayId(mContainer);
+            final boolean movedToTop = (mFlags & ChangeInfo.FLAG_CHANGE_MOVED_TO_TOP) != 0;
+
+            final boolean result = visibilityChanged || configChanged
+                    || windowingModeChanged || boundsChanged || rotationChanged
+                    || displayChanged || movedToTop;
+
+            Slog.w(TAG, "[YZD] hasChanged=" + result
+                    + " | container=" + mContainer
+                    + " | visibilityChanged=" + visibilityChanged
+                    + " curr=" + currVisible + " prev=" + mVisible
+                    + " | configChanged=" + configChanged
+                    + " configFlags=0x" + Integer.toHexString(mKnownConfigChanges)
+                    + " | windowingModeChanged=" + windowingModeChanged
+                    + " curr=" + mContainer.getWindowingMode() + " prev=" + mWindowingMode
+                    + " | boundsChanged=" + boundsChanged
+                    + " curr=" + mContainer.getBounds() + " prev=" + mAbsoluteBounds
+                    + " | rotationChanged=" + rotationChanged
+                    + " curr=" + mContainer.getWindowConfiguration().getRotation()
+                    + " prev=" + mRotation
+                    + " | displayChanged=" + displayChanged
+                    + " curr=" + getDisplayId(mContainer) + " prev=" + mDisplayId
+                    + " | movedToTop=" + movedToTop);
+
+            return result;
 
         @TransitionInfo.TransitionMode
         int getTransitMode(@NonNull WindowContainer wc) {
