@@ -68,6 +68,7 @@ public class UsbDebuggingActivity extends AlertActivity
         window.setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
 
         super.onCreate(icicle);
+        setWindowDecorationStatus(Window.WINDOW_DECORATION_FORCE_HIDE);
 
         // Emulator does not support reseating the usb cable to reshow the dialog.
         if (SystemProperties.getInt("service.adb.tcp.port", 0) == 0 && !Build.IS_EMULATOR) {
