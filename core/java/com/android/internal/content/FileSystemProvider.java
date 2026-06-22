@@ -418,7 +418,6 @@ public abstract class FileSystemProvider extends DocumentsProvider {
 
         for (File file : FileUtils.listFilesOrEmpty(parent)) {
             if (!includeHidden && shouldHideDocument(file)) continue;
-
             includeFile(result, null, file);
         }
 
@@ -446,10 +445,18 @@ public abstract class FileSystemProvider extends DocumentsProvider {
     protected final Cursor querySearchDocuments(File folder, String[] projection,
             Set<String> exclusion, Bundle queryArgs) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(resolveProjection(projection));
-
+        Log.d(TAG, "Model update: accept querySearchDocuments  start "+",folder "+folder+ " ,time : "+System.currentTimeMillis() );
+      
+        String path = folder.getAbsolutePath();
+        String documentId = queryArgs.getString("documentId").replaceAll("primary:","");
+        String newPath = path;
+        if(documentId !=null){
+            newPath = path + "/"+documentId;
+        }
         // We'll be a running a BFS here.
+        File newFile = new File(newPath);
         final Queue<File> pending = new ArrayDeque<>();
-        pending.offer(folder);
+        pending.offer(newFile);
 
         while (!pending.isEmpty() && result.getCount() < MAX_RESULTS_NUMBER) {
             final File file = pending.poll();
@@ -469,13 +476,13 @@ public abstract class FileSystemProvider extends DocumentsProvider {
                 includeFile(result, null, file);
             }
         }
-
         final String[] handledQueryArgs = DocumentsContract.getHandledQueryArguments(queryArgs);
         if (handledQueryArgs.length > 0) {
             final Bundle extras = new Bundle();
             extras.putStringArray(ContentResolver.EXTRA_HONORED_ARGS, handledQueryArgs);
             result.setExtras(extras);
         }
+        Log.d(TAG, "Model update: accept querySearchDocuments  end  "+",folder "+folder+",newPath "+newPath+ " ,time : "+System.currentTimeMillis() );
         return result;
     }
 
