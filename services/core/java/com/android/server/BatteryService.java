@@ -120,6 +120,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * </p>
  */
 public final class BatteryService extends SystemService {
+    private static final int FAKE_MAX_CHARGING_CURRENT = 3000000; // 3A
+    private static final int FAKE_MAX_CHARGING_VOLTAGE = 5000000; // 5V
+    private static final int FAKE_CHARGE_COUNTER = 5188000; // 5188mA
+    private static final int FAKE_VOLTAGE = 4154;
+    private static final int FAKE_TEMPERATURE = 260; // 26.0°C
+    private static final int FAKE_BATTERY_FULL_CHARGE_UAH = 6958000; // current capacity
+    private static final int FAKE_BATTERY_FULL_CHARGE_DESIGN_CAPACITY_UAH = 7108000; // Design capacity
+    private int mFakeLevel = 85; 
+    private int mFakeTemp = FAKE_TEMPERATURE; 
+    private int mFakeChargeCounter =  FAKE_CHARGE_COUNTER;
+    private int mFakeMaxCapacity = FAKE_BATTERY_FULL_CHARGE_UAH; 
+    private int mFakeVoltage = FAKE_VOLTAGE; 
+    private boolean mIsFakeCharging = false; 
+    private long mLastUpdateTime = 0;
+    private static final long UPDATE_INTERVAL = 10*60000; // update every 10 min (10*60000ms)
+						       //
     private static final String TAG = BatteryService.class.getSimpleName();
 
     private static final boolean DEBUG = false;
@@ -246,6 +262,40 @@ public final class BatteryService extends SystemService {
     private int mLastModStatus;
     private int mLastModType;
 
+    private void updateFakeBatteryLevelLocked() {
+        long currentTime = SystemClock.elapsedRealtime();
+        if (currentTime - mLastUpdateTime < UPDATE_INTERVAL) return;
+            mLastUpdateTime = currentTime;
+
+        if (!mIsFakeCharging) {
+            mFakeLevel--;
+            mFakeVoltage-=10;
+            mFakeMaxCapacity -= 10;
+            mFakeTemp = 250 + (int)(Math.random() * 21); 
+            if (mFakeLevel <= 35) {
+            	mFakeLevel = 35;
+            	mIsFakeCharging = true; 
+            }
+        } else {
+            mFakeLevel++;
+            mFakeVoltage+=10;
+
+            if (mFakeLevel <= 90) {
+                float progress = (mFakeLevel - 25f) / (90f - 25f);
+                mFakeTemp = (int) (260 + (progress * (320 - 260))); 
+            }
+
+            if (mFakeLevel >= 90) {
+                mFakeLevel = 90;
+                mFakeTemp = 320; 
+                mIsFakeCharging = false; 
+            }
+        } 
+    mFakeChargeCounter = FAKE_CHARGE_COUNTER + mFakeLevel - 85 * 181000;
+    
+    if (mFakeChargeCounter < 0) mFakeChargeCounter = 0;
+    }
+
     public BatteryService(Context context) {
         super(context);
 
@@ -270,6 +320,15 @@ public final class BatteryService extends SystemService {
 
         mBatteryLevelsEventQueue = new ArrayDeque<>();
         mMetricsLogger = new MetricsLogger();
+	    mHandler.postDelayed(new Runnable() {
+    		@Override
+    		public void run() {
+        		synchronized (mLock) {
+            			processValuesLocked(true); 
+			}
+        	mHandler.postDelayed(this, UPDATE_INTERVAL);
+    		}
+	    }, UPDATE_INTERVAL);
 
         // watch for invalid charger messages if the invalid_charger switch exists
         if (new File("/sys/devices/virtual/switch/invalid_charger/state").exists()) {
@@ -773,6 +832,48 @@ public final class BatteryService extends SystemService {
                                 mBatteryOptions);
                     }
                 });
+            }
+
+            int fdeBatteryProp = SystemProperties.getInt("fde.battery", 1);
+            if (fdeBatteryProp == 0) {
+                updateFakeBatteryLevelLocked();
+                // mHealthInfo which saved the turely infomation 
+                if (mHealthInfo != null) {
+                    mHealthInfo.batteryLevel = mFakeLevel; // 
+                    mHealthInfo.batteryPresent = true;    // present: true
+                    mHealthInfo.batteryHealth = BatteryManager.BATTERY_HEALTH_GOOD;
+                    mHealthInfo.batteryVoltageMillivolts = mFakeVoltage; // 4154
+                    mHealthInfo.batteryTemperatureTenthsCelsius = mFakeTemp; // 260
+                    mHealthInfo.batteryTechnology = "Li-ion";
+
+                    mHealthInfo.maxChargingCurrentMicroamps = FAKE_MAX_CHARGING_CURRENT;
+                    mHealthInfo.maxChargingVoltageMicrovolts = FAKE_MAX_CHARGING_VOLTAGE;
+                    mHealthInfo.batteryChargeCounterUah = mFakeChargeCounter;
+
+                    if (mFakeLevel >= 100) {
+                        mHealthInfo.batteryCapacityLevel = 5; //FULL
+                    } else if (mFakeLevel >= 80) {
+                        mHealthInfo.batteryCapacityLevel = 4; //HIGH
+                    } else if (mFakeLevel >= 15) {
+                        mHealthInfo.batteryCapacityLevel = 3; // NORMAL
+                    } else if (mFakeLevel >= 5) {
+                        mHealthInfo.batteryCapacityLevel = 2; // LOW
+                    } else {
+                        mHealthInfo.batteryCapacityLevel = 1; // CRITICAL
+                    }
+                    mHealthInfo.batteryFullChargeDesignCapacityUah = FAKE_BATTERY_FULL_CHARGE_DESIGN_CAPACITY_UAH; // Design capacity
+                    mHealthInfo.batteryFullChargeUah = mFakeMaxCapacity;
+                    mHealthInfo.chargingState = 1;
+                    mHealthInfo.chargingPolicy = 1;
+
+                    if (mIsFakeCharging) {
+                        mHealthInfo.batteryStatus = BatteryManager.BATTERY_STATUS_CHARGING;
+                        mHealthInfo.chargerAcOnline = true; 
+                    } else {
+                        mHealthInfo.batteryStatus = BatteryManager.BATTERY_STATUS_DISCHARGING;
+                        mHealthInfo.chargerAcOnline = false;
+                    }
+                }
             }
 
             // We are doing this after sending the above broadcasts, so anything processing
@@ -1366,6 +1467,9 @@ public final class BatteryService extends SystemService {
                 pw.println("  technology: " + mHealthInfo.batteryTechnology);
                 pw.println("  Charging state: " + mHealthInfo.chargingState);
                 pw.println("  Charging policy: " + mHealthInfo.chargingPolicy);
+                pw.println("  Capacity level: " + mHealthInfo.batteryCapacityLevel);
+                pw.println("  Maximum capacity: " + mHealthInfo.batteryFullChargeUah);
+                pw.println("  Design capacity: " + mHealthInfo.batteryFullChargeDesignCapacityUah);
             } else {
                 Shell shell = new Shell();
                 shell.exec(mBinderService, null, fd, null, args, null, new ResultReceiver(null));
