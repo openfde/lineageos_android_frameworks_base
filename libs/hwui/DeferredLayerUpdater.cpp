@@ -240,8 +240,7 @@ void DeferredLayerUpdater::apply() {
 
                             dst_gb = new GraphicBuffer(
                                     width, height, HAL_PIXEL_FORMAT_BGRA_8888,
-                                    GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER
-                                        | GRALLOC_USAGE_PRIVATE_0);
+                                    GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER);
 
                             void* dst_data = nullptr;
                             int dst_result = dst_gb->lock(GRALLOC_USAGE_SW_WRITE_OFTEN, &dst_data);
@@ -275,11 +274,9 @@ void DeferredLayerUpdater::apply() {
                     bool forceFilter =
                             mWidth != layerImage->width() || mHeight != layerImage->height();
                     if (dst_gb != NULL) {
-                        if (dst_gb->getUsage() & GRALLOC_USAGE_PRIVATE_0) {
-                            if (srcWidth != layerImage->width() || srcHeight != layerImage->height()) {
-                                currentCrop.right = srcWidth;
-                                currentCrop.bottom = srcHeight;
-                            }
+                        if (srcWidth != layerImage->width() || srcHeight != layerImage->height()) {
+                            currentCrop.right = srcWidth;
+                            currentCrop.bottom = srcHeight;
                         }
                     }
                     SkRect currentCropRect =
