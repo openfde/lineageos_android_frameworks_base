@@ -277,7 +277,7 @@ public final class BatteryService extends SystemService {
             	mIsFakeCharging = true; 
             }
         } else {
-            mFakeLevel++;
+            mFakeLevel += 10;
             mFakeVoltage+=10;
 
             if (mFakeLevel <= 90) {
@@ -845,7 +845,7 @@ public final class BatteryService extends SystemService {
                     mHealthInfo.batteryVoltageMillivolts = mFakeVoltage; // 4154
                     mHealthInfo.batteryTemperatureTenthsCelsius = mFakeTemp; // 260
                     mHealthInfo.batteryTechnology = "Li-ion";
-
+                    mHealthInfo.batteryCurrentMicroamps = 2000000; 
                     mHealthInfo.maxChargingCurrentMicroamps = FAKE_MAX_CHARGING_CURRENT;
                     mHealthInfo.maxChargingVoltageMicrovolts = FAKE_MAX_CHARGING_VOLTAGE;
                     mHealthInfo.batteryChargeCounterUah = mFakeChargeCounter;
@@ -1626,6 +1626,22 @@ public final class BatteryService extends SystemService {
     private final class BatteryPropertiesRegistrar extends IBatteryPropertiesRegistrar.Stub {
         @Override
         public int getProperty(int id, final BatteryProperty prop) throws RemoteException {
+            int fdeBatteryProp = SystemProperties.getInt("fde.battery", 1);
+            if (fdeBatteryProp == 0){
+                if (id == BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE || id == BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) {
+                     java.util.Random r = new java.util.Random();
+                    double val;
+                    do {
+                        val = 400.0 + r.nextGaussian() * 50.0;
+                    } while (val < 80 || val > 500);
+                    
+                    if (BatteryService.this.mIsFakeCharging)
+                        prop.setLong((long)val * 1000); 
+                    else
+                        prop.setLong(-(long)val * 1000); 
+                    return 0; // 0 表示成功
+                }
+            }
             switch (id) {
                 case BatteryManager.BATTERY_PROPERTY_STATE_OF_HEALTH:
                     if (stateOfHealthPublic()) {
