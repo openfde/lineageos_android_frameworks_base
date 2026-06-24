@@ -845,7 +845,6 @@ public final class BatteryService extends SystemService {
                     mHealthInfo.batteryVoltageMillivolts = mFakeVoltage; // 4154
                     mHealthInfo.batteryTemperatureTenthsCelsius = mFakeTemp; // 260
                     mHealthInfo.batteryTechnology = "Li-ion";
-                    mHealthInfo.batteryCurrentMicroamps = 2000000; 
                     mHealthInfo.maxChargingCurrentMicroamps = FAKE_MAX_CHARGING_CURRENT;
                     mHealthInfo.maxChargingVoltageMicrovolts = FAKE_MAX_CHARGING_VOLTAGE;
                     mHealthInfo.batteryChargeCounterUah = mFakeChargeCounter;
