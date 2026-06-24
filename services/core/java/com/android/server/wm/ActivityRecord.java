@@ -3394,7 +3394,7 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
     boolean checkEnterPictureInPictureState(String caller, boolean beforeStopping) {
 
         // fde start ban pip window mode
-        if (!beforeStopping) {
+        if ("enterPictureInPictureMode".equals(caller)) {
             UiThread.getHandler().post(() -> Toast.makeText(mAtmService.mContext,
                     "Picture-in-picture is not supported",
                     Toast.LENGTH_SHORT).show());
