@@ -122,6 +122,7 @@ cc_library_shared_for_libandroid_runtime {
                 "AndroidRuntime.cpp",
                 "com_android_internal_content_F2fsUtils.cpp",
                 "com_android_internal_content_NativeLibraryHelper.cpp",
+                "com_android_internal_content_FileSystemProvider.cpp",
                 "com_google_android_gles_jni_EGLImpl.cpp",
                 "com_google_android_gles_jni_GLImpl.cpp", // TODO: .arm
                 "android_app_Activity.cpp",
