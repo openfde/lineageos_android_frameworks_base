@@ -471,51 +471,6 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             e.printStackTrace();
         }
 
-        // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-        //     try (Stream<Path> stream = Files.walk(Paths.get(newFile.getAbsolutePath()))) {
-        //         List<File> matchedFiles = stream
-        //                 .map(Path::toFile)
-        //             //     .filter(f -> {
-        //             //         try {
-        //             //             return !shouldHideDocument(f);
-        //             //         } catch (Exception e) {
-        //             //             e.printStackTrace(); 
-        //             //             return false; 
-        //             //         }
-        //             //   }).filter(f -> !exclusion.contains(f.getAbsolutePath()))
-        //                 .filter(f -> matchSearchQueryArguments(f, queryArgs))
-        //                 // .limit(MAX_RESULTS_NUMBER - result.getCount())
-        //                 .collect(Collectors.toList());
-        //          long centerTime2 = System.currentTimeMillis();
-        //          Log.d(TAG, "Model update: accept querySearchDocuments  centerTime2 "+",folder "+folder+ " ,centerTime2 : "+centerTime2 + ",  "+(centerTime2 - centerTime) );
-
-        //         for (File file : matchedFiles) {
-        //             includeFile(result, null, file);
-        //         }
-        //     } catch (Exception e) {
-        //         e.printStackTrace();
-        //     }
-        // }
-
-        // while (!pending.isEmpty() && result.getCount() < MAX_RESULTS_NUMBER) {
-        //     final File file = pending.poll();
-
-        //     // Skip hidden documents (both files and directories)
-        //     if (shouldHideDocument(file)) continue;
-
-        //     if (file.isDirectory()) {
-        //         for (File child : FileUtils.listFilesOrEmpty(file)) {
-        //             pending.offer(child);
-        //         }
-        //     }
-
-        //     if (exclusion.contains(file.getAbsolutePath())) continue;
-
-        //     if (matchSearchQueryArguments(file, queryArgs)) {
-        //         includeFile(result, null, file);
-        //     }
-        // }
-     
         final String[] handledQueryArgs = DocumentsContract.getHandledQueryArguments(queryArgs);
         if (handledQueryArgs.length > 0) {
             final Bundle extras = new Bundle();
