@@ -306,7 +306,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
         int offsety = 0;
         if(isFullscreen){
-            offsety = SystemBarUtils.getStatusBarHeight(mContext);
+            boolean visible = mDecorViewModel.getSystemBarVisibility(mTaskInfo);
+            offsety = !visible ? 0 : SystemBarUtils.getStatusBarHeight(mContext);
+            Log.d(TAG, "relayout when fullscreen offsety=" + offsety + " topactivity=" + mTaskInfo.topActivity + " visible="+ visible + " height:"+ SystemBarUtils.getStatusBarHeight(mContext));
         }
 
         outResult.mCaptionHeight = loadDimensionPixelSize(resources, params.mCaptionHeightId);
@@ -410,17 +412,11 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
             shadowRadius = loadDimension(resources, params.mShadowRadiusId);
         }
 
-        if (params.mSetTaskPositionAndCrop) {
+        // 全屏任务不覆盖 crop/position，由 WM 原生处理
+        if (params.mSetTaskPositionAndCrop && !isFullscreen) {
             startT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight);
-
-            if(isFullscreen){
-                finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
-                        .setPosition(mTaskSurface, 0, 28);
-            } else {
-                finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
-                        .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
-            }
-
+            finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
+                    .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
         }
 
         startT.setShadowRadius(mTaskSurface, shadowRadius)

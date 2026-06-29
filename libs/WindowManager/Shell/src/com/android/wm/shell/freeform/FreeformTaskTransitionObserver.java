@@ -19,7 +19,7 @@ package com.android.wm.shell.freeform;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.IBinder;
-import android.view.SurfaceControl;
+import android.util.Log;
 import android.view.WindowManager;
 import android.window.TransitionInfo;
 import android.window.WindowContainerToken;
@@ -36,13 +36,31 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import android.view.SurfaceControl;
 /**
  * The {@link Transitions.TransitionHandler} that handles freeform task launches, closes,
  * maximizing and restoring transitions. It also reports transitions so that window decorations can
  * be a part of transitions.
  */
 public class FreeformTaskTransitionObserver implements Transitions.TransitionObserver {
+    private static final String TAG = "FreeformTaskTransitionObserver";
+
+    private static String formatTaskForLog(ActivityManager.RunningTaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return "taskInfo=null";
+        }
+        final String topActivity = taskInfo.topActivity != null
+                ? taskInfo.topActivity.flattenToShortString() : "null";
+        return "taskId=" + taskInfo.taskId
+                + ", windowingMode=" + taskInfo.getWindowingMode()
+                + ", visible=" + taskInfo.isVisible
+                + ", focused=" + taskInfo.isFocused
+                + ", isResizeable=" + taskInfo.isResizeable
+                + ", positionInParent=" + taskInfo.positionInParent
+                + ", bounds=" + taskInfo.configuration.windowConfiguration.getBounds()
+                + ", topActivity=" + topActivity;
+    }
+
     private final Transitions mTransitions;
     private final WindowDecorViewModel mWindowDecorViewModel;
 
@@ -61,6 +79,9 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
         }
     }
 
+    @Override
+    public void onTransitionStarting(@NonNull IBinder transition) {}
+
     @VisibleForTesting
     void onInit() {
         mTransitions.registerObserver(this);
@@ -75,12 +96,14 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
         final ArrayList<ActivityManager.RunningTaskInfo> taskInfoList = new ArrayList<>();
         final ArrayList<WindowContainerToken> taskParents = new ArrayList<>();
         for (TransitionInfo.Change change : info.getChanges()) {
+            final ActivityManager.RunningTaskInfo taskInfo = change.getTaskInfo();
             if ((change.getFlags() & TransitionInfo.FLAG_IS_WALLPAPER) != 0) {
+                Log.d(TAG, "[窗口装饰过渡] 跳过 change，原因=FLAG_IS_WALLPAPER");
                 continue;
             }
 
-            final ActivityManager.RunningTaskInfo taskInfo = change.getTaskInfo();
             if (taskInfo == null || taskInfo.taskId == -1) {
+                Log.d(TAG, "[窗口装饰过渡] 跳过 change，原因=taskInfo 为空或 taskId 无效");
                 continue;
             }
             // Filter out non-leaf tasks. Freeform/fullscreen don't nest tasks, but split-screen
@@ -93,6 +116,8 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
                 taskParents.add(change.getParent());
             }
             if (taskParents.contains(change.getContainer())) {
+                Log.d(TAG, "[窗口装饰过渡] 跳过 change，原因=当前 container 被识别为 parent task，container="
+                        + change.getContainer() + ", " + formatTaskForLog(taskInfo));
                 continue;
             }
 
@@ -110,6 +135,8 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
                 }
                 case WindowManager.TRANSIT_CHANGE:
                     onChangeTransitionReady(change, startT, finishT);
+                    break;
+                default:
                     break;
             }
         }
@@ -146,9 +173,6 @@ public class FreeformTaskTransitionObserver implements Transitions.TransitionObs
         mWindowDecorViewModel.onTaskChanging(
                 change.getTaskInfo(), change.getLeash(), startT, finishT);
     }
-
-    @Override
-    public void onTransitionStarting(@NonNull IBinder transition) {}
 
     @Override
     public void onTransitionMerged(@NonNull IBinder merged, @NonNull IBinder playing) {
