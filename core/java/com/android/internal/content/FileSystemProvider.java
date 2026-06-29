@@ -61,6 +61,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
  import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -70,6 +71,8 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A helper class for {@link android.provider.DocumentsProvider} to perform file operations on local
@@ -107,6 +110,8 @@ public abstract class FileSystemProvider extends DocumentsProvider {
 
     protected abstract Uri buildNotificationUri(String docId);
 
+    private static native List<File> nativeSearchFiles(
+        String startDir, String keyword);
     /**
      * Callback indicating that the given document has been modified. This gives
      * the provider a hook to invalidate cached data, such as {@code sdcardfs}.
@@ -445,8 +450,7 @@ public abstract class FileSystemProvider extends DocumentsProvider {
     protected final Cursor querySearchDocuments(File folder, String[] projection,
             Set<String> exclusion, Bundle queryArgs) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(resolveProjection(projection));
-        Log.d(TAG, "Model update: accept querySearchDocuments  start "+",folder "+folder+ " ,time : "+System.currentTimeMillis() );
-      
+
         String path = folder.getAbsolutePath();
         String documentId = queryArgs.getString("documentId").replaceAll("primary:","");
         String newPath = path;
@@ -458,31 +462,21 @@ public abstract class FileSystemProvider extends DocumentsProvider {
         final Queue<File> pending = new ArrayDeque<>();
         pending.offer(newFile);
 
-        while (!pending.isEmpty() && result.getCount() < MAX_RESULTS_NUMBER) {
-            final File file = pending.poll();
-
-            // Skip hidden documents (both files and directories)
-            if (shouldHideDocument(file)) continue;
-
-            if (file.isDirectory()) {
-                for (File child : FileUtils.listFilesOrEmpty(file)) {
-                    pending.offer(child);
-                }
-            }
-
-            if (exclusion.contains(file.getAbsolutePath())) continue;
-
-            if (matchSearchQueryArguments(file, queryArgs)) {
+        try{
+            List<File> matchedPaths = nativeSearchFiles(Paths.get(newFile.getAbsolutePath()).toString(), queryArgs.getString(DocumentsContract.QUERY_ARG_DISPLAY_NAME));
+            for (File file : matchedPaths) {
                 includeFile(result, null, file);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         final String[] handledQueryArgs = DocumentsContract.getHandledQueryArguments(queryArgs);
         if (handledQueryArgs.length > 0) {
             final Bundle extras = new Bundle();
             extras.putStringArray(ContentResolver.EXTRA_HONORED_ARGS, handledQueryArgs);
             result.setExtras(extras);
         }
-        Log.d(TAG, "Model update: accept querySearchDocuments  end  "+",folder "+folder+",newPath "+newPath+ " ,time : "+System.currentTimeMillis() );
         return result;
     }
 
