@@ -306,7 +306,9 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
         int offsety = 0;
         if(isFullscreen){
-            offsety = SystemBarUtils.getStatusBarHeight(mContext);
+            boolean visible = mDecorViewModel.getSystemBarVisibility(mTaskInfo);
+            offsety = !visible ? 0 : SystemBarUtils.getStatusBarHeight(mContext);
+            Log.d(TAG, "relayout when fullscreen offsety=" + offsety + " topactivity=" + mTaskInfo.topActivity + " visible="+ visible + " height:"+ SystemBarUtils.getStatusBarHeight(mContext));
         }
 
         outResult.mCaptionHeight = loadDimensionPixelSize(resources, params.mCaptionHeightId);
@@ -415,7 +417,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
             if(isFullscreen){
                 finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
-                        .setPosition(mTaskSurface, 0, 28);
+                        .setPosition(mTaskSurface, 0, 0);
             } else {
                 finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
                         .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
