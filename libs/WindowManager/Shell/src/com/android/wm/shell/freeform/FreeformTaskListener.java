@@ -221,7 +221,6 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
         if (taskInfo.getWindowingMode() != WINDOWING_MODE_FREEFORM) {
             return;
         }
-                + formatTaskForLog(taskInfo));
         ProtoLog.v(ShellProtoLogGroup.WM_SHELL_TASK_ORG,
                 "Freeform Task Focus Changed: #%d focused=%b",
                 taskInfo.taskId, taskInfo.isFocused);

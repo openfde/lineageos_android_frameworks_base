@@ -415,7 +415,7 @@ public abstract class WindowDecoration<T extends View & TaskFocusStateConsumer>
 
             if(isFullscreen){
                 finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
-                        .setPosition(mTaskSurface, 0, 28);
+                        .setPosition(mTaskSurface, 0, 0);
             } else {
                 finishT.setWindowCrop(mTaskSurface, outResult.mWidth, outResult.mHeight)
                         .setPosition(mTaskSurface, taskPosition.x, taskPosition.y);
