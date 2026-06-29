@@ -98,10 +98,6 @@ public class FreeformTaskListener implements ShellTaskOrganizer.TaskListener,
         if (taskInfo == null || leash == null) {
             return;
         }
-        // 最大化/全屏时跳过，由 WindowDecoration.relayout 的 isFullscreen 分支处理
-        if (taskInfo.getWindowingMode() != WINDOWING_MODE_FREEFORM) {
-            return;
-        }
         final Rect bounds = taskInfo.configuration.windowConfiguration.getBounds();
         if (bounds == null || bounds.isEmpty()) {
             Log.d(TAG, "[窗口装饰兜底] forceTaskPositionAndCrop 跳过，原因=bounds 无效，"
