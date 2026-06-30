@@ -3284,7 +3284,8 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
 
     @Override
     boolean isFocusable() {
-        return super.isFocusable() && (canReceiveKeys() || isAlwaysFocusable());
+        return super.isFocusable() && (canReceiveKeys() || isAlwaysFocusable())
+                && !isTinyWindow();
     }
 
     boolean canReceiveKeys() {
@@ -3490,6 +3491,25 @@ final class ActivityRecord extends WindowToken implements WindowManagerService.A
 
     private boolean isAlwaysFocusable() {
         return (info.flags & FLAG_ALWAYS_FOCUSABLE) != 0;
+    }
+
+    /**
+     * Returns true if the activity's task bounds are <= 1dp, meaning the window is
+     * essentially invisible and should not be focusable until resized.
+     */
+    private boolean isTinyWindow() {
+        final Task t = getTask();
+        if (t == null || mDisplayContent == null) {
+            return false;
+        }
+        final Rect bounds = t.getBounds();
+        // If bounds are not yet set, don't block focus.
+        if (bounds.isEmpty()) {
+            return false;
+        }
+        final float density = mDisplayContent.getDisplayMetrics().density;
+        final int minDimensionPx = (int) (density + 0.5f); // 1dp in pixels
+        return bounds.width() <= minDimensionPx || bounds.height() <= minDimensionPx;
     }
 
     boolean windowsAreFocusable() {
