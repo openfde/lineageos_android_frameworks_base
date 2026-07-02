@@ -112,6 +112,10 @@ public abstract class FileSystemProvider extends DocumentsProvider {
 
     private static native List<File> nativeSearchFiles(
         String startDir, String keyword);
+    
+    private static native List<File> nativeListFiles(String parentPath);    
+
+    private static native String nativeListFilesEfficient(String parentPath);    
     /**
      * Callback indicating that the given document has been modified. This gives
      * the provider a hook to invalidate cached data, such as {@code sdcardfs}.
@@ -411,6 +415,8 @@ public abstract class FileSystemProvider extends DocumentsProvider {
         final MatrixCursor result = new DirectoryCursor(
                 resolveProjection(projection), documentId, parent);
 
+        long time1 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time1 : "+time1);
         if (!parent.isDirectory()) {
             Log.w(TAG, '"' + documentId + "\" is not a directory");
             return result;
@@ -421,11 +427,49 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             return result;
         }
 
+        long time2 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time2 : "+time2 + " , time  "+(time2 - time1));
+        
+        // List<File> matchedPaths = nativeListFiles(parent.getAbsolutePath());
+        // for (File file : matchedPaths) {
+        //     if (!includeHidden && shouldHideDocument(file)) continue;
+        //     includeFile(result, null, file);
+        // }
+
+        // String bulkData = nativeListFilesEfficient(parent.getAbsolutePath());
+
+        // if (bulkData != null && !bulkData.isEmpty()) {
+        //     // 2. 以换行符快速切割
+        //     String[] paths = bulkData.split("\n");
+            
+        //     for (String path : paths) {
+        //         if (path.isEmpty()) continue;
+
+        //         // 优化点 1：优先用纯字符串做低成本的隐藏文件过滤
+        //         // 比如 Android/data 或以 "." 开头的文件，不需要创建 File 对象就能判断
+        //         // if (!includeHidden && shouldHideDocumentQuickCheck(path)) {
+        //         //     continue; 
+        //         // }
+
+        //         // 优化点 2：通过校验后，再延迟创建 File 对象
+        //         File file = new File(path);
+                
+        //         // 如果你的隐藏规则很复杂，必须依赖 File 对象，则在这里做二次兜底
+        //         if (!includeHidden && shouldHideDocument(file)) {
+        //             continue;
+        //         }
+
+        //         // 3. 写入 MatrixCursor
+        //         includeFile(result, null, file);
+        //     }
+        // }
+
         for (File file : FileUtils.listFilesOrEmpty(parent)) {
             if (!includeHidden && shouldHideDocument(file)) continue;
             includeFile(result, null, file);
         }
-
+        long time3 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time3 : "+time3 + " , time  "+(time3 - time2));
         return result;
     }
 
@@ -506,6 +550,11 @@ public abstract class FileSystemProvider extends DocumentsProvider {
     public ParcelFileDescriptor openDocument(
             String documentId, String mode, CancellationSignal signal)
             throws FileNotFoundException {
+        Log.d(TAG, "Model update: accept openDocument ...... ");        
+        if (signal != null) {
+            Log.d(TAG, "Model update: accept openDocument ...throwIfCanceled ");
+            signal.throwIfCanceled(); // 
+        }        
         final File file = getFileForDocId(documentId);
         final File visibleFile = getFileForDocId(documentId, true);
 

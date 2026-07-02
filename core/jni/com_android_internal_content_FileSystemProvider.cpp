@@ -144,10 +144,114 @@ com_android_internal_content_FileSystemProvider_nativeSearchFiles(
 
         }
 
+JNIEXPORT jobject JNICALL
+com_android_internal_content_FileSystemProvider_nativeListFiles(
+        JNIEnv *env, 
+        jobject thiz, 
+        jstring parent_path) {
+    
+    if (parent_path == nullptr) return nullptr;
+
+    // 1. 转换输入路径
+    const char* c_parent_path = env->GetStringUTFChars(parent_path, nullptr);
+    std::string parentPathStr(c_parent_path);
+    env->ReleaseStringUTFChars(parent_path, c_parent_path);
+
+    // 2. 获取 Java 的 ArrayList 类和方法
+    jclass arrayListClass = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListInit = env->GetMethodID(arrayListClass, "<init>", "()V");
+    jobject resultList = env->NewObject(arrayListClass, arrayListInit);
+    jmethodID arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+
+    // 3. 获取 java.io.File 类及其构造函数 File(String pathname)
+    jclass fileClass = env->FindClass("java/io/File");
+    jmethodID fileInit = env->GetMethodID(fileClass, "<init>", "(Ljava/lang/String;)V");
+
+    // 4. 打开底层目录
+    DIR* dp = opendir(parentPathStr.c_str());
+    if (dp == nullptr) {
+        return resultList; // 打开失败则返回空列表
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dp)) != nullptr) {
+        // 过滤掉当前目录 "." 和上级目录 ".."
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        // 拼接子项的绝对路径
+        std::string childPath = parentPathStr;
+        if (childPath.back() != '/') {
+            childPath += "/";
+        }
+        childPath += entry->d_name;
+
+        // 5. 核心：在 Native 层直接构造 Java 的 File 对象
+        jstring jPath = env->NewStringUTF(childPath.c_str());
+        jobject jFile = env->NewObject(fileClass, fileInit, jPath);
+
+        // 将构造好的 File 对象加进 ArrayList
+        env->CallBooleanMethod(resultList, arrayListAdd, jFile);
+        
+        // 关键：必须手动释放这两个局部引用，否则同目录下文件多时会直接导致本地引用表溢出（崩溃）
+        env->DeleteLocalRef(jPath);
+        env->DeleteLocalRef(jFile);
+    }
+
+    closedir(dp);
+    return resultList;
+}        
+
+JNIEXPORT jstring JNICALL
+com_android_internal_content_FileSystemProvider_nativeListFilesEfficient(
+        JNIEnv *env, jobject thiz, jstring parent_path) {
+    
+    if (parent_path == nullptr) return nullptr;
+
+    const char* c_parent_path = env->GetStringUTFChars(parent_path, nullptr);
+    std::string parentPathStr(c_parent_path);
+    env->ReleaseStringUTFChars(parent_path, c_parent_path);
+
+    DIR* dp = opendir(parentPathStr.c_str());
+    if (dp == nullptr) return nullptr;
+
+    // 预分配 1MB 左右的连续内存，防止一万个文件在拼接时频繁扩容造成的内存拷贝
+    std::string bulkPaths;
+    bulkPaths.reserve(1024 * 1024); 
+
+    if (parentPathStr.back() != '/') {
+        parentPathStr += "/";
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dp)) != nullptr) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        // 纯 C++ 内存追加，速度极快
+        bulkPaths.append(parentPathStr);
+        bulkPaths.append(entry->d_name);
+        bulkPaths.append("\n");
+    }
+
+    closedir(dp);
+    return env->NewStringUTF(bulkPaths.c_str());
+}
+
 static const JNINativeMethod gMethods[] = {
     {"nativeSearchFiles",
             "(Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;",
             (void *)com_android_internal_content_FileSystemProvider_nativeSearchFiles},
+
+    {"nativeListFiles",
+            "(Ljava/lang/String;)Ljava/util/List;",
+            (void *)com_android_internal_content_FileSystemProvider_nativeListFiles},        
+
+    {"nativeListFilesEfficient",
+            "(Ljava/lang/String;)Ljava/lang/String;",
+            (void *)com_android_internal_content_FileSystemProvider_nativeListFilesEfficient},               
 };
 
 

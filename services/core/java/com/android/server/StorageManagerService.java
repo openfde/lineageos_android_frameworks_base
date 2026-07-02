@@ -1411,8 +1411,10 @@ class StorageManagerService extends IStorageManager.Stub
     private final IVoldListener mListener = new IVoldListener.Stub() {
         @Override
         public void onDiskCreated(String diskId, int flags) {
+            Slog.wtf(TAG, "onDiskCreated    diskId: "+diskId + ", flags "+flags);
             synchronized (mLock) {
                 final String value = SystemProperties.get(StorageManager.PROP_ADOPTABLE);
+                Slog.wtf(TAG, "onDiskCreated    diskId: "+diskId + ", value "+value);
                 switch (value) {
                     case "force_on":
                         flags |= DiskInfo.FLAG_ADOPTABLE;
@@ -1427,6 +1429,7 @@ class StorageManagerService extends IStorageManager.Stub
 
         @Override
         public void onDiskScanned(String diskId) {
+            Slog.wtf(TAG, "onDiskScanned    diskId: "+diskId);
             synchronized (mLock) {
                 final DiskInfo disk = mDisks.get(diskId);
                 if (disk != null) {
@@ -1438,6 +1441,7 @@ class StorageManagerService extends IStorageManager.Stub
         @Override
         public void onDiskMetadataChanged(String diskId, long sizeBytes, String label,
                 String sysPath) {
+            Slog.wtf(TAG, "onDiskMetadataChanged    diskId: "+diskId + ",label "+label + ",sysPath  "+sysPath);        
             synchronized (mLock) {
                 final DiskInfo disk = mDisks.get(diskId);
                 if (disk != null) {
@@ -1461,6 +1465,7 @@ class StorageManagerService extends IStorageManager.Stub
         @Override
         public void onVolumeCreated(String volId, int type, String diskId, String partGuid,
                 int userId) {
+            Slog.wtf(TAG, "onVolumeCreated    diskId: "+diskId + ",volId "+volId +",type "+type  + ",partGuid "+partGuid);        
             synchronized (mLock) {
                 final DiskInfo disk = mDisks.get(diskId);
                 final VolumeInfo vol = new VolumeInfo(volId, type, disk, partGuid);
@@ -1472,6 +1477,7 @@ class StorageManagerService extends IStorageManager.Stub
 
         @Override
         public void onVolumeStateChanged(String volId, final int newState, final int userId) {
+            Slog.wtf(TAG, "onVolumeStateChanged    volId: "+volId + ",newState "+newState);
             synchronized (mLock) {
                 final VolumeInfo vol = mVolumes.get(volId);
                 if (vol != null) {
@@ -1492,6 +1498,7 @@ class StorageManagerService extends IStorageManager.Stub
         @Override
         public void onVolumeMetadataChanged(String volId, String fsType, String fsUuid,
                 String fsLabel) {
+            Slog.wtf(TAG, "onVolumeMetadataChanged    volId: "+volId + ",fsType "+fsType+ ",fsUuid "+fsUuid+ ",fsLabel "+fsLabel);        
             synchronized (mLock) {
                 final VolumeInfo vol = mVolumes.get(volId);
                 if (vol != null) {
@@ -1504,6 +1511,7 @@ class StorageManagerService extends IStorageManager.Stub
 
         @Override
         public void onVolumePathChanged(String volId, String path) {
+            Slog.wtf(TAG, "onVolumePathChanged    volId: "+volId + ",path "+path);
             synchronized (mLock) {
                 final VolumeInfo vol = mVolumes.get(volId);
                 if (vol != null) {
@@ -1514,6 +1522,7 @@ class StorageManagerService extends IStorageManager.Stub
 
         @Override
         public void onVolumeInternalPathChanged(String volId, String internalPath) {
+            Slog.wtf(TAG, "onVolumeInternalPathChanged    volId: "+volId + ",internalPath "+internalPath);
             synchronized (mLock) {
                 final VolumeInfo vol = mVolumes.get(volId);
                 if (vol != null) {
