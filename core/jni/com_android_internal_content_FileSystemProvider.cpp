@@ -145,7 +145,7 @@ com_android_internal_content_FileSystemProvider_nativeSearchFiles(
         }
 
 JNIEXPORT jobject JNICALL
-com_android_internal_content_FileSystemProvider_nativeListFiles(
+com_android_internal_content_FileSystemProvider_nativeListScanFiles(
         JNIEnv *env, 
         jobject thiz, 
         jstring parent_path) {
@@ -240,14 +240,123 @@ com_android_internal_content_FileSystemProvider_nativeListFilesEfficient(
     return env->NewStringUTF(bulkPaths.c_str());
 }
 
+struct Entry {
+    std::string path;
+    std::string name;
+    std::string mime;
+    std::string docId;
+    uint8_t flags;
+    long size;
+    long mtime;
+    bool writable;
+};
+
+static std::vector<Entry> scanDir(const std::string& path) {
+    std::vector<Entry> result;
+
+    DIR* dp = opendir(path.c_str());
+    if (!dp) return result;
+
+    struct dirent* entry;
+
+    while ((entry = readdir(dp)) != nullptr) {
+        std::string name = entry->d_name;
+
+        if (name == "." || name == "..") continue;
+
+        std::string fullPath = path + "/" + name;
+
+        struct stat st;
+        if (stat(fullPath.c_str(), &st) != 0) continue;
+
+        Entry e;
+        e.path = fullPath;
+        e.name = name;
+        e.size = (long)st.st_size;
+        e.mtime = (long)st.st_mtime;
+        e.writable = (access(fullPath.c_str(), W_OK) == 0);
+
+        // mime / flags / docId 可后补
+        e.mime = "";
+        e.docId = "";
+        e.flags = 0;
+
+        result.push_back(std::move(e));
+    }
+
+    closedir(dp);
+    return result;
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL
+com_android_internal_content_FileSystemProvider_nativeListFiles(
+        JNIEnv *env,
+        jobject thiz,
+        jstring parentPath) {
+
+    const char* cpath = env->GetStringUTFChars(parentPath, nullptr);
+    std::vector<Entry> entries = scanDir(cpath);
+    env->ReleaseStringUTFChars(parentPath, cpath);
+
+    jclass entryCls = env->FindClass("com/android/internal/content/FileEntry");
+    if (!entryCls) return nullptr;
+    jmethodID ctor = env->GetMethodID(entryCls, "<init>", "()V");
+
+    jfieldID pathF = env->GetFieldID(entryCls, "path", "Ljava/lang/String;");
+    jfieldID nameF = env->GetFieldID(entryCls, "name", "Ljava/lang/String;");
+//     jfieldID mimeF = env->GetFieldID(entryCls, "mime", "Ljava/lang/String;");
+//     jfieldID docIdF = env->GetFieldID(entryCls, "docId", "Ljava/lang/String;");
+//     jfieldID flagsF = env->GetFieldID(entryCls, "flags", "B");
+// //     fieldID flagsF = env->GetFieldID(entryCls, "flags", "B");
+//         if (env->ExceptionCheck()) {
+//         env->ExceptionClear();
+//         flagsF = nullptr;
+//         }
+    jfieldID sizeF = env->GetFieldID(entryCls, "size", "J");
+    jfieldID mtimeF = env->GetFieldID(entryCls, "mtime", "J");
+    jfieldID writableF = env->GetFieldID(entryCls, "writable", "Z");
+
+
+    jobjectArray array = env->NewObjectArray(entries.size(), entryCls, nullptr);
+    if (!array) return nullptr;
+
+    for (size_t i = 0; i < entries.size(); i++) {
+        jobject obj = env->NewObject(entryCls, ctor);
+        
+
+        env->SetObjectField(obj, pathF, env->NewStringUTF(entries[i].path.c_str()));
+        env->SetObjectField(obj, nameF, env->NewStringUTF(entries[i].name.c_str()));
+        // env->SetObjectField(obj, mimeF, env->NewStringUTF(entries[i].mime.c_str()));
+        // env->SetObjectField(obj, docIdF, env->NewStringUTF(entries[i].docId.c_str()));
+
+        // if (flagsF) {
+                // env->SetByteField(obj, flagsF, entries[i].flags);
+        // }
+        env->SetLongField(obj, sizeF, entries[i].size);
+        env->SetLongField(obj, mtimeF, entries[i].mtime);
+        env->SetBooleanField(obj, writableF, entries[i].writable);
+
+        env->SetObjectArrayElement(array, i, obj);
+        env->DeleteLocalRef(obj);
+
+    }
+
+    return array;
+}
+
 static const JNINativeMethod gMethods[] = {
     {"nativeSearchFiles",
             "(Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;",
             (void *)com_android_internal_content_FileSystemProvider_nativeSearchFiles},
 
     {"nativeListFiles",
-            "(Ljava/lang/String;)Ljava/util/List;",
-            (void *)com_android_internal_content_FileSystemProvider_nativeListFiles},        
+            "(Ljava/lang/String;)[Lcom/android/internal/content/FileEntry;",
+            (void *)com_android_internal_content_FileSystemProvider_nativeListFiles},    
+                
+     {"nativeListScanFiles",
+                "(Ljava/lang/String;)Ljava/util/List;",
+                (void *)com_android_internal_content_FileSystemProvider_nativeListScanFiles},          
 
     {"nativeListFilesEfficient",
             "(Ljava/lang/String;)Ljava/lang/String;",
