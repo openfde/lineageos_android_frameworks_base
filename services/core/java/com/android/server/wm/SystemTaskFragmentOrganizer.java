@@ -363,10 +363,10 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         IBinder token = taskFragmentInfo.getFragmentToken();
         if (token.equals(mRightFragments.get(taskId))) {
             Slog.d(TAG, "right fragment ready");
-            mTaskReadyRightFlag.put(task.mTaskId, true);
+            mTaskReadyRightFlag.put(taskId, true);
         } else if (token.equals(mLeftFragments.get(taskId))) {
             Slog.d(TAG, "left fragment ready");
-            mTaskReadyLeftFlag.put(task.mTaskId, true);
+            mTaskReadyLeftFlag.put(taskId, true);
         }
     }
 
