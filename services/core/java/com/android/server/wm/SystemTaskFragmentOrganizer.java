@@ -154,7 +154,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     private final Map<Integer, Boolean> mTaskReadyLeftFlag = new HashMap<>();
     private final Map<Integer, Boolean> mTaskReadyRightFlag = new HashMap<>();
-    private final Map<Integer, Long> mPendingWidth = new HashMap<>();
+    private final Map<Integer, Integer> mPendingWidth = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
     final Map<Integer, ActivityRecord> mSplitingActivityRecords = new ArrayMap<>();
     final Map<Integer, Float> mSplitRatios = new HashMap<>();
