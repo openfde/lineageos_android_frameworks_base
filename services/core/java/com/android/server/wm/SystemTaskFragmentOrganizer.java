@@ -152,6 +152,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     private final Map<Integer, IBinder> mLeftFragments = new HashMap<>();
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
+    private final Map<Integer, Boolean> mTaskReadyLeftFlag = new HashMap<>();
+    private final Map<Integer, Boolean> mTaskReadyRightFlag = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
     final Map<Integer, ActivityRecord> mSplitingActivityRecords = new ArrayMap<>();
     final Map<Integer, Float> mSplitRatios = new HashMap<>();
@@ -245,6 +247,8 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 mRightFragments.put(taskId, secondaryTfToken);
                 mSplitingActivityRecords.put(taskId, secondary);
                 applyTransaction(wct, 0, false);
+                mTaskReadyLeftFlag.put(task.mTaskId, false);
+                mTaskReadyRightFlag.put(task.mTaskId, false);
             });
         }
         task.type = Task.IN_PARALLEL_WINDOW;
@@ -321,11 +325,11 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             Slog.d(TAG, "onTransactionReady type: " + change.getType());
             switch (change.getType()) {
                 case TYPE_TASK_FRAGMENT_APPEARED: //1
-                    updateTaskFragmentInfo(info);
+                    updateTaskFragmentInfo(info, taskId);
                     onTaskFragmentAppeared(wct, info, taskId);
                     break;
                 case TYPE_TASK_FRAGMENT_INFO_CHANGED: //2
-                    updateTaskFragmentInfo(info);
+                    updateTaskFragmentInfo(info, taskId);
                     onTaskFragmentInfoChanged(wct, info, taskId);
                     break;
                 case TYPE_TASK_FRAGMENT_VANISHED: //3
@@ -336,7 +340,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                             change.getTaskFragmentParentInfo());
                     break;
                 case TYPE_TASK_FRAGMENT_ERROR: //5
-                    updateTaskFragmentInfo(info);
+                    updateTaskFragmentInfo(info, taskId);
                     break;
                 case TYPE_ACTIVITY_REPARENTED_TO_TASK: //6
                     break;
@@ -347,7 +351,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         applyTransaction(wct, 0, false);
     }
 
-    void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
+    void updateTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo, int taskId) {
         if (taskFragmentInfo == null) {
             Slog.d(TAG, "updateTaskFragmentInfo info is null");
             return;
@@ -355,6 +359,15 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Slog.d(TAG, "updateTaskFragmentInfo: 更新 TaskFragment 信息，token="
                 + taskFragmentInfo.getFragmentToken());
         mFragmentInfos.put(taskFragmentInfo.getFragmentToken(), taskFragmentInfo);
+
+        IBinder token = taskFragmentInfo.getFragmentToken();
+        if (token.equals(mRightFragments.get(taskId))) {
+            Slog.d(TAG, "right fragment ready");
+            mTaskReadyRightFlag.put(task.mTaskId, true);
+        } else if (token.equals(mLeftFragments.get(taskId))) {
+            Slog.d(TAG, "left fragment ready");
+            mTaskReadyLeftFlag.put(task.mTaskId, true);
+        }
     }
 
     void removeTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
@@ -486,13 +499,15 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     public void onTaskFragmentParentInfoChanged(WindowContainerTransaction wct, int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
-        final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if (shouldUpdateContainer(taskFragmentInfo)) {
-            updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
+            if(mTaskReadyRightFlag.get(taskId) && mTaskReadyLeftFlag.get(taskId)){
+                final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
+                updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
+                mConfiguration = taskFragmentInfo.getConfiguration();
+                mDisplayId = taskFragmentInfo.getDisplayId();
+                mIsExpandedMode = false;
+            }
         }
-        mConfiguration = taskFragmentInfo.getConfiguration();
-        mDisplayId = taskFragmentInfo.getDisplayId();
-        mIsExpandedMode = false;
     }
 
     boolean shouldUpdateContainer(@NonNull TaskFragmentParentInfo info) {
