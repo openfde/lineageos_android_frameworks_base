@@ -400,6 +400,10 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             Slog.d(TAG, "left fragment ready");
             mTaskReadyLeftFlag.put(taskId, true);
         }
+        if( mPendingWidth.get(taskId) != 0){
+            onTaskFragmentParentInfoChanged(wct, taskId, taskFragmentInfo);
+        }
+
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
     }
 
