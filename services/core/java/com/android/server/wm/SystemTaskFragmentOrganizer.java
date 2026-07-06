@@ -91,20 +91,20 @@ import android.content.res.Configuration;
  * 1. startSplit(...)
  *    Entry point for split logic.
  *    - If the task is NOT split:
- *         �?Resize (expand) the Task
- *         �?Create left/right TaskFragments
- *         �?Move or start activities into corresponding fragments
+ *         �?Resize (expand) the Task
+ *         �?Create left/right TaskFragments
+ *         �?Move or start activities into corresponding fragments
  *    - If the task is already split:
- *         �?Reuse the existing right TaskFragment
- *         �?Reparent or start the secondary activity into it
+ *         �?Reuse the existing right TaskFragment
+ *         �?Reparent or start the secondary activity into it
  *
  * 2. onTransactionReady(...)
  *    Callback from system when TaskFragment changes occur.
  *    Dispatches events such as:
- *         �?TaskFragment appeared
- *         �?Info changed
- *         �?Vanished
- *         �?Parent config changed
+ *         �?TaskFragment appeared
+ *         �?Info changed
+ *         �?Vanished
+ *         �?Parent config changed
  *
  * 3. updateContainersInTask(...)
  *    Keeps left/right TaskFragments in sync with Task bounds.
@@ -112,16 +112,16 @@ import android.content.res.Configuration;
  *
  * 4. onTaskFragmentVanished(...)
  *    Handles cleanup when a fragment is removed:
- *         �?If right fragment disappears �?shrink Task back to original size
- *         �?If left fragment disappears �?finish all activities in right fragment
+ *         �?If right fragment disappears �?shrink Task back to original size
+ *         �?If left fragment disappears �?finish all activities in right fragment
  *
  * 5. contractTaskFragment(...)
  *    Restores Task size when exiting split mode.
  *
  * 6. pauseLeftIfNeed(...)
  *    Optional behavior:
- *         �?Pause the left (primary) activity when right side becomes active
- *         �?Used for app-specific compatibility (e.g., WeChat)
+ *         �?Pause the left (primary) activity when right side becomes active
+ *         �?Used for app-specific compatibility (e.g., WeChat)
  *
  *
  * Important design notes:
@@ -216,7 +216,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             mSplitRatios.put(task.mTaskId, ratio);
             final Rect taskBounds = task.getBounds();
             final int originalWidth = taskBounds.width();   // 原始宽度（左侧窗口宽度）
-            final int newWidth = (int) (originalWidth / (1 - ratio));  // 新总宽�?
+            final int newWidth = (int) (originalWidth / (1 - ratio));  // 新总宽�?
             final int newHeight = taskBounds.height();
             final Rect newTaskBounds = new Rect(taskBounds.left, taskBounds.top,
                     taskBounds.left + newWidth, taskBounds.bottom);
@@ -283,7 +283,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             final IBinder secondaryTfToken = mRightFragments.get(taskId);
             final int totalWidth = taskBounds.width();
             int leftWidth = Math.round(totalWidth * (1 - ratio));
-            int rightWidth = totalWidth - leftWidth; // 保证右侧填满剩余宽度，避免浮点误�?
+            int rightWidth = totalWidth - leftWidth; // 保证右侧填满剩余宽度，避免浮点误�?
             final Rect left = new Rect(0, 0, leftWidth, taskBounds.height());
             final Rect right = new Rect(leftWidth, 0, totalWidth, taskBounds.height());
             resizeTaskFragment(wct, primaryTfToken, left);
@@ -539,7 +539,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         mAtmService.resizeTask(taskId, bounds, 0);
         mRightFragments.remove(taskId);
         mSplitingActivityRecords.remove(taskId);
-        Slog.d(TAG, "contractTaskFragment: 已完成收�?);
+        Slog.d(TAG, "contractTaskFragment: 已完成收纳");
     }
 
 
