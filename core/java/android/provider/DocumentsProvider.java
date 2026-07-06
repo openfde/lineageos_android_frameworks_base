@@ -572,6 +572,7 @@ public abstract class DocumentsProvider extends ContentProvider {
     public abstract Cursor queryChildDocuments(
             String parentDocumentId, String[] projection, String sortOrder)
             throws FileNotFoundException;
+             
 
     /**
      * Override this method to return the children documents contained

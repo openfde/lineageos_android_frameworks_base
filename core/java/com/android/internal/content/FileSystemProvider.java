@@ -112,6 +112,12 @@ public abstract class FileSystemProvider extends DocumentsProvider {
 
     private static native List<File> nativeSearchFiles(
         String startDir, String keyword);
+    
+    private static native FileEntry[] nativeListFiles(String parentPath);    
+
+    private static native List<File> nativeListScanFiles(String parentPath);    
+
+    private static native String nativeListFilesEfficient(String parentPath);    
     /**
      * Callback indicating that the given document has been modified. This gives
      * the provider a hook to invalidate cached data, such as {@code sdcardfs}.
@@ -411,6 +417,8 @@ public abstract class FileSystemProvider extends DocumentsProvider {
         final MatrixCursor result = new DirectoryCursor(
                 resolveProjection(projection), documentId, parent);
 
+        long time1 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time1 : "+time1);
         if (!parent.isDirectory()) {
             Log.w(TAG, '"' + documentId + "\" is not a directory");
             return result;
@@ -421,11 +429,25 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             return result;
         }
 
-        for (File file : FileUtils.listFilesOrEmpty(parent)) {
+        long time2 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time2 : "+time2 + " , time  "+(time2 - time1));
+        
+        List<File> matchedPaths = nativeListScanFiles(parent.getAbsolutePath());
+        long time5 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time5 : "+time5 + " , time  "+(time5 - time2));
+        for (File file : matchedPaths) {
             if (!includeHidden && shouldHideDocument(file)) continue;
-            includeFile(result, null, file);
+            includeFile(result,  file);
         }
 
+       
+        // for (File file : FileUtils.listFilesOrEmpty(parent)) {
+        //     if (!includeHidden && shouldHideDocument(file)) continue;
+        //     includeFile(result, null, file);
+        // }
+
+        long time3 = System.currentTimeMillis();
+        Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,time3 : "+time3 + " , time  "+(time3 - time2));
         return result;
     }
 
@@ -506,6 +528,11 @@ public abstract class FileSystemProvider extends DocumentsProvider {
     public ParcelFileDescriptor openDocument(
             String documentId, String mode, CancellationSignal signal)
             throws FileNotFoundException {
+        Log.d(TAG, "Model update: accept openDocument ...... ");        
+        if (signal != null) {
+            Log.d(TAG, "Model update: accept openDocument ...throwIfCanceled ");
+            signal.throwIfCanceled(); // 
+        }        
         final File file = getFileForDocId(documentId);
         final File visibleFile = getFileForDocId(documentId, true);
 
@@ -591,6 +618,88 @@ public abstract class FileSystemProvider extends DocumentsProvider {
             throws FileNotFoundException {
         final File file = getFileForDocId(documentId);
         return DocumentsContract.openImageThumbnail(file);
+    }
+    
+    protected RowBuilder includeFileFast(
+        MatrixCursor result,
+        FileEntry e) {
+        final RowBuilder row = result.newRow();
+        row.add(Document.COLUMN_DOCUMENT_ID, e.docId);
+        row.add(Document.COLUMN_MIME_TYPE, e.mime);
+        int flags = e.flags;
+        row.add(Document.COLUMN_FLAGS, flags);
+        row.add(Document.COLUMN_DISPLAY_NAME, e.name);
+        if (e.mtime > 0) {
+            row.add(Document.COLUMN_LAST_MODIFIED, e.mtime);
+        }
+        row.add(Document.COLUMN_SIZE, e.size);
+        return row;
+    }
+    
+
+    protected RowBuilder includeFile(final MatrixCursor result,  File file)
+            throws FileNotFoundException {
+        final String[] columns = result.getColumnNames();
+        final RowBuilder row = result.newRow();
+
+        String  docId =  file.getAbsolutePath().replace("/storage/emulated/0/", "primary:") ;//getDocIdForFile(file);
+        // /storage/emulated/0/    -- > primary:
+
+        final String mimeType = getDocumentType(docId, file);
+
+        // Log.d(TAG, "Model update: accept queryChildDocuments "+ " ,docId : "+docId + " , mimeType  "+mimeType + " , file  "+file.getAbsolutePath());
+        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+        row.add(Document.COLUMN_MIME_TYPE, mimeType);
+
+        final int flagIndex = ArrayUtils.indexOf(columns, Document.COLUMN_FLAGS);
+        if (flagIndex != -1) {
+            final boolean isDir = mimeType.equals(Document.MIME_TYPE_DIR);
+            int flags = 0;
+            if (file.canWrite()) {
+                flags |= Document.FLAG_SUPPORTS_DELETE;
+                flags |= Document.FLAG_SUPPORTS_RENAME;
+                flags |= Document.FLAG_SUPPORTS_MOVE;
+                if (isDir) {
+                    flags |= Document.FLAG_DIR_SUPPORTS_CREATE;
+                } else {
+                    flags |= Document.FLAG_SUPPORTS_WRITE;
+                }
+            }
+
+            if (isDir && shouldBlockDirectoryFromTree(docId)) {
+                flags |= Document.FLAG_DIR_BLOCKS_OPEN_DOCUMENT_TREE;
+            }
+
+            if (mimeType.startsWith("image/")) {
+                flags |= Document.FLAG_SUPPORTS_THUMBNAIL;
+            }
+
+            if (typeSupportsMetadata(mimeType)) {
+                flags |= Document.FLAG_SUPPORTS_METADATA;
+            }
+            row.add(flagIndex, flags);
+        }
+
+        final int displayNameIndex = ArrayUtils.indexOf(columns, Document.COLUMN_DISPLAY_NAME);
+        if (displayNameIndex != -1) {
+            row.add(displayNameIndex, file.getName());
+        }
+
+        final int lastModifiedIndex = ArrayUtils.indexOf(columns, Document.COLUMN_LAST_MODIFIED);
+        if (lastModifiedIndex != -1) {
+            final long lastModified = file.lastModified();
+            // Only publish dates reasonably after epoch
+            if (lastModified > 31536000000L) {
+                row.add(lastModifiedIndex, lastModified);
+            }
+        }
+        final int sizeIndex = ArrayUtils.indexOf(columns, Document.COLUMN_SIZE);
+        if (sizeIndex != -1) {
+            row.add(sizeIndex, file.length());
+        }
+
+        // Return the row builder just in case any subclass want to add more stuff to it.
+        return row;
     }
 
     protected RowBuilder includeFile(final MatrixCursor result, String docId, File file)
