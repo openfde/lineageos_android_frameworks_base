@@ -359,15 +359,6 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         Slog.d(TAG, "updateTaskFragmentInfo: 更新 TaskFragment 信息，token="
                 + taskFragmentInfo.getFragmentToken());
         mFragmentInfos.put(taskFragmentInfo.getFragmentToken(), taskFragmentInfo);
-
-        IBinder token = taskFragmentInfo.getFragmentToken();
-        if (token.equals(mRightFragments.get(taskId))) {
-            Slog.d(TAG, "right fragment ready");
-            mTaskReadyRightFlag.put(taskId, true);
-        } else if (token.equals(mLeftFragments.get(taskId))) {
-            Slog.d(TAG, "left fragment ready");
-            mTaskReadyLeftFlag.put(taskId, true);
-        }
     }
 
     void removeTaskFragmentInfo(@NonNull TaskFragmentInfo taskFragmentInfo) {
@@ -397,6 +388,15 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             removeTaskFragmentInfo(taskFragmentInfo);
         } else {
             pauseLeftIfNeed(taskFragmentInfo, taskId);
+        }
+
+        IBinder token = taskFragmentInfo.getFragmentToken();
+        if (token.equals(mRightFragments.get(taskId))) {
+            Slog.d(TAG, "right fragment ready");
+            mTaskReadyRightFlag.put(taskId, true);
+        } else if (token.equals(mLeftFragments.get(taskId))) {
+            Slog.d(TAG, "left fragment ready");
+            mTaskReadyLeftFlag.put(taskId, true);
         }
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
     }
