@@ -154,6 +154,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private final Map<Integer, IBinder> mRightFragments = new HashMap<>();
     private final Map<Integer, Boolean> mTaskReadyLeftFlag = new HashMap<>();
     private final Map<Integer, Boolean> mTaskReadyRightFlag = new HashMap<>();
+    private final Map<Integer, Long> mPendingWidth = new HashMap<>();
     final Map<IBinder, TaskFragmentInfo> mFragmentInfos = new ArrayMap<>();
     final Map<Integer, ActivityRecord> mSplitingActivityRecords = new ArrayMap<>();
     final Map<Integer, Float> mSplitRatios = new HashMap<>();
@@ -249,6 +250,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 applyTransaction(wct, 0, false);
                 mTaskReadyLeftFlag.put(task.mTaskId, false);
                 mTaskReadyRightFlag.put(task.mTaskId, false);
+                mPendingWidth.put(task.mTaskId, newWidth);
             });
         }
         task.type = Task.IN_PARALLEL_WINDOW;
@@ -502,10 +504,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         if (shouldUpdateContainer(taskFragmentInfo)) {
             if(mTaskReadyRightFlag.get(taskId) && mTaskReadyLeftFlag.get(taskId)){
                 final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
+                if( mPendingWidth.get(taskId) != 0){
+                    taskBounds.right = taskBounds.left + mPendingWidth.get(taskId);
+                }
                 updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
                 mConfiguration = taskFragmentInfo.getConfiguration();
                 mDisplayId = taskFragmentInfo.getDisplayId();
                 mIsExpandedMode = false;
+                mPendingWidth.put(taskId, 0);
             }
         }
     }
