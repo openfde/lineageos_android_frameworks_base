@@ -400,8 +400,16 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
             Slog.d(TAG, "left fragment ready");
             mTaskReadyLeftFlag.put(taskId, true);
         }
-        if( mPendingWidth.get(taskId) != 0){
-            onTaskFragmentParentInfoChanged(wct, taskId, taskFragmentInfo);
+        if (mTaskReadyRightFlag.get(taskId) && mTaskReadyLeftFlag.get(taskId)) {
+            final Rect taskBounds = mConfiguration.getBounds();
+            if (mPendingWidth.get(taskId) != 0) {
+                taskBounds.right = taskBounds.left + mPendingWidth.get(taskId);
+                Slog.d(TAG, "finally taskBounds=" + taskBounds);
+                updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
+                mDisplayId = taskFragmentInfo.getDisplayId();
+                mIsExpandedMode = false;
+                mPendingWidth.put(taskId, 0);
+            }
         }
 
         Slog.d(TAG, "onTaskFragmentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo + "]");
@@ -505,14 +513,16 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
 
     public void onTaskFragmentParentInfoChanged(WindowContainerTransaction wct, int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
+        final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
+        mConfiguration = taskFragmentInfo.getConfiguration();
+        Slog.d(TAG, "shouldUpdateContainer taskBounds=" + taskBounds);
         if (shouldUpdateContainer(taskFragmentInfo)) {
-            if(mTaskReadyRightFlag.get(taskId) && mTaskReadyLeftFlag.get(taskId)){
-                final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
-                if( mPendingWidth.get(taskId) != 0){
+            if (mTaskReadyRightFlag.get(taskId) && mTaskReadyLeftFlag.get(taskId)) {
+                if (mPendingWidth.get(taskId) != 0) {
                     taskBounds.right = taskBounds.left + mPendingWidth.get(taskId);
                 }
+                Slog.d(TAG, "should update to taskBounds=" + taskBounds);
                 updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
-                mConfiguration = taskFragmentInfo.getConfiguration();
                 mDisplayId = taskFragmentInfo.getDisplayId();
                 mIsExpandedMode = false;
                 mPendingWidth.put(taskId, 0);
