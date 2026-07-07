@@ -158,6 +158,7 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
     private Configuration mConfiguration = new Configuration();
     private int mDisplayId;
     boolean mIsExpandedMode = false;
+    private int mExpectedExpandedWidth = -1;
 
     public SystemTaskFragmentOrganizer(ActivityTaskManagerService atmService) {
         super(atmService.mH::post);
@@ -195,6 +196,14 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
                 if (currentTf != null) {
                     mSplitingActivityRecords.put(taskId, secondary);
                     mIsExpandedMode = true;
+                    mExpectedExpandedWidth = task.getBounds().width();
+                    mAtmService.mH.postDelayed(() -> {
+                        if (mIsExpandedMode) {
+                            Slog.w(TAG, "Expand transition timeout for taskId=" + taskId);
+                            mIsExpandedMode = false;
+                            mExpectedExpandedWidth = -1;
+                        }
+                    }, 3000);
                     Slog.d(TAG, "Activity already in target TF, skip reparent");
                     return;
                 }
@@ -249,6 +258,18 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         }
         task.type = Task.IN_PARALLEL_WINDOW;
         mIsExpandedMode = true;
+        if (alreadySplit) {
+            mExpectedExpandedWidth = task.getBounds().width();
+        } else {
+            mExpectedExpandedWidth = (int) (task.getBounds().width() / (1 - ratio));
+        }
+        mAtmService.mH.postDelayed(() -> {
+            if (mIsExpandedMode) {
+                Slog.w(TAG, "Expand transition timeout for taskId=" + taskId);
+                mIsExpandedMode = false;
+                mExpectedExpandedWidth = -1;
+            }
+        }, 3000);
         Binder.restoreCallingIdentity(origId);
     }
 
@@ -484,15 +505,24 @@ public class SystemTaskFragmentOrganizer extends TaskFragmentOrganizer {
         removeTaskFragmentInfo(taskFragmentInfo);
     }
 
+
     public void onTaskFragmentParentInfoChanged(WindowContainerTransaction wct, int taskId, TaskFragmentParentInfo taskFragmentInfo) {
         Slog.d(TAG, "onTaskFragmentParentInfoChanged() called with: taskFragmentInfo = [" + taskFragmentInfo.getConfiguration() + "]");
         final Rect taskBounds = taskFragmentInfo.getConfiguration().windowConfiguration.getBounds();
         if (shouldUpdateContainer(taskFragmentInfo)) {
-            updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
+            if (!mIsExpandedMode || taskBounds.width() == mExpectedExpandedWidth) {
+                updateContainersInTask(wct, taskId, taskBounds, taskFragmentInfo.getConfiguration());
+                if (mIsExpandedMode) {
+                    mIsExpandedMode = false;
+                    mExpectedExpandedWidth = -1;
+                }
+            } else {
+                Slog.d(TAG, "Skip updateContainersInTask during expand transition, taskId=" + taskId
+                        + " expectedWidth=" + mExpectedExpandedWidth + " actualWidth=" + taskBounds.width());
+            }
         }
         mConfiguration = taskFragmentInfo.getConfiguration();
         mDisplayId = taskFragmentInfo.getDisplayId();
-        mIsExpandedMode = false;
     }
 
     boolean shouldUpdateContainer(@NonNull TaskFragmentParentInfo info) {
