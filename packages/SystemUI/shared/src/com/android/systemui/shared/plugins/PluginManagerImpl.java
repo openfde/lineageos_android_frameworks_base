@@ -39,6 +39,9 @@ import java.io.PrintWriter;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @see Plugin
@@ -58,7 +61,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
     private final PluginPrefs mPluginPrefs;
     private final PluginEnabler mPluginEnabler;
     private boolean mListening;
-
+    ScheduledExecutorService scheduler;
     public PluginManagerImpl(Context context,
                              PluginActionManager.Factory actionManagerFactory,
                              boolean debuggable,
@@ -151,6 +154,7 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
                 Context.RECEIVER_EXPORTED_UNAUDITED);
         filter = new IntentFilter(Intent.ACTION_USER_UNLOCKED);
         mContext.registerReceiver(this, filter);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     private void stopListening() {
@@ -162,11 +166,20 @@ public class PluginManagerImpl extends BroadcastReceiver implements PluginManage
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction())) {
+            Log.w(TAG, "onReceive ACTION_USER_UNLOCKED");
             synchronized (this) {
                 for (PluginActionManager<?> manager : mPluginMap.values()) {
                     manager.loadAll();
                 }
             }
+            Runnable task = () -> {
+                Log.w(TAG, "excute reloadPackage com.boringdroid.systemui");
+                for (PluginActionManager<?> actionManager : mPluginMap.values()) {
+                    actionManager.reloadPackage("com.boringdroid.systemui");
+                }
+            };
+            scheduler.schedule(task, 5, TimeUnit.SECONDS);
+            scheduler.shutdown();
         } else if (DISABLE_PLUGIN.equals(intent.getAction())) {
             Uri uri = intent.getData();
             ComponentName component = ComponentName.unflattenFromString(
