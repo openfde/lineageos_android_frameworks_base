@@ -382,5 +382,13 @@
 
     </item>
 
+    <item
+        isdel="false"
+        key_code="forcedSoftDecode"
+        update_date="2026-07-22">
+		<package name="tv.danmaku.bili">
+            <activity name="">true</activity>
+        </package>
+    </item>
 
 </items>
