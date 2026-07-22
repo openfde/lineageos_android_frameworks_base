@@ -53,6 +53,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import android.app.ActivityThread;
+import android.content.Context;
+import android.text.TextUtils;
+import com.android.internal.util.CompatibleConfig;
+
 /**
  * Provides information about a given media codec available on the device. You can
  * iterate through all codecs available by querying {@link MediaCodecList}. For example,
@@ -93,8 +98,16 @@ public final class MediaCodecInfo {
 
     /* package private */ MediaCodecInfo(
             String name, String canonicalName, int flags, CodecCapabilities[] caps) {
-        mName = name;
-        mCanonicalName = canonicalName;
+        Context mContext = ActivityThread.currentApplication();
+        String mPackageName = ActivityThread.currentPackageName();
+        String mResult = CompatibleConfig.queryStringValueData(mContext, "forcedSoftDecode", mPackageName);
+        if (TextUtils.equals(mResult, "true")) {
+            mName = name.replace("ffmpeg", "android");
+            mCanonicalName = canonicalName.replace("ffmpeg", "android");
+        } else {
+            mName = name;
+            mCanonicalName = canonicalName;
+        }
         mFlags = flags;
         mCaps = new HashMap<String, CodecCapabilities>();
 
@@ -150,6 +163,12 @@ public final class MediaCodecInfo {
      * (true).
      */
     public final boolean isVendor() {
+        Context mContext = ActivityThread.currentApplication();
+        String mPackageName = ActivityThread.currentPackageName();
+        String mResult = CompatibleConfig.queryStringValueData(mContext, "forcedSoftDecode", mPackageName);
+        if (TextUtils.equals(mResult, "true")) {
+            return false;
+        }
         return (mFlags & FLAG_IS_VENDOR) != 0;
     }
 
@@ -159,6 +178,12 @@ public final class MediaCodecInfo {
      * performance guarantees.
      */
     public final boolean isSoftwareOnly() {
+        Context mContext = ActivityThread.currentApplication();
+        String mPackageName = ActivityThread.currentPackageName();
+        String mResult = CompatibleConfig.queryStringValueData(mContext, "forcedSoftDecode", mPackageName);
+        if (TextUtils.equals(mResult, "true")) {
+            return true;
+        }
         return (mFlags & FLAG_IS_SOFTWARE_ONLY) != 0;
     }
 
@@ -167,6 +192,12 @@ public final class MediaCodecInfo {
      * manufacturer. Note that it cannot be tested for correctness.
      */
     public final boolean isHardwareAccelerated() {
+        Context mContext = ActivityThread.currentApplication();
+        String mPackageName = ActivityThread.currentPackageName();
+        String mResult = CompatibleConfig.queryStringValueData(mContext, "forcedSoftDecode", mPackageName);
+        if (TextUtils.equals(mResult, "true")) {
+            return false;
+        }
         return (mFlags & FLAG_IS_HARDWARE_ACCELERATED) != 0;
     }
 
