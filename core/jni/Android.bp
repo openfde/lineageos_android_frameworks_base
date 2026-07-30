@@ -88,6 +88,7 @@ cc_library_shared_for_libandroid_runtime {
         "frameworks/base/media/jni",
         "system/media/camera/include",
         "system/media/private/camera/include",
+        "frameworks/native/libs/gpu-converter/include",
     ],
 
     shared_libs: [

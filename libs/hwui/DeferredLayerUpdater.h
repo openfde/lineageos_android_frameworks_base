@@ -34,6 +34,8 @@
 #include "Rect.h"
 #include "renderstate/RenderState.h"
 
+#include <GpuConverter.h>
+
 namespace android {
 namespace uirenderer {
 
@@ -156,6 +158,10 @@ private:
     int mCurrentSlot = -1;
 
     Layer* mLayer;
+
+    GpuConverter::ConvertInfo mConvertInfo;
+    sp<GpuConverter> mGpuConverter;
+    bool mIsEglProxy;
 };
 
 } /* namespace uirenderer */

@@ -32,6 +32,7 @@
 
 #include <ui/GraphicBuffer.h>
 #include <android/AHardwareBufferHelpers.h>
+#include <cutils/properties.h>
 
 using namespace android::uirenderer::renderthread;
 
@@ -49,6 +50,15 @@ DeferredLayerUpdater::DeferredLayerUpdater(RenderState& renderState)
         , mUpdateTexImage(false)
         , mLayer(nullptr) {
     renderState.registerContextCallback(this);
+
+    mIsEglProxy = false;
+    char prop_egl_type[PROPERTY_VALUE_MAX];
+    property_get("ro.hardware.graphics.egl", prop_egl_type, "none");
+    if (strcmp(prop_egl_type, "proxy") == 0) {
+        mIsEglProxy = true;
+
+        mGpuConverter = new GpuConverter(&mConvertInfo);
+    }
 }
 
 DeferredLayerUpdater::~DeferredLayerUpdater() {
@@ -186,6 +196,49 @@ void yv12_to_bgra(const unsigned char* yv12_data, int width, int height, int y_s
     }
 }
 
+void nv12_to_bgra(const unsigned char* nv12_data, int width, int height, int y_stride,
+                  unsigned char* rgb_output) {
+    const uint8_t* y_plane = nv12_data;
+    const uint8_t* uv_plane = nv12_data + y_stride * height;
+
+    const int coef_rv = 359;   // 1.402 * 256
+    const int coef_gu = 88;    // 0.344 * 256
+    const int coef_gv = 183;   // 0.714 * 256
+    const int coef_bu = 454;   // 1.773 * 256
+
+    for (int y = 0; y < height; y++) {
+        const uint8_t* src_y = y_plane + y * y_stride;
+        uint8_t* dst = rgb_output + y * width * 4;
+
+        int uv_y = y / 2;
+        const uint8_t* src_uv = uv_plane + uv_y * y_stride;
+
+        for (int x = 0; x < width; x++) {
+            int uv_x = x / 2;
+            int Y = src_y[x];
+            int U = src_uv[uv_x * 2];
+            int V = src_uv[uv_x * 2 + 1];
+
+            int C = Y;
+            int D = U - 128;
+            int E = V - 128;
+
+            int R = (C * 298 + coef_rv * E + 128) >> 8;
+            int G = (C * 298 - coef_gu * D - coef_gv * E + 128) >> 8;
+            int B = (C * 298 + coef_bu * D + 128) >> 8;
+
+            if (R < 0) R = 0; else if (R > 255) R = 255;
+            if (G < 0) G = 0; else if (G > 255) G = 255;
+            if (B < 0) B = 0; else if (B > 255) B = 255;
+
+            dst[4 * x + 0] = (uint8_t)B;
+            dst[4 * x + 1] = (uint8_t)G;
+            dst[4 * x + 2] = (uint8_t)R;
+            dst[4 * x + 3] = 0xFF;   // Alpha
+        }
+    }
+}
+
 void DeferredLayerUpdater::apply() {
     if (!mLayer) {
         mLayer = new Layer(mRenderState, mColorFilter, mAlpha, mMode);
@@ -224,34 +277,58 @@ void DeferredLayerUpdater::apply() {
                 int srcHeight = 0;
                 sp<GraphicBuffer> dst_gb;
                 sp<GraphicBuffer> graphicBuffer = AHardwareBuffer_to_GraphicBuffer(hardwareBuffer);
-                if (graphicBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_YV12) {
+                if (graphicBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_YV12
+						|| graphicBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_YCBCR_420_888) {
                     if (graphicBuffer->needConvertFormat()) {
-                        void* data = nullptr;
-                        int result = graphicBuffer->lock(GRALLOC_USAGE_SW_READ_OFTEN, &data);
-                        if (result == 0 && data != nullptr) {
-                            unsigned char* yuv_data = (unsigned char*)data;
-                            int width = graphicBuffer->getWidth();
-                            int height = graphicBuffer->getHeight();
-                            int stride = graphicBuffer->getStride();
-
-                            srcWidth = width;
-                            srcHeight = height;
-                            width = ALIGN_M(width,64);
+                        int width = graphicBuffer->getWidth();
+                        int height = graphicBuffer->getHeight();
+                        int stride = graphicBuffer->getStride();
+                        srcWidth = width;
+                        srcHeight = height;
+                        if (mIsEglProxy) {
+                            width = stride;
 
                             dst_gb = new GraphicBuffer(
-                                    width, height, HAL_PIXEL_FORMAT_BGRA_8888,
-                                    GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER);
+                                        width, height, HAL_PIXEL_FORMAT_BGRA_8888,
+                                        GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER);
 
-                            void* dst_data = nullptr;
-                            int dst_result = dst_gb->lock(GRALLOC_USAGE_SW_WRITE_OFTEN, &dst_data);
-                            if (dst_result == 0 && dst_data != nullptr) {
-                                unsigned char* bgra = (unsigned char*) dst_data;
-                                yv12_to_bgra(yuv_data, width, height, stride, bgra);
-                            }
                             if (dst_gb != NULL) {
-                                dst_gb->unlock();
+                                const native_handle_t* dst_handle = dst_gb->getNativeBuffer()->handle;
+                                int rgbFd = dst_handle->data[0];
+                                const native_handle_t* src_handle = graphicBuffer->getNativeBuffer()->handle;
+                                int yv12Fd = src_handle->data[0];
+                                if (!mGpuConverter->gpuConvertYv12ToRgbaByFd(&mConvertInfo, yv12Fd, rgbFd, width, height, stride)) {
+                                    ALOGD("gpuConvertYv12ToRgbaByFd failed");
+                                    dst_gb = NULL;
+                                }
                             }
-                            graphicBuffer->unlock();
+                        } else {
+                            void* data = nullptr;
+                            int result = graphicBuffer->lock(GRALLOC_USAGE_SW_READ_OFTEN, &data);
+                            if (result == 0 && data != nullptr) {
+                                unsigned char* yuv_data = (unsigned char*)data;
+                                width = ALIGN_M(width, 64);
+
+                                dst_gb = new GraphicBuffer(
+                                        width, height, HAL_PIXEL_FORMAT_BGRA_8888,
+                                        GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER);
+
+                                if (dst_gb != NULL) {
+                                    void* dst_data = nullptr;
+                                    int dst_result = dst_gb->lock(GRALLOC_USAGE_SW_WRITE_OFTEN, &dst_data);
+                                    if (dst_result == 0 && dst_data != nullptr) {
+                                        unsigned char* bgra = (unsigned char*) dst_data;
+                                        yv12_to_bgra(yuv_data, width, height, stride, bgra);
+                                        // if (!mGpuConverter->gpuConvertYv12ToRgba(&mConvertInfo, yuv_data, bgra, width, height, stride)) {
+                                        //     ALOGD("gpuConvertYv12ToRgba failed");
+                                        //     dst_gb->unlock();
+                                        //     dst_gb = NULL;
+                                        // }
+                                    }
+                                    dst_gb->unlock();
+                                }
+                                graphicBuffer->unlock();
+                            }
                         }
                     }
                 }

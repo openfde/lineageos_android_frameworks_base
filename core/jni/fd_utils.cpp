@@ -50,6 +50,12 @@ static const char* kPathAllowlist[] = {
         "/dev/dri/renderD129", // Fixes b/31172436
         "/dev/stune/foreground/tasks",
         "/dev/blkio/tasks",
+        "/dev/dri/card0",
+        "/dev/jmgpu",
+        "/dev/nvidiactl",
+        "/dev/nvidia0",
+        "/dev/dri/renderD128",
+        "/dev/ftg340",
 };
 
 static const char kFdPath[] = "/proc/self/fd";
