@@ -588,7 +588,7 @@ public class SeekBarVolumizer implements OnSeekBarChangeListener, Handler.Callba
         if (mSeekBar != null && mAudioManager != null) {
             final int volume = mAudioManager.getStreamVolume(mStreamType);
             final int lastAudibleVolume = mAudioManager.getLastAudibleStreamVolume(mStreamType);
-            final boolean mute = mAudioManager.isStreamMute(mStreamType);
+            final boolean mute = mAudioManager.isStreamMute(mStreamType) || volume == 0;
             mUiHandler.postUpdateSlider(volume, lastAudibleVolume, mute);
         }
     }
