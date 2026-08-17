@@ -28,7 +28,6 @@ import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.media.AudioSystem;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.media.audiopolicy.AudioProductStrategy;
@@ -197,21 +196,9 @@ public class SeekBarVolumizer implements OnSeekBarChangeListener, Handler.Callba
 
         mMaxStreamVolume = mAudioManager.getStreamMaxVolume(mStreamType);
         mCallback = callback;
-        String[] tokens = null;
-        String[] tokens2 = null;
-        float volume = 0.5f;
-        String mute = "0";
-        String ss = AudioSystem.getDevs(false);
-        tokens = ss.split(";");
-        //name1 port1=desc1=volume1=mute1;name2 port2=desc2=volume2=mute2
-        tokens2 = tokens.length > 0 ? tokens[0].split("=") : null;
-        if (tokens2.length == 4) {
-            volume = Float.parseFloat(tokens2[2]);
-            mute = tokens2[3];
-        }
-        mOriginalStreamVolume = (int)(volume * mMaxStreamVolume);
-        mLastAudibleStreamVolume = mOriginalStreamVolume;
-        mMuted = mute.equals("1") || mOriginalStreamVolume == 0;
+        mOriginalStreamVolume = mAudioManager.getStreamVolume(mStreamType);
+        mLastAudibleStreamVolume = mAudioManager.getLastAudibleStreamVolume(mStreamType);
+        mMuted = mAudioManager.isStreamMute(mStreamType);
         mPlaySample = playSample;
         if (mCallback != null) {
             mCallback.onMuted(mMuted, isZenMuted());
@@ -322,16 +309,13 @@ public class SeekBarVolumizer implements OnSeekBarChangeListener, Handler.Callba
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case MSG_SET_STREAM_VOLUME:
-                if ((mMuted && mLastProgress > 0) || (!mMuted && mLastProgress == 0)) {
-                    if (mMuted) {
-                        AudioSystem.setMasterMute(!mMuted);
-                    }
-                    mMuted = !mMuted;
+                if (mMuted && mLastProgress > 0) {
+                    mAudioManager.adjustStreamVolume(mStreamType, AudioManager.ADJUST_UNMUTE, 0);
+                } else if (!mMuted && mLastProgress == 0) {
+                    mAudioManager.adjustStreamVolume(mStreamType, AudioManager.ADJUST_MUTE, 0);
                 }
-                AudioSystem.setMasterVolume((float)(mLastProgress) / mMaxStreamVolume);
-                if (mCallback != null) {
-                    mCallback.onMuted(mMuted, isZenMuted());
-                }
+                mAudioManager.setStreamVolume(mStreamType, mLastProgress,
+                        AudioManager.FLAG_SHOW_UI_WARNINGS);
                 break;
             case MSG_START_SAMPLE:
                 if (mPlaySample) {
@@ -483,7 +467,7 @@ public class SeekBarVolumizer implements OnSeekBarChangeListener, Handler.Callba
     }
 
     public void revertVolume() {
-        AudioSystem.setMasterVolume((float)(mOriginalStreamVolume) / mMaxStreamVolume);
+        mAudioManager.setStreamVolume(mStreamType, mOriginalStreamVolume, 0);
     }
 
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
@@ -604,7 +588,7 @@ public class SeekBarVolumizer implements OnSeekBarChangeListener, Handler.Callba
         if (mSeekBar != null && mAudioManager != null) {
             final int volume = mAudioManager.getStreamVolume(mStreamType);
             final int lastAudibleVolume = mAudioManager.getLastAudibleStreamVolume(mStreamType);
-            final boolean mute = mAudioManager.isStreamMute(mStreamType);
+            final boolean mute = mAudioManager.isStreamMute(mStreamType) || volume == 0;
             mUiHandler.postUpdateSlider(volume, lastAudibleVolume, mute);
         }
     }
