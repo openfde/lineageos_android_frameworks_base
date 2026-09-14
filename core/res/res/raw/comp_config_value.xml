@@ -385,10 +385,7 @@
     <item
         isdel="false"
         key_code="forcedSoftDecode"
-        update_date="2026-08-25">
-        <package name="tv.danmaku.bili">
-            <activity name="">true</activity>
-        </package>
+        update_date="2026-09-14">
         <package name="com.hunantv.imgo.activity">
             <activity name="">true</activity>
         </package>
